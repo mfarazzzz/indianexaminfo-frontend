@@ -7,6 +7,7 @@ import { buildPageKeywords, buildSEOTitle, buildMetaDescription, getCurrentYear 
 import { siteConfig } from "@/config/site";
 
 export const revalidate = 7200;
+export const dynamicParams = true; // serve new exams added after build without rebuilding
 
 type Props = { params: Promise<{ category: string; slug: string }> };
 

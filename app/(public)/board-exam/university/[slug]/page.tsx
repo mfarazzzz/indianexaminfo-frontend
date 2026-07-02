@@ -9,6 +9,7 @@ import {
 import { siteConfig } from "@/config/site";
 
 export const revalidate = 3600;
+export const dynamicParams = true; // serve new exams added after build without rebuilding
 
 type Props = { params: Promise<{ slug: string }> };
 
