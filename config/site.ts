@@ -1,0 +1,38 @@
+export const siteConfig = {
+  name: "IndianExamInfo",
+  tagline: "India's Most Trusted Exam Information Portal",
+  url: "https://www.indianexaminfo.com",
+  description:
+    "Get latest updates on government jobs, entrance exams, board exams and university results. Admit cards, answer keys, syllabus, study material for all Indian competitive exams.",
+  keywords: [
+    "sarkari naukri",
+    "entrance exam",
+    "board exam result",
+    "admit card",
+    "answer key",
+    "exam syllabus",
+    "upsc",
+    "ssc",
+    "ibps",
+    "neet",
+    "jee main",
+    "up board",
+    "cbse result",
+  ],
+  locale: "en_IN",
+  twitterHandle: "@IndianExamInfo",
+  telegramChannel: "https://t.me/indianexaminfo",
+  whatsappGroup: "https://wa.me/indianexaminfo",
+  youtubeChannel: "https://www.youtube.com/@IndianExamInfo",
+  adsense: { publisherId: "ca-pub-XXXXXXXXXX" },
+  organization: {
+    name: "IndianExamInfo Media Pvt Ltd",
+    logo: "/icons/logo.png",
+    address: {
+      "@type": "PostalAddress",
+      addressLocality: "New Delhi",
+      addressRegion: "Delhi",
+      addressCountry: "IN",
+    },
+  },
+} as const;

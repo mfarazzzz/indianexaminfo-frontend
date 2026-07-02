@@ -1,0 +1,129 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --font-merriweather: "Merriweather";
+    --font-inter: "Inter";
+    --font-jetbrains-mono: "JetBrains Mono";
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-surface text-gray-900 font-body antialiased;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-heading;
+  }
+
+  /* Anchor defaults */
+  a {
+    @apply transition-colors duration-150;
+  }
+
+  /* Focus visible */
+  :focus-visible {
+    @apply outline-2 outline-offset-2 outline-primary;
+  }
+
+  /* Table base */
+  table {
+    @apply w-full text-sm;
+  }
+
+  th {
+    @apply text-left font-semibold text-gray-700 bg-gray-50 px-3 py-2 border border-border;
+  }
+
+  td {
+    @apply px-3 py-2 border border-border;
+  }
+}
+
+@layer components {
+  /* Quick Answer Box */
+  .quick-answer-box {
+    @apply bg-primary-50 border border-primary-100 rounded p-4 my-4 text-sm text-gray-800;
+  }
+
+  /* Summary Box */
+  .summary-box {
+    @apply bg-surface border border-border rounded p-4 my-4;
+  }
+
+  /* Article content styling */
+  .article-body h2 {
+    @apply text-xl font-heading font-bold text-gray-900 mt-8 mb-3 pb-2 border-b border-border;
+  }
+
+  .article-body h3 {
+    @apply text-lg font-heading font-semibold text-gray-800 mt-6 mb-2;
+  }
+
+  .article-body p {
+    @apply text-gray-700 leading-7 mb-4;
+  }
+
+  .article-body ul {
+    @apply list-disc pl-5 mb-4 space-y-1 text-gray-700;
+  }
+
+  .article-body ol {
+    @apply list-decimal pl-5 mb-4 space-y-1 text-gray-700;
+  }
+
+  .article-body blockquote {
+    @apply border-l-4 border-primary pl-4 py-1 my-4 text-gray-600 italic;
+  }
+
+  .article-body a {
+    @apply text-primary underline hover:text-primary-600;
+  }
+
+  /* Status badge */
+  .status-badge {
+    @apply inline-flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded;
+  }
+
+  /* Content type badge */
+  .content-type-badge {
+    @apply inline-block text-xs font-semibold uppercase tracking-wide px-2 py-0.5 rounded;
+  }
+
+  /* Card hover */
+  .card-hover {
+    @apply transition-shadow duration-150 hover:shadow-md;
+  }
+}
+
+@layer utilities {
+  .animate-fade-in {
+    animation: fadeIn 0.3s ease-in-out;
+  }
+
+  /* Ticker animation */
+  .ticker-inner {
+    animation: ticker 40s linear infinite;
+    white-space: nowrap;
+  }
+
+  .ticker-inner:hover {
+    animation-play-state: paused;
+    cursor: pointer;
+  }
+
+  @keyframes ticker {
+    0% { transform: translateX(100%); }
+    100% { transform: translateX(-100%); }
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+}

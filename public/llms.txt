@@ -1,0 +1,55 @@
+# IndianExamInfo
+> India's most comprehensive exam information portal — government jobs, entrance exams, board & university results.
+
+## About
+IndianExamInfo (indianexaminfo.com) is operated by IndianExamInfo Media Pvt Ltd, New Delhi.
+All information is sourced directly from official exam body websites and verified before publishing.
+This site is NOT affiliated with UPSC, SSC, IBPS, NTA, CBSE, or any government body.
+
+## Key Sections
+
+### Sarkari Naukri (/sarkari-naukri)
+Government job recruitment notifications for UPSC, SSC, Banking (IBPS/SBI/RBI), Railways (RRB), 
+Defence (Agniveer), Police, State PSC, Teaching (CTET), Technical PSUs and more.
+Covers: notification, application, admit card, result, answer key, syllabus, cutoff, previous papers.
+
+### Entrance Exam (/entrance-exam)
+College admission entrance exam updates for Engineering (JEE Main/Advanced), Medical (NEET UG/PG),
+Law (CLAT), Management (CAT/XAT), Design (NIFT/NATA), Agriculture (ICAR), Teaching (BEd) and more.
+
+### Board & University (/board-exam)
+Board exam results, date sheets and admit cards for CBSE (Class 10 & 12), ICSE, NIOS,
+all 29 state boards (UP Board, Bihar Board, RBSE, MPBSE, etc.), and 50+ universities
+including MJPRU, CSJMU, BHU, AMU, DU SOL, IGNOU, Patna University and more.
+
+### Blog & News (/blog)
+Original articles covering education news, exam preparation guides, career guidance,
+scholarships, study abroad, EdTech, and student life. Written by domain expert authors.
+
+## Content Hub Pages
+- /admit-card — All exam admit cards, aggregated & filterable
+- /results    — All exam results, aggregated & filterable
+- /answer-key — Official answer keys with objection window details
+- /syllabus   — Complete syllabi with PDF downloads
+- /date-sheet — Exam timetables for boards and universities
+- /mock-test  — Free online practice tests
+- /previous-papers — Year-wise solved papers
+- /study-material  — Free notes and PDFs
+
+## Data Freshness
+- Admit card and result pages: updated every 15–30 minutes via ISR
+- Answer key pages: updated every 1 hour
+- Notification/application pages: updated every 2 hours
+- Syllabus/previous papers: updated daily
+- Blog articles: updated within 1 hour of publication
+
+## Content Policy
+- All exam dates and information are sourced from official exam body websites
+- Dates are verified before publishing and timestamps are shown on every page
+- This portal does not charge students for any information
+
+## Sitemap
+https://www.indianexaminfo.com/sitemap.xml
+
+## Contact
+https://www.indianexaminfo.com/contact
