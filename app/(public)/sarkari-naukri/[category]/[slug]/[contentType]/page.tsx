@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import Link from "next/link";
 import { getExamBySlug } from "@/services/examService";
 import { getContentPostsByExam, getLatestByContentType } from "@/services/contentPostService";
@@ -91,7 +91,30 @@ export default async function SarkariContentTypePage({ params }: Props) {
     getLatestByContentType(contentType as ContentType, 6),
   ]);
 
-  if (!exam || exam.pillar !== "sarkari-naukri") notFound();
+  if (!exam || exam.pillar !== "sarkari-naukri") {
+    // Exam doesn't exist — go up to category
+    redirect(`/sarkari-naukri/${category}`);
+  }
+
+  // Guard: redirect to exam page if the content flag for this content type is not enabled
+  const contentFlagMap: Record<string, keyof typeof exam> = {
+    notification:      "hasNotification",
+    application:       "hasApplication",
+    "admit-card":      "hasAdmitCard",
+    result:            "hasResult",
+    "answer-key":      "hasAnswerKey",
+    "date-sheet":      "hasDateSheet",
+    syllabus:          "hasSyllabus",
+    cutoff:            "hasCutoff",
+    "previous-papers": "hasPreviousPapers",
+    "mock-test":       "hasMockTest",
+    "study-material":  "hasStudyMaterial",
+    books:             "hasStudyMaterial",
+  };
+  const flag = contentFlagMap[contentType];
+  if (flag && !exam[flag]) {
+    redirect(`/sarkari-naukri/${category}/${slug}`);
+  }
 
   const posts = await getContentPostsByExam(exam.id, contentType as ContentType);
   const post = posts[0];

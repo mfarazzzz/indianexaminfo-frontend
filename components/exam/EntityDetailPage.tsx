@@ -155,7 +155,10 @@ export async function EntityDetailPage({ exam, breadcrumbs }: EntityDetailPagePr
                 {exam.applicationFee && (
                   <li>
                     <span className="font-medium">Application Fee:</span>{" "}
-                    ₹{exam.applicationFee.general} (General) | ₹{exam.applicationFee.sc} (SC/ST)
+                    ₹{exam.applicationFee.general} (General)
+                    {exam.applicationFee.obc > 0 && ` | ₹${exam.applicationFee.obc} (OBC)`}
+                    {exam.applicationFee.ews != null && exam.applicationFee.ews > 0 && ` | ₹${exam.applicationFee.ews} (EWS)`}
+                    {` | ₹${exam.applicationFee.sc} (SC/ST)`}
                   </li>
                 )}
                 {exam.dates.slice(0, 2).map((d) => (
@@ -320,7 +323,13 @@ export async function EntityDetailPage({ exam, breadcrumbs }: EntityDetailPagePr
                         <tr><td>EWS</td><td>₹{exam.applicationFee.ews}</td></tr>
                       )}
                       {exam.applicationFee.sc != null && (
-                        <tr><td>SC / ST / PwBD</td><td>₹{exam.applicationFee.sc}</td></tr>
+                        <tr><td>SC</td><td>₹{exam.applicationFee.sc}</td></tr>
+                      )}
+                      {exam.applicationFee.st != null && exam.applicationFee.st !== exam.applicationFee.sc && (
+                        <tr><td>ST</td><td>₹{exam.applicationFee.st}</td></tr>
+                      )}
+                      {exam.applicationFee.st != null && exam.applicationFee.st === exam.applicationFee.sc && (
+                        <tr><td>SC / ST</td><td>₹{exam.applicationFee.sc}</td></tr>
                       )}
                     </tbody>
                   </table>

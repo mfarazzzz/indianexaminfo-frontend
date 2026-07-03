@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { getExamBySlug, generateStaticExamParams } from "@/services/examService";
 import { EntityDetailPage } from "@/components/exam/EntityDetailPage";
 import { buildExamMetadata } from "@/lib/seo/metadata";
@@ -36,7 +36,10 @@ export default async function ExamEntityPage({ params }: Props) {
   const { category, slug } = await params;
   const exam = await getExamBySlug(slug);
 
-  if (!exam || exam.pillar !== "sarkari-naukri") notFound();
+  if (!exam || exam.pillar !== "sarkari-naukri") {
+    // Exam doesn't exist — go up to the category page
+    redirect(`/sarkari-naukri/${category}`);
+  }
 
   const categoryLabel = category.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
 

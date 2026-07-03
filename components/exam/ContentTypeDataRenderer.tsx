@@ -112,7 +112,15 @@ function ApplicationData({ d }: { d: Record<string, unknown> }) {
                 {fees.general != null && <tr><td>General</td><td>₹{fees.general}</td></tr>}
                 {fees.obc != null && fees.obc > 0 && <tr><td>OBC-NCL</td><td>₹{fees.obc}</td></tr>}
                 {fees.ews != null && fees.ews > 0 && <tr><td>EWS</td><td>₹{fees.ews}</td></tr>}
-                {fees.sc != null && <tr><td>SC / ST / PwBD</td><td>₹{fees.sc}</td></tr>}
+                {fees.sc != null && fees.st != null && fees.sc === fees.st && (
+                  <tr><td>SC / ST</td><td>₹{fees.sc}</td></tr>
+                )}
+                {fees.sc != null && (fees.st == null || fees.sc !== fees.st) && (
+                  <tr><td>SC</td><td>₹{fees.sc}</td></tr>
+                )}
+                {fees.st != null && fees.st !== fees.sc && (
+                  <tr><td>ST</td><td>₹{fees.st}</td></tr>
+                )}
                 {fees.pwd != null && fees.pwd > 0 && <tr><td>PwBD</td><td>₹{fees.pwd}</td></tr>}
               </tbody>
             </table>

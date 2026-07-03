@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
+import { redirect } from "next/navigation";
 import { getExamsByCategory } from "@/services/examService";
 import { ExamCard } from "@/components/exam/ExamCard";
 import { Breadcrumb } from "@/components/layout/Breadcrumb";
@@ -30,7 +30,7 @@ export default async function CategoryPage({ params }: Props) {
   const { category } = await params;
   const exams = await getExamsByCategory(category);
 
-  if (!exams.length) notFound();
+  if (!exams.length) redirect("/sarkari-naukri");
 
   const label = category.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
 
