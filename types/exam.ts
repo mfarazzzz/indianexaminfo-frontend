@@ -114,10 +114,10 @@ export type ContentPost = {
   }[];
 
   /** Structured per-content-type fields — keyed by field name */
-  contentTypeData: Record<string, unknown>;
+  contentTypeData?: Record<string, unknown>;
 
   /** Attachments: PDFs, images, external URLs stored on external hosting */
-  attachmentUrls: {
+  attachmentUrls?: {
     label: string;
     url: string;
     type: "pdf" | "image" | "external";
@@ -126,6 +126,7 @@ export type ContentPost = {
 
   publishedAt: string;
   updatedAt: string;
+  author?: string;
   status: "draft" | "published";
   featuredImage: string;
   tags: string[];
