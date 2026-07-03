@@ -69,7 +69,7 @@ function BoardUniversityClient({ exams }: { exams: ExamEntity[] }) {
 import { getExamsByPillar } from "@/services/examService";
 
 export async function BoardUniversitySection({ exams: examsProp }: { exams?: ExamEntity[] } = {}) {
-  const exams    = examsProp ?? await getExamsByPillar("board-university");
-  const featured = exams.filter((e) => e.isFeatured);
-  return <BoardUniversityClient exams={featured} />;
+  const exams = examsProp ?? await getExamsByPillar("board-university");
+  const sorted = [...exams].sort((a, b) => (b.isFeatured ? 1 : 0) - (a.isFeatured ? 1 : 0));
+  return <BoardUniversityClient exams={sorted} />;
 }

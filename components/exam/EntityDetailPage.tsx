@@ -388,6 +388,7 @@ export async function EntityDetailPage({ exam, breadcrumbs }: EntityDetailPagePr
                 Quick Links
               </h2>
               <ul className="space-y-2">
+                {exam.officialWebsite && (
                 <li>
                   <a
                     href={exam.officialWebsite || "#"}
@@ -398,6 +399,7 @@ export async function EntityDetailPage({ exam, breadcrumbs }: EntityDetailPagePr
                     Official Website <ExternalLink className="w-3.5 h-3.5" />
                   </a>
                 </li>
+                )}
                 {availableContentTypes.slice(0, 6).map((ct) => (
                   <li key={ct}>
                     <Link

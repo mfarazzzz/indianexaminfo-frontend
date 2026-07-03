@@ -64,7 +64,8 @@ function SarkariNaukriClient({ exams }: { exams: ExamEntity[] }) {
 import { getExamsByPillar } from "@/services/examService";
 
 export async function SarkariNaukriSection({ exams: examsProp }: { exams?: ExamEntity[] } = {}) {
-  const exams    = examsProp ?? await getExamsByPillar("sarkari-naukri");
-  const featured = exams.filter((e) => e.isFeatured);
-  return <SarkariNaukriClient exams={featured} />;
+  const exams = examsProp ?? await getExamsByPillar("sarkari-naukri");
+  // Show featured first, then rest — never filter out non-featured
+  const sorted = [...exams].sort((a, b) => (b.isFeatured ? 1 : 0) - (a.isFeatured ? 1 : 0));
+  return <SarkariNaukriClient exams={sorted} />;
 }

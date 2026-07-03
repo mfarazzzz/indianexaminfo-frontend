@@ -64,7 +64,7 @@ function EntranceExamClient({ exams }: { exams: ExamEntity[] }) {
 import { getExamsByPillar } from "@/services/examService";
 
 export async function EntranceExamSection({ exams: examsProp }: { exams?: ExamEntity[] } = {}) {
-  const exams    = examsProp ?? await getExamsByPillar("entrance-exam");
-  const featured = exams.filter((e) => e.isFeatured);
-  return <EntranceExamClient exams={featured} />;
+  const exams = examsProp ?? await getExamsByPillar("entrance-exam");
+  const sorted = [...exams].sort((a, b) => (b.isFeatured ? 1 : 0) - (a.isFeatured ? 1 : 0));
+  return <EntranceExamClient exams={sorted} />;
 }
