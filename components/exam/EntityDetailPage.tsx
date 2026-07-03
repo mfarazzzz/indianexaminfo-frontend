@@ -310,8 +310,18 @@ export async function EntityDetailPage({ exam, breadcrumbs }: EntityDetailPagePr
                       </tr>
                     </thead>
                     <tbody>
-                      <tr><td>General / EWS / OBC</td><td>₹{exam.applicationFee.general}</td></tr>
-                      <tr><td>SC / ST / PwBD</td><td>₹{exam.applicationFee.sc}</td></tr>
+                      {exam.applicationFee.general != null && (
+                        <tr><td>General</td><td>₹{exam.applicationFee.general}</td></tr>
+                      )}
+                      {exam.applicationFee.obc != null && exam.applicationFee.obc > 0 && (
+                        <tr><td>OBC-NCL</td><td>₹{exam.applicationFee.obc}</td></tr>
+                      )}
+                      {exam.applicationFee.ews != null && exam.applicationFee.ews > 0 && (
+                        <tr><td>EWS</td><td>₹{exam.applicationFee.ews}</td></tr>
+                      )}
+                      {exam.applicationFee.sc != null && (
+                        <tr><td>SC / ST / PwBD</td><td>₹{exam.applicationFee.sc}</td></tr>
+                      )}
                     </tbody>
                   </table>
                 </div>

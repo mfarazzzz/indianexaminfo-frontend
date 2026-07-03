@@ -69,6 +69,7 @@ export type ExamEntity = {
     sc: number;
     st: number;
     ews?: number;
+    pwd?: number;
   };
 
   selectionProcess?: string[];
@@ -112,9 +113,19 @@ export type ContentPost = {
     isUrgent: boolean;
   }[];
 
+  /** Structured per-content-type fields — keyed by field name */
+  contentTypeData: Record<string, unknown>;
+
+  /** Attachments: PDFs, images, external URLs stored on external hosting */
+  attachmentUrls: {
+    label: string;
+    url: string;
+    type: "pdf" | "image" | "external";
+    isOfficial: boolean;
+  }[];
+
   publishedAt: string;
   updatedAt: string;
-  author: string;
   status: "draft" | "published";
   featuredImage: string;
   tags: string[];

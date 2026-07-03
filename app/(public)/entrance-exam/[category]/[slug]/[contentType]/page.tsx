@@ -12,6 +12,7 @@ import { buildPageKeywords, buildSEOTitle, buildMetaDescription, buildLastModifi
 import { siteConfig } from "@/config/site";
 import { formatDate, contentTypeLabel } from "@/lib/utils";
 import { safeHtml } from "@/lib/sanitize";
+import { ContentTypeDataRenderer } from "@/components/exam/ContentTypeDataRenderer";
 import type { ContentType } from "@/types/exam";
 import { ExternalLink, Download, Clock } from "lucide-react";
 import Link from "next/link";
@@ -125,6 +126,15 @@ export default async function EntranceContentTypePage({ params }: Props) {
             </div>
 
             {post?.content && <div className="article-body mb-6" {...safeHtml(post.content)} />}
+
+            {/* Structured content-type-specific data */}
+            {post?.contentTypeData && (
+              <ContentTypeDataRenderer
+                contentType={contentType}
+                data={post.contentTypeData}
+                attachmentUrls={post.attachmentUrls}
+              />
+            )}
 
             {/* Dates table */}
             <section aria-label="Important dates" className="mb-6">

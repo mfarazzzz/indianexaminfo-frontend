@@ -16,6 +16,7 @@ import {
 import { siteConfig } from "@/config/site";
 import { formatDate, contentTypeLabel } from "@/lib/utils";
 import { safeHtml } from "@/lib/sanitize";
+import { ContentTypeDataRenderer } from "@/components/exam/ContentTypeDataRenderer";
 import type { ContentType } from "@/types/exam";
 import { ExternalLink, Download, Clock, Share2 } from "lucide-react";
 
@@ -143,7 +144,7 @@ export default async function SarkariContentTypePage({ params }: Props) {
               </span>
               <span className="text-gray-300">|</span>
               <span>Information as of {new Date().toLocaleDateString("en-IN", { month: "long", year: "numeric" })}</span>
-              <a href={exam.officialWebsite} target="_blank" rel="noopener noreferrer"
+              <a href={exam.officialWebsite || "#"} target="_blank" rel="noopener noreferrer"
                  className="flex items-center gap-1 text-primary hover:underline ml-auto">
                 Official Website <ExternalLink className="w-3 h-3" />
               </a>
@@ -201,6 +202,15 @@ export default async function SarkariContentTypePage({ params }: Props) {
 
             {post?.content && (
               <div className="article-body mb-6" {...safeHtml(post.content)} />
+            )}
+
+            {/* Structured content-type-specific data */}
+            {post?.contentTypeData && (
+              <ContentTypeDataRenderer
+                contentType={contentType}
+                data={post.contentTypeData}
+                attachmentUrls={post.attachmentUrls}
+              />
             )}
 
             {/* How-to steps */}
