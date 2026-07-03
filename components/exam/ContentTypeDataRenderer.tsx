@@ -450,7 +450,7 @@ export function ContentTypeDataRenderer({ contentType, data, attachmentUrls }: P
       {contentType === "cutoff"           && <CutoffData        d={data} />}
       {contentType === "previous-papers"  && <PreviousPapersData d={data} />}
       {contentType === "date-sheet"       && <DateSheetData     d={data} />}
-      <AttachmentsSection attachments={attachmentUrls} />
+      <AttachmentsSection attachments={attachmentUrls ?? []} />
     </>
   );
 }
