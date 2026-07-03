@@ -117,6 +117,7 @@ export async function EntityDetailPage({ exam, breadcrumbs }: EntityDetailPagePr
               <span className="text-gray-600">
                 <span className="font-medium">Conducted by:</span> {exam.conductingBody}
               </span>
+              {exam.officialWebsite && (
               <a
                 href={exam.officialWebsite}
                 target="_blank"
@@ -126,6 +127,7 @@ export async function EntityDetailPage({ exam, breadcrumbs }: EntityDetailPagePr
               >
                 Official Website <ExternalLink className="w-3.5 h-3.5" />
               </a>
+              )}
               <button
                 className="flex items-center gap-1 text-gray-500 hover:text-primary text-xs transition-colors ml-auto"
                 aria-label="Share this page"
@@ -164,12 +166,14 @@ export async function EntityDetailPage({ exam, breadcrumbs }: EntityDetailPagePr
                     </span>
                   </li>
                 ))}
-                <li>
-                  <span className="font-medium">Official Website:</span>{" "}
-                  <a href={exam.officialWebsite} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
-                    {new URL(exam.officialWebsite).hostname}
-                  </a>
-                </li>
+                {exam.officialWebsite && (
+                  <li>
+                    <span className="font-medium">Official Website:</span>{" "}
+                    <a href={exam.officialWebsite} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
+                      {(() => { try { return new URL(exam.officialWebsite).hostname; } catch { return exam.officialWebsite; } })()}
+                    </a>
+                  </li>
+                )}
               </ul>
             </section>
 
@@ -386,7 +390,7 @@ export async function EntityDetailPage({ exam, breadcrumbs }: EntityDetailPagePr
               <ul className="space-y-2">
                 <li>
                   <a
-                    href={exam.officialWebsite}
+                    href={exam.officialWebsite || "#"}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex items-center gap-1.5 text-sm text-primary hover:underline font-medium"
