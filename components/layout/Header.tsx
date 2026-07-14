@@ -6,8 +6,13 @@ import { navigation } from "@/config/navigation";
 import { MegaMenu } from "./MegaMenu";
 import { cn } from "@/lib/utils";
 import { Search, Menu, X, ChevronDown } from "lucide-react";
+import type { Menu as CmsMenu } from "@/services/menuService";
 
-export function Header() {
+type HeaderProps = {
+  cmsMenu?: CmsMenu | null;
+};
+
+export function Header({ cmsMenu }: HeaderProps = {}) {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);

@@ -2,7 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Merriweather, Inter, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { TopBar } from "@/components/layout/TopBar";
-import { Header } from "@/components/layout/Header";
+import { HeaderWithMenu } from "@/components/layout/HeaderWithMenu";
 import { Footer } from "@/components/layout/Footer";
 import { BreakingTicker } from "@/components/layout/BreakingTicker";
 import { JsonLd } from "@/components/seo/JsonLd";
@@ -115,7 +115,7 @@ export default function RootLayout({
 
         <TopBar />
         <BreakingTicker />
-        <Header />
+        <HeaderWithMenu />
 
         <main id="main-content" className="flex-1 animate-fade-in" tabIndex={-1}>
           {children}

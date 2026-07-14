@@ -443,6 +443,100 @@ function AttachmentsSection({ attachments }: { attachments: ContentPost["attachm
   );
 }
 
+function MockTestData({ d }: { d: Record<string, unknown> }) {
+  return (
+    <section aria-label="Mock test details" className="mb-5">
+      <h2 className="font-heading font-semibold text-base text-gray-800 mb-3">Mock Test Details</h2>
+      <SectionTable caption="Mock test info">
+        {num(d, "totalTests") !== null && <InfoRow label="Total Tests Available" value={num(d, "totalTests")!} />}
+        {num(d, "freeTests") !== null && <InfoRow label="Free Tests" value={num(d, "freeTests")!} />}
+        {bool(d, "isPaid") && <InfoRow label="Paid Tests" value="Available" />}
+        {val(d, "testPattern") && <InfoRow label="Test Pattern" value={val(d, "testPattern")} />}
+        {val(d, "topics") && <InfoRow label="Topics Covered" value={val(d, "topics")} />}
+      </SectionTable>
+      {val(d, "testUrl") && (
+        <a href={val(d, "testUrl")} target="_blank" rel="noopener noreferrer"
+          className="inline-flex items-center gap-2 mt-3 bg-primary text-white px-5 py-2.5 rounded text-sm font-semibold hover:bg-primary-600 transition-colors">
+          <ExternalLink className="w-4 h-4" /> Start Practice Tests
+        </a>
+      )}
+    </section>
+  );
+}
+
+function StudyMaterialData({ d }: { d: Record<string, unknown> }) {
+  type SubjectEntry = { name: string; url?: string };
+  const subjects = arr<SubjectEntry>(d, "subjects");
+  return (
+    <>
+      {(val(d, "format") || bool(d, "isFree")) && (
+        <section aria-label="Study material details" className="mb-5">
+          <h2 className="font-heading font-semibold text-base text-gray-800 mb-3">Study Material</h2>
+          <SectionTable caption="Study material details">
+            {val(d, "format") && <InfoRow label="Format" value={val(d, "format") === "pdf" ? "PDF" : val(d, "format") === "video" ? "Video" : "PDF + Video"} />}
+            {bool(d, "isFree") && <InfoRow label="Price" value="Free" />}
+            {val(d, "description") && <InfoRow label="Description" value={val(d, "description")} />}
+          </SectionTable>
+        </section>
+      )}
+      {subjects.length > 0 && (
+        <section aria-label="Subject-wise material" className="mb-5">
+          <h2 className="font-heading font-semibold text-base text-gray-800 mb-3">Available Resources</h2>
+          <ul className="space-y-1.5">
+            {subjects.map((s, i) => (
+              <li key={i} className="flex items-center gap-2 text-sm">
+                <span className="w-2 h-2 rounded-full bg-primary shrink-0" />
+                {s.url ? (
+                  <a href={s.url} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline flex items-center gap-1">
+                    {s.name} <ExternalLink className="w-3 h-3" />
+                  </a>
+                ) : (
+                  <span className="text-gray-700">{s.name}</span>
+                )}
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+      {val(d, "materialUrl") && (
+        <a href={val(d, "materialUrl")} target="_blank" rel="noopener noreferrer"
+          className="inline-flex items-center gap-2 bg-primary text-white px-4 py-2 rounded text-sm font-semibold hover:bg-primary-600 transition-colors mb-5">
+          <Download className="w-4 h-4" /> Download Study Material
+        </a>
+      )}
+    </>
+  );
+}
+
+function BooksData({ d }: { d: Record<string, unknown> }) {
+  type BookEntry = { name: string; url?: string };
+  const books = arr<BookEntry>(d, "bookList");
+  return (
+    <section aria-label="Recommended books" className="mb-5">
+      <h2 className="font-heading font-semibold text-base text-gray-800 mb-3">Recommended Books</h2>
+      {books.length > 0 && (
+        <ul className="space-y-2">
+          {books.map((b, i) => (
+            <li key={i} className="flex items-start gap-2 text-sm">
+              <span className="text-lg">📖</span>
+              {b.url ? (
+                <a href={b.url} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline flex items-center gap-1">
+                  {b.name} <ExternalLink className="w-3 h-3" />
+                </a>
+              ) : (
+                <span className="text-gray-700">{b.name}</span>
+              )}
+            </li>
+          ))}
+        </ul>
+      )}
+      {val(d, "description") && (
+        <p className="text-sm text-gray-700 mt-3 whitespace-pre-line">{val(d, "description")}</p>
+      )}
+    </section>
+  );
+}
+
 // ── Main export ──────────────────────────────────────────────────────────
 export function ContentTypeDataRenderer({ contentType, data, attachmentUrls }: Props) {
   if (!data || Object.keys(data).length === 0) return null;
@@ -458,6 +552,9 @@ export function ContentTypeDataRenderer({ contentType, data, attachmentUrls }: P
       {contentType === "cutoff"           && <CutoffData        d={data} />}
       {contentType === "previous-papers"  && <PreviousPapersData d={data} />}
       {contentType === "date-sheet"       && <DateSheetData     d={data} />}
+      {contentType === "mock-test"        && <MockTestData      d={data} />}
+      {contentType === "study-material"   && <StudyMaterialData d={data} />}
+      {contentType === "books"            && <BooksData         d={data} />}
       <AttachmentsSection attachments={attachmentUrls ?? []} />
     </>
   );

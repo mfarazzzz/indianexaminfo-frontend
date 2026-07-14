@@ -7,6 +7,7 @@
  */
 
 import { createServerClient } from "@/lib/supabase/server";
+import { cached } from "@/lib/cache";
 import type { ExamEntity, Pillar, ContentType } from "@/types/exam";
 
 // ── Row mapper: Supabase snake_case → camelCase ExamEntity ─────────────
@@ -87,68 +88,73 @@ const DETAIL_SELECT = `
 // ── Service functions ────────────────────────────────────────────────────
 
 export async function getAllExams(): Promise<ExamEntity[]> {
-  try {
-    const supabase = createServerClient();
-    const { data, error } = await supabase
-      .from("exams")
-      .select(LIST_SELECT)
-      .order("is_featured", { ascending: false })
-      .order("updated_at", { ascending: false });
-    if (error) throw error;
-    return (data ?? []).map((r: any) => mapRow(r));
-  } catch (err) {
-    console.error("[examService] getAllExams failed:", err);
-    return [];
-  }
+  return cached(async () => {
+    try {
+      const supabase = createServerClient();
+      const { data, error } = await supabase
+        .from("exams")
+        .select(LIST_SELECT)
+        .order("is_featured", { ascending: false })
+        .order("updated_at", { ascending: false });
+      if (error) throw error;
+      return (data ?? []).map((r: any) => mapRow(r));
+    } catch (err) {
+      console.error("[examService] getAllExams failed:", err);
+      return [];
+    }
+  }, ["exams"], { revalidate: 1800 });
 }
 
 export async function getExamBySlug(
   slug: string,
   category?: string
 ): Promise<ExamEntity | null> {
-  try {
-    const supabase = createServerClient();
-    let query = supabase
-      .from("exams")
-      .select(DETAIL_SELECT)
-      .eq("slug", slug);
+  return cached(async () => {
+    try {
+      const supabase = createServerClient();
+      let query = supabase
+        .from("exams")
+        .select(DETAIL_SELECT)
+        .eq("slug", slug);
 
-    if (category) {
-      // Join category to filter by slug
-      const { data: catData } = await supabase
-        .from("categories")
-        .select("id")
-        .eq("slug", category)
-        .single();
-      if (catData) {
-        query = query.eq("category_id", (catData as any).id);
+      if (category) {
+        const { data: catData } = await supabase
+          .from("categories")
+          .select("id")
+          .eq("slug", category)
+          .single();
+        if (catData) {
+          query = query.eq("category_id", (catData as any).id);
+        }
       }
-    }
 
-    const { data, error } = await query.maybeSingle();
-    if (error || !data) return null;
-    return mapRow(data as Record<string, unknown>);
-  } catch (err) {
-    console.error("[examService] getExamBySlug failed:", err);
-    return null;
-  }
+      const { data, error } = await query.maybeSingle();
+      if (error || !data) return null;
+      return mapRow(data as Record<string, unknown>);
+    } catch (err) {
+      console.error("[examService] getExamBySlug failed:", err);
+      return null;
+    }
+  }, ["exams", `exam:${slug}`], { revalidate: 3600 });
 }
 
 export async function getExamsByPillar(pillar: Pillar): Promise<ExamEntity[]> {
-  try {
-    const supabase = createServerClient();
-    const { data, error } = await supabase
-      .from("exams")
-      .select(LIST_SELECT)
-      .eq("pillar", pillar)
-      .order("is_featured", { ascending: false })
-      .order("updated_at", { ascending: false });
-    if (error) throw error;
-    return (data ?? []).map((r: any) => mapRow(r));
-  } catch (err) {
-    console.error("[examService] getExamsByPillar failed:", err);
-    return [];
-  }
+  return cached(async () => {
+    try {
+      const supabase = createServerClient();
+      const { data, error } = await supabase
+        .from("exams")
+        .select(LIST_SELECT)
+        .eq("pillar", pillar)
+        .order("is_featured", { ascending: false })
+        .order("updated_at", { ascending: false });
+      if (error) throw error;
+      return (data ?? []).map((r: any) => mapRow(r));
+    } catch (err) {
+      console.error("[examService] getExamsByPillar failed:", err);
+      return [];
+    }
+  }, ["exams", `pillar:${pillar}`], { revalidate: 1800 });
 }
 
 export async function getExamsByCategory(category: string): Promise<ExamEntity[]> {

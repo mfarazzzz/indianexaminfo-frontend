@@ -7,6 +7,7 @@
  */
 
 import { createServerClient } from "@/lib/supabase/server";
+import { cached } from "@/lib/cache";
 import type { ContentPost, ContentType, Pillar } from "@/types/exam";
 
 // ── Row mapper ───────────────────────────────────────────────────────────
@@ -85,21 +86,23 @@ export async function getLatestByContentType(
   contentType: ContentType,
   limit = 10
 ): Promise<ContentPost[]> {
-  try {
-    const supabase = createServerClient();
-    const { data, error } = await supabase
-      .from("content_posts")
-      .select("*")
-      .eq("content_type", contentType)
-      .eq("status", "published")
-      .order("updated_at", { ascending: false })
-      .limit(limit);
-    if (error) throw error;
-    return (data ?? []).map((r: any) => mapRow(r));
-  } catch (err) {
-    console.error("[contentPostService] getLatestByContentType failed:", err);
-    return [];
-  }
+  return cached(async () => {
+    try {
+      const supabase = createServerClient();
+      const { data, error } = await supabase
+        .from("content_posts")
+        .select("*")
+        .eq("content_type", contentType)
+        .eq("status", "published")
+        .order("updated_at", { ascending: false })
+        .limit(limit);
+      if (error) throw error;
+      return (data ?? []).map((r: any) => mapRow(r));
+    } catch (err) {
+      console.error("[contentPostService] getLatestByContentType failed:", err);
+      return [];
+    }
+  }, [`hub:${contentType}`, "content-posts"], { revalidate: 900 });
 }
 
 export async function getContentPostsByPillar(pillar: Pillar): Promise<ContentPost[]> {
@@ -155,18 +158,20 @@ export async function searchContentPosts(query: string): Promise<ContentPost[]> 
 }
 
 export async function getLatestContentPosts(limit = 10): Promise<ContentPost[]> {
-  try {
-    const supabase = createServerClient();
-    const { data, error } = await supabase
-      .from("content_posts")
-      .select("*")
-      .eq("status", "published")
-      .order("updated_at", { ascending: false })
-      .limit(limit);
-    if (error) throw error;
-    return (data ?? []).map((r: any) => mapRow(r));
-  } catch (err) {
-    console.error("[contentPostService] getLatestContentPosts failed:", err);
-    return [];
-  }
+  return cached(async () => {
+    try {
+      const supabase = createServerClient();
+      const { data, error } = await supabase
+        .from("content_posts")
+        .select("*")
+        .eq("status", "published")
+        .order("updated_at", { ascending: false })
+        .limit(limit);
+      if (error) throw error;
+      return (data ?? []).map((r: any) => mapRow(r));
+    } catch (err) {
+      console.error("[contentPostService] getLatestContentPosts failed:", err);
+      return [];
+    }
+  }, ["exams", "content-posts"], { revalidate: 900 });
 }
