@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { getExamsByPillar } from "@/services/examService";
+import { getCategoriesByPillar } from "@/services/categoryService";
 import { ExamCard } from "@/components/exam/ExamCard";
 import { Breadcrumb } from "@/components/layout/Breadcrumb";
 import { AdSlot } from "@/components/ads/AdSlot";
@@ -19,7 +20,8 @@ export const metadata: Metadata = buildExamMetadata({
   canonicalUrl: `${siteConfig.url}/sarkari-naukri`,
 });
 
-const categories = [
+// Hardcoded fallback — used only if categories table is empty
+const FALLBACK_CATEGORIES = [
   { slug: "upsc", label: "UPSC", count: 8 },
   { slug: "ssc", label: "SSC", count: 10 },
   { slug: "banking", label: "Banking", count: 15 },
@@ -35,7 +37,15 @@ const categories = [
 ];
 
 export default async function SarkariNaukriPage() {
-  const exams = await getExamsByPillar("sarkari-naukri");
+  const [exams, cmsCategories] = await Promise.all([
+    getExamsByPillar("sarkari-naukri"),
+    getCategoriesByPillar("sarkari-naukri"),
+  ]);
+
+  // Use CMS categories if available, otherwise hardcoded fallback
+  const categories = cmsCategories.length > 0
+    ? cmsCategories.map((c) => ({ slug: c.slug, label: c.name, count: c.examCount }))
+    : FALLBACK_CATEGORIES;
 
   return (
     <div className="container mx-auto px-4 py-4">

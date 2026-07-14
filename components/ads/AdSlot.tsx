@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
+import { sanitizeHtml } from "@/lib/sanitize";
 
 export type AdSize = "728x90" | "300x250" | "336x280" | "160x600" | "320x50";
 
@@ -103,7 +104,7 @@ export function AdSlot({ position, size, className, creative: initialCreative, a
         data-ad-slot={position}
         style={{ width: "100%", maxWidth: dim.w, margin: "0 auto", display: "block" }}
         className={className}
-        dangerouslySetInnerHTML={{ __html: creative.htmlCode }}
+        dangerouslySetInnerHTML={{ __html: sanitizeHtml(creative.htmlCode) }}
         aria-label="Advertisement"
       />
     );

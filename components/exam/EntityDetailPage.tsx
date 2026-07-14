@@ -337,6 +337,43 @@ export async function EntityDetailPage({ exam, breadcrumbs }: EntityDetailPagePr
               </section>
             )}
 
+            {/* Syllabus Highlights */}
+            {exam.syllabusHighlights && exam.syllabusHighlights.length > 0 && (
+              <section aria-label="Syllabus highlights" className="mb-5">
+                <h2 className="font-heading font-semibold text-base text-gray-800 mb-3">
+                  Syllabus Highlights
+                </h2>
+                <ul className="grid grid-cols-2 gap-1.5">
+                  {exam.syllabusHighlights.map((subject) => (
+                    <li key={subject} className="flex items-center gap-2 text-sm text-gray-700">
+                      <span className="w-1.5 h-1.5 rounded-full bg-primary shrink-0" />
+                      {subject}
+                    </li>
+                  ))}
+                </ul>
+              </section>
+            )}
+
+            {/* Academic Info (Board/University exams) */}
+            {(exam.academicYear || exam.semester || exam.admissionTo) && (
+              <section aria-label="Academic information" className="mb-5">
+                <h2 className="font-heading font-semibold text-base text-gray-800 mb-3">
+                  Academic Information
+                </h2>
+                <div className="overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0">
+                  <table className="min-w-[280px]">
+                    <caption className="sr-only">Academic details for {exam.name}</caption>
+                    <thead><tr><th scope="col">Detail</th><th scope="col">Value</th></tr></thead>
+                    <tbody>
+                      {exam.academicYear && <tr><td className="font-medium text-gray-800">Academic Year</td><td className="text-gray-700">{exam.academicYear}</td></tr>}
+                      {exam.semester && <tr><td className="font-medium text-gray-800">Semester</td><td className="text-gray-700">{exam.semester}</td></tr>}
+                      {exam.admissionTo && <tr><td className="font-medium text-gray-800">Admission To</td><td className="text-gray-700">{exam.admissionTo}</td></tr>}
+                    </tbody>
+                  </table>
+                </div>
+              </section>
+            )}
+
             {/* Content Posts */}
             {contentPosts.length > 0 && (
               <section aria-label="Related content" className="mb-5">

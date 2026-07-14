@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { getExamsByPillar } from "@/services/examService";
+import { getCategoriesByPillar } from "@/services/categoryService";
 import { ExamCard } from "@/components/exam/ExamCard";
 import { Breadcrumb } from "@/components/layout/Breadcrumb";
 import { AdSlot } from "@/components/ads/AdSlot";
@@ -19,7 +20,8 @@ export const metadata: Metadata = buildExamMetadata({
   canonicalUrl: `${siteConfig.url}/entrance-exam`,
 });
 
-const categories = [
+// Hardcoded fallback
+const FALLBACK_CATEGORIES = [
   { slug: "engineering", label: "Engineering", count: 12, icon: "⚙️" },
   { slug: "medical", label: "Medical", count: 8, icon: "🏥" },
   { slug: "law", label: "Law", count: 6, icon: "⚖️" },
@@ -35,7 +37,14 @@ const categories = [
 ];
 
 export default async function EntranceExamPage() {
-  const exams = await getExamsByPillar("entrance-exam");
+  const [exams, cmsCategories] = await Promise.all([
+    getExamsByPillar("entrance-exam"),
+    getCategoriesByPillar("entrance-exam"),
+  ]);
+
+  const categories = cmsCategories.length > 0
+    ? cmsCategories.map((c) => ({ slug: c.slug, label: c.name, count: c.examCount, icon: c.icon ?? "📝" }))
+    : FALLBACK_CATEGORIES;
 
   return (
     <div className="container mx-auto px-4 py-4">

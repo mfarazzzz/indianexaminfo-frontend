@@ -4,6 +4,7 @@ import { buildExamMetadata } from "@/lib/seo/metadata";
 import { GLOBAL_SHORT_TAIL } from "@/lib/seo/keywords";
 import { siteConfig } from "@/config/site";
 import { getPageBySlug } from "@/services/pageService";
+import { safeHtml } from "@/lib/sanitize";
 
 export const revalidate = 3600;
 
@@ -38,7 +39,7 @@ export default async function DisclaimerPage() {
       {page?.content ? (
         <div
           className="prose prose-gray max-w-none text-sm text-gray-700 leading-relaxed"
-          dangerouslySetInnerHTML={{ __html: page.content }}
+          {...safeHtml(page.content)}
         />
       ) : (
         <div className="space-y-5 text-sm text-gray-700 leading-relaxed">
