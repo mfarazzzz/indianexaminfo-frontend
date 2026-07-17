@@ -14,7 +14,7 @@ import { safeHtml } from "@/lib/sanitize";
 import type { BlogSection } from "@/types/blog";
 import { Clock, Twitter, Linkedin, Share2, ExternalLink } from "lucide-react";
 
-export const revalidate = 3600;
+export const revalidate = 600; // 10 min
 
 type Props = { params: Promise<{ section: string; slug: string }> };
 

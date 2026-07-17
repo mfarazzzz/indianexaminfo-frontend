@@ -6,7 +6,7 @@ import { buildExamMetadata } from "@/lib/seo/metadata";
 import { buildPageKeywords, buildMetaDescription, getCurrentYear } from "@/lib/seo/keywords";
 import { siteConfig } from "@/config/site";
 
-export const revalidate = 7200;
+export const revalidate = 600; // 10 min — ensures new exams appear quickly
 export const dynamicParams = true; // serve new exams added after build without rebuilding
 
 type Props = { params: Promise<{ category: string; slug: string }> };

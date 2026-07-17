@@ -9,7 +9,7 @@ import { siteConfig } from "@/config/site";
 import { formatDate } from "@/lib/utils";
 import { Clock, TrendingUp, Zap } from "lucide-react";
 
-export const revalidate = 1800;
+export const revalidate = 600; // 10 min
 
 export const metadata: Metadata = buildExamMetadata({
   pageType: "blog-homepage",

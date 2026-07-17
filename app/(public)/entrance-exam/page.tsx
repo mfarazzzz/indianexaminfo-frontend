@@ -9,7 +9,7 @@ import { buildExamMetadata } from "@/lib/seo/metadata";
 import { buildPageKeywords, getCurrentYear } from "@/lib/seo/keywords";
 import { siteConfig } from "@/config/site";
 
-export const revalidate = 7200;
+export const revalidate = 600; // 10 min — ensures new exams appear quickly
 
 const YEAR = getCurrentYear();
 export const metadata: Metadata = buildExamMetadata({
