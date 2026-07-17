@@ -20,26 +20,30 @@ type Props = { params: Promise<{ section: string; slug: string }> };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { section, slug } = await params;
-  const post = await getBlogPostBySlug(slug);
-  if (!post) return {};
+  try {
+    const post = await getBlogPostBySlug(slug);
+    if (!post) return {};
 
-  return buildExamMetadata({
-    pageType: "blog-post",
-    title: post.seoTitle,
-    description: post.seoDescription,
-    keywords: [
-      ...(BLOG_SECTION_KEYWORDS[post.section as BlogSection] ?? []).slice(0, 8),
-      ...post.tags.slice(0, 6),
-      ...GLOBAL_SHORT_TAIL.slice(0, 4),
-    ],
-    canonicalUrl: post.canonicalUrl,
-    ogImage: post.featuredImage.startsWith("http") ? post.featuredImage : undefined,
-    ogAlt: post.title,
-    section: post.section,
-    publishedAt: post.publishedAt,
-    updatedAt: post.updatedAt,
-    tags: post.tags,
-  });
+    return buildExamMetadata({
+      pageType: "blog-post",
+      title: post.seoTitle || post.title,
+      description: post.seoDescription || post.excerpt,
+      keywords: [
+        ...(BLOG_SECTION_KEYWORDS[post.section as BlogSection] ?? []).slice(0, 8),
+        ...(post.tags ?? []).slice(0, 6),
+        ...GLOBAL_SHORT_TAIL.slice(0, 4),
+      ],
+      canonicalUrl: post.canonicalUrl || undefined,
+      ogImage: post.featuredImage?.startsWith("http") ? post.featuredImage : undefined,
+      ogAlt: post.title,
+      section: post.section,
+      publishedAt: post.publishedAt,
+      updatedAt: post.updatedAt,
+      tags: post.tags,
+    });
+  } catch {
+    return {};
+  }
 }
 
 export default async function BlogArticlePage({ params }: Props) {
@@ -77,7 +81,7 @@ export default async function BlogArticlePage({ params }: Props) {
       <JsonLd data={buildArticleSchema(post, articleUrl, authorUrl)} />
       {post.faqs && post.faqs.length > 0 && <JsonLd data={buildFAQSchema(post.faqs)} />}
 
-      <div className="bg-editorial-bg min-h-screen">
+      <div className="bg-editorial-bg min-h-screen" suppressHydrationWarning>
         <div className="container mx-auto px-4 py-4">
           <Breadcrumb items={[
             { name: "Blog & News", href: "/blog" },
@@ -167,7 +171,7 @@ export default async function BlogArticlePage({ params }: Props) {
               </div>
 
               {/* Article body */}
-              <div className="article-body" {...safeHtml(post.content)} />
+              <div className="article-body" suppressHydrationWarning {...safeHtml(post.content)} />
 
               {/* Related exam links */}
               {post.relatedExamSlugs.length > 0 && (
