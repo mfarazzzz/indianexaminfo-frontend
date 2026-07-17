@@ -188,13 +188,15 @@ export async function getBlogPostsByTag(tag: string): Promise<BlogPost[]> {
   }
 }
 
-export async function getRelatedBlogPosts(postId: string): Promise<BlogPost[]> {
+export async function getRelatedBlogPosts(postSlug: string): Promise<BlogPost[]> {
   try {
     const supabase = createServerClient();
+    // First get the post's section by slug (not id)
     const { data: post } = await supabase
       .from("blog_posts")
-      .select("section, tags")
-      .eq("id", postId)
+      .select("id, section, tags")
+      .eq("slug", postSlug)
+      .eq("status", "published")
       .maybeSingle();
 
     if (!post) return [];
@@ -202,7 +204,7 @@ export async function getRelatedBlogPosts(postId: string): Promise<BlogPost[]> {
     const { data, error } = await supabase
       .from("blog_posts")
       .select(POST_SELECT)
-      .neq("id", postId)
+      .neq("id", (post as any).id)
       .eq("status", "published")
       .eq("section", (post as any).section)
       .limit(3)
