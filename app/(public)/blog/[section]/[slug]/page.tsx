@@ -44,15 +44,28 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function BlogArticlePage({ params }: Props) {
   const { section, slug } = await params;
-  const [post, related] = await Promise.all([
-    getBlogPostBySlug(slug),
-    getRelatedBlogPosts(slug).catch(() => []),
-  ]);
-
+  
+  let post: Awaited<ReturnType<typeof getBlogPostBySlug>> = null;
+  let related: Awaited<ReturnType<typeof getRelatedBlogPosts>> = [];
+  
+  try {
+    post = await getBlogPostBySlug(slug);
+  } catch {
+    notFound();
+  }
+  
   if (!post || post.status !== "published") notFound();
 
+  try {
+    related = await getRelatedBlogPosts(slug);
+  } catch {
+    related = [];
+  }
+
   const articleUrl = `${siteConfig.url}/blog/${section}/${slug}`;
-  const authorUrl = `${siteConfig.url}/blog/author/${post.author.slug}`;
+  const authorUrl = post.author?.slug 
+    ? `${siteConfig.url}/blog/author/${post.author.slug}`
+    : `${siteConfig.url}/blog`;
 
   const shareText = encodeURIComponent(`${post.title} — @IndianExamInfo`);
   const shareUrl = encodeURIComponent(articleUrl);
@@ -62,7 +75,7 @@ export default async function BlogArticlePage({ params }: Props) {
   return (
     <>
       <JsonLd data={buildArticleSchema(post, articleUrl, authorUrl)} />
-      {post.faqs?.length && <JsonLd data={buildFAQSchema(post.faqs)} />}
+      {post.faqs && post.faqs.length > 0 && <JsonLd data={buildFAQSchema(post.faqs)} />}
 
       <div className="bg-editorial-bg min-h-screen">
         <div className="container mx-auto px-4 py-4">
@@ -95,6 +108,7 @@ export default async function BlogArticlePage({ params }: Props) {
               <p className="text-lg text-gray-500 mb-5 leading-relaxed">{post.excerpt}</p>
 
               {/* Author block */}
+              {post.author?.name && (
               <div className="flex items-start gap-4 p-4 bg-card border border-border rounded mb-5">
                 <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-lg shrink-0">
                   {post.author.name.charAt(0)}
@@ -111,18 +125,19 @@ export default async function BlogArticlePage({ params }: Props) {
                   </div>
                 </div>
                 <div className="flex gap-2 shrink-0">
-                  {post.author.socialLinks.twitter && (
+                  {post.author.socialLinks?.twitter && (
                     <a href={post.author.socialLinks.twitter} target="_blank" rel="noopener noreferrer" aria-label="Author Twitter" className="text-gray-400 hover:text-primary transition-colors">
                       <Twitter className="w-4 h-4" />
                     </a>
                   )}
-                  {post.author.socialLinks.linkedin && (
+                  {post.author.socialLinks?.linkedin && (
                     <a href={post.author.socialLinks.linkedin} target="_blank" rel="noopener noreferrer" aria-label="Author LinkedIn" className="text-gray-400 hover:text-primary transition-colors">
                       <Linkedin className="w-4 h-4" />
                     </a>
                   )}
                 </div>
               </div>
+              )}
 
               {/* Featured image */}
               <figure className="mb-5 rounded overflow-hidden bg-gray-100 h-64 flex items-center justify-center text-gray-400">
@@ -223,6 +238,7 @@ export default async function BlogArticlePage({ params }: Props) {
               )}
 
               {/* Author bio card */}
+              {post.author?.name && (
               <section aria-label="About the author" className="bg-surface border border-border rounded p-5">
                 <h2 className="font-heading font-semibold text-sm text-gray-800 uppercase tracking-wide mb-4">About the Author</h2>
                 <div className="flex items-start gap-4">
@@ -234,18 +250,18 @@ export default async function BlogArticlePage({ params }: Props) {
                     <p className="text-sm text-gray-500 mb-2">{post.author.designation}</p>
                     <p className="text-sm text-gray-600 leading-relaxed mb-3">{post.author.bio}</p>
                     <div className="flex flex-wrap gap-1.5 mb-3">
-                      {post.author.specialization.map((s) => (
+                      {(post.author.specialization ?? []).map((s) => (
                         <span key={s} className="text-xs px-2 py-0.5 bg-primary/10 text-primary rounded">{s}</span>
                       ))}
                     </div>
                     <p className="text-xs text-gray-400">{post.author.totalPosts} articles published</p>
                     <div className="flex gap-3 mt-2">
-                      {post.author.socialLinks.twitter && (
+                      {post.author.socialLinks?.twitter && (
                         <a href={post.author.socialLinks.twitter} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 text-xs text-primary hover:underline">
                           <Twitter className="w-3.5 h-3.5" /> Twitter
                         </a>
                       )}
-                      {post.author.socialLinks.linkedin && (
+                      {post.author.socialLinks?.linkedin && (
                         <a href={post.author.socialLinks.linkedin} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 text-xs text-primary hover:underline">
                           <Linkedin className="w-3.5 h-3.5" /> LinkedIn
                         </a>
@@ -254,6 +270,7 @@ export default async function BlogArticlePage({ params }: Props) {
                   </div>
                 </div>
               </section>
+              )}
             </main>
 
             {/* Sidebar */}
