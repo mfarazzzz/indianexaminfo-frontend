@@ -33,7 +33,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
         ...(post.tags ?? []).slice(0, 6),
         ...GLOBAL_SHORT_TAIL.slice(0, 4),
       ],
-      canonicalUrl: post.canonicalUrl || undefined,
+      canonicalUrl: post.canonicalUrl || `${siteConfig.url}/blog/${section}/${slug}`,
       ogImage: post.featuredImage?.startsWith("http") ? post.featuredImage : undefined,
       ogAlt: post.title,
       section: post.section,
