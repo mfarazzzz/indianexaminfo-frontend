@@ -161,14 +161,26 @@ export async function EntityDetailPage({ exam, breadcrumbs }: EntityDetailPagePr
                     {` | ₹${exam.applicationFee.sc} (SC/ST)`}
                   </li>
                 )}
-                {exam.dates.slice(0, 2).map((d) => (
-                  <li key={d.label}>
-                    <span className="font-medium">{d.label}:</span>{" "}
-                    <span className={d.isUrgent ? "text-accent font-semibold" : ""}>
-                      {formatDate(d.date)}
-                    </span>
-                  </li>
-                ))}
+                {(() => {
+                  // Show most relevant dates: urgent future dates first, then most recent past milestone
+                  const now = new Date();
+                  const futureDates = exam.dates.filter(d => new Date(d.date) > now);
+                  const pastDates = exam.dates.filter(d => new Date(d.date) <= now);
+                  const urgentFuture = futureDates.filter(d => d.isUrgent);
+                  const relevantDates = [
+                    ...urgentFuture,
+                    ...(pastDates.length > 0 ? [pastDates[pastDates.length - 1]] : []),
+                    ...futureDates.filter(d => !d.isUrgent),
+                  ].slice(0, 2);
+                  return relevantDates.map((d) => (
+                    <li key={d.label}>
+                      <span className="font-medium">{d.label}:</span>{" "}
+                      <span className={d.isUrgent ? "text-accent font-semibold" : ""}>
+                        {formatDate(d.date)}
+                      </span>
+                    </li>
+                  ));
+                })()}
                 {exam.officialWebsite && (
                   <li>
                     <span className="font-medium">Official Website:</span>{" "}

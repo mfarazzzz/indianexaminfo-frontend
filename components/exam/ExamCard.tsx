@@ -42,7 +42,19 @@ function categoryDot(pillar: string): string {
 
 export function ExamCard({ exam }: ExamCardProps) {
   const href     = getExamHref(exam);
-  const nextDate = exam.dates.find((d) => new Date(d.date) > new Date());
+  const now      = new Date();
+  const nextDate = exam.dates.find((d) => new Date(d.date) > now);
+
+  // For result-declared/completed exams, show the most recent past milestone if no urgent future date
+  let displayDate = nextDate;
+  if (!nextDate || (exam.status === "result-declared" || exam.status === "completed")) {
+    const pastDates = exam.dates.filter((d) => new Date(d.date) <= now);
+    const lastPast = pastDates.length > 0 ? pastDates[pastDates.length - 1] : null;
+    // Prefer showing the most recent milestone (e.g. "Result Declared") for declared/completed
+    if (lastPast && (exam.status === "result-declared" || exam.status === "completed")) {
+      displayDate = nextDate?.isUrgent ? nextDate : lastPast;
+    }
+  }
 
   const ctLinks: { label: string; href: string; ct: ContentType }[] = [];
   if (exam.hasAdmitCard)   ctLinks.push({ ct: "admit-card",      label: buildAnchorText(exam.shortName, "admit-card",      getCurrentYear()), href: `${href}/admit-card` });
@@ -111,12 +123,12 @@ export function ExamCard({ exam }: ExamCardProps) {
       )}
 
       {/* Next important date */}
-      {nextDate && (
+      {displayDate && (
         <div className="px-3 pb-2 flex items-center gap-1.5 text-xs border-t border-border pt-2 mt-auto">
           <Calendar className="w-3 h-3 text-gray-400 shrink-0" aria-hidden="true" />
-          <span className="text-gray-500">{nextDate.label}:</span>
-          <span className={nextDate.isUrgent ? "text-accent font-semibold" : "text-gray-700 font-medium"}>
-            {formatDate(nextDate.date)}
+          <span className="text-gray-500">{displayDate.label}:</span>
+          <span className={displayDate.isUrgent ? "text-accent font-semibold" : "text-gray-700 font-medium"}>
+            {formatDate(displayDate.date)}
           </span>
         </div>
       )}
