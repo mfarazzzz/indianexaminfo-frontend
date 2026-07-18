@@ -13,6 +13,8 @@ type HeaderProps = {
 };
 
 export function Header({ cmsMenu }: HeaderProps = {}) {
+  // If CMS menu has items, override the hardcoded Sarkari Naukri mega-menu
+  const hasCmsNav = cmsMenu && cmsMenu.items.length > 0;
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
@@ -79,10 +81,61 @@ export function Header({ cmsMenu }: HeaderProps = {}) {
                   Sarkari Naukri <ChevronDown className="w-3.5 h-3.5" />
                 </Link>
                 {activeMega === "sarkari-naukri" && (
-                  <MegaMenu
-                    categories={navigation.sarkariNaukri.categories}
-                    onClose={() => setActiveMega(null)}
-                  />
+                  hasCmsNav ? (
+                    <div
+                      className="absolute top-full left-0 z-50 mt-0 bg-white border border-border shadow-md rounded-b animate-fade-in"
+                      style={{ minWidth: "320px" }}
+                      role="menu"
+                    >
+                      <div className="p-3 space-y-1">
+                        {cmsMenu!.items.map((item) => (
+                          <div key={item.id}>
+                            {item.url ? (
+                              <Link
+                                href={item.url}
+                                onClick={() => setActiveMega(null)}
+                                className="flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:text-primary hover:bg-gray-50 rounded transition-colors"
+                                role="menuitem"
+                              >
+                                {item.icon && <span>{item.icon}</span>}
+                                <span>{item.label}</span>
+                                {item.badge && (
+                                  <span className="ml-auto rounded-full bg-red-100 px-1.5 py-0.5 text-[9px] font-bold text-red-600">{item.badge}</span>
+                                )}
+                              </Link>
+                            ) : (
+                              <div className="px-3 pt-3 pb-1">
+                                <p className="text-xs font-bold text-primary uppercase tracking-wider border-b border-border pb-1">
+                                  {item.icon && <span className="mr-1">{item.icon}</span>}{item.label}
+                                </p>
+                                {item.children && item.children.length > 0 && (
+                                  <ul className="mt-1 space-y-0.5">
+                                    {item.children.map((child) => (
+                                      <li key={child.id}>
+                                        <Link
+                                          href={child.url ?? "#"}
+                                          onClick={() => setActiveMega(null)}
+                                          className="block px-2 py-1 text-sm text-gray-600 hover:text-primary transition-colors"
+                                          role="menuitem"
+                                        >
+                                          {child.label}
+                                        </Link>
+                                      </li>
+                                    ))}
+                                  </ul>
+                                )}
+                              </div>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ) : (
+                    <MegaMenu
+                      categories={navigation.sarkariNaukri.categories}
+                      onClose={() => setActiveMega(null)}
+                    />
+                  )
                 )}
               </div>
 

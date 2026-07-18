@@ -27,6 +27,8 @@ export async function POST(request: NextRequest) {
     const criticalPaths = [
       "/",
       "/sarkari-naukri",
+      "/sarkari-naukri/exam",
+      "/sarkari-naukri/bharti",
       "/entrance-exam",
       "/board-exam",
       "/admit-card",

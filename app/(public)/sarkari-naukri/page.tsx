@@ -1,51 +1,33 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { getExamsByPillar } from "@/services/examService";
-import { getCategoriesByPillar } from "@/services/categoryService";
-import { ExamCard } from "@/components/exam/ExamCard";
+import { getAllSarkariNaukri, getStateList, getCategoryList } from "@/services/sarkariNaukriService";
 import { Breadcrumb } from "@/components/layout/Breadcrumb";
 import { AdSlot } from "@/components/ads/AdSlot";
 import { buildExamMetadata } from "@/lib/seo/metadata";
 import { buildPageKeywords, getCurrentYear } from "@/lib/seo/keywords";
 import { siteConfig } from "@/config/site";
+import { SarkariNaukriList } from "@/components/sarkari-naukri/SarkariNaukriList";
 
-export const revalidate = 7200;
+export const revalidate = 1800;
 
 const YEAR = getCurrentYear();
 export const metadata: Metadata = buildExamMetadata({
   pageType: "pillar",
-  title: `Sarkari Naukri ${YEAR} — Latest Government Jobs India`,
-  description: `Get latest Sarkari Naukri ${YEAR} notifications for UPSC, SSC, Banking, Railways, Defence, Police and State PSC jobs. Check eligibility, apply online, admit card and results.`,
+  title: `Sarkari Naukri ${YEAR} — Latest Government Jobs & Bharti India`,
+  description: `Latest Sarkari Naukri ${YEAR}: Government exam results, direct bharti, merit lists. SSC, Railway, Banking, State-level Anganwadi, Panchayat, Court, Hospital jobs with apply links.`,
   keywords: buildPageKeywords({ pageType: "pillar", pillar: "sarkari-naukri" }),
   canonicalUrl: `${siteConfig.url}/sarkari-naukri`,
 });
 
-// Hardcoded fallback — used only if categories table is empty
-const FALLBACK_CATEGORIES = [
-  { slug: "upsc", label: "UPSC", count: 8 },
-  { slug: "ssc", label: "SSC", count: 10 },
-  { slug: "banking", label: "Banking", count: 15 },
-  { slug: "railways", label: "Railways", count: 7 },
-  { slug: "teaching", label: "Teaching", count: 9 },
-  { slug: "defence", label: "Defence", count: 8 },
-  { slug: "police", label: "Police & Paramilitary", count: 12 },
-  { slug: "state-psc", label: "State PSC", count: 10 },
-  { slug: "judiciary", label: "Judiciary", count: 6 },
-  { slug: "technical-psu", label: "Technical PSU", count: 14 },
-  { slug: "post-office", label: "Post Office", count: 3 },
-  { slug: "agriculture", label: "Agriculture", count: 5 },
-];
-
 export default async function SarkariNaukriPage() {
-  const [exams, cmsCategories] = await Promise.all([
-    getExamsByPillar("sarkari-naukri"),
-    getCategoriesByPillar("sarkari-naukri"),
+  const [items, states, categories] = await Promise.all([
+    getAllSarkariNaukri(),
+    getStateList(),
+    getCategoryList(),
   ]);
 
-  // Use CMS categories if available, otherwise hardcoded fallback
-  const categories = cmsCategories.length > 0
-    ? cmsCategories.map((c) => ({ slug: c.slug, label: c.name, count: c.examCount }))
-    : FALLBACK_CATEGORIES;
+  const examCount = items.filter((i) => i.recruitmentType === "exam").length;
+  const directCount = items.filter((i) => i.recruitmentType === "direct").length;
 
   return (
     <div className="container mx-auto px-4 py-4">
@@ -58,60 +40,86 @@ export default async function SarkariNaukriPage() {
       <div className="grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-6">
         <main>
           <h1 className="font-heading font-bold text-2xl text-gray-900 mb-1">
-            Sarkari Naukri {YEAR} — Latest Govt Jobs India
+            Sarkari Naukri {YEAR} — Government Jobs & Bharti
           </h1>
           <p className="text-sm text-gray-500 mb-4">
-            Last Updated: {new Date().toLocaleDateString("en-IN")} · Information as of {new Date().toLocaleDateString("en-IN", { month: "long", year: "numeric" })}
+            {items.length} active listings · Last updated {new Date().toLocaleDateString("en-IN")}
           </p>
 
-          {/* Category grid */}
-          <section aria-label="Job categories" className="mb-6">
-            <h2 className="font-heading font-semibold text-base text-gray-800 mb-3">
-              Browse by Category
-            </h2>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-              {categories.map((cat) => (
+          {/* Type tabs */}
+          <div className="flex gap-3 mb-5">
+            <Link
+              href="/sarkari-naukri"
+              className="rounded-full px-4 py-1.5 text-sm font-medium bg-primary text-white"
+            >
+              All ({items.length})
+            </Link>
+            <Link
+              href="/sarkari-naukri/exam"
+              className="rounded-full px-4 py-1.5 text-sm font-medium border border-blue-200 text-blue-700 hover:bg-blue-50"
+            >
+              Sarkari Exam ({examCount})
+            </Link>
+            <Link
+              href="/sarkari-naukri/bharti"
+              className="rounded-full px-4 py-1.5 text-sm font-medium border border-green-200 text-green-700 hover:bg-green-50"
+            >
+              Sarkari Bharti ({directCount})
+            </Link>
+          </div>
+
+          {/* Browse by category */}
+          <section className="mb-6">
+            <h2 className="font-heading font-semibold text-base text-gray-800 mb-3">Browse by Category</h2>
+            <div className="flex flex-wrap gap-2">
+              {categories.slice(0, 12).map((cat) => (
                 <Link
-                  key={cat.slug}
-                  href={`/sarkari-naukri/${cat.slug}`}
-                  className="bg-card border border-border rounded p-3 text-sm hover:border-primary hover:bg-primary/5 transition-colors group"
+                  key={cat.category}
+                  href={`/sarkari-naukri/exam?category=${cat.category}`}
+                  className="rounded-full border border-border px-3 py-1 text-xs text-gray-700 hover:border-primary hover:text-primary transition-colors"
                 >
-                  <div className="font-semibold text-gray-800 group-hover:text-primary">{cat.label}</div>
-                  <div className="text-xs text-gray-500 mt-0.5">{cat.count} active exams</div>
+                  {cat.category.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase())} ({cat.count})
                 </Link>
               ))}
             </div>
           </section>
 
-          {/* All exams */}
-          <section aria-label="All Sarkari Naukri exams">
-            <h2 className="font-heading font-bold text-lg text-gray-900 mb-4">
-              All Government Job Notifications {YEAR}
-            </h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {exams.map((exam) => (
-                <ExamCard key={exam.id} exam={exam} />
-              ))}
-            </div>
-          </section>
+          {/* Listings */}
+          <SarkariNaukriList items={items} />
         </main>
 
         <aside className="flex flex-col gap-4">
           <AdSlot position="category-sidebar" size="300x250" />
+
+          {/* Browse by state */}
+          <div className="bg-card border border-border rounded p-4">
+            <h2 className="font-heading font-semibold text-sm text-gray-800 mb-3 uppercase tracking-wide">
+              Browse by State
+            </h2>
+            <ul className="space-y-1.5 text-sm max-h-64 overflow-y-auto">
+              {states.map((s) => (
+                <li key={s.state}>
+                  <Link
+                    href={`/sarkari-naukri/state/${s.state}`}
+                    className="flex justify-between text-gray-700 hover:text-primary hover:underline"
+                  >
+                    <span className="capitalize">{s.state.replace(/-/g, " ")}</span>
+                    <span className="text-gray-400 text-xs">{s.count}</span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Quick links */}
           <div className="bg-card border border-border rounded p-4">
             <h2 className="font-heading font-semibold text-sm text-gray-800 mb-3 uppercase tracking-wide">Quick Links</h2>
             <ul className="space-y-1.5 text-sm">
-              {[
-                { label: "Latest Notifications", href: "/sarkari-naukri" },
-                { label: "Admit Card", href: "/admit-card" },
-                { label: "Results", href: "/results" },
-                { label: "Syllabus", href: "/syllabus" },
-                { label: "Previous Papers", href: "/previous-papers" },
-              ].map((l) => (
-                <li key={l.href}>
-                  <Link href={l.href} className="text-gray-700 hover:text-primary hover:underline">{l.label}</Link>
-                </li>
-              ))}
+              <li><Link href="/sarkari-naukri/exam" className="text-gray-700 hover:text-primary hover:underline">Sarkari Exam</Link></li>
+              <li><Link href="/sarkari-naukri/bharti" className="text-gray-700 hover:text-primary hover:underline">Sarkari Bharti</Link></li>
+              <li><Link href="/admit-card" className="text-gray-700 hover:text-primary hover:underline">Admit Card</Link></li>
+              <li><Link href="/results" className="text-gray-700 hover:text-primary hover:underline">Results</Link></li>
+              <li><Link href="/answer-key" className="text-gray-700 hover:text-primary hover:underline">Answer Key</Link></li>
             </ul>
           </div>
         </aside>
