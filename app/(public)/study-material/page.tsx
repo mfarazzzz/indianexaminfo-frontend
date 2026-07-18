@@ -28,7 +28,7 @@ export default async function StudyMaterialPage() {
         <AdSlot position="content-hub-top" size="728x90" />
       </div>
       <h1 className="font-heading font-bold text-2xl text-gray-900 mb-1">
-        Free Study Material 2025 — Notes &amp; PDFs for All Competitive Exams
+        Free Study Material {new Date().getFullYear()} — Notes &amp; PDFs for All Competitive Exams
       </h1>
       <p className="text-sm text-gray-500 mb-5">
         Topic-wise notes, formula sheets and study material for {exams.length}+ exams

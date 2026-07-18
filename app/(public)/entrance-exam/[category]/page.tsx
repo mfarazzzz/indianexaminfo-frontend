@@ -41,7 +41,7 @@ export default async function EntranceCategoryPage({ params }: Props) {
         ]}
       />
       <h1 className="font-heading font-bold text-2xl text-gray-900 mt-4 mb-5">
-        {label} Entrance Exams 2025 — Latest Notifications &amp; Results
+        {label} Entrance Exams {new Date().getFullYear()} — Latest Notifications &amp; Results
       </h1>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {exams.map((exam) => (

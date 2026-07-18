@@ -28,7 +28,7 @@ export default async function SyllabusPage() {
         <AdSlot position="content-hub-top" size="728x90" />
       </div>
       <h1 className="font-heading font-bold text-2xl text-gray-900 mb-1">
-        Syllabus 2025 — Download PDF for All Competitive Exams
+        Syllabus {new Date().getFullYear()} — Download PDF for All Competitive Exams
       </h1>
       <p className="text-sm text-gray-500 mb-5">
         Complete and updated syllabus for {exams.length}+ exams with PDF download

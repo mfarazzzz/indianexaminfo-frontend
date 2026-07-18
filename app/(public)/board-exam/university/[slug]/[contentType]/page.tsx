@@ -166,7 +166,7 @@ export default async function UniversityContentTypePage({ params }: Props) {
                     <li key={p.id}>
                       <Link href={`/board-exam/university/${p.examEntityName.toLowerCase().replace(/\s+/g, "-")}/${p.slug}`}
                             className="text-gray-700 hover:text-primary hover:underline">
-                        {p.examEntityName} {ctLabel} 2025
+                        {p.examEntityName} {ctLabel} {new Date().getFullYear()}
                       </Link>
                     </li>
                   ))}

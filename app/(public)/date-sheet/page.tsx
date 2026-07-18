@@ -28,7 +28,7 @@ export default async function DateSheetPage() {
         <AdSlot position="content-hub-top" size="728x90" />
       </div>
       <h1 className="font-heading font-bold text-2xl text-gray-900 mb-1">
-        Date Sheet 2025 — Exam Schedule for All Boards &amp; Universities
+        Date Sheet {new Date().getFullYear()} — Exam Schedule for All Boards &amp; Universities
       </h1>
       <p className="text-sm text-gray-500 mb-5">
         Official date sheets with PDF download for {exams.length}+ exams

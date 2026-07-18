@@ -45,7 +45,7 @@ export default async function ResultsPage() {
       <div className="grid grid-cols-1 lg:grid-cols-[1fr_280px] gap-6">
         <main>
           <h1 className="font-heading font-bold text-2xl text-gray-900 mb-1">
-            Results 2025 — Check Exam Results for All Competitive Exams
+            Results {new Date().getFullYear()} — Check Exam Results for All Competitive Exams
           </h1>
           <p className="text-sm text-gray-500 mb-5">
             Last Updated: {new Date().toLocaleDateString("en-IN")} · {exams.length} exams with results
@@ -79,7 +79,7 @@ export default async function ResultsPage() {
           )}
 
           <section aria-label="Exams with results">
-            <h2 className="font-heading font-semibold text-base text-gray-800 mb-3">All Exam Results 2025</h2>
+            <h2 className="font-heading font-semibold text-base text-gray-800 mb-3">All Exam Results {new Date().getFullYear()}</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {exams.map((exam) => (
                 <Link

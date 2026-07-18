@@ -35,7 +35,7 @@ export default async function BoardExamPage() {
       </div>
 
       <h1 className="font-heading font-bold text-2xl text-gray-900 mb-1">
-        Board &amp; University Exam 2025 — Results, Date Sheet &amp; Admit Card
+        Board &amp; University Exam {new Date().getFullYear()} — Results, Date Sheet &amp; Admit Card
       </h1>
       <p className="text-sm text-gray-500 mb-5">
         Last Updated: {new Date().toLocaleDateString("en-IN")}

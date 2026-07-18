@@ -53,7 +53,7 @@ function getHowToSteps(ct: string, examName: string, officialHost: string) {
   ];
   if (ct === "result") return [
     { title: "Visit the result portal", description: `Go to ${officialHost}` },
-    { title: "Click Result link", description: `Find the ${examName} Result 2025 link` },
+    { title: "Click Result link", description: `Find the ${examName} Result ${getCurrentYear()} link` },
     { title: "Enter credentials", description: "Enter Roll Number / Registration Number and Date of Birth" },
     { title: "Download result", description: "Check your marks and download the PDF for future reference" },
   ];
@@ -128,14 +128,14 @@ export default async function SarkariContentTypePage({ params }: Props) {
   const howToSteps = getHowToSteps(contentType, exam.shortName, officialHost);
 
   const shareUrl  = encodeURIComponent(`${siteConfig.url}/sarkari-naukri/${category}/${slug}/${contentType}`);
-  const shareText = encodeURIComponent(`${exam.shortName} ${ctLabel} 2025 — ${getActionText(contentType)}`);
+  const shareText = encodeURIComponent(`${exam.shortName} ${ctLabel} ${getCurrentYear()} — ${getActionText(contentType)}`);
 
   return (
     <>
       {post?.faqs?.length  && <JsonLd data={buildFAQSchema(post.faqs)} />}
       {howToSteps.length   && (
         <JsonLd data={buildHowToSchema(
-          `How to ${getActionText(contentType)} — ${exam.name} 2025`,
+          `How to ${getActionText(contentType)} — ${exam.name} ${getCurrentYear()}`,
           howToSteps,
         )} />
       )}
@@ -383,7 +383,7 @@ export default async function SarkariContentTypePage({ params }: Props) {
                       <Link
                         href={`/${p.pillar}/${p.examEntityName.toLowerCase().replace(/\s+/g, "-")}/${p.slug}`}
                         className="text-sm text-gray-700 hover:text-primary hover:underline">
-                        {p.examEntityName} {ctLabel} 2025
+                        {p.examEntityName} {ctLabel} {getCurrentYear()}
                       </Link>
                     </li>
                   ))}

@@ -55,7 +55,7 @@ export default async function EntranceExamPage() {
       </div>
 
       <h1 className="font-heading font-bold text-2xl text-gray-900 mb-1">
-        Entrance Exam 2025 — Latest Notifications, Admit Card &amp; Result
+        Entrance Exam {new Date().getFullYear()} — Latest Notifications, Admit Card &amp; Result
       </h1>
       <p className="text-sm text-gray-500 mb-5">
         Last Updated: {new Date().toLocaleDateString("en-IN")}
@@ -81,7 +81,7 @@ export default async function EntranceExamPage() {
           </section>
 
           <section aria-label="All entrance exams">
-            <h2 className="font-heading font-bold text-lg text-gray-900 mb-4">All Entrance Exams 2025</h2>
+            <h2 className="font-heading font-bold text-lg text-gray-900 mb-4">All Entrance Exams {new Date().getFullYear()}</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {exams.map((exam) => (
                 <ExamCard key={exam.id} exam={exam} />

@@ -58,10 +58,10 @@ export default async function SarkariNaukriPage() {
       <div className="grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-6">
         <main>
           <h1 className="font-heading font-bold text-2xl text-gray-900 mb-1">
-            Sarkari Naukri 2025 — Latest Govt Jobs India
+            Sarkari Naukri {YEAR} — Latest Govt Jobs India
           </h1>
           <p className="text-sm text-gray-500 mb-4">
-            Last Updated: {new Date().toLocaleDateString("en-IN")} · Information as of June 2025
+            Last Updated: {new Date().toLocaleDateString("en-IN")} · Information as of {new Date().toLocaleDateString("en-IN", { month: "long", year: "numeric" })}
           </p>
 
           {/* Category grid */}
@@ -86,7 +86,7 @@ export default async function SarkariNaukriPage() {
           {/* All exams */}
           <section aria-label="All Sarkari Naukri exams">
             <h2 className="font-heading font-bold text-lg text-gray-900 mb-4">
-              All Government Job Notifications 2025
+              All Government Job Notifications {YEAR}
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {exams.map((exam) => (

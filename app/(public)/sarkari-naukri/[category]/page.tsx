@@ -48,7 +48,7 @@ export default async function CategoryPage({ params }: Props) {
       </div>
 
       <h1 className="font-heading font-bold text-2xl text-gray-900 mb-1">
-        {label} Exams 2025 — Latest Notifications & Results
+        {label} Exams {getCurrentYear()} — Latest Notifications & Results
       </h1>
       <p className="text-sm text-gray-500 mb-5">
         Last Updated: {new Date().toLocaleDateString("en-IN")}

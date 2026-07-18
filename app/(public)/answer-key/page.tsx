@@ -35,7 +35,7 @@ export default async function AnswerKeyPage() {
         <AdSlot position="content-hub-top" size="728x90" />
       </div>
       <h1 className="font-heading font-bold text-2xl text-gray-900 mb-1">
-        Answer Key 2025 — Download PDF for All Competitive Exams
+        Answer Key {new Date().getFullYear()} — Download PDF for All Competitive Exams
       </h1>
       <p className="text-sm text-gray-500 mb-5">
         Official answer keys with objection window details for {exams.length}+ exams

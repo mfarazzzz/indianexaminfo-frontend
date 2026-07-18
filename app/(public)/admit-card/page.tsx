@@ -48,7 +48,7 @@ export default async function AdmitCardPage() {
       <div className="grid grid-cols-1 lg:grid-cols-[1fr_280px] gap-6">
         <main>
           <h1 className="font-heading font-bold text-2xl text-gray-900 mb-1">
-            Admit Card 2025 — Download Hall Ticket for All Exams
+            Admit Card {new Date().getFullYear()} — Download Hall Ticket for All Exams
           </h1>
           <p className="text-sm text-gray-500 mb-5">
             Last Updated: {new Date().toLocaleDateString("en-IN")} ·{" "}

@@ -180,7 +180,7 @@ export default async function BlogArticlePage({ params }: Props) {
                   <div className="flex flex-wrap gap-2">
                     {post.relatedExamSlugs.map((examSlug) => (
                       <Link key={examSlug} href={`/sarkari-naukri/banking/${examSlug}`} className="text-xs font-semibold text-primary bg-white border border-primary/20 px-2 py-1 rounded hover:bg-primary hover:text-white transition-colors">
-                        {examSlug.toUpperCase()} 2025
+                        {examSlug.toUpperCase()} {new Date().getFullYear()}
                       </Link>
                     ))}
                   </div>

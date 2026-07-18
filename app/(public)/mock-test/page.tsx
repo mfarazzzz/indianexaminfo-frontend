@@ -28,7 +28,7 @@ export default async function MockTestPage() {
         <AdSlot position="content-hub-top" size="728x90" />
       </div>
       <h1 className="font-heading font-bold text-2xl text-gray-900 mb-1">
-        Mock Test 2025 — Free Practice Tests for All Competitive Exams
+        Mock Test {new Date().getFullYear()} — Free Practice Tests for All Competitive Exams
       </h1>
       <p className="text-sm text-gray-500 mb-5">
         Practice free online mock tests for {exams.length}+ exams

@@ -66,7 +66,7 @@ export default async function StateBoardContentTypePage({ params }: Props) {
             <span className="content-type-badge bg-primary/10 text-primary mb-3 inline-block">{ctLabel}</span>
 
             <h1 className="font-heading font-bold text-2xl text-gray-900 mb-2 article-title">
-              {exam.shortName} {ctLabel} 2025 — Download &amp; Check Online
+              {exam.shortName} {ctLabel} {new Date().getFullYear()} — Download &amp; Check Online
             </h1>
 
             <div className="flex flex-wrap items-center gap-3 mb-4 text-xs text-gray-500 border-b border-border pb-3">
@@ -158,7 +158,7 @@ export default async function StateBoardContentTypePage({ params }: Props) {
                     <li key={p.id}>
                       <Link href={`/${p.pillar}/${p.examEntityName.toLowerCase().replace(/\s+/g, "-")}/${p.slug}`}
                             className="text-gray-700 hover:text-primary hover:underline">
-                        {p.examEntityName} {ctLabel} 2025
+                        {p.examEntityName} {ctLabel} {new Date().getFullYear()}
                       </Link>
                     </li>
                   ))}

@@ -109,7 +109,7 @@ export async function EntityDetailPage({ exam, breadcrumbs }: EntityDetailPagePr
 
             {/* H1 */}
             <h1 className="font-heading font-bold text-2xl text-gray-900 mb-3 article-title">
-              {exam.name} 2025 — Notification, Eligibility &amp; Apply
+              {exam.name} {new Date().getFullYear()} — Notification, Eligibility &amp; Apply
             </h1>
 
             {/* Meta row */}
