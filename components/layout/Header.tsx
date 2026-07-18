@@ -83,51 +83,60 @@ export function Header({ cmsMenu }: HeaderProps = {}) {
                 {activeMega === "sarkari-naukri" && (
                   hasCmsNav ? (
                     <div
-                      className="absolute top-full left-0 z-50 mt-0 bg-white border border-border shadow-md rounded-b animate-fade-in"
-                      style={{ minWidth: "320px" }}
+                      className="absolute top-full left-0 z-50 mt-0 bg-white border border-border shadow-lg rounded-b animate-fade-in"
+                      style={{ minWidth: "260px" }}
                       role="menu"
                     >
-                      <div className="p-3 space-y-1">
-                        {cmsMenu!.items.map((item) => (
-                          <div key={item.id}>
-                            {item.url ? (
+                      <div className="py-2">
+                        {cmsMenu!.items.map((item, idx) => {
+                          // Items with children are group headers (By State, By Category)
+                          if (!item.url && item.children && item.children.length > 0) {
+                            return (
+                              <div key={item.id} className="group relative">
+                                {idx > 0 && <div className="mx-3 my-1 border-t border-border" />}
+                                <div className="flex items-center justify-between px-4 py-2 text-xs font-bold text-gray-500 uppercase tracking-wider cursor-default">
+                                  <span>{item.icon && <span className="mr-1">{item.icon}</span>}{item.label}</span>
+                                  <ChevronDown className="w-3 h-3 -rotate-90" />
+                                </div>
+                                {/* Submenu on hover */}
+                                <div className="hidden group-hover:block absolute left-full top-0 ml-0 bg-white border border-border shadow-lg rounded min-w-[180px] py-1">
+                                  {item.children.map((child) => (
+                                    <Link
+                                      key={child.id}
+                                      href={child.url ?? "#"}
+                                      onClick={() => setActiveMega(null)}
+                                      className="block px-4 py-1.5 text-sm text-gray-700 hover:text-primary hover:bg-gray-50 transition-colors"
+                                      role="menuitem"
+                                    >
+                                      {child.label}
+                                    </Link>
+                                  ))}
+                                </div>
+                              </div>
+                            );
+                          }
+                          // Regular link items
+                          return (
+                            <div key={item.id}>
+                              {/* Add divider between "All Govt Jobs" and "Sarkari Exam" */}
+                              {idx === 1 && <div className="mx-3 my-1 border-t border-border" />}
+                              {/* Add divider before group headers */}
+                              {idx === 3 && <div className="mx-3 my-1 border-t border-border" />}
                               <Link
-                                href={item.url}
+                                href={item.url ?? "#"}
                                 onClick={() => setActiveMega(null)}
-                                className="flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:text-primary hover:bg-gray-50 rounded transition-colors"
+                                className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:text-primary hover:bg-gray-50 transition-colors"
                                 role="menuitem"
                               >
-                                {item.icon && <span>{item.icon}</span>}
-                                <span>{item.label}</span>
+                                {item.icon && <span className="text-base">{item.icon}</span>}
+                                <span className="font-medium">{item.label}</span>
                                 {item.badge && (
                                   <span className="ml-auto rounded-full bg-red-100 px-1.5 py-0.5 text-[9px] font-bold text-red-600">{item.badge}</span>
                                 )}
                               </Link>
-                            ) : (
-                              <div className="px-3 pt-3 pb-1">
-                                <p className="text-xs font-bold text-primary uppercase tracking-wider border-b border-border pb-1">
-                                  {item.icon && <span className="mr-1">{item.icon}</span>}{item.label}
-                                </p>
-                                {item.children && item.children.length > 0 && (
-                                  <ul className="mt-1 space-y-0.5">
-                                    {item.children.map((child) => (
-                                      <li key={child.id}>
-                                        <Link
-                                          href={child.url ?? "#"}
-                                          onClick={() => setActiveMega(null)}
-                                          className="block px-2 py-1 text-sm text-gray-600 hover:text-primary transition-colors"
-                                          role="menuitem"
-                                        >
-                                          {child.label}
-                                        </Link>
-                                      </li>
-                                    ))}
-                                  </ul>
-                                )}
-                              </div>
-                            )}
-                          </div>
-                        ))}
+                            </div>
+                          );
+                        })}
                       </div>
                     </div>
                   ) : (

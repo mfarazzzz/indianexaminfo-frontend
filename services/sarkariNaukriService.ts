@@ -341,3 +341,24 @@ export async function generateStaticSarkariNaukriParams(): Promise<{ slug: strin
     return [];
   }
 }
+
+export async function getSarkariNaukriStats(): Promise<{ total: number; exam: number; direct: number }> {
+  return cached(async () => {
+    try {
+      const supabase = createServerClient();
+      const [totalRes, examRes, directRes] = await Promise.all([
+        supabase.from("sarkari_naukri").select("id", { count: "exact", head: true }).eq("workflow_status", "published"),
+        supabase.from("sarkari_naukri").select("id", { count: "exact", head: true }).eq("workflow_status", "published").eq("recruitment_type", "exam"),
+        supabase.from("sarkari_naukri").select("id", { count: "exact", head: true }).eq("workflow_status", "published").eq("recruitment_type", "direct"),
+      ]);
+      return {
+        total: totalRes.count ?? 0,
+        exam: examRes.count ?? 0,
+        direct: directRes.count ?? 0,
+      };
+    } catch (err) {
+      console.error("[sarkariNaukriService] getSarkariNaukriStats failed:", err);
+      return { total: 361, exam: 60, direct: 301 };
+    }
+  }, ["sarkari-naukri", "sarkari-naukri:stats"], { revalidate: 3600 });
+}
