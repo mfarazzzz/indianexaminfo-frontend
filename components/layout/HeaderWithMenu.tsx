@@ -1,15 +1,27 @@
 /**
- * HeaderWithMenu.tsx — Server component wrapper that fetches CMS menu data
- * and passes it to the client-side Header.
- * Falls back to hardcoded config/navigation.ts if DB is unavailable.
+ * HeaderWithMenu.tsx — Server component that fetches ALL navigation menus
+ * and passes them to client-side components (Header, QuickAccessBar).
+ * This is the single data-loading point for navigation — no fetch in client components.
  */
-import { getMenuBySlug } from "@/services/menuService";
+import { getNavigationMenus } from "@/services/menuService";
 import { Header } from "./Header";
+import { QuickAccessBar } from "./QuickAccessBar";
 
 export async function HeaderWithMenu() {
-  // Attempt to load the main navigation menu from CMS
-  const mainMenu = await getMenuBySlug("main-nav");
+  const menus = await getNavigationMenus();
 
-  // Pass to Header — it will use CMS data if available, else hardcoded fallback
-  return <Header cmsMenu={mainMenu} />;
+  return (
+    <>
+      <Header
+        primaryNav={menus.primaryNav}
+        megaMenus={{
+          "government-jobs-mega": menus.governmentJobsMega,
+          "entrance-exams-mega": menus.entranceExamsMega,
+          "board-university-mega": menus.boardUniversityMega,
+          "news-mega": menus.newsMega,
+        }}
+      />
+      <QuickAccessBar menu={menus.quickAccessBar} />
+    </>
+  );
 }

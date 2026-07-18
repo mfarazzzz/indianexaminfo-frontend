@@ -342,6 +342,25 @@ export async function generateStaticSarkariNaukriParams(): Promise<{ slug: strin
   }
 }
 
+export async function searchSarkariNaukri(query: string): Promise<SarkariNaukriItem[]> {
+  if (!query.trim()) return [];
+  try {
+    const supabase = createServerClient();
+    const { data, error } = await supabase
+      .from("sarkari_naukri")
+      .select("*")
+      .eq("workflow_status", "published")
+      .or(`title.ilike.%${query}%,organization.ilike.%${query}%,department.ilike.%${query}%,category.ilike.%${query}%`)
+      .order("updated_at", { ascending: false })
+      .limit(15);
+    if (error) throw error;
+    return (data ?? []).map((r: any) => mapRow(r));
+  } catch (err) {
+    console.error("[sarkariNaukriService] searchSarkariNaukri failed:", err);
+    return [];
+  }
+}
+
 export async function getSarkariNaukriStats(): Promise<{ total: number; exam: number; direct: number }> {
   return cached(async () => {
     try {

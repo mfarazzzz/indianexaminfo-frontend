@@ -1,33 +1,42 @@
 "use client";
 
 import Link from "next/link";
-import { useState, useEffect } from "react";
-import { navigation } from "@/config/navigation";
-import { MegaMenu } from "./MegaMenu";
+import dynamic from "next/dynamic";
+import { useState, useEffect, useCallback } from "react";
 import { cn } from "@/lib/utils";
-import { Search, Menu, X, ChevronDown } from "lucide-react";
+import { Search, Menu, X, ChevronDown, ChevronRight } from "lucide-react";
 import type { Menu as CmsMenu } from "@/services/menuService";
 
+// Lazy-load mega menu components — only loaded when user hovers a nav item
+const CmsMegaMenu = dynamic(() => import("./MegaMenu").then(m => ({ default: m.CmsMegaMenu })), { ssr: false });
+const SimpleDropdown = dynamic(() => import("./MegaMenu").then(m => ({ default: m.SimpleDropdown })), { ssr: false });
+
 type HeaderProps = {
-  cmsMenu?: CmsMenu | null;
+  primaryNav: CmsMenu | null;
+  megaMenus: Record<string, CmsMenu | null>;
 };
 
-export function Header({ cmsMenu }: HeaderProps = {}) {
-  // If CMS menu has items, override the hardcoded Sarkari Naukri mega-menu
-  const hasCmsNav = cmsMenu && cmsMenu.items.length > 0;
+/**
+ * Main site header — 100% CMS-driven navigation.
+ * Primary nav items come from `primary-nav` menu.
+ * Mega menus come from separate menu slugs referenced in each item's metadata.mega_menu.
+ * No hardcoded links — if CMS is unavailable, renders empty (graceful degradation).
+ */
+export function Header({ primaryNav, megaMenus }: HeaderProps) {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [activeMega, setActiveMega] = useState<string | null>(null);
 
+  // Track scroll for shadow
   useEffect(() => {
     const handler = () => setScrolled(window.scrollY > 4);
     window.addEventListener("scroll", handler, { passive: true });
     return () => window.removeEventListener("scroll", handler);
   }, []);
 
-  // Close mega menu on escape
+  // Close on escape
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
@@ -39,6 +48,22 @@ export function Header({ cmsMenu }: HeaderProps = {}) {
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
   }, []);
+
+  // Close mobile nav on resize to desktop
+  useEffect(() => {
+    const handler = () => { if (window.innerWidth >= 1024) setMobileOpen(false); };
+    window.addEventListener("resize", handler);
+    return () => window.removeEventListener("resize", handler);
+  }, []);
+
+  const navItems = primaryNav?.items ?? [];
+
+  // Get mega menu for a nav item (if it references one)
+  const getMegaMenu = useCallback((item: typeof navItems[0]): CmsMenu | null => {
+    const megaSlug = (item.metadata as Record<string, unknown>)?.mega_menu as string | undefined;
+    if (!megaSlug) return null;
+    return megaMenus[megaSlug] ?? null;
+  }, [megaMenus]);
 
   return (
     <>
@@ -60,172 +85,49 @@ export function Header({ cmsMenu }: HeaderProps = {}) {
               </span>
             </Link>
 
-            {/* Desktop Nav */}
+            {/* Desktop Nav — CMS-driven */}
             <nav className="hidden lg:flex items-center gap-0 flex-1" aria-label="Main navigation">
-              {/* Sarkari Naukri */}
-              <div
-                className="relative"
-                onMouseEnter={() => setActiveMega("sarkari-naukri")}
-                onMouseLeave={() => setActiveMega(null)}
-              >
-                <Link
-                  href={navigation.sarkariNaukri.href}
-                  className={cn(
-                    "flex items-center gap-1 px-3 py-1 text-sm font-medium rounded transition-colors",
-                    activeMega === "sarkari-naukri"
-                      ? "text-primary bg-primary-50"
-                      : "text-gray-700 hover:text-primary hover:bg-gray-50"
-                  )}
-                  prefetch
-                >
-                  Sarkari Naukri <ChevronDown className="w-3.5 h-3.5" />
-                </Link>
-                {activeMega === "sarkari-naukri" && (
-                  hasCmsNav ? (
-                    <div
-                      className="absolute top-full left-0 z-50 mt-0 bg-white border border-border shadow-lg rounded-b animate-fade-in"
-                      style={{ minWidth: "260px" }}
-                      role="menu"
+              {navItems.map((item) => {
+                const megaMenu = getMegaMenu(item);
+                const hasMega = megaMenu && megaMenu.items.length > 0;
+                const isSimpleMega = megaMenu && megaMenu.items.length > 0 && megaMenu.items.length <= 10 && !megaMenu.items.some(i => i.itemType === "heading");
+                const isActive = activeMega === item.id;
+
+                // Skip "Home" in desktop nav (implied by logo)
+                if (item.url === "/") return null;
+
+                return (
+                  <div
+                    key={item.id}
+                    className="relative"
+                    onMouseEnter={() => hasMega ? setActiveMega(item.id) : undefined}
+                    onMouseLeave={() => setActiveMega(null)}
+                  >
+                    <Link
+                      href={item.url ?? "#"}
+                      className={cn(
+                        "flex items-center gap-1 px-3 py-1.5 text-sm font-medium rounded transition-colors",
+                        isActive
+                          ? "text-primary bg-primary/5"
+                          : "text-gray-700 hover:text-primary hover:bg-gray-50"
+                      )}
+                      prefetch
+                      aria-haspopup={hasMega ? "true" : undefined}
+                      aria-expanded={isActive ? "true" : undefined}
                     >
-                      <div className="py-2">
-                        {cmsMenu!.items.map((item, idx) => {
-                          // Items with children are group headers (By State, By Category)
-                          if (!item.url && item.children && item.children.length > 0) {
-                            return (
-                              <div key={item.id} className="group relative">
-                                {idx > 0 && <div className="mx-3 my-1 border-t border-border" />}
-                                <div className="flex items-center justify-between px-4 py-2 text-xs font-bold text-gray-500 uppercase tracking-wider cursor-default">
-                                  <span>{item.icon && <span className="mr-1">{item.icon}</span>}{item.label}</span>
-                                  <ChevronDown className="w-3 h-3 -rotate-90" />
-                                </div>
-                                {/* Submenu on hover */}
-                                <div className="hidden group-hover:block absolute left-full top-0 ml-0 bg-white border border-border shadow-lg rounded min-w-[180px] py-1">
-                                  {item.children.map((child) => (
-                                    <Link
-                                      key={child.id}
-                                      href={child.url ?? "#"}
-                                      onClick={() => setActiveMega(null)}
-                                      className="block px-4 py-1.5 text-sm text-gray-700 hover:text-primary hover:bg-gray-50 transition-colors"
-                                      role="menuitem"
-                                    >
-                                      {child.label}
-                                    </Link>
-                                  ))}
-                                </div>
-                              </div>
-                            );
-                          }
-                          // Regular link items
-                          return (
-                            <div key={item.id}>
-                              {/* Add divider between "All Govt Jobs" and "Sarkari Exam" */}
-                              {idx === 1 && <div className="mx-3 my-1 border-t border-border" />}
-                              {/* Add divider before group headers */}
-                              {idx === 3 && <div className="mx-3 my-1 border-t border-border" />}
-                              <Link
-                                href={item.url ?? "#"}
-                                onClick={() => setActiveMega(null)}
-                                className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:text-primary hover:bg-gray-50 transition-colors"
-                                role="menuitem"
-                              >
-                                {item.icon && <span className="text-base">{item.icon}</span>}
-                                <span className="font-medium">{item.label}</span>
-                                {item.badge && (
-                                  <span className="ml-auto rounded-full bg-red-100 px-1.5 py-0.5 text-[9px] font-bold text-red-600">{item.badge}</span>
-                                )}
-                              </Link>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    </div>
-                  ) : (
-                    <MegaMenu
-                      categories={navigation.sarkariNaukri.categories}
-                      onClose={() => setActiveMega(null)}
-                    />
-                  )
-                )}
-              </div>
+                      {item.label}
+                      {hasMega && <ChevronDown className="w-3.5 h-3.5" />}
+                    </Link>
 
-              {/* Entrance Exam */}
-              <div
-                className="relative"
-                onMouseEnter={() => setActiveMega("entrance-exam")}
-                onMouseLeave={() => setActiveMega(null)}
-              >
-                <Link
-                  href={navigation.entranceExam.href}
-                  className={cn(
-                    "flex items-center gap-1 px-3 py-1 text-sm font-medium rounded transition-colors",
-                    activeMega === "entrance-exam"
-                      ? "text-primary bg-primary-50"
-                      : "text-gray-700 hover:text-primary hover:bg-gray-50"
-                  )}
-                  prefetch
-                >
-                  Entrance Exam <ChevronDown className="w-3.5 h-3.5" />
-                </Link>
-                {activeMega === "entrance-exam" && (
-                  <MegaMenu
-                    categories={navigation.entranceExam.categories}
-                    onClose={() => setActiveMega(null)}
-                  />
-                )}
-              </div>
-
-              {/* Board Exam */}
-              <div
-                className="relative"
-                onMouseEnter={() => setActiveMega("board-exam")}
-                onMouseLeave={() => setActiveMega(null)}
-              >
-                <Link
-                  href={navigation.boardExam.href}
-                  className={cn(
-                    "flex items-center gap-1 px-3 py-1 text-sm font-medium rounded transition-colors",
-                    activeMega === "board-exam"
-                      ? "text-primary bg-primary-50"
-                      : "text-gray-700 hover:text-primary hover:bg-gray-50"
-                  )}
-                  prefetch
-                >
-                  Board Exam <ChevronDown className="w-3.5 h-3.5" />
-                </Link>
-                {activeMega === "board-exam" && (
-                  <MegaMenu
-                    categories={navigation.boardExam.categories}
-                    onClose={() => setActiveMega(null)}
-                  />
-                )}
-              </div>
-
-              {/* Blog */}
-              <Link
-                href={navigation.blog.href}
-                className="px-3 py-1 text-sm font-medium text-gray-700 hover:text-primary hover:bg-gray-50 rounded transition-colors"
-                prefetch
-              >
-                Blog & News
-              </Link>
-
-              {/* Quick links */}
-              <div className="flex items-center gap-0 ml-2 border-l border-border pl-2">
-                <Link
-                  href="/admit-card"
-                  className="px-3 py-1 text-sm font-semibold text-accent hover:bg-accent/5 rounded transition-colors"
-                  prefetch
-                >
-                  Admit Card
-                </Link>
-                <Link
-                  href="/results"
-                  className="px-3 py-1 text-sm font-semibold text-success hover:bg-success/5 rounded transition-colors"
-                  prefetch
-                >
-                  Results
-                </Link>
-              </div>
+                    {/* Mega menu dropdown */}
+                    {isActive && megaMenu && (
+                      isSimpleMega
+                        ? <SimpleDropdown menu={megaMenu} onClose={() => setActiveMega(null)} />
+                        : <CmsMegaMenu menu={megaMenu} onClose={() => setActiveMega(null)} />
+                    )}
+                  </div>
+                );
+              })}
             </nav>
 
             {/* Search button */}
@@ -248,37 +150,36 @@ export function Header({ cmsMenu }: HeaderProps = {}) {
           </div>
         </div>
 
-        {/* Mobile Nav */}
+        {/* ── Mobile Nav (Accordion) ── */}
         {mobileOpen && (
-          <div className="lg:hidden border-t border-border bg-white animate-fade-in">
-            <nav className="container mx-auto px-4 py-3 flex flex-col gap-1">
-              <Link href="/sarkari-naukri" className="py-2 text-sm font-medium text-gray-800 hover:text-primary border-b border-border/50">Sarkari Naukri</Link>
-              <Link href="/entrance-exam" className="py-2 text-sm font-medium text-gray-800 hover:text-primary border-b border-border/50">Entrance Exam</Link>
-              <Link href="/board-exam" className="py-2 text-sm font-medium text-gray-800 hover:text-primary border-b border-border/50">Board Exam</Link>
-              <Link href="/blog" className="py-2 text-sm font-medium text-gray-800 hover:text-primary border-b border-border/50">Blog & News</Link>
-              <div className="flex gap-3 pt-2">
-                <Link href="/admit-card" className="text-sm font-semibold text-accent">Admit Card</Link>
-                <Link href="/results" className="text-sm font-semibold text-success">Results</Link>
-                <Link href="/answer-key" className="text-sm font-medium text-gray-600">Answer Key</Link>
-                <Link href="/syllabus" className="text-sm font-medium text-gray-600">Syllabus</Link>
-              </div>
+          <div className="lg:hidden border-t border-border bg-white max-h-[80vh] overflow-y-auto animate-fade-in">
+            <nav className="container mx-auto px-4 py-3" aria-label="Mobile navigation">
+              {navItems.map((item) => {
+                const megaMenu = getMegaMenu(item);
+                const hasChildren = megaMenu && megaMenu.items.length > 0;
+
+                return (
+                  <MobileNavItem
+                    key={item.id}
+                    item={item}
+                    megaMenu={megaMenu}
+                    onNavigate={() => setMobileOpen(false)}
+                  />
+                );
+              })}
             </nav>
           </div>
         )}
       </header>
 
-      {/* Search Overlay */}
+      {/* ── Search Overlay ── */}
       {searchOpen && (
         <div
           className="fixed inset-0 z-[60] bg-black/50 flex items-start justify-center pt-16"
           onClick={(e) => e.target === e.currentTarget && setSearchOpen(false)}
         >
-          <div className="bg-white w-full max-w-2xl mx-4 rounded shadow-lg animate-fade-in">
-            <form
-              action="/search"
-              method="get"
-              className="flex items-center p-4 gap-3"
-            >
+          <div className="bg-white w-full max-w-2xl mx-4 rounded-lg shadow-xl animate-fade-in">
+            <form action="/search" method="get" className="flex items-center p-4 gap-3">
               <Search className="w-5 h-5 text-gray-400 shrink-0" />
               <input
                 autoFocus
@@ -286,7 +187,7 @@ export function Header({ cmsMenu }: HeaderProps = {}) {
                 name="q"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search exams, results, admit cards..."
+                placeholder="Search exams, jobs, results, admit cards..."
                 className="flex-1 text-base outline-none text-gray-900"
                 aria-label="Search"
               />
@@ -300,13 +201,13 @@ export function Header({ cmsMenu }: HeaderProps = {}) {
               </button>
             </form>
             <div className="px-4 pb-3 border-t border-border">
-              <p className="text-xs text-gray-400 mt-2 mb-1.5">Quick searches:</p>
+              <p className="text-xs text-gray-400 mt-2 mb-1.5">Popular searches:</p>
               <div className="flex flex-wrap gap-2">
-                {["IBPS PO", "NEET UG", "SSC CGL", "UP Board Result", "CBSE Date Sheet"].map((q) => (
+                {["SSC CGL", "IBPS PO", "NEET UG", "JEE Main", "UP Board Result", "CBSE Date Sheet", "Railway Jobs"].map((q) => (
                   <a
                     key={q}
                     href={`/search?q=${encodeURIComponent(q)}`}
-                    className="text-xs px-2 py-1 bg-gray-100 text-gray-600 rounded hover:bg-primary hover:text-white transition-colors"
+                    className="text-xs px-2.5 py-1 bg-gray-100 text-gray-600 rounded-full hover:bg-primary hover:text-white transition-colors"
                   >
                     {q}
                   </a>
@@ -317,5 +218,96 @@ export function Header({ cmsMenu }: HeaderProps = {}) {
         </div>
       )}
     </>
+  );
+}
+
+// ── Mobile Nav Item (Accordion) ───────────────────────────────────────────────
+
+function MobileNavItem({
+  item,
+  megaMenu,
+  onNavigate,
+}: {
+  item: { id: string; label: string; url: string | null; icon: string | null };
+  megaMenu: CmsMenu | null;
+  onNavigate: () => void;
+}) {
+  const [expanded, setExpanded] = useState(false);
+  const hasChildren = megaMenu && megaMenu.items.length > 0;
+
+  if (!hasChildren) {
+    return (
+      <Link
+        href={item.url ?? "#"}
+        onClick={onNavigate}
+        className="flex items-center gap-2 py-3 text-sm font-medium text-gray-800 hover:text-primary border-b border-border/50"
+      >
+        {item.icon && <span className="text-base">{item.icon}</span>}
+        {item.label}
+      </Link>
+    );
+  }
+
+  return (
+    <div className="border-b border-border/50">
+      <button
+        onClick={() => setExpanded(!expanded)}
+        className="flex items-center justify-between w-full py-3 text-sm font-medium text-gray-800"
+        aria-expanded={expanded}
+      >
+        <span className="flex items-center gap-2">
+          {item.icon && <span className="text-base">{item.icon}</span>}
+          {item.label}
+        </span>
+        <ChevronRight className={cn("w-4 h-4 text-gray-400 transition-transform", expanded && "rotate-90")} />
+      </button>
+
+      {expanded && (
+        <div className="pb-3 pl-4 space-y-1 animate-fade-in">
+          {/* Direct link to parent */}
+          {item.url && (
+            <Link
+              href={item.url}
+              onClick={onNavigate}
+              className="block py-1.5 text-sm text-primary font-medium"
+            >
+              View All →
+            </Link>
+          )}
+          {/* Mega menu items flattened for mobile */}
+          {megaMenu!.items.map((section) => (
+            <div key={section.id} className="pt-2 first:pt-0">
+              {section.itemType === "heading" ? (
+                <>
+                  <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">
+                    {section.label}
+                  </p>
+                  {section.children?.map((child) => (
+                    <Link
+                      key={child.id}
+                      href={child.url ?? "#"}
+                      onClick={onNavigate}
+                      className="block py-1.5 text-sm text-gray-600 hover:text-primary"
+                    >
+                      {child.icon && <span className="mr-1.5">{child.icon}</span>}
+                      {child.label}
+                    </Link>
+                  ))}
+                </>
+              ) : (
+                <Link
+                  href={section.url ?? "#"}
+                  onClick={onNavigate}
+                  className="block py-1.5 text-sm text-gray-600 hover:text-primary"
+                >
+                  {section.icon && <span className="mr-1.5">{section.icon}</span>}
+                  {section.label}
+                </Link>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
   );
 }
