@@ -5,6 +5,7 @@ import { Breadcrumb } from "@/components/layout/Breadcrumb";
 import { AdSlot } from "@/components/ads/AdSlot";
 import { buildExamMetadata } from "@/lib/seo/metadata";
 import { CONTENT_TYPE_KEYWORDS, GLOBAL_SHORT_TAIL, getCurrentYear } from "@/lib/seo/keywords";
+import { getExamContentTypeHref } from "@/lib/utils";
 import { siteConfig } from "@/config/site";
 
 export const revalidate = 86400;
@@ -37,7 +38,7 @@ export default async function StudyMaterialPage() {
         {exams.map((exam) => (
           <Link
             key={exam.id}
-            href={`/${exam.pillar}/${exam.category}/${exam.slug}/study-material`}
+            href={getExamContentTypeHref(exam, "study-material")}
             className="p-3 bg-card border border-border rounded hover:border-primary transition-colors group"
           >
             <p className="text-sm font-semibold text-gray-800 group-hover:text-primary">{exam.name}</p>

@@ -104,3 +104,30 @@ export function absoluteUrl(path: string, base = "https://www.indianexaminfo.com
 export function getReadingTimeText(minutes: number): string {
   return `${minutes} min read`;
 }
+
+/**
+ * Generate the canonical URL path for an exam entity.
+ * Handles all pillars: sarkari-naukri, entrance-exam, board-university.
+ * Falls back to flat slug URL if category is missing.
+ */
+export function getExamEntityHref(exam: { pillar: string; category: string; slug: string; entityType?: string }): string {
+  if (exam.pillar === "board-university") {
+    return exam.entityType === "university"
+      ? `/board-exam/university/${exam.slug}`
+      : `/board-exam/state/${exam.category}/${exam.slug}`;
+  }
+  if (!exam.category) {
+    return `/${exam.pillar}/${exam.slug}`;
+  }
+  return `/${exam.pillar}/${exam.category}/${exam.slug}`;
+}
+
+/**
+ * Generate the URL path for a content-type page of an exam entity.
+ */
+export function getExamContentTypeHref(
+  exam: { pillar: string; category: string; slug: string; entityType?: string },
+  contentType: string
+): string {
+  return `${getExamEntityHref(exam)}/${contentType}`;
+}

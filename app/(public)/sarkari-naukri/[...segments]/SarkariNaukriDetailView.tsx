@@ -1,58 +1,14 @@
-import type { Metadata } from "next";
 import Link from "next/link";
-import { notFound, redirect } from "next/navigation";
-import { getSarkariNaukriBySlug, generateStaticSarkariNaukriParams } from "@/services/sarkariNaukriService";
+import type { SarkariNaukriItem } from "@/services/sarkariNaukriService";
 import { Breadcrumb } from "@/components/layout/Breadcrumb";
 import { AdSlot } from "@/components/ads/AdSlot";
-import { buildExamMetadata } from "@/lib/seo/metadata";
-import { siteConfig } from "@/config/site";
 
-export const revalidate = 3600;
-
-// 301 redirects for old category slugs
-const OLD_CATEGORY_REDIRECTS: Record<string, string> = {
-  "central-government-jobs": "/sarkari-naukri/exam",
-  "state-government-jobs": "/sarkari-naukri/bharti",
-  "banking": "/sarkari-naukri/exam?category=banking",
-  "railways": "/sarkari-naukri/exam?category=railway",
-  "defence": "/sarkari-naukri/exam?category=defence",
-  "teaching": "/sarkari-naukri/exam?category=teaching",
+type Props = {
+  item: SarkariNaukriItem;
+  slug: string;
 };
 
-type Props = { params: Promise<{ slug: string }> };
-
-export async function generateStaticParams() {
-  return generateStaticSarkariNaukriParams();
-}
-
-export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { slug } = await params;
-
-  // Don't generate metadata for redirect slugs
-  if (OLD_CATEGORY_REDIRECTS[slug]) return {};
-
-  const item = await getSarkariNaukriBySlug(slug);
-  if (!item) return {};
-
-  return buildExamMetadata({
-    pageType: "exam-entity",
-    title: item.seoTitle ?? `${item.title} — IndianExamInfo`,
-    description: item.seoDescription ?? `${item.title}. ${item.organization}. Check status, dates, eligibility and apply online.`,
-    canonicalUrl: `${siteConfig.url}/sarkari-naukri/${slug}`,
-  });
-}
-
-export default async function SarkariNaukriDetailPage({ params }: Props) {
-  const { slug } = await params;
-
-  // Handle 301 redirects for old category URLs
-  if (OLD_CATEGORY_REDIRECTS[slug]) {
-    redirect(OLD_CATEGORY_REDIRECTS[slug]);
-  }
-
-  const item = await getSarkariNaukriBySlug(slug);
-  if (!item) notFound();
-
+export function SarkariNaukriDetailView({ item, slug }: Props) {
   const isExam = item.recruitmentType === "exam";
 
   return (

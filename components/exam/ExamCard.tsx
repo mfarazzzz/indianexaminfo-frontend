@@ -16,6 +16,10 @@ function getExamHref(exam: ExamEntity): string {
       ? `/board-exam/university/${exam.slug}`
       : `/board-exam/state/${exam.category}/${exam.slug}`;
   }
+  // If category is missing, fall back to flat slug URL (works for sarkari-naukri [slug] route)
+  if (!exam.category) {
+    return `/${exam.pillar}/${exam.slug}`;
+  }
   return `/${exam.pillar}/${exam.category}/${exam.slug}`;
 }
 

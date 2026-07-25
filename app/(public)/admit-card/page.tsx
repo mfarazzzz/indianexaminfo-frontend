@@ -7,7 +7,7 @@ import { AdSlot } from "@/components/ads/AdSlot";
 import { buildExamMetadata } from "@/lib/seo/metadata";
 import { CONTENT_TYPE_KEYWORDS, GLOBAL_SHORT_TAIL, getCurrentYear } from "@/lib/seo/keywords";
 import { siteConfig } from "@/config/site";
-import { formatDate, pillarLabel } from "@/lib/utils";
+import { formatDate, pillarLabel, getExamContentTypeHref } from "@/lib/utils";
 import { navigation } from "@/config/navigation";
 import { Download, Calendar } from "lucide-react";
 
@@ -105,7 +105,7 @@ export default async function AdmitCardPage() {
               {exams.slice(0, 20).map((exam) => (
                 <Link
                   key={exam.id}
-                  href={`/${exam.pillar}/${exam.category}/${exam.slug}/admit-card`}
+                  href={getExamContentTypeHref(exam, "admit-card")}
                   className="flex items-center justify-between gap-2 p-3 bg-card border border-border rounded hover:border-primary transition-colors group text-sm"
                 >
                   <span className="font-medium text-gray-800 group-hover:text-primary">{exam.name}</span>

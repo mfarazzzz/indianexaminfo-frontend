@@ -38,7 +38,7 @@ export async function LatestUpdates({ exams: examsProp, posts: postsProp }: Late
         .map((d) => ({
           id:          `exam-${e.id}-${d.label}`,
           title:       `${e.shortName} — ${d.label}`,
-          href:        `/${e.pillar}/${e.category}/${e.slug}`,
+          href:        e.category ? `/${e.pillar}/${e.category}/${e.slug}` : `/${e.pillar}/${e.slug}`,
           category:    e.category,
           pillar:      e.pillar,
           contentType: "notification" as const,

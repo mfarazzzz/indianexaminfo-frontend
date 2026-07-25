@@ -71,19 +71,10 @@ const nextConfig: NextConfig = {
       { source: "/entrance-exam/hotel-management/:slug", destination: "/entrance-exam/university-entrance/:slug",  permanent: true },
       { source: "/entrance-exam/media/:slug",            destination: "/entrance-exam/university-entrance/:slug",  permanent: true },
       
-      // Old sarkari-naukri category URLs → query params (from previous migration)
-      { source: "/sarkari-naukri/banking",               destination: "/sarkari-naukri/exam?category=banking",     permanent: true },
-      { source: "/sarkari-naukri/railways",              destination: "/sarkari-naukri/exam?category=railway",     permanent: true },
-      { source: "/sarkari-naukri/defence",               destination: "/sarkari-naukri/exam?category=defence",     permanent: true },
-      { source: "/sarkari-naukri/teaching",              destination: "/sarkari-naukri/exam?category=teaching",    permanent: true },
-      { source: "/sarkari-naukri/central-government-jobs", destination: "/sarkari-naukri/exam",                    permanent: true },
-      { source: "/sarkari-naukri/state-government-jobs",   destination: "/sarkari-naukri/bharti",                  permanent: true },
+      // Old sarkari-naukri category-only URLs are now handled in [category]/page.tsx with internal redirects.
       
-      // Old nav links with nested category/exam paths that don't match DB
-      { source: "/sarkari-naukri/upsc/:slug",            destination: "/sarkari-naukri",                           permanent: true },
-      { source: "/sarkari-naukri/ssc/:slug",             destination: "/sarkari-naukri/exam?category=ssc",         permanent: true },
-      { source: "/sarkari-naukri/police/:slug",          destination: "/sarkari-naukri/exam?category=police",      permanent: true },
-      { source: "/sarkari-naukri/state-psc/:slug",       destination: "/sarkari-naukri/exam?category=state-psc",   permanent: true },
+      // Note: /sarkari-naukri/[category]/[slug] is now a valid route (exam entity detail page).
+      // Old category-only redirects that have no slug are handled in [category]/page.tsx.
     ];
   },
 

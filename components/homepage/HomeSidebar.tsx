@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { getAllExams } from "@/services/examService";
-import { formatDate, isUrgent, isClosingSoon } from "@/lib/utils";
+import { formatDate, isUrgent, isClosingSoon, getExamEntityHref } from "@/lib/utils";
 import { AdSlot } from "@/components/ads/AdSlot";
 import { cn } from "@/lib/utils";
 import { CalendarDays, TrendingUp, ExternalLink } from "lucide-react";
@@ -29,7 +29,7 @@ export async function HomeSidebar({ exams: examsProp }: { exams?: ExamEntity[] }
         .filter((d) => new Date(d.date) >= new Date())
         .map((d) => ({
           examName: e.shortName,
-          href:     `/${e.pillar}/${e.category}/${e.slug}`,
+          href:     getExamEntityHref(e),
           event:    d.label,
           date:     d.date,
           isUrgent: isUrgent(d.date, 7),
@@ -124,12 +124,7 @@ export async function HomeSidebar({ exams: examsProp }: { exams?: ExamEntity[] }
             .filter((e) => e.status === "upcoming" || e.status === "registration-open")
             .slice(0, 6)
             .map((e) => {
-              const href =
-                e.pillar === "board-university"
-                  ? e.entityType === "university"
-                    ? `/board-exam/university/${e.slug}`
-                    : `/board-exam/state/${e.category}/${e.slug}`
-                  : `/${e.pillar}/${e.category}/${e.slug}`;
+              const href = getExamEntityHref(e);
               return (
                 <li key={e.id}>
                   <Link

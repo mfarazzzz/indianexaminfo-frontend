@@ -7,6 +7,7 @@ import { searchSarkariNaukri } from "@/services/sarkariNaukriService";
 import { searchEducationNews } from "@/services/educationNewsService";
 import { Breadcrumb } from "@/components/layout/Breadcrumb";
 import { AdSlot } from "@/components/ads/AdSlot";
+import { getExamEntityHref } from "@/lib/utils";
 import { GLOBAL_SHORT_TAIL } from "@/lib/seo/keywords";
 import { Search, Briefcase, GraduationCap, Newspaper, FileText } from "lucide-react";
 
@@ -144,7 +145,7 @@ export default async function SearchPage({ searchParams }: Props) {
                 {exams.map((exam) => (
                   <Link
                     key={exam.id}
-                    href={`/${exam.pillar}/${exam.category}/${exam.slug}`}
+                    href={getExamEntityHref(exam)}
                     className="flex items-start justify-between gap-2 p-3 bg-card border border-border rounded hover:border-primary/50 transition-colors group"
                   >
                     <div>
