@@ -47,12 +47,14 @@ function categoryDot(pillar: string): string {
 export function ExamCard({ exam }: ExamCardProps) {
   const href     = getExamHref(exam);
   const now      = new Date();
-  const nextDate = exam.dates.find((d) => new Date(d.date) > now);
+  // Filter out blank dates (no date value) — they shouldn't appear on frontend
+  const validDates = exam.dates.filter((d) => d.date && d.date.trim() !== "");
+  const nextDate = validDates.find((d) => new Date(d.date) > now);
 
   // For result-declared/completed exams, show the most recent past milestone if no urgent future date
   let displayDate = nextDate;
   if (!nextDate || (exam.status === "result-declared" || exam.status === "completed")) {
-    const pastDates = exam.dates.filter((d) => new Date(d.date) <= now);
+    const pastDates = validDates.filter((d) => new Date(d.date) <= now);
     const lastPast = pastDates.length > 0 ? pastDates[pastDates.length - 1] : null;
     // Prefer showing the most recent milestone (e.g. "Result Declared") for declared/completed
     if (lastPast && (exam.status === "result-declared" || exam.status === "completed")) {
