@@ -12,6 +12,8 @@ import type { ExamEntity, Pillar, ContentType } from "@/types/exam";
 
 // ── Row mapper: Supabase snake_case → camelCase ExamEntity ─────────────
 function mapRow(row: Record<string, unknown>): ExamEntity {
+  // If a current edition exists, prefer its temporal data over legacy columns
+  const ed = (row as any).current_ed;
   return {
     id: row.id as string,
     slug: row.slug as string,
@@ -23,22 +25,22 @@ function mapRow(row: Record<string, unknown>): ExamEntity {
     entityType: (row.entity_type as ExamEntity["entityType"]) ?? "exam",
     conductingBody: (row.conducting_body as string) ?? "",
     officialWebsite: (row.official_website as string) ?? "",
-    status: (row.status as ExamEntity["status"]) ?? "upcoming",
-    hasAdmitCard: (row.has_admit_card as boolean) ?? false,
-    hasResult: (row.has_result as boolean) ?? false,
-    hasAnswerKey: (row.has_answer_key as boolean) ?? false,
-    hasSyllabus: (row.has_syllabus as boolean) ?? false,
+    status: (ed?.status as ExamEntity["status"]) ?? (row.status as ExamEntity["status"]) ?? "upcoming",
+    hasAdmitCard: (ed?.has_admit_card as boolean) ?? (row.has_admit_card as boolean) ?? false,
+    hasResult: (ed?.has_result as boolean) ?? (row.has_result as boolean) ?? false,
+    hasAnswerKey: (ed?.has_answer_key as boolean) ?? (row.has_answer_key as boolean) ?? false,
+    hasSyllabus: (ed?.has_syllabus as boolean) ?? (row.has_syllabus as boolean) ?? false,
     hasDateSheet: (row.has_date_sheet as boolean) ?? false,
     hasMockTest: (row.has_mock_test as boolean) ?? false,
     hasPreviousPapers: (row.has_previous_papers as boolean) ?? false,
     hasStudyMaterial: (row.has_study_material as boolean) ?? false,
-    hasApplication: (row.has_application as boolean) ?? false,
-    hasNotification: (row.has_notification as boolean) ?? false,
-    hasCutoff: (row.has_cutoff as boolean) ?? false,
-    dates: ((row.important_dates as unknown[]) ?? []) as ExamEntity["dates"],
-    eligibility: (row.eligibility as ExamEntity["eligibility"]) ?? undefined,
-    vacancy: (row.vacancy as number) ?? undefined,
-    applicationFee: (row.application_fee as ExamEntity["applicationFee"]) ?? undefined,
+    hasApplication: (ed?.has_application as boolean) ?? (row.has_application as boolean) ?? false,
+    hasNotification: (ed?.has_notification as boolean) ?? (row.has_notification as boolean) ?? false,
+    hasCutoff: (ed?.has_cutoff as boolean) ?? (row.has_cutoff as boolean) ?? false,
+    dates: ((ed?.important_dates ?? row.important_dates) as unknown[] ?? []) as ExamEntity["dates"],
+    eligibility: (ed?.eligibility as ExamEntity["eligibility"]) ?? (row.eligibility as ExamEntity["eligibility"]) ?? undefined,
+    vacancy: (ed?.vacancy as number) ?? (row.vacancy as number) ?? undefined,
+    applicationFee: (ed?.application_fee as ExamEntity["applicationFee"]) ?? (row.application_fee as ExamEntity["applicationFee"]) ?? undefined,
     selectionProcess: (row.selection_process as string[]) ?? [],
     syllabusHighlights: (row.syllabus_highlights as string[]) ?? [],
     academicYear: (row.academic_year as string) ?? undefined,
@@ -77,12 +79,18 @@ const LIST_SELECT = `
   has_admit_card, has_result, has_answer_key, has_syllabus, has_date_sheet,
   has_mock_test, has_previous_papers, has_study_material, has_application,
   has_notification, has_cutoff, tags, search_keywords, important_dates,
-  cat:categories!category_id(slug), subcat:categories!subcategory_id(slug)
+  cat:categories!category_id(slug), subcat:categories!subcategory_id(slug),
+  current_ed:exam_editions!current_edition_id(
+    id, year, edition_label, status, important_dates, vacancy,
+    has_admit_card, has_result, has_answer_key, has_syllabus,
+    has_application, has_notification, has_cutoff
+  )
 `;
 
 // ── Full exam detail select ─────────────────────────────────────────────
 const DETAIL_SELECT = `
-  *, cat:categories!category_id(slug), subcat:categories!subcategory_id(slug)
+  *, cat:categories!category_id(slug), subcat:categories!subcategory_id(slug),
+  current_ed:exam_editions!current_edition_id(*)
 `;
 
 // ── Service functions ────────────────────────────────────────────────────
@@ -323,4 +331,91 @@ export async function getExamCountByPillar(pillar: Pillar): Promise<number> {
       return 0;
     }
   }, ["exams", `exams:count:${pillar}`], { revalidate: 1800 });
+}
+
+// ── Edition-aware functions ─────────────────────────────────────────────
+
+export type EditionSummary = {
+  id: string;
+  year: number;
+  session: string;
+  editionLabel: string;
+  status: string;
+  isCurrent: boolean;
+};
+
+/**
+ * Get a specific archived edition of an exam (for /exam/slug/2025 pages).
+ * Returns the exam identity merged with that edition's temporal data.
+ */
+export async function getExamArchive(slug: string, year: number): Promise<ExamEntity | null> {
+  try {
+    const supabase = createServerClient();
+    // First get the exam
+    const { data: exam } = await supabase
+      .from("exams")
+      .select("id")
+      .eq("slug", slug)
+      .maybeSingle();
+    if (!exam) return null;
+
+    // Get the specific edition
+    const { data: edition } = await supabase
+      .from("exam_editions")
+      .select("*")
+      .eq("exam_id", (exam as any).id)
+      .eq("year", year)
+      .eq("session", "main")
+      .maybeSingle();
+    if (!edition) return null;
+
+    // Fetch full exam with this edition's data overlaid
+    const { data: fullExam } = await supabase
+      .from("exams")
+      .select(`*, cat:categories!category_id(slug), subcat:categories!subcategory_id(slug)`)
+      .eq("id", (exam as any).id)
+      .single();
+    if (!fullExam) return null;
+
+    // Overlay edition data onto exam row for mapRow compatibility
+    const merged = { ...fullExam, current_ed: edition };
+    return mapRow(merged as Record<string, unknown>);
+  } catch (err) {
+    console.error("[examService] getExamArchive failed:", err);
+    return null;
+  }
+}
+
+/**
+ * List all editions for an exam (for "Previous Years" widget).
+ */
+export async function getExamEditions(examSlug: string): Promise<EditionSummary[]> {
+  try {
+    const supabase = createServerClient();
+    const { data: exam } = await supabase
+      .from("exams")
+      .select("id")
+      .eq("slug", examSlug)
+      .maybeSingle();
+    if (!exam) return [];
+
+    const { data, error } = await supabase
+      .from("exam_editions")
+      .select("id, year, session, edition_label, status, is_current")
+      .eq("exam_id", (exam as any).id)
+      .order("year", { ascending: false });
+    if (error) throw error;
+
+    return (data ?? []).map((r: any) => ({
+      id: r.id,
+      year: r.year,
+      session: r.session,
+      editionLabel: r.edition_label,
+      status: r.status,
+      isCurrent: r.is_current,
+    }));
+  } catch (err) {
+    console.error("[examService] getExamEditions failed:", err);
+    return [];
+  }
 }

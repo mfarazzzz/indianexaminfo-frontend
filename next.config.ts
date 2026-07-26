@@ -70,6 +70,12 @@ const nextConfig: NextConfig = {
       { source: "/entrance-exam/liberal-arts/:slug",     destination: "/entrance-exam/university-entrance/:slug",  permanent: true },
       { source: "/entrance-exam/hotel-management/:slug", destination: "/entrance-exam/university-entrance/:slug",  permanent: true },
       { source: "/entrance-exam/media/:slug",            destination: "/entrance-exam/university-entrance/:slug",  permanent: true },
+
+      // Redirect old year-specific slugs to canonical year-agnostic URLs
+      { source: "/entrance-exam/:category/mba-cat-2026",         destination: "/entrance-exam/management/cat",           permanent: true },
+      { source: "/entrance-exam/:category/cat-2026",             destination: "/entrance-exam/management/cat",           permanent: true },
+      { source: "/entrance-exam/:category/:slug-2026",           destination: "/entrance-exam/:category/:slug",          permanent: false },
+      { source: "/entrance-exam/:category/:slug-2025",           destination: "/entrance-exam/:category/:slug",          permanent: false },
       
       // Old sarkari-naukri category-only URLs are now handled in [category]/page.tsx with internal redirects.
       

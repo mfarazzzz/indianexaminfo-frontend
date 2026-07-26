@@ -8,7 +8,10 @@ export async function EntranceExamSection({ exams: examsProp }: { exams?: ExamEn
     examsProp ? Promise.resolve(examsProp) : getExamsByPillar("entrance-exam"),
     getCategoriesByPillar("entrance-exam"),
   ]);
-  const sorted = [...exams].sort((a, b) => (b.isFeatured ? 1 : 0) - (a.isFeatured ? 1 : 0));
+
+  // Filter out fully completed exams — only show active/upcoming editions on homepage
+  const active = exams.filter((e) => e.status !== "completed");
+  const sorted = [...active].sort((a, b) => (b.isFeatured ? 1 : 0) - (a.isFeatured ? 1 : 0));
 
   // Build dynamic tabs from actual database categories
   const tabs: CategoryTab[] = [
