@@ -7,23 +7,12 @@ import { cn } from "@/lib/utils";
 import { ExamCard } from "@/components/exam/ExamCard";
 import type { ExamEntity } from "@/types/exam";
 
-const TABS = ["All", "CBSE", "ICSE", "State Boards", "Central Universities", "State Universities", "IGNOU"] as const;
-type Tab = typeof TABS[number];
+type CategoryTab = { label: string; slug: string | null };
 
-const TAB_FILTER: Record<Tab, ((e: ExamEntity) => boolean) | null> = {
-  All: null,
-  CBSE: (e) => e.category === "cbse",
-  ICSE: (e) => e.category === "cisce",
-  "State Boards": (e) => ["up-board", "bihar-board", "rbse", "mpbse", "maharashtra-board"].includes(e.category),
-  "Central Universities": (e) => e.entityType === "university" && e.subcategory === "central-university",
-  "State Universities": (e) => e.entityType === "university" && e.subcategory === "up-universities",
-  IGNOU: (e) => e.slug === "ignou",
-};
-
-function BoardUniversityClient({ exams }: { exams: ExamEntity[] }) {
-  const [active, setActive] = useState<Tab>("All");
-  const filterFn = TAB_FILTER[active];
-  const filtered = filterFn ? exams.filter(filterFn) : exams;
+function BoardUniversityClient({ exams, tabs }: { exams: ExamEntity[]; tabs: CategoryTab[] }) {
+  const [active, setActive] = useState<string>("all");
+  const activeSlug = tabs.find((t) => (active === "all" && t.slug === null) || t.slug === active)?.slug ?? null;
+  const filtered = activeSlug ? exams.filter((e) => e.category === activeSlug) : exams;
   const shown    = filtered.slice(0, 6);
 
   return (
@@ -44,15 +33,18 @@ function BoardUniversityClient({ exams }: { exams: ExamEntity[] }) {
       {/* Filter tabs */}
       <div className="flex items-center gap-0 mb-4 border border-border rounded overflow-hidden w-fit max-w-full overflow-x-auto"
            role="group" aria-label="Filter board and university categories">
-        {TABS.map((tab) => (
-          <button key={tab} onClick={() => setActive(tab)} aria-pressed={active === tab}
-            className={cn(
-              "shrink-0 px-3 py-1.5 text-xs font-semibold border-r border-border last:border-r-0 transition-colors whitespace-nowrap",
-              active === tab ? "bg-success text-white" : "bg-white text-gray-600 hover:bg-gray-50"
-            )}>
-            {tab}
-          </button>
-        ))}
+        {tabs.map((tab) => {
+          const key = tab.slug ?? "all";
+          return (
+            <button key={key} onClick={() => setActive(key)} aria-pressed={active === key}
+              className={cn(
+                "shrink-0 px-3 py-1.5 text-xs font-semibold border-r border-border last:border-r-0 transition-colors whitespace-nowrap",
+                active === key ? "bg-success text-white" : "bg-white text-gray-600 hover:bg-gray-50"
+              )}>
+              {tab.label}
+            </button>
+          );
+        })}
       </div>
 
       {shown.length > 0 ? (
@@ -67,9 +59,23 @@ function BoardUniversityClient({ exams }: { exams: ExamEntity[] }) {
 }
 
 import { getExamsByPillar } from "@/services/examService";
+import { getCategoriesByPillar } from "@/services/categoryService";
 
 export async function BoardUniversitySection({ exams: examsProp }: { exams?: ExamEntity[] } = {}) {
-  const exams = examsProp ?? await getExamsByPillar("board-university");
+  const [exams, categories] = await Promise.all([
+    examsProp ? Promise.resolve(examsProp) : getExamsByPillar("board-university"),
+    getCategoriesByPillar("board-university"),
+  ]);
   const sorted = [...exams].sort((a, b) => (b.isFeatured ? 1 : 0) - (a.isFeatured ? 1 : 0));
-  return <BoardUniversityClient exams={sorted} />;
+
+  // Build dynamic tabs from actual database categories
+  const tabs: CategoryTab[] = [
+    { label: "All", slug: null },
+    ...categories.map((c) => ({
+      label: c.shortName || c.name.replace(/ Board$/, "").replace(/ Exams$/, ""),
+      slug: c.slug,
+    })),
+  ];
+
+  return <BoardUniversityClient exams={sorted} tabs={tabs} />;
 }
