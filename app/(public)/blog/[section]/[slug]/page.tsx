@@ -23,6 +23,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   try {
     const post = await getBlogPostBySlug(slug);
     if (!post) return {};
+    // Wrong-section URLs 404 in the page body; don't emit metadata for them.
+    if (post.section !== section) return {};
 
     return buildExamMetadata({
       pageType: "blog-post",
@@ -33,7 +35,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
         ...(post.tags ?? []).slice(0, 6),
         ...GLOBAL_SHORT_TAIL.slice(0, 4),
       ],
-      canonicalUrl: post.canonicalUrl || `${siteConfig.url}/blog/${section}/${slug}`,
+      canonicalUrl: post.canonicalUrl || `${siteConfig.url}/blog/${post.section}/${slug}`,
       ogImage: post.featuredImage?.startsWith("http") ? post.featuredImage : undefined,
       ogAlt: post.title,
       section: post.section,
@@ -59,6 +61,10 @@ export default async function BlogArticlePage({ params }: Props) {
   }
   
   if (!post || post.status !== "published") notFound();
+
+  // A post is reachable at exactly one section path. Without this check the
+  // same article renders (and self-canonicalises) under all 8 section slugs.
+  if (post.section !== section) notFound();
 
   try {
     related = await getRelatedBlogPosts(slug);

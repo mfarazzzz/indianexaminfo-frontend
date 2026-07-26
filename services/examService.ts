@@ -302,3 +302,25 @@ export async function generateStaticExamParams(): Promise<{ slug: string }[]> {
     return [];
   }
 }
+
+/**
+ * Live count of exams in a pillar. Used by homepage cards so the numbers
+ * reflect the database instead of hardcoded literals. Returns 0 on failure —
+ * callers should render an empty state rather than substituting a guess.
+ */
+export async function getExamCountByPillar(pillar: Pillar): Promise<number> {
+  return cached(async () => {
+    try {
+      const supabase = createServerClient();
+      const { count, error } = await supabase
+        .from("exams")
+        .select("id", { count: "exact", head: true })
+        .eq("pillar", pillar);
+      if (error) throw error;
+      return count ?? 0;
+    } catch (err) {
+      console.error(`[examService] getExamCountByPillar(${pillar}) failed:`, err);
+      return 0;
+    }
+  }, ["exams", `exams:count:${pillar}`], { revalidate: 1800 });
+}

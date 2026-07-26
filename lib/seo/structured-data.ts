@@ -1,6 +1,7 @@
 import { siteConfig } from "@/config/site";
 import type { ExamEntity, ContentPost } from "@/types/exam";
 import type { BlogPost } from "@/types/blog";
+import type { SarkariNaukriItem } from "@/services/sarkariNaukriService";
 
 const SITE_URL = siteConfig.url;
 const LOGO_URL = `${SITE_URL}/icons/logo.png`;
@@ -147,6 +148,11 @@ export function buildJobPostingSchema(exam: ExamEntity) {
   };
 }
 
+/**
+ * Event schema. Returns null when no usable start date exists — schema.org
+ * requires `startDate` on Event, and emitting one without it produces an
+ * invalid-item warning in Search Console.
+ */
 export function buildEventSchema(exam: ExamEntity) {
   const examDate = exam.dates.find(
     (d) =>
@@ -154,11 +160,13 @@ export function buildEventSchema(exam: ExamEntity) {
       d.label.toLowerCase().includes("date")
   )?.date;
 
+  if (!examDate) return null;
+
   return {
     "@context": "https://schema.org",
     "@type": "Event",
-    name: `${exam.name} 2025`,
-    ...(examDate && { startDate: examDate }),
+    name: `${exam.name} ${new Date().getFullYear()}`,
+    startDate: examDate,
     location: {
       "@type": "VirtualLocation",
       url: exam.officialWebsite,
@@ -169,40 +177,6 @@ export function buildEventSchema(exam: ExamEntity) {
     },
     eventStatus: "EventScheduled",
     eventAttendanceMode: "MixedEventAttendanceMode",
-  };
-}
-
-export function buildHowToSchema(
-  title: string,
-  steps: { title: string; description: string }[]
-) {
-  return {
-    "@context": "https://schema.org",
-    "@type": "HowTo",
-    name: title,
-    step: steps.map((step, i) => ({
-      "@type": "HowToStep",
-      position: i + 1,
-      name: step.title,
-      text: step.description,
-    })),
-  };
-}
-
-export function buildCourseSchema(exam: ExamEntity, contentType: string) {
-  return {
-    "@context": "https://schema.org",
-    "@type": "Course",
-    name: `${exam.name} Complete ${contentType}`,
-    description: `Free ${contentType} for ${exam.name} preparation`,
-    provider: {
-      "@type": "Organization",
-      name: siteConfig.name,
-    },
-    hasCourseInstance: {
-      "@type": "CourseInstance",
-      courseMode: "online",
-    },
   };
 }
 
@@ -221,5 +195,66 @@ export function buildDatasetSchema(
     },
     dateModified: exam.lastUpdated,
     variableMeasured: dates.map((d) => d.label),
+  };
+}
+
+/**
+ * JobPosting schema for rows from the `sarkari_naukri` table.
+ *
+ * Distinct from buildJobPostingSchema(), which maps an ExamEntity. These are
+ * the actual job-detail pages (/sarkari-naukri/{slug}) and are the pages
+ * Google Jobs cares about.
+ */
+export function buildSarkariJobPostingSchema(
+  item: SarkariNaukriItem,
+  url: string
+) {
+  const isAllIndia = !item.state || item.state === "all-india";
+  const stateName = item.state
+    ? item.state.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase())
+    : undefined;
+
+  return {
+    "@context": "https://schema.org",
+    "@type": "JobPosting",
+    title: item.title,
+    description: item.description || item.seoDescription || item.title,
+    identifier: {
+      "@type": "PropertyValue",
+      name: item.organization,
+      value: item.slug,
+    },
+    hiringOrganization: {
+      "@type": "Organization",
+      name: item.organization,
+      ...(item.department && { department: { "@type": "Organization", name: item.department } }),
+    },
+    jobLocation: {
+      "@type": "Place",
+      address: {
+        "@type": "PostalAddress",
+        addressCountry: "IN",
+        ...(!isAllIndia && stateName && { addressRegion: stateName }),
+      },
+    },
+    employmentType: "FULL_TIME",
+    ...(item.notificationDate && { datePosted: item.notificationDate }),
+    ...(item.applicationEndDate && { validThrough: item.applicationEndDate }),
+    ...(item.vacancyCount && { totalJobOpenings: item.vacancyCount }),
+    ...(item.payScale && {
+      baseSalary: {
+        "@type": "MonetaryAmount",
+        currency: "INR",
+        value: { "@type": "QuantitativeValue", value: item.payScale },
+      },
+    }),
+    ...(item.eligibility && { educationRequirements: item.eligibility }),
+    ...(item.applicationUrl && { directApply: false, url: item.applicationUrl }),
+    applicantLocationRequirements: {
+      "@type": "Country",
+      name: "India",
+    },
+    mainEntityOfPage: { "@type": "WebPage", "@id": url },
+    inLanguage: "en-IN",
   };
 }

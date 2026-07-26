@@ -137,6 +137,13 @@ function mapRow(r: Record<string, unknown>): SarkariNaukriItem {
 
 const LIST_SELECT = "*";
 
+/**
+ * Page-size cap for list queries. Must stay above the published row count,
+ * otherwise on-page tab counts silently disagree with the homepage stat cards
+ * (which use exact COUNT queries).
+ */
+const LIST_LIMIT = 500;
+
 export async function getAllSarkariNaukri(): Promise<SarkariNaukriItem[]> {
   return cached(async () => {
     try {
@@ -147,7 +154,7 @@ export async function getAllSarkariNaukri(): Promise<SarkariNaukriItem[]> {
         .eq("workflow_status", "published")
         .order("is_featured", { ascending: false })
         .order("updated_at", { ascending: false })
-        .limit(100);
+        .limit(LIST_LIMIT);
       if (error) throw error;
       return (data ?? []).map((r: any) => mapRow(r));
     } catch (err) {
@@ -187,7 +194,7 @@ export async function getByRecruitmentType(type: RecruitmentType): Promise<Sarka
         .eq("recruitment_type", type)
         .order("is_featured", { ascending: false })
         .order("updated_at", { ascending: false })
-        .limit(100);
+        .limit(LIST_LIMIT);
       if (error) throw error;
       return (data ?? []).map((r: any) => mapRow(r));
     } catch (err) {
@@ -208,7 +215,7 @@ export async function getByState(state: string): Promise<SarkariNaukriItem[]> {
         .eq("state", state)
         .order("is_featured", { ascending: false })
         .order("updated_at", { ascending: false })
-        .limit(100);
+        .limit(LIST_LIMIT);
       if (error) throw error;
       return (data ?? []).map((r: any) => mapRow(r));
     } catch (err) {
@@ -228,7 +235,7 @@ export async function getByDepartment(dept: string): Promise<SarkariNaukriItem[]
         .eq("workflow_status", "published")
         .ilike("department", `%${dept}%`)
         .order("updated_at", { ascending: false })
-        .limit(100);
+        .limit(LIST_LIMIT);
       if (error) throw error;
       return (data ?? []).map((r: any) => mapRow(r));
     } catch (err) {
@@ -249,7 +256,7 @@ export async function getByCategory(category: string): Promise<SarkariNaukriItem
         .eq("category", category)
         .order("is_featured", { ascending: false })
         .order("updated_at", { ascending: false })
-        .limit(100);
+        .limit(LIST_LIMIT);
       if (error) throw error;
       return (data ?? []).map((r: any) => mapRow(r));
     } catch (err) {
@@ -380,4 +387,32 @@ export async function getSarkariNaukriStats(): Promise<{ total: number; exam: nu
       return { total: 361, exam: 60, direct: 301 };
     }
   }, ["sarkari-naukri", "sarkari-naukri:stats"], { revalidate: 3600 });
+}
+
+/**
+ * Every published slug with its last-modified date, unbounded.
+ * Used by app/sitemap.ts — the list queries above are page-size limited and
+ * must not be used as a sitemap source.
+ */
+export async function getSarkariNaukriSitemapEntries(): Promise<
+  { slug: string; updatedAt: string }[]
+> {
+  return cached(async () => {
+    try {
+      const supabase = createServerClient();
+      const { data, error } = await supabase
+        .from("sarkari_naukri")
+        .select("slug, updated_at")
+        .eq("workflow_status", "published")
+        .order("updated_at", { ascending: false });
+      if (error) throw error;
+      return (data ?? []).map((r: any) => ({
+        slug: r.slug as string,
+        updatedAt: (r.updated_at as string) ?? new Date().toISOString(),
+      }));
+    } catch (err) {
+      console.error("[sarkariNaukriService] getSarkariNaukriSitemapEntries failed:", err);
+      return [];
+    }
+  }, ["sarkari-naukri", "sarkari-naukri:sitemap"], { revalidate: 3600 });
 }

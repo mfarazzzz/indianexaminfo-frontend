@@ -1,20 +1,19 @@
 import Link from "next/link";
 import { Briefcase, GraduationCap, BookOpen } from "lucide-react";
 import { getSarkariNaukriStats } from "@/services/sarkariNaukriService";
+import { getExamCountByPillar } from "@/services/examService";
 
 export async function AudienceGateway() {
-  // Fetch live counts for Government Jobs card
-  let examCount = 60;
-  let directCount = 301;
-  try {
-    const stats = await getSarkariNaukriStats();
-    examCount = stats.exam;
-    directCount = stats.direct;
-  } catch {
-    // Use defaults on failure
-  }
+  // All three cards read live counts. Zero is rendered as "—" rather than a
+  // made-up number, so an empty pillar is visible instead of being masked.
+  const [sarkariStats, entranceCount, boardCount] = await Promise.all([
+    getSarkariNaukriStats(),
+    getExamCountByPillar("entrance-exam"),
+    getExamCountByPillar("board-university"),
+  ]);
 
-  const totalGovt = examCount + directCount;
+  const examCount = sarkariStats.exam;
+  const directCount = sarkariStats.direct;
 
   return (
     <div
@@ -92,7 +91,7 @@ export async function AudienceGateway() {
             </div>
           </div>
           <span className="text-xs px-2 py-1 rounded-full font-semibold shrink-0 bg-amber-100 text-amber-700">
-            18 active
+            {entranceCount > 0 ? `${entranceCount} exams` : "Coming soon"}
           </span>
         </div>
         <p className="text-xs text-gray-500 leading-relaxed mb-3">Engineering, Medical, MBA, Law, Agriculture, Design</p>
@@ -103,7 +102,9 @@ export async function AudienceGateway() {
           <span className="text-xs text-gray-400 px-1 py-0.5">+more</span>
         </div>
         <div className="flex items-center justify-between pt-3 border-t border-gray-100">
-          <span className="text-xs text-gray-400">150+ entrance exams</span>
+          <span className="text-xs text-gray-400">
+            {entranceCount > 0 ? `${entranceCount} entrance exams` : "Being added soon"}
+          </span>
           <span className="text-xs font-semibold text-amber-700 hover:text-amber-800 transition-colors">Explore Entrance Exams →</span>
         </div>
       </Link>
@@ -125,7 +126,7 @@ export async function AudienceGateway() {
             </div>
           </div>
           <span className="text-xs px-2 py-1 rounded-full font-semibold shrink-0 bg-green-100 text-green-700">
-            31 active
+            {boardCount > 0 ? `${boardCount} exams` : "Coming soon"}
           </span>
         </div>
         <p className="text-xs text-gray-500 leading-relaxed mb-3">Boards, Universities, Semester Exams, Results</p>
@@ -136,7 +137,9 @@ export async function AudienceGateway() {
           <span className="text-xs text-gray-400 px-1 py-0.5">+more</span>
         </div>
         <div className="flex items-center justify-between pt-3 border-t border-gray-100">
-          <span className="text-xs text-gray-400">All state boards + 40+ universities</span>
+          <span className="text-xs text-gray-400">
+            {boardCount > 0 ? "State boards & universities" : "Being added soon"}
+          </span>
           <span className="text-xs font-semibold text-success hover:text-green-800 transition-colors">Explore Board Exams →</span>
         </div>
       </Link>

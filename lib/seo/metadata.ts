@@ -38,10 +38,11 @@ export function buildExamMetadata({
       };
 
   return {
-    title: {
-      default: siteConfig.name,
-      template: `%s | IndianExamInfo`,
-    },
+    // When a page supplies a title, emit it as a plain string so the root
+    // layout's `%s | IndianExamInfo` template applies. Page titles from
+    // buildSEOTitle() carry no brand suffix of their own.
+    // With no title, fall back to the brand name absolutely (no double suffix).
+    title: title ? metaTitle : { absolute: siteConfig.name },
     description: metaDesc,
     keywords: [...siteConfig.keywords, ...keywords],
     authors: [{ name: "IndianExamInfo Team" }],

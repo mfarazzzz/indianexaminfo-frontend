@@ -2,6 +2,9 @@ import Link from "next/link";
 import type { SarkariNaukriItem } from "@/services/sarkariNaukriService";
 import { Breadcrumb } from "@/components/layout/Breadcrumb";
 import { AdSlot } from "@/components/ads/AdSlot";
+import { JsonLd } from "@/components/seo/JsonLd";
+import { buildSarkariJobPostingSchema } from "@/lib/seo/structured-data";
+import { siteConfig } from "@/config/site";
 
 type Props = {
   item: SarkariNaukriItem;
@@ -10,9 +13,12 @@ type Props = {
 
 export function SarkariNaukriDetailView({ item, slug }: Props) {
   const isExam = item.recruitmentType === "exam";
+  const pageUrl = `${siteConfig.url}/sarkari-naukri/${slug}`;
 
   return (
     <div className="container mx-auto px-4 py-4">
+      <JsonLd data={buildSarkariJobPostingSchema(item, pageUrl)} />
+
       <Breadcrumb items={[
         { name: "Sarkari Naukri", href: "/sarkari-naukri" },
         { name: isExam ? "Sarkari Exam" : "Sarkari Bharti", href: isExam ? "/sarkari-naukri/exam" : "/sarkari-naukri/bharti" },

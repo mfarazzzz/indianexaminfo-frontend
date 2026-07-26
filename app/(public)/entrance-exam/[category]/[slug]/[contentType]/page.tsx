@@ -6,7 +6,7 @@ import { Breadcrumb } from "@/components/layout/Breadcrumb";
 import { AdSlot } from "@/components/ads/AdSlot";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { RelatedKeywordsSection } from "@/components/seo/RelatedKeywords";
-import { buildFAQSchema, buildHowToSchema } from "@/lib/seo/structured-data";
+import { buildFAQSchema } from "@/lib/seo/structured-data";
 import { buildExamMetadata } from "@/lib/seo/metadata";
 import { buildPageKeywords, buildSEOTitle, buildMetaDescription, buildLastModifiedSignal, getCurrentYear } from "@/lib/seo/keywords";
 import { siteConfig } from "@/config/site";

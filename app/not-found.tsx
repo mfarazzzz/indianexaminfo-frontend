@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { navigation } from "@/config/navigation";
 
 export const metadata: Metadata = {
   title: "Page Not Found — IndianExamInfo",
