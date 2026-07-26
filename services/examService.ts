@@ -120,24 +120,45 @@ export async function getExamBySlug(
   return cached(async () => {
     try {
       const supabase = createServerClient();
-      let query = supabase
-        .from("exams")
-        .select(DETAIL_SELECT)
-        .eq("slug", slug);
 
-      if (category) {
-        const { data: catData } = await supabase
-          .from("categories")
-          .select("id")
-          .eq("slug", category)
-          .single();
-        if (catData) {
-          query = query.eq("category_id", (catData as any).id);
+      // Normalize slug: strip year suffix, spaces, handle legacy formats
+      // e.g. "cat-2026" → "cat", "cat 2026" → "cat", "mba-cat-2026" → "cat"
+      let normalizedSlug = slug.trim().toLowerCase().replace(/\s+/g, "-");
+      const legacySlugs = [
+        normalizedSlug,
+        normalizedSlug.replace(/-\d{4}$/, ""),             // strip trailing -2026
+        normalizedSlug.replace(/^mba-/, "").replace(/-\d{4}$/, ""), // mba-cat-2026 → cat
+      ];
+      // Deduplicate
+      const slugsToTry = [...new Set(legacySlugs)];
+
+      let data: any = null;
+
+      for (const s of slugsToTry) {
+        let query = supabase
+          .from("exams")
+          .select(DETAIL_SELECT)
+          .eq("slug", s);
+
+        if (category) {
+          const { data: catData } = await supabase
+            .from("categories")
+            .select("id")
+            .eq("slug", category)
+            .single();
+          if (catData) {
+            query = query.eq("category_id", (catData as any).id);
+          }
+        }
+
+        const { data: result, error } = await query.maybeSingle();
+        if (!error && result) {
+          data = result;
+          break;
         }
       }
 
-      const { data, error } = await query.maybeSingle();
-      if (error || !data) return null;
+      if (!data) return null;
       return mapRow(data as Record<string, unknown>);
     } catch (err) {
       console.error("[examService] getExamBySlug failed:", err);

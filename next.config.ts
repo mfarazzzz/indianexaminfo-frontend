@@ -74,6 +74,7 @@ const nextConfig: NextConfig = {
       // Redirect old year-specific slugs to canonical year-agnostic URLs
       { source: "/entrance-exam/:category/mba-cat-2026",         destination: "/entrance-exam/management/cat",           permanent: true },
       { source: "/entrance-exam/:category/cat-2026",             destination: "/entrance-exam/management/cat",           permanent: true },
+      { source: "/entrance-exam/:category/cat%202026",           destination: "/entrance-exam/management/cat",           permanent: true },
       { source: "/entrance-exam/:category/:slug-2026",           destination: "/entrance-exam/:category/:slug",          permanent: false },
       { source: "/entrance-exam/:category/:slug-2025",           destination: "/entrance-exam/:category/:slug",          permanent: false },
       
