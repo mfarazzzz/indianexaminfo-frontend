@@ -189,7 +189,7 @@ export async function getExamBySlug(
       console.error("[examService] getExamBySlug failed:", err);
       return null;
     }
-  }, ["exams", `exam:${slug}`], { revalidate: 3600 });
+  }, ["exams", `exam:${slug}`], { revalidate: 600 });
 }
 
 export async function getExamsByPillar(pillar: Pillar): Promise<ExamEntity[]> {
@@ -212,28 +212,30 @@ export async function getExamsByPillar(pillar: Pillar): Promise<ExamEntity[]> {
 }
 
 export async function getExamsByCategory(category: string): Promise<ExamEntity[]> {
-  try {
-    const supabase = createServerClient();
-    // Look up category id by slug first
-    const { data: catData } = await supabase
-      .from("categories")
-      .select("id")
-      .eq("slug", category)
-      .maybeSingle();
+  return cached(async () => {
+    try {
+      const supabase = createServerClient();
+      // Look up category id by slug first
+      const { data: catData } = await supabase
+        .from("categories")
+        .select("id")
+        .eq("slug", category)
+        .maybeSingle();
 
-    if (!catData) return [];
+      if (!catData) return [];
 
-    const { data, error } = await supabase
-      .from("exams")
-      .select(LIST_SELECT)
-      .eq("category_id", (catData as any).id)
-      .order("is_featured", { ascending: false });
-    if (error) throw error;
-    return (data ?? []).map((r: any) => mapRow(r));
-  } catch (err) {
-    console.error("[examService] getExamsByCategory failed:", err);
-    return [];
-  }
+      const { data, error } = await supabase
+        .from("exams")
+        .select(LIST_SELECT)
+        .eq("category_id", (catData as any).id)
+        .order("is_featured", { ascending: false });
+      if (error) throw error;
+      return (data ?? []).map((r: any) => mapRow(r));
+    } catch (err) {
+      console.error("[examService] getExamsByCategory failed:", err);
+      return [];
+    }
+  }, ["exams", `category:${category}`], { revalidate: 600 });
 }
 
 export async function getFeaturedExams(): Promise<ExamEntity[]> {
