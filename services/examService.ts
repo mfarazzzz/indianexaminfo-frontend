@@ -158,6 +158,31 @@ export async function getExamBySlug(
         }
       }
 
+      // Fallback: try matching by short_name (case-insensitive)
+      if (!data) {
+        const shortSlug = slugsToTry[slugsToTry.length - 1]; // most normalized version
+        let query = supabase
+          .from("exams")
+          .select(DETAIL_SELECT)
+          .ilike("short_name", shortSlug);
+
+        if (category) {
+          const { data: catData } = await supabase
+            .from("categories")
+            .select("id")
+            .eq("slug", category)
+            .single();
+          if (catData) {
+            query = query.eq("category_id", (catData as any).id);
+          }
+        }
+
+        const { data: result, error } = await query.maybeSingle();
+        if (!error && result) {
+          data = result;
+        }
+      }
+
       if (!data) return null;
       return mapRow(data as Record<string, unknown>);
     } catch (err) {
