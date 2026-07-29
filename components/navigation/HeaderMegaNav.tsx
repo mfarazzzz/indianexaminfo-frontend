@@ -7,7 +7,7 @@
 import React, { useCallback, useRef, useState } from "react";
 import Link from "next/link";
 import { ChevronDown, Menu, X, Search } from "lucide-react";
-import { MegaMenuDesktop } from "./MegaMenuDesktop";
+import { NavigationPanel } from "./NavigationPanel";
 import { MegaMenuMobile } from "./MegaMenuMobile";
 import { getExamsForCategory, searchExamsInPillar } from "@/services/navigationService";
 import type { NavigationCategory, NavigationExam } from "@/services/navigationService";
@@ -77,11 +77,12 @@ export function HeaderMegaNav({ pillars }: Props) {
               {categories.length > 0 && <ChevronDown className="w-3.5 h-3.5" />}
             </Link>
 
-            {/* Desktop Mega Menu */}
+            {/* Navigation Panel (App-style card grid) */}
             {activePillar === pillar && categories.length > 0 && (
-              <MegaMenuDesktop
+              <NavigationPanel
                 categories={categories}
                 pillar={pillar}
+                pillarLabel={label}
                 onClose={handleClose}
                 fetchExams={fetchExams}
               />
