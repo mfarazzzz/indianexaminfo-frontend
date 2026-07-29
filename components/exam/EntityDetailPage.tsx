@@ -156,10 +156,32 @@ export async function EntityDetailPage({ exam, breadcrumbs }: EntityDetailPagePr
                 {exam.applicationFee && (
                   <li>
                     <span className="font-medium">Application Fee:</span>{" "}
-                    ₹{exam.applicationFee.general} (General)
-                    {exam.applicationFee.obc > 0 && ` | ₹${exam.applicationFee.obc} (OBC)`}
-                    {exam.applicationFee.ews != null && exam.applicationFee.ews > 0 && ` | ₹${exam.applicationFee.ews} (EWS)`}
-                    {` | ₹${exam.applicationFee.sc} (SC/ST)`}
+                    {(() => {
+                      const fee = exam.applicationFee;
+                      // Group same amounts together
+                      const amounts: Record<number, string[]> = {};
+                      if (fee.general != null && fee.general > 0) {
+                        amounts[fee.general] = [...(amounts[fee.general] ?? []), "General"];
+                      }
+                      if (fee.obc != null && fee.obc > 0 && fee.obc !== fee.general) {
+                        amounts[fee.obc] = [...(amounts[fee.obc] ?? []), "OBC"];
+                      } else if (fee.obc != null && fee.obc > 0) {
+                        amounts[fee.obc] = [...(amounts[fee.obc] ?? []), "OBC"];
+                      }
+                      if (fee.sc != null && fee.sc > 0) {
+                        const scCategories = ["SC"];
+                        if (fee.st != null && fee.st === fee.sc) scCategories.push("ST");
+                        if (fee.pwd != null && fee.pwd === fee.sc) scCategories.push("PwBD");
+                        amounts[fee.sc] = [...(amounts[fee.sc] ?? []), ...scCategories];
+                      }
+                      if (fee.st != null && fee.st > 0 && fee.st !== fee.sc) {
+                        amounts[fee.st] = [...(amounts[fee.st] ?? []), "ST"];
+                      }
+                      // Render grouped
+                      const entries = Object.entries(amounts).filter(([amt]) => Number(amt) > 0);
+                      if (entries.length === 0) return "Check official notification";
+                      return entries.map(([amt, cats]) => `₹${Number(amt).toLocaleString("en-IN")} (${cats.join("/")})`).join(" | ");
+                    })()}
                   </li>
                 )}
                 {(() => {
@@ -199,18 +221,18 @@ export async function EntityDetailPage({ exam, breadcrumbs }: EntityDetailPagePr
                 <h2 className="font-heading font-semibold text-base text-gray-800 mb-3">
                   Available Content
                 </h2>
-                <div className="flex flex-wrap gap-2">
+                <nav className="flex flex-wrap gap-2" aria-label="Exam content modules">
                   {availableContentTypes.map((ct) => (
                     <Link
                       key={ct}
                       href={getContentTypeHref(exam, ct)}
-                      className="text-sm font-semibold px-3 py-1.5 bg-primary/10 text-primary rounded border border-primary/20 hover:bg-primary hover:text-white transition-colors"
+                      className="text-sm font-semibold px-3 py-1.5 bg-primary/10 text-primary rounded border border-primary/20 hover:bg-primary hover:text-white transition-colors focus:ring-2 focus:ring-primary/50 focus:outline-none"
                       prefetch={false}
                     >
                       {contentTypeLabel(ct)}
                     </Link>
                   ))}
-                </div>
+                </nav>
               </section>
             )}
 
@@ -326,24 +348,38 @@ export async function EntityDetailPage({ exam, breadcrumbs }: EntityDetailPagePr
                       </tr>
                     </thead>
                     <tbody>
-                      {exam.applicationFee.general != null && (
-                        <tr><td>General</td><td>₹{exam.applicationFee.general}</td></tr>
-                      )}
-                      {exam.applicationFee.obc != null && exam.applicationFee.obc > 0 && (
-                        <tr><td>OBC-NCL</td><td>₹{exam.applicationFee.obc}</td></tr>
-                      )}
-                      {exam.applicationFee.ews != null && exam.applicationFee.ews > 0 && (
-                        <tr><td>EWS</td><td>₹{exam.applicationFee.ews}</td></tr>
-                      )}
-                      {exam.applicationFee.sc != null && (
-                        <tr><td>SC</td><td>₹{exam.applicationFee.sc}</td></tr>
-                      )}
-                      {exam.applicationFee.st != null && exam.applicationFee.st !== exam.applicationFee.sc && (
-                        <tr><td>ST</td><td>₹{exam.applicationFee.st}</td></tr>
-                      )}
-                      {exam.applicationFee.st != null && exam.applicationFee.st === exam.applicationFee.sc && (
-                        <tr><td>SC / ST</td><td>₹{exam.applicationFee.sc}</td></tr>
-                      )}
+                      {(() => {
+                        const fee = exam.applicationFee!;
+                        const rows: { category: string; amount: number }[] = [];
+                        // Group same amounts
+                        if (fee.general != null && fee.general > 0) {
+                          const cats = ["General"];
+                          if (fee.obc != null && fee.obc === fee.general) cats.push("OBC");
+                          if (fee.ews != null && fee.ews === fee.general) cats.push("EWS");
+                          rows.push({ category: cats.join(" / "), amount: fee.general });
+                        }
+                        if (fee.obc != null && fee.obc > 0 && fee.obc !== fee.general) {
+                          rows.push({ category: "OBC-NCL", amount: fee.obc });
+                        }
+                        if (fee.ews != null && fee.ews > 0 && fee.ews !== fee.general) {
+                          rows.push({ category: "EWS", amount: fee.ews });
+                        }
+                        if (fee.sc != null && fee.sc > 0) {
+                          const cats = ["SC"];
+                          if (fee.st != null && fee.st === fee.sc) cats.push("ST");
+                          if (fee.pwd != null && fee.pwd === fee.sc) cats.push("PwBD");
+                          rows.push({ category: cats.join(" / "), amount: fee.sc });
+                        }
+                        if (fee.st != null && fee.st > 0 && fee.st !== fee.sc) {
+                          rows.push({ category: "ST", amount: fee.st });
+                        }
+                        if (fee.pwd != null && fee.pwd > 0 && fee.pwd !== fee.sc) {
+                          rows.push({ category: "PwBD", amount: fee.pwd! });
+                        }
+                        return rows.map((r) => (
+                          <tr key={r.category}><td>{r.category}</td><td>₹{r.amount.toLocaleString("en-IN")}</td></tr>
+                        ));
+                      })()}
                     </tbody>
                   </table>
                 </div>
