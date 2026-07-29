@@ -137,6 +137,22 @@ export async function EntityDetailPage({ exam, breadcrumbs }: EntityDetailPagePr
               </button>
             </div>
 
+            {/* Content Type Navigation — placed right after official website */}
+            {availableContentTypes.length > 0 && (
+              <nav className="flex flex-wrap gap-2 mb-5" aria-label="Available content modules">
+                {availableContentTypes.map((ct) => (
+                  <Link
+                    key={ct}
+                    href={getContentTypeHref(exam, ct)}
+                    className="text-sm font-semibold px-3 py-1.5 bg-primary/10 text-primary rounded border border-primary/20 hover:bg-primary hover:text-white transition-colors focus:ring-2 focus:ring-primary/50 focus:outline-none"
+                    prefetch={false}
+                  >
+                    {contentTypeLabel(ct)}
+                  </Link>
+                ))}
+              </nav>
+            )}
+
             {/* Summary Box */}
             <section className="summary-box mb-5" aria-label="Quick Summary">
               <h2 className="font-heading font-semibold text-sm text-gray-800 mb-2">Key Highlights</h2>
@@ -214,27 +230,6 @@ export async function EntityDetailPage({ exam, breadcrumbs }: EntityDetailPagePr
                 )}
               </ul>
             </section>
-
-            {/* Content Type Navigation */}
-            {availableContentTypes.length > 0 && (
-              <section aria-label="Content types" className="mb-5">
-                <h2 className="font-heading font-semibold text-base text-gray-800 mb-3">
-                  Available Content
-                </h2>
-                <nav className="flex flex-wrap gap-2" aria-label="Exam content modules">
-                  {availableContentTypes.map((ct) => (
-                    <Link
-                      key={ct}
-                      href={getContentTypeHref(exam, ct)}
-                      className="text-sm font-semibold px-3 py-1.5 bg-primary/10 text-primary rounded border border-primary/20 hover:bg-primary hover:text-white transition-colors focus:ring-2 focus:ring-primary/50 focus:outline-none"
-                      prefetch={false}
-                    >
-                      {contentTypeLabel(ct)}
-                    </Link>
-                  ))}
-                </nav>
-              </section>
-            )}
 
             {/* Important Dates Table */}
             {exam.dates.length > 0 && (
