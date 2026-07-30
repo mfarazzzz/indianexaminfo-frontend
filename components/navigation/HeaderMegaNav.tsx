@@ -18,6 +18,7 @@ interface PillarNav {
   label: string;
   href: string;
   categories: NavigationCategory[];
+  prebuiltCards?: import("@/services/navigationService").PrebuiltCardData[];
 }
 
 interface Props {
@@ -56,7 +57,7 @@ export function HeaderMegaNav({ pillars }: Props) {
     <>
       {/* Desktop Navigation */}
       <nav className="hidden lg:flex items-center gap-0.5 flex-1" aria-label="Main navigation">
-        {pillars.map(({ pillar, label, href, categories }) => (
+        {pillars.map(({ pillar, label, href, categories, prebuiltCards }) => (
           <div
             key={pillar}
             className="relative"
@@ -78,13 +79,14 @@ export function HeaderMegaNav({ pillars }: Props) {
             </Link>
 
             {/* Navigation Panel (App-style card grid) */}
-            {activePillar === pillar && categories.length > 0 && (
+            {activePillar === pillar && (categories.length > 0 || (prebuiltCards && prebuiltCards.length > 0)) && (
               <NavigationPanel
                 categories={categories}
                 pillar={pillar}
                 pillarLabel={label}
                 onClose={handleClose}
                 fetchExams={fetchExams}
+                prebuiltCards={prebuiltCards}
               />
             )}
           </div>

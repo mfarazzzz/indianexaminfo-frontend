@@ -215,6 +215,65 @@ export async function searchExamsInPillar(
 
 // ── Get all pillar categories (for header server rendering) ─────────────────
 
+export interface PrebuiltCardData {
+  id: string;
+  slug: string;
+  name: string;
+  icon: string | null;
+  examCount: number;
+  topExams: { slug: string; shortName: string }[];
+  badge: "popular" | "new" | "updated" | null;
+  pillar: string;
+}
+
+/**
+ * Pre-builds complete navigation card data server-side.
+ * Fetches categories + top 3 exams per category in one cached call.
+ * This eliminates client-side fetching — menu opens instantly.
+ */
+export async function getPrebuiltNavigationCards(pillar: Pillar): Promise<PrebuiltCardData[]> {
+  return cached(async () => {
+    try {
+      const categories = await getNavigationCategories(pillar);
+      const supabase = createServerClient();
+
+      // Batch fetch: get top 3 exams for all categories in one query
+      const categoryIds = categories.map((c) => c.id);
+      const { data: allExams } = await supabase
+        .from("exams")
+        .select("id, slug, short_name, name, is_featured, category_id")
+        .in("category_id", categoryIds)
+        .eq("is_published", true)
+        .order("is_featured", { ascending: false })
+        .order("name");
+
+      // Group exams by category
+      const examsByCategory: Record<string, { slug: string; shortName: string }[]> = {};
+      for (const exam of (allExams ?? []) as any[]) {
+        const catId = exam.category_id;
+        if (!examsByCategory[catId]) examsByCategory[catId] = [];
+        if (examsByCategory[catId].length < 3) {
+          examsByCategory[catId].push({ slug: exam.slug, shortName: exam.short_name || exam.name });
+        }
+      }
+
+      return categories.map((cat) => ({
+        id: cat.id,
+        slug: cat.slug,
+        name: cat.customLabel || cat.name,
+        icon: cat.customIcon || cat.icon,
+        examCount: cat.examCount,
+        topExams: examsByCategory[cat.id] ?? [],
+        badge: cat.badge,
+        pillar,
+      }));
+    } catch (err) {
+      console.error(`[navigationService] getPrebuiltNavigationCards(${pillar}) failed:`, err);
+      return [];
+    }
+  }, ["navigation", `nav-cards:${pillar}`], { revalidate: 3600 });
+}
+
 export async function getAllNavigationData(): Promise<Record<Pillar, NavigationCategory[]>> {
   const [entranceExam, sarkariNaukri, boardUniversity] = await Promise.all([
     getNavigationCategories("entrance-exam"),

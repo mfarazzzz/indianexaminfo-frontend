@@ -17,18 +17,31 @@ interface Props {
   pillarLabel: string;
   onClose: () => void;
   fetchExams: (categoryId: string, limit: number, featuredIds: string[]) => Promise<NavigationExam[]>;
+  prebuiltCards?: import("@/services/navigationService").PrebuiltCardData[];
 }
 
-export function NavigationPanel({ categories, pillar, pillarLabel, onClose, fetchExams }: Props) {
-  const [cards, setCards] = useState<NavigationCardData[]>([]);
-  const [loading, setLoading] = useState(true);
+export function NavigationPanel({ categories, pillar, pillarLabel, onClose, fetchExams, prebuiltCards }: Props) {
+  const [cards, setCards] = useState<NavigationCardData[]>(() => {
+    // Use pre-built cards if available (instant — no loading needed)
+    if (prebuiltCards && prebuiltCards.length > 0) {
+      return prebuiltCards as NavigationCardData[];
+    }
+    return [];
+  });
+  const [loading, setLoading] = useState(!prebuiltCards || prebuiltCards.length === 0);
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<NavigationExam[] | null>(null);
   const panelRef = useRef<HTMLDivElement>(null);
   const searchTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Build card data on mount — fetch top 3 exams per category
+  // Build card data on mount — only fetch if pre-built cards not available
   useEffect(() => {
+    // Skip fetching if pre-built cards were provided (instant render)
+    if (prebuiltCards && prebuiltCards.length > 0) {
+      setLoading(false);
+      return;
+    }
+
     let cancelled = false;
     setLoading(true);
 

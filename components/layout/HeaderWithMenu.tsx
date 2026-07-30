@@ -3,7 +3,7 @@
  * and renders the new mega navigation system.
  */
 import { getNavigationMenus } from "@/services/menuService";
-import { getAllNavigationData } from "@/services/navigationService";
+import { getAllNavigationData, getPrebuiltNavigationCards } from "@/services/navigationService";
 import { HeaderMegaNav } from "@/components/navigation/HeaderMegaNav";
 import { QuickAccessBar } from "./QuickAccessBar";
 import Link from "next/link";
@@ -16,14 +16,15 @@ const PILLAR_CONFIG: { pillar: Pillar; label: string; href: string }[] = [
 ];
 
 export async function HeaderWithMenu() {
-  const [menus, navData] = await Promise.all([
+  const [menus, ...pillarCards] = await Promise.all([
     getNavigationMenus(),
-    getAllNavigationData(),
+    ...PILLAR_CONFIG.map((c) => getPrebuiltNavigationCards(c.pillar)),
   ]);
 
-  const pillars = PILLAR_CONFIG.map((config) => ({
+  const pillars = PILLAR_CONFIG.map((config, i) => ({
     ...config,
-    categories: navData[config.pillar] ?? [],
+    categories: [] as any[], // No longer needed — cards have everything
+    prebuiltCards: pillarCards[i] ?? [],
   }));
 
   return (
