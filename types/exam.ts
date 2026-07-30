@@ -1,5 +1,15 @@
 export type Pillar = "sarkari-naukri" | "entrance-exam" | "board-university";
 
+/** Extended pillar type including all 6 navigation domains + legacy aliases */
+export type ExtendedPillar =
+  | Pillar
+  | "government-exam"
+  | "government-jobs"
+  | "university-exam"
+  | "board-exam"
+  | "sarkari-bharti"
+  | "news";
+
 export type ContentType =
   | "notification"
   | "application"

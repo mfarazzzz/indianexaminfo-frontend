@@ -1,0 +1,1215 @@
+{
+  "version": "1.0.0",
+  "generatedAt": "2026-07-30T00:00:00.000Z",
+  "quickAccess": [
+    { "id": "qa1", "label": "Latest Jobs", "href": "/government-jobs", "icon": "💼" },
+    { "id": "qa2", "label": "Admit Card", "href": "/admit-card", "icon": "🎫" },
+    { "id": "qa3", "label": "Results", "href": "/result", "icon": "📊" },
+    { "id": "qa4", "label": "Answer Key", "href": "/answer-key", "icon": "🔑" },
+    { "id": "qa5", "label": "Syllabus", "href": "/syllabus", "icon": "📖" },
+    { "id": "qa6", "label": "Cut Off", "href": "/cutoff", "icon": "✂️" },
+    { "id": "qa7", "label": "Entrance Exams", "href": "/entrance-exam", "icon": "🎓" },
+    { "id": "qa8", "label": "Board Results", "href": "/board-exam", "icon": "📘" },
+    { "id": "qa9", "label": "University", "href": "/university-exam", "icon": "🏫" },
+    { "id": "qa10", "label": "News", "href": "/news", "icon": "📰" }
+  ],
+  "pillars": {
+    "government-exam": {
+      "pillar": "government-exam",
+      "label": "Govt Exams",
+      "href": "/government-exam",
+      "icon": "🏛️",
+      "totalItemCount": 250,
+      "lastUpdated": "2026-07-30T00:00:00.000Z",
+      "nodes": [
+        {
+          "id": "ge-1",
+          "slug": "civil-services",
+          "label": "Civil Services",
+          "pillar": "government-exam",
+          "parentId": null,
+          "path": "government-exam/civil-services",
+          "depth": 0,
+          "displayOrder": 1,
+          "isActive": true,
+          "isPinned": true,
+          "icon": "🏛️",
+          "badge": "popular",
+          "description": "UPSC CSE, IAS, IPS, IFS and allied services examinations",
+          "itemCount": 15,
+          "seoTitle": null,
+          "seoDescription": null,
+          "ogImage": null,
+          "categoryId": null,
+          "examId": null,
+          "maxItems": 15,
+          "showItemCount": true,
+          "featuredItemIds": [],
+          "customUrl": null,
+          "metadata": {},
+          "createdAt": "2026-07-30T00:00:00.000Z",
+          "updatedAt": "2026-07-30T00:00:00.000Z",
+          "children": [
+            {
+              "id": "ge-1-1", "slug": "upsc-cse", "label": "UPSC CSE", "pillar": "government-exam", "parentId": "ge-1", "path": "government-exam/civil-services/upsc-cse", "depth": 1, "displayOrder": 1, "isActive": true, "isPinned": true, "icon": "🏛️", "badge": "popular", "description": "Union Public Service Commission Civil Services Examination", "itemCount": 5, "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null, "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {}, "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z", "children": []
+            },
+            {
+              "id": "ge-1-2", "slug": "ias", "label": "IAS", "pillar": "government-exam", "parentId": "ge-1", "path": "government-exam/civil-services/ias", "depth": 1, "displayOrder": 2, "isActive": true, "isPinned": false, "icon": "🏛️", "badge": null, "description": "Indian Administrative Service examination", "itemCount": 3, "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null, "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {}, "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z", "children": []
+            },
+            {
+              "id": "ge-1-3", "slug": "ips", "label": "IPS", "pillar": "government-exam", "parentId": "ge-1", "path": "government-exam/civil-services/ips", "depth": 1, "displayOrder": 3, "isActive": true, "isPinned": false, "icon": "🏛️", "badge": null, "description": "Indian Police Service examination", "itemCount": 3, "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null, "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {}, "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z", "children": []
+            },
+            {
+              "id": "ge-1-4", "slug": "ifs", "label": "IFS", "pillar": "government-exam", "parentId": "ge-1", "path": "government-exam/civil-services/ifs", "depth": 1, "displayOrder": 4, "isActive": true, "isPinned": false, "icon": "🏛️", "badge": null, "description": "Indian Foreign Service examination", "itemCount": 2, "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null, "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {}, "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z", "children": []
+            }
+          ]
+        },
+        {
+          "id": "ge-2",
+          "slug": "ssc-exams",
+          "label": "SSC Exams",
+          "pillar": "government-exam",
+          "parentId": null,
+          "path": "government-exam/ssc-exams",
+          "depth": 0,
+          "displayOrder": 2,
+          "isActive": true,
+          "isPinned": true,
+          "icon": "📋",
+          "badge": "popular",
+          "description": "Staff Selection Commission examinations including CGL, CHSL, MTS, GD, Steno, JE",
+          "itemCount": 20,
+          "seoTitle": null,
+          "seoDescription": null,
+          "ogImage": null,
+          "categoryId": null,
+          "examId": null,
+          "maxItems": 15,
+          "showItemCount": true,
+          "featuredItemIds": [],
+          "customUrl": null,
+          "metadata": {},
+          "createdAt": "2026-07-30T00:00:00.000Z",
+          "updatedAt": "2026-07-30T00:00:00.000Z",
+          "children": [
+            {
+              "id": "ge-2-1", "slug": "ssc-cgl", "label": "SSC CGL", "pillar": "government-exam", "parentId": "ge-2", "path": "government-exam/ssc-exams/ssc-cgl", "depth": 1, "displayOrder": 1, "isActive": true, "isPinned": true, "icon": "📋", "badge": "popular", "description": "Combined Graduate Level Examination", "itemCount": 5, "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null, "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {}, "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z", "children": []
+            },
+            {
+              "id": "ge-2-2", "slug": "ssc-chsl", "label": "SSC CHSL", "pillar": "government-exam", "parentId": "ge-2", "path": "government-exam/ssc-exams/ssc-chsl", "depth": 1, "displayOrder": 2, "isActive": true, "isPinned": false, "icon": "📋", "badge": null, "description": "Combined Higher Secondary Level Examination", "itemCount": 4, "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null, "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {}, "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z", "children": []
+            },
+            {
+              "id": "ge-2-3", "slug": "ssc-mts", "label": "SSC MTS", "pillar": "government-exam", "parentId": "ge-2", "path": "government-exam/ssc-exams/ssc-mts", "depth": 1, "displayOrder": 3, "isActive": true, "isPinned": false, "icon": "📋", "badge": null, "description": "Multi Tasking Staff Examination", "itemCount": 3, "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null, "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {}, "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z", "children": []
+            },
+            {
+              "id": "ge-2-4", "slug": "ssc-gd", "label": "SSC GD", "pillar": "government-exam", "parentId": "ge-2", "path": "government-exam/ssc-exams/ssc-gd", "depth": 1, "displayOrder": 4, "isActive": true, "isPinned": false, "icon": "📋", "badge": null, "description": "General Duty Constable Examination", "itemCount": 3, "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null, "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {}, "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z", "children": []
+            },
+            {
+              "id": "ge-2-5", "slug": "ssc-je", "label": "SSC JE", "pillar": "government-exam", "parentId": "ge-2", "path": "government-exam/ssc-exams/ssc-je", "depth": 1, "displayOrder": 5, "isActive": true, "isPinned": false, "icon": "📋", "badge": null, "description": "Junior Engineer Examination", "itemCount": 3, "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null, "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {}, "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z", "children": []
+            },
+            {
+              "id": "ge-2-6", "slug": "ssc-steno", "label": "SSC Steno", "pillar": "government-exam", "parentId": "ge-2", "path": "government-exam/ssc-exams/ssc-steno", "depth": 1, "displayOrder": 6, "isActive": true, "isPinned": false, "icon": "📋", "badge": null, "description": "Stenographer Grade C & D Examination", "itemCount": 2, "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null, "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {}, "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z", "children": []
+            }
+          ]
+        },
+        {
+          "id": "ge-3",
+          "slug": "banking-exams",
+          "label": "Banking Exams",
+          "pillar": "government-exam",
+          "parentId": null,
+          "path": "government-exam/banking-exams",
+          "depth": 0,
+          "displayOrder": 3,
+          "isActive": true,
+          "isPinned": true,
+          "icon": "🏦",
+          "badge": "popular",
+          "description": "IBPS PO, SBI PO, IBPS Clerk, RBI and other banking examinations",
+          "itemCount": 18,
+          "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null,
+          "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {},
+          "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z",
+          "children": [
+            { "id": "ge-3-1", "slug": "ibps-po", "label": "IBPS PO", "pillar": "government-exam", "parentId": "ge-3", "path": "government-exam/banking-exams/ibps-po", "depth": 1, "displayOrder": 1, "isActive": true, "isPinned": true, "icon": "🏦", "badge": "popular", "description": "Institute of Banking Personnel Selection Probationary Officer", "itemCount": 5, "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null, "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {}, "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z", "children": [] },
+            { "id": "ge-3-2", "slug": "sbi-po", "label": "SBI PO", "pillar": "government-exam", "parentId": "ge-3", "path": "government-exam/banking-exams/sbi-po", "depth": 1, "displayOrder": 2, "isActive": true, "isPinned": true, "icon": "🏦", "badge": null, "description": "State Bank of India Probationary Officer", "itemCount": 4, "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null, "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {}, "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z", "children": [] },
+            { "id": "ge-3-3", "slug": "ibps-clerk", "label": "IBPS Clerk", "pillar": "government-exam", "parentId": "ge-3", "path": "government-exam/banking-exams/ibps-clerk", "depth": 1, "displayOrder": 3, "isActive": true, "isPinned": false, "icon": "🏦", "badge": null, "description": "IBPS Clerk recruitment examination", "itemCount": 4, "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null, "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {}, "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z", "children": [] },
+            { "id": "ge-3-4", "slug": "rbi-grade-b", "label": "RBI Grade B", "pillar": "government-exam", "parentId": "ge-3", "path": "government-exam/banking-exams/rbi-grade-b", "depth": 1, "displayOrder": 4, "isActive": true, "isPinned": false, "icon": "🏦", "badge": null, "description": "Reserve Bank of India Grade B Officer", "itemCount": 3, "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null, "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {}, "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z", "children": [] },
+            { "id": "ge-3-5", "slug": "sbi-clerk", "label": "SBI Clerk", "pillar": "government-exam", "parentId": "ge-3", "path": "government-exam/banking-exams/sbi-clerk", "depth": 1, "displayOrder": 5, "isActive": true, "isPinned": false, "icon": "🏦", "badge": null, "description": "State Bank of India Clerk examination", "itemCount": 2, "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null, "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {}, "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z", "children": [] }
+          ]
+        },
+        {
+          "id": "ge-4",
+          "slug": "railway-exams",
+          "label": "Railway Exams",
+          "pillar": "government-exam",
+          "parentId": null,
+          "path": "government-exam/railway-exams",
+          "depth": 0,
+          "displayOrder": 4,
+          "isActive": true,
+          "isPinned": false,
+          "icon": "🚆",
+          "badge": "updated",
+          "description": "RRB NTPC, Group D, JE, ALP and other railway examinations",
+          "itemCount": 12,
+          "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null,
+          "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {},
+          "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z",
+          "children": [
+            { "id": "ge-4-1", "slug": "rrb-ntpc", "label": "RRB NTPC", "pillar": "government-exam", "parentId": "ge-4", "path": "government-exam/railway-exams/rrb-ntpc", "depth": 1, "displayOrder": 1, "isActive": true, "isPinned": true, "icon": "🚆", "badge": "popular", "description": "Railway Recruitment Board Non-Technical Popular Categories", "itemCount": 4, "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null, "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {}, "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z", "children": [] },
+            { "id": "ge-4-2", "slug": "rrb-group-d", "label": "RRB Group D", "pillar": "government-exam", "parentId": "ge-4", "path": "government-exam/railway-exams/rrb-group-d", "depth": 1, "displayOrder": 2, "isActive": true, "isPinned": false, "icon": "🚆", "badge": null, "description": "Railway Group D Level 1 examination", "itemCount": 3, "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null, "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {}, "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z", "children": [] },
+            { "id": "ge-4-3", "slug": "rrb-je", "label": "RRB JE", "pillar": "government-exam", "parentId": "ge-4", "path": "government-exam/railway-exams/rrb-je", "depth": 1, "displayOrder": 3, "isActive": true, "isPinned": false, "icon": "🚆", "badge": null, "description": "Railway Junior Engineer examination", "itemCount": 3, "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null, "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {}, "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z", "children": [] },
+            { "id": "ge-4-4", "slug": "rrb-alp", "label": "RRB ALP", "pillar": "government-exam", "parentId": "ge-4", "path": "government-exam/railway-exams/rrb-alp", "depth": 1, "displayOrder": 4, "isActive": true, "isPinned": false, "icon": "🚆", "badge": null, "description": "Railway Assistant Loco Pilot examination", "itemCount": 2, "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null, "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {}, "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z", "children": [] }
+          ]
+        },
+        {
+          "id": "ge-5",
+          "slug": "defence-exams",
+          "label": "Defence Exams",
+          "pillar": "government-exam",
+          "parentId": null,
+          "path": "government-exam/defence-exams",
+          "depth": 0,
+          "displayOrder": 5,
+          "isActive": true,
+          "isPinned": false,
+          "icon": "🛡️",
+          "badge": null,
+          "description": "NDA, CDS, AFCAT, CAPF and other defence examinations",
+          "itemCount": 10,
+          "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null,
+          "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {},
+          "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z",
+          "children": [
+            { "id": "ge-5-1", "slug": "nda", "label": "NDA", "pillar": "government-exam", "parentId": "ge-5", "path": "government-exam/defence-exams/nda", "depth": 1, "displayOrder": 1, "isActive": true, "isPinned": true, "icon": "🛡️", "badge": null, "description": "National Defence Academy examination", "itemCount": 3, "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null, "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {}, "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z", "children": [] },
+            { "id": "ge-5-2", "slug": "cds", "label": "CDS", "pillar": "government-exam", "parentId": "ge-5", "path": "government-exam/defence-exams/cds", "depth": 1, "displayOrder": 2, "isActive": true, "isPinned": false, "icon": "🛡️", "badge": null, "description": "Combined Defence Services examination", "itemCount": 3, "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null, "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {}, "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z", "children": [] },
+            { "id": "ge-5-3", "slug": "afcat", "label": "AFCAT", "pillar": "government-exam", "parentId": "ge-5", "path": "government-exam/defence-exams/afcat", "depth": 1, "displayOrder": 3, "isActive": true, "isPinned": false, "icon": "🛡️", "badge": null, "description": "Air Force Common Admission Test", "itemCount": 2, "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null, "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {}, "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z", "children": [] },
+            { "id": "ge-5-4", "slug": "capf", "label": "CAPF", "pillar": "government-exam", "parentId": "ge-5", "path": "government-exam/defence-exams/capf", "depth": 1, "displayOrder": 4, "isActive": true, "isPinned": false, "icon": "🛡️", "badge": null, "description": "Central Armed Police Forces examination", "itemCount": 2, "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null, "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {}, "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z", "children": [] }
+          ]
+        },
+        {
+          "id": "ge-6",
+          "slug": "teaching-eligibility",
+          "label": "Teaching Eligibility",
+          "pillar": "government-exam",
+          "parentId": null,
+          "path": "government-exam/teaching-eligibility",
+          "depth": 0,
+          "displayOrder": 6,
+          "isActive": true,
+          "isPinned": false,
+          "icon": "📚",
+          "badge": null,
+          "description": "CTET, STET, TET and other teaching eligibility tests",
+          "itemCount": 8,
+          "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null,
+          "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {},
+          "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z",
+          "children": [
+            { "id": "ge-6-1", "slug": "ctet", "label": "CTET", "pillar": "government-exam", "parentId": "ge-6", "path": "government-exam/teaching-eligibility/ctet", "depth": 1, "displayOrder": 1, "isActive": true, "isPinned": true, "icon": "📚", "badge": "popular", "description": "Central Teacher Eligibility Test", "itemCount": 3, "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null, "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {}, "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z", "children": [] },
+            { "id": "ge-6-2", "slug": "stet", "label": "STET", "pillar": "government-exam", "parentId": "ge-6", "path": "government-exam/teaching-eligibility/stet", "depth": 1, "displayOrder": 2, "isActive": true, "isPinned": false, "icon": "📚", "badge": null, "description": "State Teacher Eligibility Test", "itemCount": 3, "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null, "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {}, "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z", "children": [] },
+            { "id": "ge-6-3", "slug": "tet", "label": "TET", "pillar": "government-exam", "parentId": "ge-6", "path": "government-exam/teaching-eligibility/tet", "depth": 1, "displayOrder": 3, "isActive": true, "isPinned": false, "icon": "📚", "badge": null, "description": "Teacher Eligibility Test (Various States)", "itemCount": 2, "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null, "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {}, "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z", "children": [] }
+          ]
+        },
+        {
+          "id": "ge-7",
+          "slug": "higher-education",
+          "label": "Higher Education",
+          "pillar": "government-exam",
+          "parentId": null,
+          "path": "government-exam/higher-education",
+          "depth": 0,
+          "displayOrder": 7,
+          "isActive": true,
+          "isPinned": false,
+          "icon": "🎓",
+          "badge": "popular",
+          "description": "UGC NET, CSIR NET, GATE and other higher education examinations",
+          "itemCount": 12,
+          "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null,
+          "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {},
+          "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z",
+          "children": [
+            { "id": "ge-7-1", "slug": "ugc-net", "label": "UGC NET", "pillar": "government-exam", "parentId": "ge-7", "path": "government-exam/higher-education/ugc-net", "depth": 1, "displayOrder": 1, "isActive": true, "isPinned": true, "icon": "🎓", "badge": "popular", "description": "University Grants Commission National Eligibility Test", "itemCount": 4, "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null, "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {}, "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z", "children": [] },
+            { "id": "ge-7-2", "slug": "csir-net", "label": "CSIR NET", "pillar": "government-exam", "parentId": "ge-7", "path": "government-exam/higher-education/csir-net", "depth": 1, "displayOrder": 2, "isActive": true, "isPinned": false, "icon": "🎓", "badge": null, "description": "Council of Scientific and Industrial Research NET", "itemCount": 4, "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null, "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {}, "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z", "children": [] },
+            { "id": "ge-7-3", "slug": "gate", "label": "GATE", "pillar": "government-exam", "parentId": "ge-7", "path": "government-exam/higher-education/gate", "depth": 1, "displayOrder": 3, "isActive": true, "isPinned": true, "icon": "🎓", "badge": "popular", "description": "Graduate Aptitude Test in Engineering", "itemCount": 4, "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null, "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {}, "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z", "children": [] }
+          ]
+        },
+        {
+          "id": "ge-8",
+          "slug": "professional-certification",
+          "label": "Professional Certification",
+          "pillar": "government-exam",
+          "parentId": null,
+          "path": "government-exam/professional-certification",
+          "depth": 0,
+          "displayOrder": 8,
+          "isActive": true,
+          "isPinned": false,
+          "icon": "📜",
+          "badge": null,
+          "description": "CA, CS, CMA and other professional certification examinations",
+          "itemCount": 6,
+          "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null,
+          "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {},
+          "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z",
+          "children": [
+            { "id": "ge-8-1", "slug": "ca", "label": "CA", "pillar": "government-exam", "parentId": "ge-8", "path": "government-exam/professional-certification/ca", "depth": 1, "displayOrder": 1, "isActive": true, "isPinned": true, "icon": "📜", "badge": null, "description": "Chartered Accountant examination by ICAI", "itemCount": 2, "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null, "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {}, "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z", "children": [] },
+            { "id": "ge-8-2", "slug": "cs", "label": "CS", "pillar": "government-exam", "parentId": "ge-8", "path": "government-exam/professional-certification/cs", "depth": 1, "displayOrder": 2, "isActive": true, "isPinned": false, "icon": "📜", "badge": null, "description": "Company Secretary examination by ICSI", "itemCount": 2, "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null, "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {}, "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z", "children": [] },
+            { "id": "ge-8-3", "slug": "cma", "label": "CMA", "pillar": "government-exam", "parentId": "ge-8", "path": "government-exam/professional-certification/cma", "depth": 1, "displayOrder": 3, "isActive": true, "isPinned": false, "icon": "📜", "badge": null, "description": "Cost and Management Accountant examination", "itemCount": 2, "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null, "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {}, "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z", "children": [] }
+          ]
+        },
+        {
+          "id": "ge-9",
+          "slug": "state-psc",
+          "label": "State PSC",
+          "pillar": "government-exam",
+          "parentId": null,
+          "path": "government-exam/state-psc",
+          "depth": 0,
+          "displayOrder": 9,
+          "isActive": true,
+          "isPinned": false,
+          "icon": "🏢",
+          "badge": "updated",
+          "description": "UPPSC, BPSC, MPPSC, RPSC and other State Public Service Commission exams",
+          "itemCount": 30,
+          "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null,
+          "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {},
+          "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z",
+          "children": [
+            { "id": "ge-9-1", "slug": "uppsc", "label": "UPPSC", "pillar": "government-exam", "parentId": "ge-9", "path": "government-exam/state-psc/uppsc", "depth": 1, "displayOrder": 1, "isActive": true, "isPinned": true, "icon": "🏢", "badge": "popular", "description": "Uttar Pradesh Public Service Commission", "itemCount": 8, "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null, "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {}, "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z", "children": [] },
+            { "id": "ge-9-2", "slug": "bpsc", "label": "BPSC", "pillar": "government-exam", "parentId": "ge-9", "path": "government-exam/state-psc/bpsc", "depth": 1, "displayOrder": 2, "isActive": true, "isPinned": true, "icon": "🏢", "badge": null, "description": "Bihar Public Service Commission", "itemCount": 8, "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null, "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {}, "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z", "children": [] },
+            { "id": "ge-9-3", "slug": "mppsc", "label": "MPPSC", "pillar": "government-exam", "parentId": "ge-9", "path": "government-exam/state-psc/mppsc", "depth": 1, "displayOrder": 3, "isActive": true, "isPinned": false, "icon": "🏢", "badge": null, "description": "Madhya Pradesh Public Service Commission", "itemCount": 7, "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null, "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {}, "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z", "children": [] },
+            { "id": "ge-9-4", "slug": "rpsc", "label": "RPSC", "pillar": "government-exam", "parentId": "ge-9", "path": "government-exam/state-psc/rpsc", "depth": 1, "displayOrder": 4, "isActive": true, "isPinned": false, "icon": "🏢", "badge": null, "description": "Rajasthan Public Service Commission", "itemCount": 7, "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null, "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {}, "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z", "children": [] }
+          ]
+        },
+        {
+          "id": "ge-10",
+          "slug": "state-eligibility-tests",
+          "label": "State Eligibility Tests",
+          "pillar": "government-exam",
+          "parentId": null,
+          "path": "government-exam/state-eligibility-tests",
+          "depth": 0,
+          "displayOrder": 10,
+          "isActive": true,
+          "isPinned": false,
+          "icon": "📝",
+          "badge": null,
+          "description": "State Eligibility Test (SET) for Assistant Professor",
+          "itemCount": 10,
+          "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null,
+          "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {},
+          "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z",
+          "children": [
+            { "id": "ge-10-1", "slug": "maharashtra-set", "label": "Maharashtra SET", "pillar": "government-exam", "parentId": "ge-10", "path": "government-exam/state-eligibility-tests/maharashtra-set", "depth": 1, "displayOrder": 1, "isActive": true, "isPinned": false, "icon": "📝", "badge": null, "description": "Maharashtra State Eligibility Test", "itemCount": 3, "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null, "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {}, "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z", "children": [] },
+            { "id": "ge-10-2", "slug": "karnataka-set", "label": "Karnataka SET", "pillar": "government-exam", "parentId": "ge-10", "path": "government-exam/state-eligibility-tests/karnataka-set", "depth": 1, "displayOrder": 2, "isActive": true, "isPinned": false, "icon": "📝", "badge": null, "description": "Karnataka State Eligibility Test", "itemCount": 3, "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null, "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {}, "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z", "children": [] },
+            { "id": "ge-10-3", "slug": "tamil-nadu-set", "label": "Tamil Nadu SET", "pillar": "government-exam", "parentId": "ge-10", "path": "government-exam/state-eligibility-tests/tamil-nadu-set", "depth": 1, "displayOrder": 3, "isActive": true, "isPinned": false, "icon": "📝", "badge": null, "description": "Tamil Nadu State Eligibility Test", "itemCount": 2, "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null, "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {}, "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z", "children": [] },
+            { "id": "ge-10-4", "slug": "rajasthan-set", "label": "Rajasthan SET", "pillar": "government-exam", "parentId": "ge-10", "path": "government-exam/state-eligibility-tests/rajasthan-set", "depth": 1, "displayOrder": 4, "isActive": true, "isPinned": false, "icon": "📝", "badge": null, "description": "Rajasthan State Eligibility Test", "itemCount": 2, "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null, "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {}, "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z", "children": [] }
+          ]
+        },
+        {
+          "id": "ge-11",
+          "slug": "recruitment-boards",
+          "label": "Recruitment Boards",
+          "pillar": "government-exam",
+          "parentId": null,
+          "path": "government-exam/recruitment-boards",
+          "depth": 0,
+          "displayOrder": 11,
+          "isActive": true,
+          "isPinned": false,
+          "icon": "🏗️",
+          "badge": null,
+          "description": "Staff Selection, DSSSB and other recruitment board examinations",
+          "itemCount": 8,
+          "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null,
+          "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {},
+          "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z",
+          "children": [
+            { "id": "ge-11-1", "slug": "staff-selection", "label": "Staff Selection", "pillar": "government-exam", "parentId": "ge-11", "path": "government-exam/recruitment-boards/staff-selection", "depth": 1, "displayOrder": 1, "isActive": true, "isPinned": false, "icon": "🏗️", "badge": null, "description": "Staff Selection Commission recruitment exams", "itemCount": 4, "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null, "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {}, "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z", "children": [] },
+            { "id": "ge-11-2", "slug": "dsssb", "label": "DSSSB", "pillar": "government-exam", "parentId": "ge-11", "path": "government-exam/recruitment-boards/dsssb", "depth": 1, "displayOrder": 2, "isActive": true, "isPinned": false, "icon": "🏗️", "badge": null, "description": "Delhi Subordinate Services Selection Board", "itemCount": 4, "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null, "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {}, "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z", "children": [] }
+          ]
+        },
+        {
+          "id": "ge-12",
+          "slug": "other-competitive",
+          "label": "Other Competitive",
+          "pillar": "government-exam",
+          "parentId": null,
+          "path": "government-exam/other-competitive",
+          "depth": 0,
+          "displayOrder": 12,
+          "isActive": true,
+          "isPinned": false,
+          "icon": "⚡",
+          "badge": null,
+          "description": "NTA, CUET and other competitive examinations",
+          "itemCount": 5,
+          "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null,
+          "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {},
+          "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z",
+          "children": [
+            { "id": "ge-12-1", "slug": "nta", "label": "NTA", "pillar": "government-exam", "parentId": "ge-12", "path": "government-exam/other-competitive/nta", "depth": 1, "displayOrder": 1, "isActive": true, "isPinned": false, "icon": "⚡", "badge": null, "description": "National Testing Agency examinations", "itemCount": 3, "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null, "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {}, "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z", "children": [] },
+            { "id": "ge-12-2", "slug": "cuet", "label": "CUET", "pillar": "government-exam", "parentId": "ge-12", "path": "government-exam/other-competitive/cuet", "depth": 1, "displayOrder": 2, "isActive": true, "isPinned": false, "icon": "⚡", "badge": "new", "description": "Common University Entrance Test", "itemCount": 2, "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null, "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {}, "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z", "children": [] }
+          ]
+        }
+      ]
+    },
+    "government-jobs": {
+      "pillar": "government-jobs",
+      "label": "Govt Jobs",
+      "href": "/government-jobs",
+      "icon": "💼",
+      "totalItemCount": 500,
+      "lastUpdated": "2026-07-30T00:00:00.000Z",
+      "nodes": [
+        {
+          "id": "gj-1",
+          "slug": "police-jobs",
+          "label": "Police Jobs",
+          "pillar": "government-jobs",
+          "parentId": null,
+          "path": "government-jobs/police-jobs",
+          "depth": 0,
+          "displayOrder": 1,
+          "isActive": true,
+          "isPinned": true,
+          "icon": "🚔",
+          "badge": "popular",
+          "description": "Police department recruitment - Constable, SI, Inspector, DSP vacancies",
+          "itemCount": 45,
+          "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null,
+          "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {},
+          "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z",
+          "children": [
+            { "id": "gj-1-1", "slug": "constable", "label": "Constable", "pillar": "government-jobs", "parentId": "gj-1", "path": "government-jobs/police-jobs/constable", "depth": 1, "displayOrder": 1, "isActive": true, "isPinned": true, "icon": "🚔", "badge": "popular", "description": "Police Constable recruitment", "itemCount": 15, "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null, "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {}, "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z", "children": [] },
+            { "id": "gj-1-2", "slug": "sub-inspector", "label": "Sub Inspector", "pillar": "government-jobs", "parentId": "gj-1", "path": "government-jobs/police-jobs/sub-inspector", "depth": 1, "displayOrder": 2, "isActive": true, "isPinned": false, "icon": "🚔", "badge": null, "description": "Sub Inspector recruitment", "itemCount": 12, "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null, "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {}, "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z", "children": [] },
+            { "id": "gj-1-3", "slug": "inspector", "label": "Inspector", "pillar": "government-jobs", "parentId": "gj-1", "path": "government-jobs/police-jobs/inspector", "depth": 1, "displayOrder": 3, "isActive": true, "isPinned": false, "icon": "🚔", "badge": null, "description": "Inspector rank recruitment", "itemCount": 10, "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null, "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {}, "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z", "children": [] },
+            { "id": "gj-1-4", "slug": "dsp", "label": "DSP", "pillar": "government-jobs", "parentId": "gj-1", "path": "government-jobs/police-jobs/dsp", "depth": 1, "displayOrder": 4, "isActive": true, "isPinned": false, "icon": "🚔", "badge": null, "description": "Deputy Superintendent of Police recruitment", "itemCount": 8, "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null, "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {}, "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z", "children": [] }
+          ]
+        },
+        {
+          "id": "gj-2",
+          "slug": "teaching-jobs",
+          "label": "Teaching Jobs",
+          "pillar": "government-jobs",
+          "parentId": null,
+          "path": "government-jobs/teaching-jobs",
+          "depth": 0,
+          "displayOrder": 2,
+          "isActive": true,
+          "isPinned": true,
+          "icon": "📚",
+          "badge": "popular",
+          "description": "Teaching positions - PRT, TGT, PGT, Professor vacancies",
+          "itemCount": 30,
+          "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null,
+          "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {},
+          "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z",
+          "children": [
+            { "id": "gj-2-1", "slug": "prt", "label": "PRT", "pillar": "government-jobs", "parentId": "gj-2", "path": "government-jobs/teaching-jobs/prt", "depth": 1, "displayOrder": 1, "isActive": true, "isPinned": false, "icon": "📚", "badge": null, "description": "Primary Teacher recruitment", "itemCount": 8, "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null, "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {}, "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z", "children": [] },
+            { "id": "gj-2-2", "slug": "tgt", "label": "TGT", "pillar": "government-jobs", "parentId": "gj-2", "path": "government-jobs/teaching-jobs/tgt", "depth": 1, "displayOrder": 2, "isActive": true, "isPinned": false, "icon": "📚", "badge": null, "description": "Trained Graduate Teacher recruitment", "itemCount": 8, "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null, "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {}, "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z", "children": [] },
+            { "id": "gj-2-3", "slug": "pgt", "label": "PGT", "pillar": "government-jobs", "parentId": "gj-2", "path": "government-jobs/teaching-jobs/pgt", "depth": 1, "displayOrder": 3, "isActive": true, "isPinned": false, "icon": "📚", "badge": null, "description": "Post Graduate Teacher recruitment", "itemCount": 7, "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null, "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {}, "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z", "children": [] },
+            { "id": "gj-2-4", "slug": "professor", "label": "Professor", "pillar": "government-jobs", "parentId": "gj-2", "path": "government-jobs/teaching-jobs/professor", "depth": 1, "displayOrder": 4, "isActive": true, "isPinned": false, "icon": "📚", "badge": null, "description": "Professor and Assistant Professor vacancies", "itemCount": 7, "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null, "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {}, "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z", "children": [] }
+          ]
+        },
+        {
+          "id": "gj-3",
+          "slug": "engineering-jobs",
+          "label": "Engineering Jobs",
+          "pillar": "government-jobs",
+          "parentId": null,
+          "path": "government-jobs/engineering-jobs",
+          "depth": 0,
+          "displayOrder": 3,
+          "isActive": true,
+          "isPinned": false,
+          "icon": "⚙️",
+          "badge": null,
+          "description": "Engineering positions - JE, AE, Executive Engineer vacancies",
+          "itemCount": 25,
+          "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null,
+          "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {},
+          "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z",
+          "children": [
+            { "id": "gj-3-1", "slug": "junior-engineer", "label": "Junior Engineer", "pillar": "government-jobs", "parentId": "gj-3", "path": "government-jobs/engineering-jobs/junior-engineer", "depth": 1, "displayOrder": 1, "isActive": true, "isPinned": false, "icon": "⚙️", "badge": null, "description": "Junior Engineer recruitment across departments", "itemCount": 10, "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null, "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {}, "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z", "children": [] },
+            { "id": "gj-3-2", "slug": "assistant-engineer", "label": "Assistant Engineer", "pillar": "government-jobs", "parentId": "gj-3", "path": "government-jobs/engineering-jobs/assistant-engineer", "depth": 1, "displayOrder": 2, "isActive": true, "isPinned": false, "icon": "⚙️", "badge": null, "description": "Assistant Engineer recruitment", "itemCount": 8, "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null, "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {}, "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z", "children": [] },
+            { "id": "gj-3-3", "slug": "executive-engineer", "label": "Executive Engineer", "pillar": "government-jobs", "parentId": "gj-3", "path": "government-jobs/engineering-jobs/executive-engineer", "depth": 1, "displayOrder": 3, "isActive": true, "isPinned": false, "icon": "⚙️", "badge": null, "description": "Executive Engineer recruitment", "itemCount": 7, "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null, "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {}, "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z", "children": [] }
+          ]
+        },
+        {
+          "id": "gj-4",
+          "slug": "healthcare-jobs",
+          "label": "Healthcare Jobs",
+          "pillar": "government-jobs",
+          "parentId": null,
+          "path": "government-jobs/healthcare-jobs",
+          "depth": 0,
+          "displayOrder": 4,
+          "isActive": true,
+          "isPinned": false,
+          "icon": "🏥",
+          "badge": "updated",
+          "description": "Healthcare positions - Staff Nurse, ANM, Lab Technician, Medical Officer",
+          "itemCount": 35,
+          "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null,
+          "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {},
+          "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z",
+          "children": [
+            { "id": "gj-4-1", "slug": "staff-nurse", "label": "Staff Nurse", "pillar": "government-jobs", "parentId": "gj-4", "path": "government-jobs/healthcare-jobs/staff-nurse", "depth": 1, "displayOrder": 1, "isActive": true, "isPinned": true, "icon": "🏥", "badge": null, "description": "Staff Nurse recruitment in government hospitals", "itemCount": 12, "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null, "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {}, "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z", "children": [] },
+            { "id": "gj-4-2", "slug": "anm", "label": "ANM", "pillar": "government-jobs", "parentId": "gj-4", "path": "government-jobs/healthcare-jobs/anm", "depth": 1, "displayOrder": 2, "isActive": true, "isPinned": false, "icon": "🏥", "badge": null, "description": "Auxiliary Nurse Midwife recruitment", "itemCount": 8, "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null, "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {}, "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z", "children": [] },
+            { "id": "gj-4-3", "slug": "lab-technician", "label": "Lab Technician", "pillar": "government-jobs", "parentId": "gj-4", "path": "government-jobs/healthcare-jobs/lab-technician", "depth": 1, "displayOrder": 3, "isActive": true, "isPinned": false, "icon": "🏥", "badge": null, "description": "Laboratory Technician recruitment", "itemCount": 8, "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null, "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {}, "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z", "children": [] },
+            { "id": "gj-4-4", "slug": "medical-officer", "label": "Medical Officer", "pillar": "government-jobs", "parentId": "gj-4", "path": "government-jobs/healthcare-jobs/medical-officer", "depth": 1, "displayOrder": 4, "isActive": true, "isPinned": false, "icon": "🏥", "badge": null, "description": "Medical Officer recruitment", "itemCount": 7, "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null, "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {}, "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z", "children": [] }
+          ]
+        },
+        {
+          "id": "gj-5",
+          "slug": "banking-finance",
+          "label": "Banking & Finance",
+          "pillar": "government-jobs",
+          "parentId": null,
+          "path": "government-jobs/banking-finance",
+          "depth": 0,
+          "displayOrder": 5,
+          "isActive": true,
+          "isPinned": true,
+          "icon": "🏦",
+          "badge": "popular",
+          "description": "Banking and finance sector jobs - PO, Clerk, SO positions",
+          "itemCount": 20,
+          "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null,
+          "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {},
+          "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z",
+          "children": [
+            { "id": "gj-5-1", "slug": "po-jobs", "label": "PO", "pillar": "government-jobs", "parentId": "gj-5", "path": "government-jobs/banking-finance/po-jobs", "depth": 1, "displayOrder": 1, "isActive": true, "isPinned": true, "icon": "🏦", "badge": "popular", "description": "Probationary Officer jobs", "itemCount": 8, "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null, "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {}, "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z", "children": [] },
+            { "id": "gj-5-2", "slug": "clerk-jobs", "label": "Clerk", "pillar": "government-jobs", "parentId": "gj-5", "path": "government-jobs/banking-finance/clerk-jobs", "depth": 1, "displayOrder": 2, "isActive": true, "isPinned": false, "icon": "🏦", "badge": null, "description": "Bank Clerk recruitment", "itemCount": 7, "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null, "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {}, "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z", "children": [] },
+            { "id": "gj-5-3", "slug": "so-jobs", "label": "SO", "pillar": "government-jobs", "parentId": "gj-5", "path": "government-jobs/banking-finance/so-jobs", "depth": 1, "displayOrder": 3, "isActive": true, "isPinned": false, "icon": "🏦", "badge": null, "description": "Specialist Officer recruitment", "itemCount": 5, "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null, "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {}, "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z", "children": [] }
+          ]
+        },
+        {
+          "id": "gj-6",
+          "slug": "defence-jobs",
+          "label": "Defence Jobs",
+          "pillar": "government-jobs",
+          "parentId": null,
+          "path": "government-jobs/defence-jobs",
+          "depth": 0,
+          "displayOrder": 6,
+          "isActive": true,
+          "isPinned": false,
+          "icon": "🛡️",
+          "badge": null,
+          "description": "Defence sector jobs - Army, Navy, Air Force, Paramilitary",
+          "itemCount": 22,
+          "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null,
+          "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {},
+          "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z",
+          "children": [
+            { "id": "gj-6-1", "slug": "army", "label": "Army", "pillar": "government-jobs", "parentId": "gj-6", "path": "government-jobs/defence-jobs/army", "depth": 1, "displayOrder": 1, "isActive": true, "isPinned": false, "icon": "🛡️", "badge": null, "description": "Indian Army recruitment", "itemCount": 8, "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null, "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {}, "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z", "children": [] },
+            { "id": "gj-6-2", "slug": "navy", "label": "Navy", "pillar": "government-jobs", "parentId": "gj-6", "path": "government-jobs/defence-jobs/navy", "depth": 1, "displayOrder": 2, "isActive": true, "isPinned": false, "icon": "🛡️", "badge": null, "description": "Indian Navy recruitment", "itemCount": 5, "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null, "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {}, "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z", "children": [] },
+            { "id": "gj-6-3", "slug": "air-force", "label": "Air Force", "pillar": "government-jobs", "parentId": "gj-6", "path": "government-jobs/defence-jobs/air-force", "depth": 1, "displayOrder": 3, "isActive": true, "isPinned": false, "icon": "🛡️", "badge": null, "description": "Indian Air Force recruitment", "itemCount": 5, "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null, "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {}, "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z", "children": [] },
+            { "id": "gj-6-4", "slug": "paramilitary", "label": "Paramilitary", "pillar": "government-jobs", "parentId": "gj-6", "path": "government-jobs/defence-jobs/paramilitary", "depth": 1, "displayOrder": 4, "isActive": true, "isPinned": false, "icon": "🛡️", "badge": null, "description": "Paramilitary forces recruitment - BSF, CRPF, CISF, ITBP", "itemCount": 4, "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null, "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {}, "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z", "children": [] }
+          ]
+        },
+        {
+          "id": "gj-7",
+          "slug": "railway-jobs",
+          "label": "Railway Jobs",
+          "pillar": "government-jobs",
+          "parentId": null,
+          "path": "government-jobs/railway-jobs",
+          "depth": 0,
+          "displayOrder": 7,
+          "isActive": true,
+          "isPinned": false,
+          "icon": "🚆",
+          "badge": "popular",
+          "description": "Indian Railways recruitment - NTPC, Group D, JE, ALP",
+          "itemCount": 15,
+          "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null,
+          "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {},
+          "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z",
+          "children": [
+            { "id": "gj-7-1", "slug": "ntpc-jobs", "label": "NTPC", "pillar": "government-jobs", "parentId": "gj-7", "path": "government-jobs/railway-jobs/ntpc-jobs", "depth": 1, "displayOrder": 1, "isActive": true, "isPinned": false, "icon": "🚆", "badge": null, "description": "Railway NTPC category jobs", "itemCount": 4, "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null, "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {}, "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z", "children": [] },
+            { "id": "gj-7-2", "slug": "group-d-jobs", "label": "Group D", "pillar": "government-jobs", "parentId": "gj-7", "path": "government-jobs/railway-jobs/group-d-jobs", "depth": 1, "displayOrder": 2, "isActive": true, "isPinned": false, "icon": "🚆", "badge": null, "description": "Railway Group D level jobs", "itemCount": 4, "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null, "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {}, "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z", "children": [] },
+            { "id": "gj-7-3", "slug": "je-jobs", "label": "JE", "pillar": "government-jobs", "parentId": "gj-7", "path": "government-jobs/railway-jobs/je-jobs", "depth": 1, "displayOrder": 3, "isActive": true, "isPinned": false, "icon": "🚆", "badge": null, "description": "Railway Junior Engineer jobs", "itemCount": 4, "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null, "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {}, "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z", "children": [] },
+            { "id": "gj-7-4", "slug": "alp-jobs", "label": "ALP", "pillar": "government-jobs", "parentId": "gj-7", "path": "government-jobs/railway-jobs/alp-jobs", "depth": 1, "displayOrder": 4, "isActive": true, "isPinned": false, "icon": "🚆", "badge": null, "description": "Assistant Loco Pilot jobs", "itemCount": 3, "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null, "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {}, "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z", "children": [] }
+          ]
+        },
+        {
+          "id": "gj-8",
+          "slug": "psu-jobs",
+          "label": "PSU Jobs",
+          "pillar": "government-jobs",
+          "parentId": null,
+          "path": "government-jobs/psu-jobs",
+          "depth": 0,
+          "displayOrder": 8,
+          "isActive": true,
+          "isPinned": false,
+          "icon": "🏭",
+          "badge": null,
+          "description": "Public Sector Undertaking jobs - BHEL, IOCL, NTPC, ONGC",
+          "itemCount": 12,
+          "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null,
+          "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {},
+          "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z",
+          "children": [
+            { "id": "gj-8-1", "slug": "bhel", "label": "BHEL", "pillar": "government-jobs", "parentId": "gj-8", "path": "government-jobs/psu-jobs/bhel", "depth": 1, "displayOrder": 1, "isActive": true, "isPinned": false, "icon": "🏭", "badge": null, "description": "Bharat Heavy Electricals Limited recruitment", "itemCount": 3, "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null, "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {}, "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z", "children": [] },
+            { "id": "gj-8-2", "slug": "iocl", "label": "IOCL", "pillar": "government-jobs", "parentId": "gj-8", "path": "government-jobs/psu-jobs/iocl", "depth": 1, "displayOrder": 2, "isActive": true, "isPinned": false, "icon": "🏭", "badge": null, "description": "Indian Oil Corporation Limited recruitment", "itemCount": 3, "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null, "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {}, "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z", "children": [] },
+            { "id": "gj-8-3", "slug": "ntpc-psu", "label": "NTPC", "pillar": "government-jobs", "parentId": "gj-8", "path": "government-jobs/psu-jobs/ntpc-psu", "depth": 1, "displayOrder": 3, "isActive": true, "isPinned": false, "icon": "🏭", "badge": null, "description": "NTPC Limited recruitment", "itemCount": 3, "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null, "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {}, "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z", "children": [] },
+            { "id": "gj-8-4", "slug": "ongc", "label": "ONGC", "pillar": "government-jobs", "parentId": "gj-8", "path": "government-jobs/psu-jobs/ongc", "depth": 1, "displayOrder": 4, "isActive": true, "isPinned": false, "icon": "🏭", "badge": null, "description": "Oil and Natural Gas Corporation recruitment", "itemCount": 3, "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null, "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {}, "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z", "children": [] }
+          ]
+        },
+        {
+          "id": "gj-9", "slug": "ssc-jobs", "label": "SSC Jobs", "pillar": "government-jobs", "parentId": null, "path": "government-jobs/ssc-jobs", "depth": 0, "displayOrder": 9, "isActive": true, "isPinned": false, "icon": "📋", "badge": "popular", "description": "Staff Selection Commission job vacancies", "itemCount": 18, "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null, "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {}, "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z", "children": []
+        },
+        {
+          "id": "gj-10", "slug": "upsc-jobs", "label": "UPSC Jobs", "pillar": "government-jobs", "parentId": null, "path": "government-jobs/upsc-jobs", "depth": 0, "displayOrder": 10, "isActive": true, "isPinned": false, "icon": "🏛️", "badge": null, "description": "UPSC recruited positions and vacancies", "itemCount": 10, "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null, "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {}, "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z", "children": []
+        },
+        {
+          "id": "gj-11",
+          "slug": "state-government",
+          "label": "State Government",
+          "pillar": "government-jobs",
+          "parentId": null,
+          "path": "government-jobs/state-government",
+          "depth": 0,
+          "displayOrder": 11,
+          "isActive": true,
+          "isPinned": false,
+          "icon": "🏢",
+          "badge": "updated",
+          "description": "State government job vacancies across India",
+          "itemCount": 50,
+          "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null,
+          "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {},
+          "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z",
+          "children": [
+            { "id": "gj-11-1", "slug": "up-govt", "label": "UP", "pillar": "government-jobs", "parentId": "gj-11", "path": "government-jobs/state-government/up-govt", "depth": 1, "displayOrder": 1, "isActive": true, "isPinned": true, "icon": "🏢", "badge": null, "description": "Uttar Pradesh government jobs", "itemCount": 12, "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null, "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {}, "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z", "children": [] },
+            { "id": "gj-11-2", "slug": "bihar-govt", "label": "Bihar", "pillar": "government-jobs", "parentId": "gj-11", "path": "government-jobs/state-government/bihar-govt", "depth": 1, "displayOrder": 2, "isActive": true, "isPinned": false, "icon": "🏢", "badge": null, "description": "Bihar government jobs", "itemCount": 10, "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null, "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {}, "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z", "children": [] },
+            { "id": "gj-11-3", "slug": "mp-govt", "label": "MP", "pillar": "government-jobs", "parentId": "gj-11", "path": "government-jobs/state-government/mp-govt", "depth": 1, "displayOrder": 3, "isActive": true, "isPinned": false, "icon": "🏢", "badge": null, "description": "Madhya Pradesh government jobs", "itemCount": 10, "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null, "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {}, "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z", "children": [] },
+            { "id": "gj-11-4", "slug": "rajasthan-govt", "label": "Rajasthan", "pillar": "government-jobs", "parentId": "gj-11", "path": "government-jobs/state-government/rajasthan-govt", "depth": 1, "displayOrder": 4, "isActive": true, "isPinned": false, "icon": "🏢", "badge": null, "description": "Rajasthan government jobs", "itemCount": 9, "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null, "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {}, "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z", "children": [] },
+            { "id": "gj-11-5", "slug": "maharashtra-govt", "label": "Maharashtra", "pillar": "government-jobs", "parentId": "gj-11", "path": "government-jobs/state-government/maharashtra-govt", "depth": 1, "displayOrder": 5, "isActive": true, "isPinned": false, "icon": "🏢", "badge": null, "description": "Maharashtra government jobs", "itemCount": 9, "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null, "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {}, "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z", "children": [] }
+          ]
+        },
+        {
+          "id": "gj-12", "slug": "central-government", "label": "Central Government", "pillar": "government-jobs", "parentId": null, "path": "government-jobs/central-government", "depth": 0, "displayOrder": 12, "isActive": true, "isPinned": false, "icon": "🇮🇳", "badge": null, "description": "Central government ministries and department vacancies", "itemCount": 40, "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null, "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {}, "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z", "children": []
+        },
+        {
+          "id": "gj-13", "slug": "judiciary-jobs", "label": "Judiciary Jobs", "pillar": "government-jobs", "parentId": null, "path": "government-jobs/judiciary-jobs", "depth": 0, "displayOrder": 13, "isActive": true, "isPinned": false, "icon": "⚖️", "badge": null, "description": "Judiciary and court recruitment vacancies", "itemCount": 8, "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null, "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {}, "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z", "children": []
+        },
+        {
+          "id": "gj-14", "slug": "agriculture-jobs", "label": "Agriculture Jobs", "pillar": "government-jobs", "parentId": null, "path": "government-jobs/agriculture-jobs", "depth": 0, "displayOrder": 14, "isActive": true, "isPinned": false, "icon": "🌾", "badge": null, "description": "Agriculture department and related vacancies", "itemCount": 6, "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null, "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {}, "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z", "children": []
+        },
+        {
+          "id": "gj-15", "slug": "walk-in-contract", "label": "Walk-in & Contract", "pillar": "government-jobs", "parentId": null, "path": "government-jobs/walk-in-contract", "depth": 0, "displayOrder": 15, "isActive": true, "isPinned": false, "icon": "📝", "badge": "new", "description": "Walk-in interviews and contract-based government positions", "itemCount": 20, "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null, "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {}, "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z", "children": []
+        }
+      ]
+    },
+    "entrance-exam": {
+      "pillar": "entrance-exam",
+      "label": "Entrance Exams",
+      "href": "/entrance-exam",
+      "icon": "🎓",
+      "totalItemCount": 200,
+      "lastUpdated": "2026-07-30T00:00:00.000Z",
+      "nodes": [
+        {
+          "id": "ee-1",
+          "slug": "engineering",
+          "label": "Engineering",
+          "pillar": "entrance-exam",
+          "parentId": null,
+          "path": "entrance-exam/engineering",
+          "depth": 0,
+          "displayOrder": 1,
+          "isActive": true,
+          "isPinned": true,
+          "icon": "⚡",
+          "badge": "popular",
+          "description": "Engineering entrance exams - JEE Main, JEE Advanced, BITSAT, VITEEE, SRMJEEE, MHT CET",
+          "itemCount": 42,
+          "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null,
+          "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {},
+          "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z",
+          "children": [
+            { "id": "ee-1-1", "slug": "jee-main", "label": "JEE Main", "pillar": "entrance-exam", "parentId": "ee-1", "path": "entrance-exam/engineering/jee-main", "depth": 1, "displayOrder": 1, "isActive": true, "isPinned": true, "icon": "⚡", "badge": "popular", "description": "Joint Entrance Examination Main", "itemCount": 10, "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null, "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {}, "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z", "children": [] },
+            { "id": "ee-1-2", "slug": "jee-advanced", "label": "JEE Advanced", "pillar": "entrance-exam", "parentId": "ee-1", "path": "entrance-exam/engineering/jee-advanced", "depth": 1, "displayOrder": 2, "isActive": true, "isPinned": true, "icon": "⚡", "badge": "popular", "description": "Joint Entrance Examination Advanced for IITs", "itemCount": 8, "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null, "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {}, "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z", "children": [] },
+            { "id": "ee-1-3", "slug": "bitsat", "label": "BITSAT", "pillar": "entrance-exam", "parentId": "ee-1", "path": "entrance-exam/engineering/bitsat", "depth": 1, "displayOrder": 3, "isActive": true, "isPinned": false, "icon": "⚡", "badge": null, "description": "Birla Institute of Technology and Science Admission Test", "itemCount": 6, "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null, "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {}, "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z", "children": [] },
+            { "id": "ee-1-4", "slug": "viteee", "label": "VITEEE", "pillar": "entrance-exam", "parentId": "ee-1", "path": "entrance-exam/engineering/viteee", "depth": 1, "displayOrder": 4, "isActive": true, "isPinned": false, "icon": "⚡", "badge": null, "description": "VIT Engineering Entrance Examination", "itemCount": 6, "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null, "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {}, "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z", "children": [] },
+            { "id": "ee-1-5", "slug": "srmjeee", "label": "SRMJEEE", "pillar": "entrance-exam", "parentId": "ee-1", "path": "entrance-exam/engineering/srmjeee", "depth": 1, "displayOrder": 5, "isActive": true, "isPinned": false, "icon": "⚡", "badge": null, "description": "SRM Joint Engineering Entrance Examination", "itemCount": 6, "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null, "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {}, "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z", "children": [] },
+            { "id": "ee-1-6", "slug": "mht-cet", "label": "MHT CET", "pillar": "entrance-exam", "parentId": "ee-1", "path": "entrance-exam/engineering/mht-cet", "depth": 1, "displayOrder": 6, "isActive": true, "isPinned": false, "icon": "⚡", "badge": null, "description": "Maharashtra Common Entrance Test", "itemCount": 6, "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null, "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {}, "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z", "children": [] }
+          ]
+        },
+        {
+          "id": "ee-2",
+          "slug": "medical",
+          "label": "Medical",
+          "pillar": "entrance-exam",
+          "parentId": null,
+          "path": "entrance-exam/medical",
+          "depth": 0,
+          "displayOrder": 2,
+          "isActive": true,
+          "isPinned": true,
+          "icon": "🩺",
+          "badge": "popular",
+          "description": "Medical entrance exams - NEET UG, NEET PG, INI CET, FMGE",
+          "itemCount": 18,
+          "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null,
+          "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {},
+          "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z",
+          "children": [
+            { "id": "ee-2-1", "slug": "neet-ug", "label": "NEET UG", "pillar": "entrance-exam", "parentId": "ee-2", "path": "entrance-exam/medical/neet-ug", "depth": 1, "displayOrder": 1, "isActive": true, "isPinned": true, "icon": "🩺", "badge": "popular", "description": "National Eligibility cum Entrance Test for UG", "itemCount": 6, "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null, "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {}, "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z", "children": [] },
+            { "id": "ee-2-2", "slug": "neet-pg", "label": "NEET PG", "pillar": "entrance-exam", "parentId": "ee-2", "path": "entrance-exam/medical/neet-pg", "depth": 1, "displayOrder": 2, "isActive": true, "isPinned": false, "icon": "🩺", "badge": null, "description": "National Eligibility cum Entrance Test for PG", "itemCount": 5, "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null, "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {}, "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z", "children": [] },
+            { "id": "ee-2-3", "slug": "ini-cet", "label": "INI CET", "pillar": "entrance-exam", "parentId": "ee-2", "path": "entrance-exam/medical/ini-cet", "depth": 1, "displayOrder": 3, "isActive": true, "isPinned": false, "icon": "🩺", "badge": null, "description": "Institute of National Importance Combined Entrance Test", "itemCount": 4, "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null, "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {}, "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z", "children": [] },
+            { "id": "ee-2-4", "slug": "fmge", "label": "FMGE", "pillar": "entrance-exam", "parentId": "ee-2", "path": "entrance-exam/medical/fmge", "depth": 1, "displayOrder": 4, "isActive": true, "isPinned": false, "icon": "🩺", "badge": null, "description": "Foreign Medical Graduate Examination", "itemCount": 3, "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null, "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {}, "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z", "children": [] }
+          ]
+        },
+        {
+          "id": "ee-3",
+          "slug": "management",
+          "label": "Management",
+          "pillar": "entrance-exam",
+          "parentId": null,
+          "path": "entrance-exam/management",
+          "depth": 0,
+          "displayOrder": 3,
+          "isActive": true,
+          "isPinned": false,
+          "icon": "📊",
+          "badge": "updated",
+          "description": "Management entrance exams - CAT, XAT, CMAT, MAT, SNAP, NMAT",
+          "itemCount": 25,
+          "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null,
+          "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {},
+          "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z",
+          "children": [
+            { "id": "ee-3-1", "slug": "cat", "label": "CAT", "pillar": "entrance-exam", "parentId": "ee-3", "path": "entrance-exam/management/cat", "depth": 1, "displayOrder": 1, "isActive": true, "isPinned": true, "icon": "📊", "badge": "popular", "description": "Common Admission Test for IIMs", "itemCount": 5, "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null, "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {}, "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z", "children": [] },
+            { "id": "ee-3-2", "slug": "xat", "label": "XAT", "pillar": "entrance-exam", "parentId": "ee-3", "path": "entrance-exam/management/xat", "depth": 1, "displayOrder": 2, "isActive": true, "isPinned": false, "icon": "📊", "badge": null, "description": "Xavier Aptitude Test", "itemCount": 4, "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null, "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {}, "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z", "children": [] },
+            { "id": "ee-3-3", "slug": "cmat", "label": "CMAT", "pillar": "entrance-exam", "parentId": "ee-3", "path": "entrance-exam/management/cmat", "depth": 1, "displayOrder": 3, "isActive": true, "isPinned": false, "icon": "📊", "badge": null, "description": "Common Management Admission Test", "itemCount": 4, "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null, "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {}, "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z", "children": [] },
+            { "id": "ee-3-4", "slug": "mat", "label": "MAT", "pillar": "entrance-exam", "parentId": "ee-3", "path": "entrance-exam/management/mat", "depth": 1, "displayOrder": 4, "isActive": true, "isPinned": false, "icon": "📊", "badge": null, "description": "Management Aptitude Test", "itemCount": 4, "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null, "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {}, "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z", "children": [] },
+            { "id": "ee-3-5", "slug": "snap", "label": "SNAP", "pillar": "entrance-exam", "parentId": "ee-3", "path": "entrance-exam/management/snap", "depth": 1, "displayOrder": 5, "isActive": true, "isPinned": false, "icon": "📊", "badge": null, "description": "Symbiosis National Aptitude Test", "itemCount": 4, "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null, "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {}, "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z", "children": [] },
+            { "id": "ee-3-6", "slug": "nmat", "label": "NMAT", "pillar": "entrance-exam", "parentId": "ee-3", "path": "entrance-exam/management/nmat", "depth": 1, "displayOrder": 6, "isActive": true, "isPinned": false, "icon": "📊", "badge": null, "description": "NMIMS Management Aptitude Test", "itemCount": 4, "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null, "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {}, "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z", "children": [] }
+          ]
+        },
+        {
+          "id": "ee-4",
+          "slug": "law",
+          "label": "Law",
+          "pillar": "entrance-exam",
+          "parentId": null,
+          "path": "entrance-exam/law",
+          "depth": 0,
+          "displayOrder": 4,
+          "isActive": true,
+          "isPinned": false,
+          "icon": "⚖️",
+          "badge": null,
+          "description": "Law entrance exams - CLAT, AILET, LSAT India, MHCET Law",
+          "itemCount": 12,
+          "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null,
+          "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {},
+          "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z",
+          "children": [
+            { "id": "ee-4-1", "slug": "clat", "label": "CLAT", "pillar": "entrance-exam", "parentId": "ee-4", "path": "entrance-exam/law/clat", "depth": 1, "displayOrder": 1, "isActive": true, "isPinned": true, "icon": "⚖️", "badge": "popular", "description": "Common Law Admission Test", "itemCount": 4, "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null, "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {}, "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z", "children": [] },
+            { "id": "ee-4-2", "slug": "ailet", "label": "AILET", "pillar": "entrance-exam", "parentId": "ee-4", "path": "entrance-exam/law/ailet", "depth": 1, "displayOrder": 2, "isActive": true, "isPinned": false, "icon": "⚖️", "badge": null, "description": "All India Law Entrance Test (NLU Delhi)", "itemCount": 3, "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null, "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {}, "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z", "children": [] },
+            { "id": "ee-4-3", "slug": "lsat-india", "label": "LSAT India", "pillar": "entrance-exam", "parentId": "ee-4", "path": "entrance-exam/law/lsat-india", "depth": 1, "displayOrder": 3, "isActive": true, "isPinned": false, "icon": "⚖️", "badge": null, "description": "Law School Admission Test India", "itemCount": 3, "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null, "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {}, "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z", "children": [] },
+            { "id": "ee-4-4", "slug": "mhcet-law", "label": "MHCET Law", "pillar": "entrance-exam", "parentId": "ee-4", "path": "entrance-exam/law/mhcet-law", "depth": 1, "displayOrder": 4, "isActive": true, "isPinned": false, "icon": "⚖️", "badge": null, "description": "Maharashtra CET for Law admissions", "itemCount": 2, "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null, "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {}, "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z", "children": [] }
+          ]
+        },
+        {
+          "id": "ee-5",
+          "slug": "design",
+          "label": "Design",
+          "pillar": "entrance-exam",
+          "parentId": null,
+          "path": "entrance-exam/design",
+          "depth": 0,
+          "displayOrder": 5,
+          "isActive": true,
+          "isPinned": false,
+          "icon": "🎨",
+          "badge": null,
+          "description": "Design entrance exams - NIFT, NID, UCEED, CEED",
+          "itemCount": 8,
+          "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null,
+          "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {},
+          "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z",
+          "children": [
+            { "id": "ee-5-1", "slug": "nift", "label": "NIFT", "pillar": "entrance-exam", "parentId": "ee-5", "path": "entrance-exam/design/nift", "depth": 1, "displayOrder": 1, "isActive": true, "isPinned": true, "icon": "🎨", "badge": null, "description": "National Institute of Fashion Technology entrance", "itemCount": 2, "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null, "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {}, "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z", "children": [] },
+            { "id": "ee-5-2", "slug": "nid", "label": "NID", "pillar": "entrance-exam", "parentId": "ee-5", "path": "entrance-exam/design/nid", "depth": 1, "displayOrder": 2, "isActive": true, "isPinned": false, "icon": "🎨", "badge": null, "description": "National Institute of Design entrance", "itemCount": 2, "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null, "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {}, "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z", "children": [] },
+            { "id": "ee-5-3", "slug": "uceed", "label": "UCEED", "pillar": "entrance-exam", "parentId": "ee-5", "path": "entrance-exam/design/uceed", "depth": 1, "displayOrder": 3, "isActive": true, "isPinned": false, "icon": "🎨", "badge": null, "description": "Undergraduate Common Entrance Exam for Design", "itemCount": 2, "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null, "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {}, "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z", "children": [] },
+            { "id": "ee-5-4", "slug": "ceed", "label": "CEED", "pillar": "entrance-exam", "parentId": "ee-5", "path": "entrance-exam/design/ceed", "depth": 1, "displayOrder": 4, "isActive": true, "isPinned": false, "icon": "🎨", "badge": null, "description": "Common Entrance Exam for Design (PG)", "itemCount": 2, "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null, "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {}, "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z", "children": [] }
+          ]
+        },
+        {
+          "id": "ee-6",
+          "slug": "architecture",
+          "label": "Architecture",
+          "pillar": "entrance-exam",
+          "parentId": null,
+          "path": "entrance-exam/architecture",
+          "depth": 0,
+          "displayOrder": 6,
+          "isActive": true,
+          "isPinned": false,
+          "icon": "🏗️",
+          "badge": null,
+          "description": "Architecture entrance exams - NATA, JEE Paper 2",
+          "itemCount": 4,
+          "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null,
+          "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {},
+          "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z",
+          "children": [
+            { "id": "ee-6-1", "slug": "nata", "label": "NATA", "pillar": "entrance-exam", "parentId": "ee-6", "path": "entrance-exam/architecture/nata", "depth": 1, "displayOrder": 1, "isActive": true, "isPinned": true, "icon": "🏗️", "badge": null, "description": "National Aptitude Test in Architecture", "itemCount": 2, "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null, "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {}, "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z", "children": [] },
+            { "id": "ee-6-2", "slug": "jee-paper-2", "label": "JEE Paper 2", "pillar": "entrance-exam", "parentId": "ee-6", "path": "entrance-exam/architecture/jee-paper-2", "depth": 1, "displayOrder": 2, "isActive": true, "isPinned": false, "icon": "🏗️", "badge": null, "description": "JEE Main Paper 2 for B.Arch/B.Planning", "itemCount": 2, "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null, "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {}, "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z", "children": [] }
+          ]
+        },
+        {
+          "id": "ee-7",
+          "slug": "agriculture",
+          "label": "Agriculture",
+          "pillar": "entrance-exam",
+          "parentId": null,
+          "path": "entrance-exam/agriculture",
+          "depth": 0,
+          "displayOrder": 7,
+          "isActive": true,
+          "isPinned": false,
+          "icon": "🌾",
+          "badge": null,
+          "description": "Agriculture entrance exams - ICAR AIEEA, UPCATET",
+          "itemCount": 6,
+          "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null,
+          "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {},
+          "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z",
+          "children": [
+            { "id": "ee-7-1", "slug": "icar-aieea", "label": "ICAR AIEEA", "pillar": "entrance-exam", "parentId": "ee-7", "path": "entrance-exam/agriculture/icar-aieea", "depth": 1, "displayOrder": 1, "isActive": true, "isPinned": false, "icon": "🌾", "badge": null, "description": "ICAR All India Entrance Examination for Admission", "itemCount": 3, "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null, "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {}, "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z", "children": [] },
+            { "id": "ee-7-2", "slug": "upcatet", "label": "UPCATET", "pillar": "entrance-exam", "parentId": "ee-7", "path": "entrance-exam/agriculture/upcatet", "depth": 1, "displayOrder": 2, "isActive": true, "isPinned": false, "icon": "🌾", "badge": null, "description": "UP Combined Agriculture and Technology Entrance Test", "itemCount": 3, "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null, "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {}, "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z", "children": [] }
+          ]
+        },
+        {
+          "id": "ee-8",
+          "slug": "education",
+          "label": "Education",
+          "pillar": "entrance-exam",
+          "parentId": null,
+          "path": "entrance-exam/education",
+          "depth": 0,
+          "displayOrder": 8,
+          "isActive": true,
+          "isPinned": false,
+          "icon": "📚",
+          "badge": null,
+          "description": "Education entrance exams - NCET, B.Ed Entrance",
+          "itemCount": 5,
+          "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null,
+          "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {},
+          "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z",
+          "children": [
+            { "id": "ee-8-1", "slug": "ncet", "label": "NCET", "pillar": "entrance-exam", "parentId": "ee-8", "path": "entrance-exam/education/ncet", "depth": 1, "displayOrder": 1, "isActive": true, "isPinned": false, "icon": "📚", "badge": null, "description": "National Common Entrance Test for Teacher Education", "itemCount": 3, "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null, "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {}, "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z", "children": [] },
+            { "id": "ee-8-2", "slug": "bed-entrance", "label": "B.Ed Entrance", "pillar": "entrance-exam", "parentId": "ee-8", "path": "entrance-exam/education/bed-entrance", "depth": 1, "displayOrder": 2, "isActive": true, "isPinned": false, "icon": "📚", "badge": null, "description": "B.Ed entrance examinations (various universities)", "itemCount": 2, "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null, "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {}, "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z", "children": [] }
+          ]
+        },
+        {
+          "id": "ee-9",
+          "slug": "polytechnic",
+          "label": "Polytechnic",
+          "pillar": "entrance-exam",
+          "parentId": null,
+          "path": "entrance-exam/polytechnic",
+          "depth": 0,
+          "displayOrder": 9,
+          "isActive": true,
+          "isPinned": false,
+          "icon": "🔧",
+          "badge": null,
+          "description": "Polytechnic entrance exams - JEECUP, Delhi CET",
+          "itemCount": 8,
+          "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null,
+          "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {},
+          "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z",
+          "children": [
+            { "id": "ee-9-1", "slug": "jeecup", "label": "JEECUP", "pillar": "entrance-exam", "parentId": "ee-9", "path": "entrance-exam/polytechnic/jeecup", "depth": 1, "displayOrder": 1, "isActive": true, "isPinned": false, "icon": "🔧", "badge": null, "description": "Joint Entrance Examination Council of UP (Polytechnic)", "itemCount": 4, "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null, "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {}, "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z", "children": [] },
+            { "id": "ee-9-2", "slug": "delhi-cet", "label": "Delhi CET", "pillar": "entrance-exam", "parentId": "ee-9", "path": "entrance-exam/polytechnic/delhi-cet", "depth": 1, "displayOrder": 2, "isActive": true, "isPinned": false, "icon": "🔧", "badge": null, "description": "Delhi Common Entrance Test for Polytechnic", "itemCount": 4, "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null, "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {}, "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z", "children": [] }
+          ]
+        },
+        {
+          "id": "ee-10",
+          "slug": "university-entrance",
+          "label": "University Entrance",
+          "pillar": "entrance-exam",
+          "parentId": null,
+          "path": "entrance-exam/university-entrance",
+          "depth": 0,
+          "displayOrder": 10,
+          "isActive": true,
+          "isPinned": false,
+          "icon": "🏫",
+          "badge": "new",
+          "description": "University entrance exams - CUET, DU, JNU, AMU, BHU",
+          "itemCount": 20,
+          "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null,
+          "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {},
+          "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z",
+          "children": [
+            { "id": "ee-10-1", "slug": "cuet-entrance", "label": "CUET", "pillar": "entrance-exam", "parentId": "ee-10", "path": "entrance-exam/university-entrance/cuet-entrance", "depth": 1, "displayOrder": 1, "isActive": true, "isPinned": true, "icon": "🏫", "badge": "new", "description": "Common University Entrance Test", "itemCount": 5, "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null, "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {}, "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z", "children": [] },
+            { "id": "ee-10-2", "slug": "du-entrance", "label": "DU", "pillar": "entrance-exam", "parentId": "ee-10", "path": "entrance-exam/university-entrance/du-entrance", "depth": 1, "displayOrder": 2, "isActive": true, "isPinned": false, "icon": "🏫", "badge": null, "description": "Delhi University entrance examination", "itemCount": 4, "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null, "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {}, "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z", "children": [] },
+            { "id": "ee-10-3", "slug": "jnu-entrance", "label": "JNU", "pillar": "entrance-exam", "parentId": "ee-10", "path": "entrance-exam/university-entrance/jnu-entrance", "depth": 1, "displayOrder": 3, "isActive": true, "isPinned": false, "icon": "🏫", "badge": null, "description": "Jawaharlal Nehru University entrance", "itemCount": 4, "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null, "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {}, "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z", "children": [] },
+            { "id": "ee-10-4", "slug": "amu-entrance", "label": "AMU", "pillar": "entrance-exam", "parentId": "ee-10", "path": "entrance-exam/university-entrance/amu-entrance", "depth": 1, "displayOrder": 4, "isActive": true, "isPinned": false, "icon": "🏫", "badge": null, "description": "Aligarh Muslim University entrance", "itemCount": 4, "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null, "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {}, "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z", "children": [] },
+            { "id": "ee-10-5", "slug": "bhu-entrance", "label": "BHU", "pillar": "entrance-exam", "parentId": "ee-10", "path": "entrance-exam/university-entrance/bhu-entrance", "depth": 1, "displayOrder": 5, "isActive": true, "isPinned": false, "icon": "🏫", "badge": null, "description": "Banaras Hindu University entrance", "itemCount": 3, "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null, "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {}, "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z", "children": [] }
+          ]
+        },
+        {
+          "id": "ee-11",
+          "slug": "private-university",
+          "label": "Private University",
+          "pillar": "entrance-exam",
+          "parentId": null,
+          "path": "entrance-exam/private-university",
+          "depth": 0,
+          "displayOrder": 11,
+          "isActive": true,
+          "isPinned": false,
+          "icon": "🎓",
+          "badge": null,
+          "description": "Private university entrance exams - LPUNEST, SRMJEEE, KIITEE, MET",
+          "itemCount": 15,
+          "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null,
+          "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {},
+          "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z",
+          "children": [
+            { "id": "ee-11-1", "slug": "lpunest", "label": "LPUNEST", "pillar": "entrance-exam", "parentId": "ee-11", "path": "entrance-exam/private-university/lpunest", "depth": 1, "displayOrder": 1, "isActive": true, "isPinned": false, "icon": "🎓", "badge": null, "description": "Lovely Professional University National Eligibility and Scholarship Test", "itemCount": 4, "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null, "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {}, "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z", "children": [] },
+            { "id": "ee-11-2", "slug": "srmjeee-pvt", "label": "SRMJEEE", "pillar": "entrance-exam", "parentId": "ee-11", "path": "entrance-exam/private-university/srmjeee-pvt", "depth": 1, "displayOrder": 2, "isActive": true, "isPinned": false, "icon": "🎓", "badge": null, "description": "SRM Joint Engineering Entrance Examination", "itemCount": 4, "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null, "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {}, "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z", "children": [] },
+            { "id": "ee-11-3", "slug": "kiitee", "label": "KIITEE", "pillar": "entrance-exam", "parentId": "ee-11", "path": "entrance-exam/private-university/kiitee", "depth": 1, "displayOrder": 3, "isActive": true, "isPinned": false, "icon": "🎓", "badge": null, "description": "KIIT University Entrance Examination", "itemCount": 4, "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null, "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {}, "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z", "children": [] },
+            { "id": "ee-11-4", "slug": "met", "label": "MET", "pillar": "entrance-exam", "parentId": "ee-11", "path": "entrance-exam/private-university/met", "depth": 1, "displayOrder": 4, "isActive": true, "isPinned": false, "icon": "🎓", "badge": null, "description": "Manipal Entrance Test", "itemCount": 3, "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null, "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {}, "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z", "children": [] }
+          ]
+        },
+        {
+          "id": "ee-12",
+          "slug": "science-research",
+          "label": "Science & Research",
+          "pillar": "entrance-exam",
+          "parentId": null,
+          "path": "entrance-exam/science-research",
+          "depth": 0,
+          "displayOrder": 12,
+          "isActive": true,
+          "isPinned": false,
+          "icon": "🔬",
+          "badge": null,
+          "description": "Science and research entrance exams - GATE, CSIR NET, IIT JAM",
+          "itemCount": 15,
+          "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null,
+          "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {},
+          "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z",
+          "children": [
+            { "id": "ee-12-1", "slug": "gate-entrance", "label": "GATE", "pillar": "entrance-exam", "parentId": "ee-12", "path": "entrance-exam/science-research/gate-entrance", "depth": 1, "displayOrder": 1, "isActive": true, "isPinned": true, "icon": "🔬", "badge": "popular", "description": "Graduate Aptitude Test in Engineering", "itemCount": 5, "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null, "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {}, "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z", "children": [] },
+            { "id": "ee-12-2", "slug": "csir-net-entrance", "label": "CSIR NET", "pillar": "entrance-exam", "parentId": "ee-12", "path": "entrance-exam/science-research/csir-net-entrance", "depth": 1, "displayOrder": 2, "isActive": true, "isPinned": false, "icon": "🔬", "badge": null, "description": "CSIR National Eligibility Test for research fellowships", "itemCount": 5, "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null, "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {}, "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z", "children": [] },
+            { "id": "ee-12-3", "slug": "iit-jam", "label": "IIT JAM", "pillar": "entrance-exam", "parentId": "ee-12", "path": "entrance-exam/science-research/iit-jam", "depth": 1, "displayOrder": 3, "isActive": true, "isPinned": false, "icon": "🔬", "badge": null, "description": "IIT Joint Admission Test for M.Sc", "itemCount": 5, "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null, "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {}, "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z", "children": [] }
+          ]
+        }
+      ]
+    },
+    "university-exam": {
+      "pillar": "university-exam",
+      "label": "University",
+      "href": "/university-exam",
+      "icon": "🏫",
+      "totalItemCount": 150,
+      "lastUpdated": "2026-07-30T00:00:00.000Z",
+      "nodes": [
+        {
+          "id": "ue-1",
+          "slug": "central-universities",
+          "label": "Central Universities",
+          "pillar": "university-exam",
+          "parentId": null,
+          "path": "university-exam/central-universities",
+          "depth": 0,
+          "displayOrder": 1,
+          "isActive": true,
+          "isPinned": true,
+          "icon": "🏛️",
+          "badge": "popular",
+          "description": "Central university examinations - DU, JNU, BHU, AMU, JMI",
+          "itemCount": 45,
+          "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null,
+          "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {},
+          "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z",
+          "children": [
+            { "id": "ue-1-1", "slug": "du", "label": "DU", "pillar": "university-exam", "parentId": "ue-1", "path": "university-exam/central-universities/du", "depth": 1, "displayOrder": 1, "isActive": true, "isPinned": true, "icon": "🏛️", "badge": "popular", "description": "Delhi University examinations", "itemCount": 10, "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null, "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {}, "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z", "children": [] },
+            { "id": "ue-1-2", "slug": "jnu", "label": "JNU", "pillar": "university-exam", "parentId": "ue-1", "path": "university-exam/central-universities/jnu", "depth": 1, "displayOrder": 2, "isActive": true, "isPinned": false, "icon": "🏛️", "badge": null, "description": "Jawaharlal Nehru University examinations", "itemCount": 9, "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null, "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {}, "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z", "children": [] },
+            { "id": "ue-1-3", "slug": "bhu", "label": "BHU", "pillar": "university-exam", "parentId": "ue-1", "path": "university-exam/central-universities/bhu", "depth": 1, "displayOrder": 3, "isActive": true, "isPinned": false, "icon": "🏛️", "badge": null, "description": "Banaras Hindu University examinations", "itemCount": 9, "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null, "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {}, "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z", "children": [] },
+            { "id": "ue-1-4", "slug": "amu", "label": "AMU", "pillar": "university-exam", "parentId": "ue-1", "path": "university-exam/central-universities/amu", "depth": 1, "displayOrder": 4, "isActive": true, "isPinned": false, "icon": "🏛️", "badge": null, "description": "Aligarh Muslim University examinations", "itemCount": 9, "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null, "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {}, "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z", "children": [] },
+            { "id": "ue-1-5", "slug": "jmi", "label": "JMI", "pillar": "university-exam", "parentId": "ue-1", "path": "university-exam/central-universities/jmi", "depth": 1, "displayOrder": 5, "isActive": true, "isPinned": false, "icon": "🏛️", "badge": null, "description": "Jamia Millia Islamia examinations", "itemCount": 8, "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null, "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {}, "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z", "children": [] }
+          ]
+        },
+        {
+          "id": "ue-2",
+          "slug": "state-universities",
+          "label": "State Universities",
+          "pillar": "university-exam",
+          "parentId": null,
+          "path": "university-exam/state-universities",
+          "depth": 0,
+          "displayOrder": 2,
+          "isActive": true,
+          "isPinned": false,
+          "icon": "🏢",
+          "badge": null,
+          "description": "State university examinations - AKTU, Lucknow Univ, Mumbai Univ, Calcutta Univ",
+          "itemCount": 80,
+          "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null,
+          "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {},
+          "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z",
+          "children": [
+            { "id": "ue-2-1", "slug": "aktu", "label": "AKTU", "pillar": "university-exam", "parentId": "ue-2", "path": "university-exam/state-universities/aktu", "depth": 1, "displayOrder": 1, "isActive": true, "isPinned": true, "icon": "🏢", "badge": null, "description": "Dr. APJ Abdul Kalam Technical University examinations", "itemCount": 20, "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null, "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {}, "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z", "children": [] },
+            { "id": "ue-2-2", "slug": "lucknow-univ", "label": "Lucknow Univ", "pillar": "university-exam", "parentId": "ue-2", "path": "university-exam/state-universities/lucknow-univ", "depth": 1, "displayOrder": 2, "isActive": true, "isPinned": false, "icon": "🏢", "badge": null, "description": "Lucknow University examinations", "itemCount": 20, "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null, "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {}, "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z", "children": [] },
+            { "id": "ue-2-3", "slug": "mumbai-univ", "label": "Mumbai Univ", "pillar": "university-exam", "parentId": "ue-2", "path": "university-exam/state-universities/mumbai-univ", "depth": 1, "displayOrder": 3, "isActive": true, "isPinned": false, "icon": "🏢", "badge": null, "description": "Mumbai University examinations", "itemCount": 20, "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null, "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {}, "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z", "children": [] },
+            { "id": "ue-2-4", "slug": "calcutta-univ", "label": "Calcutta Univ", "pillar": "university-exam", "parentId": "ue-2", "path": "university-exam/state-universities/calcutta-univ", "depth": 1, "displayOrder": 4, "isActive": true, "isPinned": false, "icon": "🏢", "badge": null, "description": "Calcutta University examinations", "itemCount": 20, "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null, "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {}, "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z", "children": [] }
+          ]
+        },
+        {
+          "id": "ue-3",
+          "slug": "private-universities",
+          "label": "Private Universities",
+          "pillar": "university-exam",
+          "parentId": null,
+          "path": "university-exam/private-universities",
+          "depth": 0,
+          "displayOrder": 3,
+          "isActive": true,
+          "isPinned": false,
+          "icon": "🎓",
+          "badge": "updated",
+          "description": "Private university examinations - LPU, Amity, Sharda, Chitkara",
+          "itemCount": 50,
+          "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null,
+          "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {},
+          "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z",
+          "children": [
+            { "id": "ue-3-1", "slug": "lpu", "label": "LPU", "pillar": "university-exam", "parentId": "ue-3", "path": "university-exam/private-universities/lpu", "depth": 1, "displayOrder": 1, "isActive": true, "isPinned": false, "icon": "🎓", "badge": null, "description": "Lovely Professional University examinations", "itemCount": 12, "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null, "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {}, "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z", "children": [] },
+            { "id": "ue-3-2", "slug": "amity", "label": "Amity", "pillar": "university-exam", "parentId": "ue-3", "path": "university-exam/private-universities/amity", "depth": 1, "displayOrder": 2, "isActive": true, "isPinned": false, "icon": "🎓", "badge": null, "description": "Amity University examinations", "itemCount": 12, "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null, "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {}, "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z", "children": [] },
+            { "id": "ue-3-3", "slug": "sharda", "label": "Sharda", "pillar": "university-exam", "parentId": "ue-3", "path": "university-exam/private-universities/sharda", "depth": 1, "displayOrder": 3, "isActive": true, "isPinned": false, "icon": "🎓", "badge": null, "description": "Sharda University examinations", "itemCount": 13, "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null, "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {}, "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z", "children": [] },
+            { "id": "ue-3-4", "slug": "chitkara", "label": "Chitkara", "pillar": "university-exam", "parentId": "ue-3", "path": "university-exam/private-universities/chitkara", "depth": 1, "displayOrder": 4, "isActive": true, "isPinned": false, "icon": "🎓", "badge": null, "description": "Chitkara University examinations", "itemCount": 13, "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null, "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {}, "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z", "children": [] }
+          ]
+        },
+        {
+          "id": "ue-4",
+          "slug": "open-universities",
+          "label": "Open Universities",
+          "pillar": "university-exam",
+          "parentId": null,
+          "path": "university-exam/open-universities",
+          "depth": 0,
+          "displayOrder": 4,
+          "isActive": true,
+          "isPinned": false,
+          "icon": "📖",
+          "badge": null,
+          "description": "Open university examinations - IGNOU, VMOU, UPRTOU",
+          "itemCount": 15,
+          "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null,
+          "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {},
+          "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z",
+          "children": [
+            { "id": "ue-4-1", "slug": "ignou", "label": "IGNOU", "pillar": "university-exam", "parentId": "ue-4", "path": "university-exam/open-universities/ignou", "depth": 1, "displayOrder": 1, "isActive": true, "isPinned": true, "icon": "📖", "badge": "popular", "description": "Indira Gandhi National Open University examinations", "itemCount": 6, "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null, "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {}, "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z", "children": [] },
+            { "id": "ue-4-2", "slug": "vmou", "label": "VMOU", "pillar": "university-exam", "parentId": "ue-4", "path": "university-exam/open-universities/vmou", "depth": 1, "displayOrder": 2, "isActive": true, "isPinned": false, "icon": "📖", "badge": null, "description": "Vardhman Mahaveer Open University examinations", "itemCount": 5, "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null, "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {}, "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z", "children": [] },
+            { "id": "ue-4-3", "slug": "uprtou", "label": "UPRTOU", "pillar": "university-exam", "parentId": "ue-4", "path": "university-exam/open-universities/uprtou", "depth": 1, "displayOrder": 3, "isActive": true, "isPinned": false, "icon": "📖", "badge": null, "description": "UP Rajarshi Tandon Open University examinations", "itemCount": 4, "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null, "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {}, "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z", "children": [] }
+          ]
+        },
+        {
+          "id": "ue-5", "slug": "deemed-universities", "label": "Deemed Universities", "pillar": "university-exam", "parentId": null, "path": "university-exam/deemed-universities", "depth": 0, "displayOrder": 5, "isActive": true, "isPinned": false, "icon": "⭐", "badge": null, "description": "Deemed university examinations", "itemCount": 20, "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null, "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {}, "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z", "children": []
+        },
+        {
+          "id": "ue-6",
+          "slug": "technical-universities",
+          "label": "Technical Universities",
+          "pillar": "university-exam",
+          "parentId": null,
+          "path": "university-exam/technical-universities",
+          "depth": 0,
+          "displayOrder": 6,
+          "isActive": true,
+          "isPinned": false,
+          "icon": "⚙️",
+          "badge": null,
+          "description": "Technical university examinations - VTU, Anna Univ, JNTU",
+          "itemCount": 25,
+          "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null,
+          "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {},
+          "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z",
+          "children": [
+            { "id": "ue-6-1", "slug": "vtu", "label": "VTU", "pillar": "university-exam", "parentId": "ue-6", "path": "university-exam/technical-universities/vtu", "depth": 1, "displayOrder": 1, "isActive": true, "isPinned": true, "icon": "⚙️", "badge": null, "description": "Visvesvaraya Technological University examinations", "itemCount": 9, "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null, "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {}, "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z", "children": [] },
+            { "id": "ue-6-2", "slug": "anna-univ", "label": "Anna Univ", "pillar": "university-exam", "parentId": "ue-6", "path": "university-exam/technical-universities/anna-univ", "depth": 1, "displayOrder": 2, "isActive": true, "isPinned": false, "icon": "⚙️", "badge": null, "description": "Anna University examinations", "itemCount": 8, "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null, "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {}, "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z", "children": [] },
+            { "id": "ue-6-3", "slug": "jntu", "label": "JNTU", "pillar": "university-exam", "parentId": "ue-6", "path": "university-exam/technical-universities/jntu", "depth": 1, "displayOrder": 3, "isActive": true, "isPinned": false, "icon": "⚙️", "badge": null, "description": "Jawaharlal Nehru Technological University examinations", "itemCount": 8, "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null, "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {}, "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z", "children": [] }
+          ]
+        },
+        {
+          "id": "ue-7", "slug": "medical-universities", "label": "Medical Universities", "pillar": "university-exam", "parentId": null, "path": "university-exam/medical-universities", "depth": 0, "displayOrder": 7, "isActive": true, "isPinned": false, "icon": "🩺", "badge": null, "description": "Medical university examinations", "itemCount": 10, "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null, "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {}, "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z", "children": []
+        },
+        {
+          "id": "ue-8", "slug": "distance-education", "label": "Distance Education", "pillar": "university-exam", "parentId": null, "path": "university-exam/distance-education", "depth": 0, "displayOrder": 8, "isActive": true, "isPinned": false, "icon": "🌐", "badge": null, "description": "Distance education university examinations", "itemCount": 12, "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null, "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {}, "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z", "children": []
+        }
+      ]
+    },
+    "board-exam": {
+      "pillar": "board-exam",
+      "label": "Board Exams",
+      "href": "/board-exam",
+      "icon": "📘",
+      "totalItemCount": 80,
+      "lastUpdated": "2026-07-30T00:00:00.000Z",
+      "nodes": [
+        {
+          "id": "be-1",
+          "slug": "cbse",
+          "label": "CBSE",
+          "pillar": "board-exam",
+          "parentId": null,
+          "path": "board-exam/cbse",
+          "depth": 0,
+          "displayOrder": 1,
+          "isActive": true,
+          "isPinned": true,
+          "icon": "📘",
+          "badge": "popular",
+          "description": "Central Board of Secondary Education examinations",
+          "itemCount": 8,
+          "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null,
+          "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {},
+          "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z",
+          "children": [
+            { "id": "be-1-1", "slug": "cbse-class-10", "label": "Class 10", "pillar": "board-exam", "parentId": "be-1", "path": "board-exam/cbse/cbse-class-10", "depth": 1, "displayOrder": 1, "isActive": true, "isPinned": true, "icon": "📘", "badge": "popular", "description": "CBSE Class 10 Board Examination", "itemCount": 3, "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null, "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {}, "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z", "children": [] },
+            { "id": "be-1-2", "slug": "cbse-class-12", "label": "Class 12", "pillar": "board-exam", "parentId": "be-1", "path": "board-exam/cbse/cbse-class-12", "depth": 1, "displayOrder": 2, "isActive": true, "isPinned": true, "icon": "📘", "badge": "popular", "description": "CBSE Class 12 Board Examination", "itemCount": 3, "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null, "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {}, "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z", "children": [] },
+            { "id": "be-1-3", "slug": "cbse-compartment", "label": "Compartment", "pillar": "board-exam", "parentId": "be-1", "path": "board-exam/cbse/cbse-compartment", "depth": 1, "displayOrder": 3, "isActive": true, "isPinned": false, "icon": "📘", "badge": null, "description": "CBSE Compartment Examination", "itemCount": 2, "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null, "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {}, "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z", "children": [] }
+          ]
+        },
+        {
+          "id": "be-2",
+          "slug": "icse-isc",
+          "label": "ICSE / ISC",
+          "pillar": "board-exam",
+          "parentId": null,
+          "path": "board-exam/icse-isc",
+          "depth": 0,
+          "displayOrder": 2,
+          "isActive": true,
+          "isPinned": false,
+          "icon": "📗",
+          "badge": null,
+          "description": "ICSE and ISC board examinations",
+          "itemCount": 4,
+          "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null,
+          "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {},
+          "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z",
+          "children": [
+            { "id": "be-2-1", "slug": "icse-class-10", "label": "ICSE Class 10", "pillar": "board-exam", "parentId": "be-2", "path": "board-exam/icse-isc/icse-class-10", "depth": 1, "displayOrder": 1, "isActive": true, "isPinned": false, "icon": "📗", "badge": null, "description": "ICSE Class 10 Examination", "itemCount": 2, "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null, "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {}, "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z", "children": [] },
+            { "id": "be-2-2", "slug": "isc-class-12", "label": "ISC Class 12", "pillar": "board-exam", "parentId": "be-2", "path": "board-exam/icse-isc/isc-class-12", "depth": 1, "displayOrder": 2, "isActive": true, "isPinned": false, "icon": "📗", "badge": null, "description": "ISC Class 12 Examination", "itemCount": 2, "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null, "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {}, "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z", "children": [] }
+          ]
+        },
+        {
+          "id": "be-3",
+          "slug": "state-boards",
+          "label": "State Boards",
+          "pillar": "board-exam",
+          "parentId": null,
+          "path": "board-exam/state-boards",
+          "depth": 0,
+          "displayOrder": 3,
+          "isActive": true,
+          "isPinned": false,
+          "icon": "📙",
+          "badge": "updated",
+          "description": "State board examinations - UP Board, Bihar Board, MP Board, Maharashtra Board, Rajasthan Board",
+          "itemCount": 60,
+          "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null,
+          "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {},
+          "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z",
+          "children": [
+            { "id": "be-3-1", "slug": "up-board", "label": "UP Board", "pillar": "board-exam", "parentId": "be-3", "path": "board-exam/state-boards/up-board", "depth": 1, "displayOrder": 1, "isActive": true, "isPinned": true, "icon": "📙", "badge": "popular", "description": "Uttar Pradesh Board of High School and Intermediate Education", "itemCount": 12, "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null, "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {}, "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z", "children": [] },
+            { "id": "be-3-2", "slug": "bihar-board", "label": "Bihar Board", "pillar": "board-exam", "parentId": "be-3", "path": "board-exam/state-boards/bihar-board", "depth": 1, "displayOrder": 2, "isActive": true, "isPinned": true, "icon": "📙", "badge": null, "description": "Bihar School Examination Board", "itemCount": 12, "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null, "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {}, "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z", "children": [] },
+            { "id": "be-3-3", "slug": "mp-board", "label": "MP Board", "pillar": "board-exam", "parentId": "be-3", "path": "board-exam/state-boards/mp-board", "depth": 1, "displayOrder": 3, "isActive": true, "isPinned": false, "icon": "📙", "badge": null, "description": "Madhya Pradesh Board of Secondary Education", "itemCount": 12, "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null, "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {}, "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z", "children": [] },
+            { "id": "be-3-4", "slug": "maharashtra-board", "label": "Maharashtra Board", "pillar": "board-exam", "parentId": "be-3", "path": "board-exam/state-boards/maharashtra-board", "depth": 1, "displayOrder": 4, "isActive": true, "isPinned": false, "icon": "📙", "badge": null, "description": "Maharashtra State Board of Secondary and Higher Secondary Education", "itemCount": 12, "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null, "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {}, "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z", "children": [] },
+            { "id": "be-3-5", "slug": "rajasthan-board", "label": "Rajasthan Board", "pillar": "board-exam", "parentId": "be-3", "path": "board-exam/state-boards/rajasthan-board", "depth": 1, "displayOrder": 5, "isActive": true, "isPinned": false, "icon": "📙", "badge": null, "description": "Rajasthan Board of Secondary Education", "itemCount": 12, "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null, "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {}, "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z", "children": [] }
+          ]
+        },
+        {
+          "id": "be-4",
+          "slug": "nios",
+          "label": "NIOS",
+          "pillar": "board-exam",
+          "parentId": null,
+          "path": "board-exam/nios",
+          "depth": 0,
+          "displayOrder": 4,
+          "isActive": true,
+          "isPinned": false,
+          "icon": "📓",
+          "badge": null,
+          "description": "National Institute of Open Schooling examinations",
+          "itemCount": 4,
+          "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null,
+          "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {},
+          "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z",
+          "children": [
+            { "id": "be-4-1", "slug": "nios-class-10", "label": "Class 10", "pillar": "board-exam", "parentId": "be-4", "path": "board-exam/nios/nios-class-10", "depth": 1, "displayOrder": 1, "isActive": true, "isPinned": false, "icon": "📓", "badge": null, "description": "NIOS Secondary (Class 10) Examination", "itemCount": 2, "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null, "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {}, "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z", "children": [] },
+            { "id": "be-4-2", "slug": "nios-class-12", "label": "Class 12", "pillar": "board-exam", "parentId": "be-4", "path": "board-exam/nios/nios-class-12", "depth": 1, "displayOrder": 2, "isActive": true, "isPinned": false, "icon": "📓", "badge": null, "description": "NIOS Senior Secondary (Class 12) Examination", "itemCount": 2, "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null, "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {}, "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z", "children": [] }
+          ]
+        },
+        {
+          "id": "be-5", "slug": "open-boards", "label": "Open Boards", "pillar": "board-exam", "parentId": null, "path": "board-exam/open-boards", "depth": 0, "displayOrder": 5, "isActive": true, "isPinned": false, "icon": "📂", "badge": null, "description": "Open board examinations and equivalency tests", "itemCount": 5, "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null, "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {}, "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z", "children": []
+        },
+        {
+          "id": "be-6", "slug": "technical-boards", "label": "Technical Boards", "pillar": "board-exam", "parentId": null, "path": "board-exam/technical-boards", "depth": 0, "displayOrder": 6, "isActive": true, "isPinned": false, "icon": "🔧", "badge": null, "description": "Technical education board examinations", "itemCount": 3, "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null, "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {}, "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z", "children": []
+        }
+      ]
+    },
+    "news": {
+      "pillar": "news",
+      "label": "News",
+      "href": "/news",
+      "icon": "📰",
+      "totalItemCount": 0,
+      "lastUpdated": "2026-07-30T00:00:00.000Z",
+      "nodes": [
+        {
+          "id": "nw-1", "slug": "latest-news", "label": "Latest News", "pillar": "news", "parentId": null, "path": "news/latest-news", "depth": 0, "displayOrder": 1, "isActive": true, "isPinned": true, "icon": "📰", "badge": "trending", "description": "Latest education and exam news updates", "itemCount": 0, "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null, "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {}, "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z", "children": []
+        },
+        {
+          "id": "nw-2", "slug": "government-exams-news", "label": "Government Exams", "pillar": "news", "parentId": null, "path": "news/government-exams-news", "depth": 0, "displayOrder": 2, "isActive": true, "isPinned": false, "icon": "🏛️", "badge": null, "description": "News related to government examinations", "itemCount": 0, "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null, "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {}, "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z", "children": []
+        },
+        {
+          "id": "nw-3", "slug": "government-jobs-news", "label": "Government Jobs", "pillar": "news", "parentId": null, "path": "news/government-jobs-news", "depth": 0, "displayOrder": 3, "isActive": true, "isPinned": false, "icon": "💼", "badge": "popular", "description": "News related to government job vacancies and recruitment", "itemCount": 0, "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null, "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {}, "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z", "children": []
+        },
+        {
+          "id": "nw-4", "slug": "entrance-exams-news", "label": "Entrance Exams", "pillar": "news", "parentId": null, "path": "news/entrance-exams-news", "depth": 0, "displayOrder": 4, "isActive": true, "isPinned": false, "icon": "🎓", "badge": null, "description": "News related to entrance examinations", "itemCount": 0, "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null, "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {}, "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z", "children": []
+        },
+        {
+          "id": "nw-5", "slug": "results-answer-keys", "label": "Results & Answer Keys", "pillar": "news", "parentId": null, "path": "news/results-answer-keys", "depth": 0, "displayOrder": 5, "isActive": true, "isPinned": false, "icon": "📊", "badge": null, "description": "Exam results and answer key announcements", "itemCount": 0, "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null, "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {}, "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z", "children": []
+        },
+        {
+          "id": "nw-6", "slug": "admissions-counselling", "label": "Admissions & Counselling", "pillar": "news", "parentId": null, "path": "news/admissions-counselling", "depth": 0, "displayOrder": 6, "isActive": true, "isPinned": false, "icon": "🏫", "badge": null, "description": "College admissions and counselling process updates", "itemCount": 0, "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null, "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {}, "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z", "children": []
+        },
+        {
+          "id": "nw-7", "slug": "education-policy", "label": "Education Policy", "pillar": "news", "parentId": null, "path": "news/education-policy", "depth": 0, "displayOrder": 7, "isActive": true, "isPinned": false, "icon": "📜", "badge": null, "description": "Education policy changes and government announcements", "itemCount": 0, "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null, "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {}, "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z", "children": []
+        },
+        {
+          "id": "nw-8", "slug": "career-guidance", "label": "Career Guidance", "pillar": "news", "parentId": null, "path": "news/career-guidance", "depth": 0, "displayOrder": 8, "isActive": true, "isPinned": false, "icon": "🧭", "badge": null, "description": "Career guidance and counselling articles", "itemCount": 0, "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null, "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {}, "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z", "children": []
+        },
+        {
+          "id": "nw-9", "slug": "success-stories", "label": "Success Stories", "pillar": "news", "parentId": null, "path": "news/success-stories", "depth": 0, "displayOrder": 9, "isActive": true, "isPinned": false, "icon": "⭐", "badge": null, "description": "Topper interviews and success stories", "itemCount": 0, "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null, "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {}, "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z", "children": []
+        },
+        {
+          "id": "nw-10", "slug": "international-education", "label": "International Education", "pillar": "news", "parentId": null, "path": "news/international-education", "depth": 0, "displayOrder": 10, "isActive": true, "isPinned": false, "icon": "🌐", "badge": null, "description": "International education opportunities and news", "itemCount": 0, "seoTitle": null, "seoDescription": null, "ogImage": null, "categoryId": null, "examId": null, "maxItems": 15, "showItemCount": true, "featuredItemIds": [], "customUrl": null, "metadata": {}, "createdAt": "2026-07-30T00:00:00.000Z", "updatedAt": "2026-07-30T00:00:00.000Z", "children": []
+        }
+      ]
+    }
+  }
+}

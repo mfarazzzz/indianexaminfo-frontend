@@ -1,111 +1,122 @@
 "use client";
 
 /**
- * HeaderMegaNav — Client component that renders the mega navigation triggers
- * and manages open/close state for desktop hover and mobile accordion.
+ * HeaderMegaNav — Client component for desktop navigation triggers
+ * and mobile toggle. Uses hover intent with 60ms open / 200ms close delay.
  */
 import React, { useCallback, useRef, useState } from "react";
 import Link from "next/link";
 import { ChevronDown, Menu, X, Search } from "lucide-react";
 import { NavigationPanel } from "./NavigationPanel";
-import { MegaMenuMobile } from "./MegaMenuMobile";
-import { getExamsForCategory, searchExamsInPillar } from "@/services/navigationService";
-import type { NavigationCategory, NavigationExam } from "@/services/navigationService";
-import type { Pillar } from "@/types/exam";
-
-interface PillarNav {
-  pillar: Pillar;
-  label: string;
-  href: string;
-  categories: NavigationCategory[];
-  prebuiltCards?: import("@/services/navigationService").PrebuiltCardData[];
-}
+import { MegaMenuMobileLazy } from "./MegaMenuMobileLazy";
+import { ScreenReaderAnnounce } from "./ScreenReaderAnnounce";
+import type { NavigationTree, NavigationPillar, QuickAccessItem } from "@/types/navigation";
 
 interface Props {
-  pillars: PillarNav[];
+  pillars: NavigationTree[];
+  quickAccessItems: QuickAccessItem[];
 }
 
-export function HeaderMegaNav({ pillars }: Props) {
-  const [activePillar, setActivePillar] = useState<Pillar | null>(null);
+export function HeaderMegaNav({ pillars, quickAccessItems }: Props) {
+  const [activePillar, setActivePillar] = useState<NavigationPillar | null>(null);
   const [mobileOpen, setMobileOpen] = useState(false);
   const hoverTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const closeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const handleMouseEnter = useCallback((pillar: Pillar) => {
-    // Cancel any pending close
-    if (closeTimerRef.current) { clearTimeout(closeTimerRef.current); closeTimerRef.current = null; }
-    // Hover intent: 80ms delay
-    hoverTimerRef.current = setTimeout(() => setActivePillar(pillar), 80);
+  const handleMouseEnter = useCallback((pillar: NavigationPillar) => {
+    if (closeTimerRef.current) {
+      clearTimeout(closeTimerRef.current);
+      closeTimerRef.current = null;
+    }
+    hoverTimerRef.current = setTimeout(() => setActivePillar(pillar), 60);
   }, []);
 
   const handleMouseLeave = useCallback(() => {
-    if (hoverTimerRef.current) { clearTimeout(hoverTimerRef.current); hoverTimerRef.current = null; }
-    closeTimerRef.current = setTimeout(() => setActivePillar(null), 150);
+    if (hoverTimerRef.current) {
+      clearTimeout(hoverTimerRef.current);
+      hoverTimerRef.current = null;
+    }
+    closeTimerRef.current = setTimeout(() => setActivePillar(null), 200);
+  }, []);
+
+  const handlePanelMouseEnter = useCallback(() => {
+    if (closeTimerRef.current) {
+      clearTimeout(closeTimerRef.current);
+      closeTimerRef.current = null;
+    }
+  }, []);
+
+  const handlePanelMouseLeave = useCallback(() => {
+    closeTimerRef.current = setTimeout(() => setActivePillar(null), 200);
   }, []);
 
   const handleClose = useCallback(() => {
     setActivePillar(null);
   }, []);
 
-  const fetchExams = useCallback(async (categoryId: string, limit: number, featuredIds: string[]): Promise<NavigationExam[]> => {
-    return getExamsForCategory(categoryId, limit, featuredIds);
-  }, []);
-
-  const activePillarData = pillars.find((p) => p.pillar === activePillar);
+  // Find the active tree
+  const activeTree = pillars.find((p) => p.pillar === activePillar) ?? null;
 
   return (
     <>
+      {/* Screen reader announcements */}
+      <ScreenReaderAnnounce
+        message={activePillar ? `${activeTree?.label ?? ""} navigation menu expanded` : ""}
+      />
+
       {/* Desktop Navigation */}
-      <nav className="hidden lg:flex items-center gap-0.5 flex-1" aria-label="Main navigation">
-        {pillars.map(({ pillar, label, href, categories, prebuiltCards }) => (
+      <nav className="hidden lg:flex items-center gap-1 flex-1" aria-label="Main navigation">
+        {pillars.map((tree) => (
           <div
-            key={pillar}
+            key={tree.pillar}
             className="relative"
-            onMouseEnter={() => handleMouseEnter(pillar)}
+            onMouseEnter={() => handleMouseEnter(tree.pillar)}
             onMouseLeave={handleMouseLeave}
           >
             <Link
-              href={href}
-              className={`flex items-center gap-1 px-3 py-1.5 text-sm font-medium rounded transition-colors ${
-                activePillar === pillar
-                  ? "text-primary bg-primary/5"
+              href={tree.href}
+              className={`flex items-center gap-1 px-3 py-2 text-[13px] font-semibold rounded-md transition-all duration-150 ${
+                activePillar === tree.pillar
+                  ? "text-primary bg-primary/8 shadow-sm"
                   : "text-gray-700 hover:text-primary hover:bg-gray-50"
               }`}
               aria-haspopup="true"
-              aria-expanded={activePillar === pillar}
+              aria-expanded={activePillar === tree.pillar}
             >
-              {label}
-              {categories.length > 0 && <ChevronDown className="w-3.5 h-3.5" />}
-            </Link>
-
-            {/* Navigation Panel (App-style card grid) */}
-            {activePillar === pillar && (categories.length > 0 || (prebuiltCards && prebuiltCards.length > 0)) && (
-              <NavigationPanel
-                categories={categories}
-                pillar={pillar}
-                pillarLabel={label}
-                onClose={handleClose}
-                fetchExams={fetchExams}
-                prebuiltCards={prebuiltCards}
+              {tree.icon && <span className="text-sm">{tree.icon}</span>}
+              {tree.label}
+              <ChevronDown
+                className={`w-3.5 h-3.5 transition-transform duration-150 ${
+                  activePillar === tree.pillar ? "rotate-180" : ""
+                }`}
               />
-            )}
+            </Link>
           </div>
         ))}
-
-        {/* Static links (News, Resources) */}
-        <Link href="/blog" className="px-3 py-1.5 text-sm font-medium text-gray-700 hover:text-primary hover:bg-gray-50 rounded transition-colors">
-          News
-        </Link>
       </nav>
 
+      {/* Navigation Panel — rendered outside triggers for fixed positioning */}
+      {activeTree && (
+        <NavigationPanel
+          tree={activeTree}
+          onClose={handleClose}
+          onPanelMouseEnter={handlePanelMouseEnter}
+          onPanelMouseLeave={handlePanelMouseLeave}
+        />
+      )}
+
       {/* Search + Mobile toggle */}
-      <div className="flex items-center gap-2 ml-auto">
-        <Link href="/search" className="p-2 text-gray-600 hover:text-primary rounded transition-colors" aria-label="Search">
-          <Search className="w-5 h-5" />
+      <div className="flex items-center gap-1.5 ml-auto">
+        <Link
+          href="/search"
+          className="p-2 text-gray-500 hover:text-primary rounded-md hover:bg-gray-50 transition-colors"
+          aria-label="Search"
+        >
+          <Search className="w-[18px] h-[18px]" />
         </Link>
         <button
           onClick={() => setMobileOpen(!mobileOpen)}
-          className="lg:hidden p-2 text-gray-600 hover:text-primary rounded transition-colors"
+          className="lg:hidden p-2 text-gray-500 hover:text-primary rounded-md hover:bg-gray-50 transition-colors"
           aria-label="Toggle menu"
         >
           {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
@@ -114,10 +125,10 @@ export function HeaderMegaNav({ pillars }: Props) {
 
       {/* Mobile Menu */}
       {mobileOpen && (
-        <MegaMenuMobile
-          pillars={pillars.map((p) => ({ pillar: p.pillar, label: p.label, categories: p.categories }))}
+        <MegaMenuMobileLazy
+          pillars={pillars}
+          quickAccessItems={quickAccessItems}
           onClose={() => setMobileOpen(false)}
-          fetchExams={fetchExams}
         />
       )}
     </>

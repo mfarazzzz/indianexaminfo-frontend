@@ -1,53 +1,42 @@
 /**
- * HeaderWithMenu.tsx — Server component that fetches navigation data
- * and renders the new mega navigation system.
+ * HeaderWithMenu.tsx — Server component that resolves navigation data
+ * and passes it to the client-side HeaderMegaNav.
  */
-import { getNavigationMenus } from "@/services/menuService";
-import { getAllNavigationData, getPrebuiltNavigationCards } from "@/services/navigationService";
-import { HeaderMegaNav } from "@/components/navigation/HeaderMegaNav";
-import { QuickAccessBar } from "./QuickAccessBar";
 import Link from "next/link";
-import type { Pillar } from "@/types/exam";
-
-const PILLAR_CONFIG: { pillar: Pillar; label: string; href: string }[] = [
-  { pillar: "sarkari-naukri", label: "Government Jobs", href: "/sarkari-naukri" },
-  { pillar: "entrance-exam", label: "Entrance Exams", href: "/entrance-exam" },
-  { pillar: "board-university", label: "Board Exams", href: "/board-exam" },
-];
+import { getAllNavigationTrees, getQuickAccessItems } from "@/services/taxonomyService";
+import { HeaderMegaNav } from "@/components/navigation/HeaderMegaNav";
+import { QuickAccessBar } from "@/components/layout/QuickAccessBar";
 
 export async function HeaderWithMenu() {
-  const [menus, ...pillarCards] = await Promise.all([
-    getNavigationMenus(),
-    ...PILLAR_CONFIG.map((c) => getPrebuiltNavigationCards(c.pillar)),
+  const [pillars, quickAccessItems] = await Promise.all([
+    getAllNavigationTrees(),
+    getQuickAccessItems(),
   ]);
-
-  const pillars = PILLAR_CONFIG.map((config, i) => ({
-    ...config,
-    categories: [] as any[], // No longer needed — cards have everything
-    prebuiltCards: pillarCards[i] ?? [],
-  }));
 
   return (
     <>
-      <header className="sticky top-0 z-50 bg-white border-b border-gray-200 shadow-sm">
-        <div className="container mx-auto px-4">
-          <div className="flex items-center h-14 gap-4">
+      {/* Main Header */}
+      <header className="sticky top-0 z-50 bg-white border-b border-gray-200/80 shadow-sm">
+        <div className="max-w-7xl mx-auto px-4">
+          <div className="flex items-center h-14 gap-6">
             {/* Logo */}
-            <Link href="/" className="shrink-0 flex items-center gap-2 mr-4" prefetch>
-              <div className="w-8 h-8 bg-primary rounded flex items-center justify-center">
+            <Link href="/" className="shrink-0 flex items-center gap-2.5" prefetch>
+              <div className="w-8 h-8 bg-gradient-to-br from-primary to-primary/80 rounded-lg flex items-center justify-center shadow-sm">
                 <span className="text-white font-heading font-bold text-sm">IE</span>
               </div>
-              <span className="font-heading font-bold text-primary text-lg hidden sm:block">
+              <span className="font-heading font-bold text-primary text-lg hidden sm:block tracking-tight">
                 IndianExamInfo
               </span>
             </Link>
 
-            {/* New Mega Navigation */}
-            <HeaderMegaNav pillars={pillars} />
+            {/* Navigation (client component) */}
+            <HeaderMegaNav pillars={pillars} quickAccessItems={quickAccessItems} />
           </div>
         </div>
       </header>
-      <QuickAccessBar menu={menus.quickAccessBar} />
+
+      {/* Quick Access Bar */}
+      <QuickAccessBar items={quickAccessItems} />
     </>
   );
 }
