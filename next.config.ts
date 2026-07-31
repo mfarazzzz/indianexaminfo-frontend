@@ -60,6 +60,17 @@ const nextConfig: NextConfig = {
 
   async redirects() {
     return [
+      // === New pillar name redirects (sarkari-naukri → government-exam, govt-vacancy) ===
+      // /government-exam/* → /sarkari-naukri/* (rewrite handled internally by sarkari-naukri catch-all)
+      { source: "/government-exam",              destination: "/sarkari-naukri",              permanent: false },
+      { source: "/government-exam/:path*",       destination: "/sarkari-naukri/:path*",       permanent: false },
+      // /govt-vacancy/* → /sarkari-naukri/bharti (or catch-all)
+      { source: "/govt-vacancy",                 destination: "/sarkari-naukri/bharti",       permanent: false },
+      { source: "/govt-vacancy/:path*",          destination: "/sarkari-naukri/:path*",       permanent: false },
+      // /university-exam/* → /board-exam (until separate route exists)
+      { source: "/university-exam",              destination: "/board-exam",                  permanent: false },
+      { source: "/university-exam/:path*",       destination: "/board-exam/:path*",           permanent: false },
+
       // Legacy redirects
       { source: "/exam/:slug",  destination: "/sarkari-naukri/:slug", permanent: true },
       { source: "/result",      destination: "/results",              permanent: true },

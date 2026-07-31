@@ -10,7 +10,7 @@
 /** All 6 navigation pillars (knowledge domains) */
 export type NavigationPillar =
   | "government-exam"
-  | "government-jobs"
+  | "govt-vacancy"
   | "entrance-exam"
   | "university-exam"
   | "board-exam"
@@ -226,7 +226,7 @@ export interface StaticNavigationData {
 
 export const PILLAR_CONFIGS: PillarConfig[] = [
   { pillar: "government-exam", label: "Govt Exams", href: "/government-exam", icon: "🏛️", isEnabled: true },
-  { pillar: "government-jobs", label: "Govt Jobs", href: "/government-jobs", icon: "💼", isEnabled: true },
+  { pillar: "govt-vacancy", label: "Govt Vacancy", href: "/govt-vacancy", icon: "💼", isEnabled: true },
   { pillar: "entrance-exam", label: "Entrance Exams", href: "/entrance-exam", icon: "🎓", isEnabled: true },
   { pillar: "university-exam", label: "University", href: "/university-exam", icon: "🏫", isEnabled: true },
   { pillar: "board-exam", label: "Board Exams", href: "/board-exam", icon: "📘", isEnabled: true },
@@ -235,6 +235,8 @@ export const PILLAR_CONFIGS: PillarConfig[] = [
 
 /** Map legacy pillar slugs to new ones (backward compat) */
 export const LEGACY_PILLAR_MAP: Record<string, NavigationPillar> = {
-  "sarkari-naukri": "government-jobs",
+  "sarkari-naukri": "government-exam",
+  "sarkari-bharti": "govt-vacancy",
+  "government-jobs": "govt-vacancy",
   "board-university": "board-exam",
 };
