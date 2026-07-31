@@ -1,18 +1,15 @@
 /**
  * HeaderWithMenu.tsx — Server component that resolves navigation data
  * and passes it to the client-side HeaderMegaNav.
+ * 
+ * Uses STATIC hardcoded navigation to avoid dependency on Supabase taxonomy_nodes.
  */
 import Link from "next/link";
-import { getAllNavigationTrees, getQuickAccessItems } from "@/services/taxonomyService";
 import { HeaderMegaNav } from "@/components/navigation/HeaderMegaNav";
 import { QuickAccessBar } from "@/components/layout/QuickAccessBar";
+import { STATIC_NAVIGATION_TREES, STATIC_QUICK_ACCESS } from "@/lib/navigation/static-data";
 
 export async function HeaderWithMenu() {
-  const [pillars, quickAccessItems] = await Promise.all([
-    getAllNavigationTrees(),
-    getQuickAccessItems(),
-  ]);
-
   return (
     <>
       {/* Main Header */}
@@ -30,13 +27,13 @@ export async function HeaderWithMenu() {
             </Link>
 
             {/* Navigation (client component) */}
-            <HeaderMegaNav pillars={pillars} quickAccessItems={quickAccessItems} />
+            <HeaderMegaNav pillars={STATIC_NAVIGATION_TREES} quickAccessItems={STATIC_QUICK_ACCESS} />
           </div>
         </div>
       </header>
 
       {/* Quick Access Bar */}
-      <QuickAccessBar items={quickAccessItems} />
+      <QuickAccessBar items={STATIC_QUICK_ACCESS} />
     </>
   );
 }
