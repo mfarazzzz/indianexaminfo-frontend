@@ -1,12 +1,18 @@
-export type Pillar = "government-exam" | "govt-vacancy" | "entrance-exam" | "board-exam" | "university-exam" | "news";
-
-/** Extended pillar type including legacy aliases */
-export type ExtendedPillar =
-  | Pillar
+export type Pillar =
+  | "government-exam"
+  | "govt-vacancy"
+  | "entrance-exam"
+  | "board-exam"
+  | "university-exam"
+  | "news"
+  // Legacy aliases — kept for backward compat with existing comparisons throughout the codebase
   | "sarkari-naukri"
   | "sarkari-bharti"
-  | "board-exam"
+  | "board-university"
   | "government-jobs";
+
+/** Extended pillar type — same as Pillar (legacy aliases included inline) */
+export type ExtendedPillar = Pillar;
 
 export type ContentType =
   | "notification"
