@@ -37,6 +37,9 @@ const LEGACY_REDIRECTS: Record<string, string> = {
   teaching: "/sarkari-naukri/exam?category=teaching",
 };
 
+/** Pillars that are served by this route (covers both old and new DB values) */
+const SERVED_PILLARS = new Set(["sarkari-naukri", "government-exam", "govt-vacancy"]);
+
 type Props = { params: Promise<{ segments: string[] }> };
 
 export async function generateStaticParams() {
@@ -63,7 +66,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     }
     // Try exams table
     const exam = await getExamBySlug(slug);
-    if (exam && exam.pillar === "sarkari-naukri") {
+    if (exam && SERVED_PILLARS.has(exam.pillar)) {
       const year = getCurrentYear();
       return buildExamMetadata({
         pageType: "exam-entity",
@@ -82,7 +85,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     // category/slug — exams table entity
     const [category, slug] = segments;
     const exam = await getExamBySlug(slug, category);
-    if (!exam || exam.pillar !== "sarkari-naukri") return {};
+    if (!exam || !SERVED_PILLARS.has(exam.pillar)) return {};
     const year = getCurrentYear();
     return buildExamMetadata({
       pageType: "exam-entity",
@@ -99,7 +102,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     // category/slug/contentType — content type page
     const [category, slug, contentType] = segments;
     const exam = await getExamBySlug(slug, category);
-    if (!exam || exam.pillar !== "sarkari-naukri") return {};
+    if (!exam || !SERVED_PILLARS.has(exam.pillar)) return {};
     const year = getCurrentYear();
     return buildExamMetadata({
       pageType: "content-type",
@@ -134,7 +137,7 @@ export default async function SarkariNaukriCatchAll({ params }: Props) {
 
     // Fallback: try exams table — if found with category, redirect to canonical URL
     const exam = await getExamBySlug(slug);
-    if (exam && exam.pillar === "sarkari-naukri") {
+    if (exam && SERVED_PILLARS.has(exam.pillar)) {
       if (exam.category) {
         redirect(`/sarkari-naukri/${exam.category}/${exam.slug}`);
       }
@@ -158,7 +161,7 @@ export default async function SarkariNaukriCatchAll({ params }: Props) {
     const [category, slug] = segments;
     const exam = await getExamBySlug(slug, category);
 
-    if (!exam || exam.pillar !== "sarkari-naukri") notFound();
+    if (!exam || !SERVED_PILLARS.has(exam.pillar)) notFound();
 
     const categoryLabel = category.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
 
@@ -179,7 +182,7 @@ export default async function SarkariNaukriCatchAll({ params }: Props) {
     const [category, slug, contentType] = segments;
     const exam = await getExamBySlug(slug, category);
 
-    if (!exam || exam.pillar !== "sarkari-naukri") notFound();
+    if (!exam || !SERVED_PILLARS.has(exam.pillar)) notFound();
 
     return (
       <SarkariNaukriContentTypeView

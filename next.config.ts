@@ -64,9 +64,12 @@ const nextConfig: NextConfig = {
       // /government-exam/* → /sarkari-naukri/* (rewrite handled internally by sarkari-naukri catch-all)
       { source: "/government-exam",              destination: "/sarkari-naukri",              permanent: false },
       { source: "/government-exam/:path*",       destination: "/sarkari-naukri/:path*",       permanent: false },
-      // /govt-vacancy/* → /sarkari-naukri/bharti (or catch-all)
+      // /govt-vacancy/* → /sarkari-naukri (handled by catch-all)
       { source: "/govt-vacancy",                 destination: "/sarkari-naukri/bharti",       permanent: false },
       { source: "/govt-vacancy/:path*",          destination: "/sarkari-naukri/:path*",       permanent: false },
+      // /government-jobs/* → /sarkari-naukri (legacy CMS URLs)
+      { source: "/government-jobs",              destination: "/sarkari-naukri/bharti",       permanent: false },
+      { source: "/government-jobs/:path*",       destination: "/sarkari-naukri/:path*",       permanent: false },
       // /university-exam/* → /board-exam (until separate route exists)
       { source: "/university-exam",              destination: "/board-exam",                  permanent: false },
       { source: "/university-exam/:path*",       destination: "/board-exam/:path*",           permanent: false },
