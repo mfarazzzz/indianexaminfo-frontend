@@ -426,6 +426,116 @@ export async function EntityDetailPage({ exam, breadcrumbs }: EntityDetailPagePr
               </section>
             )}
 
+            {/* Content Modules — from exam_editions.content_modules (overview, eligibility body, application-process, FAQs etc) */}
+            {exam.contentModules && (() => {
+              const mods = exam.contentModules!;
+              const config = mods._config as { moduleOrder?: string[]; enabledModules?: string[] } | undefined;
+              const order: string[] = config?.moduleOrder ?? Object.keys(mods).filter(k => k !== '_config');
+              const enabled: string[] = config?.enabledModules ?? order;
+
+              return order
+                .filter(slug => enabled.includes(slug) && mods[slug] && slug !== '_config')
+                .map(slug => {
+                  const data = mods[slug] as Record<string, unknown>;
+                  if (!data) return null;
+                  const body = (data.body as string) || (data.content as string) || "";
+                  const summary = data.summary as string | undefined;
+                  const steps = data.steps as { title?: string; description?: string; order?: number }[] | undefined;
+                  const highlights = data.highlights as string[] | undefined;
+                  const links = data.importantLinks as { label: string; url: string }[] | undefined;
+
+                  // Module display name
+                  const moduleLabels: Record<string, string> = {
+                    "overview": "About This Exam",
+                    "eligibility": "Eligibility Criteria",
+                    "important-dates": "Important Dates",
+                    "application-process": "How to Apply",
+                    "exam-pattern": "Exam Pattern",
+                    "syllabus": "Syllabus",
+                    "faqs": "Frequently Asked Questions",
+                    "admit-card": "Admit Card",
+                    "result": "Result",
+                    "cut-off": "Cut Off Marks",
+                    "vacancy-details": "Vacancy Details",
+                    "salary": "Salary & Pay Scale",
+                    "age-limit": "Age Limit",
+                    "selection-process": "Selection Process",
+                    "documents-required": "Documents Required",
+                    "reservation": "Reservation Policy",
+                    "counselling": "Counselling Process",
+                    "news": "News & Updates",
+                  };
+                  const label = moduleLabels[slug] ?? slug.replace(/-/g, " ").replace(/\b\w/g, c => c.toUpperCase());
+
+                  // Skip if no meaningful content
+                  const hasContent = body || summary || (steps && steps.length > 0) || (highlights && highlights.length > 0);
+                  if (!hasContent) return null;
+
+                  return (
+                    <section key={slug} aria-label={label} className="mb-5">
+                      <h2 className="font-heading font-semibold text-base text-gray-800 mb-3">{label}</h2>
+                      {summary && <p className="text-sm text-gray-600 mb-3 leading-relaxed">{summary}</p>}
+                      {body && <div className="article-body text-sm" dangerouslySetInnerHTML={{ __html: body }} />}
+                      {steps && steps.length > 0 && (
+                        <ol className="space-y-2">
+                          {steps.map((step, i) => (
+                            <li key={i} className="flex items-start gap-3 text-sm">
+                              <span className="w-6 h-6 rounded-full bg-primary text-white flex items-center justify-center text-xs font-bold shrink-0">
+                                {step.order ?? i + 1}
+                              </span>
+                              <div>
+                                {step.title && <p className="font-medium text-gray-800">{step.title}</p>}
+                                {step.description && <p className="text-gray-600 mt-0.5">{step.description}</p>}
+                              </div>
+                            </li>
+                          ))}
+                        </ol>
+                      )}
+                      {highlights && highlights.length > 0 && (
+                        <ul className="grid grid-cols-2 gap-1.5">
+                          {highlights.map((h, i) => (
+                            <li key={i} className="flex items-center gap-2 text-sm text-gray-700">
+                              <span className="w-1.5 h-1.5 rounded-full bg-primary shrink-0" />
+                              {h}
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                      {links && links.length > 0 && (
+                        <div className="flex flex-wrap gap-2 mt-3">
+                          {links.map((link, i) => (
+                            <a key={i} href={link.url} target="_blank" rel="noopener noreferrer"
+                              className="inline-flex items-center gap-1.5 text-xs font-medium text-primary border border-primary/20 bg-primary/5 px-2.5 py-1.5 rounded hover:bg-primary hover:text-white transition-colors">
+                              <ExternalLink className="w-3 h-3" /> {link.label}
+                            </a>
+                          ))}
+                        </div>
+                      )}
+                    </section>
+                  );
+                });
+            })()}
+
+            {/* FAQs from content modules (if not already in exam.faqs) */}
+            {exam.contentModules?.faqs && (() => {
+              const faqMod = exam.contentModules!.faqs as { items?: { question: string; answer: string }[] } | undefined;
+              const items = faqMod?.items;
+              if (!items || items.length === 0) return null;
+              return (
+                <section aria-label="Frequently asked questions from modules" className="mb-5">
+                  <h2 className="font-heading font-bold text-lg text-gray-900 mb-4">FAQs</h2>
+                  <div className="space-y-4">
+                    {items.map((faq, i) => (
+                      <div key={i} className="border border-border rounded p-4">
+                        <h3 className="font-semibold text-gray-900 text-sm mb-2">{faq.question}</h3>
+                        <p className="text-sm text-gray-700 leading-relaxed">{faq.answer}</p>
+                      </div>
+                    ))}
+                  </div>
+                </section>
+              );
+            })()}
+
             {/* Content Posts */}
             {contentPosts.length > 0 && (
               <section aria-label="Related content" className="mb-5">

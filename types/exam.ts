@@ -101,6 +101,9 @@ export type ExamEntity = {
   seoTitle?: string;
   seoDescription?: string;
   faqs?: { question: string; answer: string }[];
+
+  // Content modules from exam_editions.content_modules (overview, eligibility, application-process, etc.)
+  contentModules?: Record<string, unknown>;
 };
 
 export type ContentPost = {

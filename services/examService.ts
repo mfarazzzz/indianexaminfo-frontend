@@ -53,6 +53,7 @@ function mapRow(row: Record<string, unknown>): ExamEntity {
     seoTitle: (row.seo_title as string) ?? undefined,
     seoDescription: (row.seo_description as string) ?? undefined,
     faqs: (row.faqs as ExamEntity["faqs"]) ?? [],
+    contentModules: (ed?.content_modules as Record<string, unknown>) ?? undefined,
   };
 }
 
