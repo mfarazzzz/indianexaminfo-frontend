@@ -14,7 +14,7 @@ export const GLOBAL_SHORT_TAIL: string[] = [
 // ─────────────────────────────────────────────────
 // 1B. PILLAR-LEVEL KEYWORD SETS
 // ─────────────────────────────────────────────────
-export const PILLAR_KEYWORDS: Record<Pillar, string[]> = {
+export const PILLAR_KEYWORDS: Record<string, string[]> = {
   "sarkari-naukri": [
     "sarkari naukri", "sarkari result", "govt job",
     "government job 2027", "sarkari job 2027",
