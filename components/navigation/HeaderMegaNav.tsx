@@ -75,7 +75,7 @@ export function HeaderMegaNav({ pillars, quickAccessItems }: Props) {
           >
             <Link
               href={tree.href}
-              className={`flex items-center gap-1 px-3 py-2 text-[13px] font-semibold rounded-md transition-all duration-150 ${
+              className={`flex items-center gap-1.5 px-4 py-2.5 text-sm font-semibold rounded-md transition-all duration-150 ${
                 activePillar === tree.pillar
                   ? "text-primary bg-primary/8 shadow-sm"
                   : "text-gray-700 hover:text-primary hover:bg-gray-50"
