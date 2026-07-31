@@ -274,16 +274,20 @@ export async function getPrebuiltNavigationCards(pillar: Pillar): Promise<Prebui
   }, ["navigation", `nav-cards:${pillar}`], { revalidate: 3600 });
 }
 
-export async function getAllNavigationData(): Promise<Record<Pillar, NavigationCategory[]>> {
+export async function getAllNavigationData(): Promise<Record<string, NavigationCategory[]>> {
   const [entranceExam, sarkariNaukri, boardUniversity] = await Promise.all([
     getNavigationCategories("entrance-exam"),
-    getNavigationCategories("sarkari-naukri"),
+    getNavigationCategories("government-exam"),
     getNavigationCategories("board-exam"),
   ]);
 
   return {
-    "entrance-exam": entranceExam,
-    "sarkari-naukri": sarkariNaukri,
-    "board-exam": boardUniversity,
+    "entrance-exam":  entranceExam,
+    "government-exam": sarkariNaukri,
+    "sarkari-naukri": sarkariNaukri,  // legacy alias
+    "board-exam":     boardUniversity,
+    "university-exam": [],
+    "govt-vacancy":   [],
+    "news":           [],
   };
 }
