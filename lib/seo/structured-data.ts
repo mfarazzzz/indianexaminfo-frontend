@@ -184,17 +184,50 @@ export function buildDatasetSchema(
   exam: ExamEntity,
   dates: { label: string; date: string }[]
 ) {
+  const year = new Date().getFullYear();
   return {
     "@context": "https://schema.org",
     "@type": "Dataset",
-    name: `${exam.name} Important Dates 2025`,
-    description: `Official important dates for ${exam.name} 2025`,
+    name: `${exam.name} Important Dates ${year}`,
+    description: `Official important dates for ${exam.name} ${year}`,
     creator: {
       "@type": "Organization",
       name: siteConfig.name,
     },
     dateModified: exam.lastUpdated,
     variableMeasured: dates.map((d) => d.label),
+  };
+}
+
+/**
+ * NewsArticle schema for time-sensitive content (results, admit cards, notifications).
+ * Required for Google News inclusion and Google Discover eligibility.
+ */
+export function buildNewsArticleSchema(
+  post: { title: string; excerpt?: string | null; publishedAt?: string | null; updatedAt: string; featuredImage?: string | null; author?: string | null },
+  url: string
+) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "NewsArticle",
+    headline: post.title,
+    description: post.excerpt ?? post.title,
+    image: post.featuredImage ? [post.featuredImage] : [`${SITE_URL}/api/og?title=${encodeURIComponent(post.title)}&type=news`],
+    datePublished: post.publishedAt ?? post.updatedAt,
+    dateModified: post.updatedAt,
+    author: {
+      "@type": "Person",
+      name: post.author ?? "IndianExamInfo Team",
+      url: `${SITE_URL}/about`,
+    },
+    publisher: {
+      "@type": "Organization",
+      name: siteConfig.name,
+      logo: { "@type": "ImageObject", url: LOGO_URL },
+    },
+    mainEntityOfPage: { "@type": "WebPage", "@id": url },
+    inLanguage: "en-IN",
+    isAccessibleForFree: true,
   };
 }
 

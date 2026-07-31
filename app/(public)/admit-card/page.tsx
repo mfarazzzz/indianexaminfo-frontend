@@ -8,7 +8,6 @@ import { buildExamMetadata } from "@/lib/seo/metadata";
 import { CONTENT_TYPE_KEYWORDS, GLOBAL_SHORT_TAIL, getCurrentYear } from "@/lib/seo/keywords";
 import { siteConfig } from "@/config/site";
 import { formatDate, pillarLabel, getExamContentTypeHref } from "@/lib/utils";
-import { navigation } from "@/config/navigation";
 import { Download, Calendar } from "lucide-react";
 
 export const revalidate = 1800;
@@ -125,7 +124,15 @@ export default async function AdmitCardPage() {
               Other Content Types
             </h2>
             <ul className="space-y-1.5 text-sm">
-              {navigation.quickLinks.filter((q) => q.href !== "/admit-card").map((q) => (
+              {[
+                { label: "Results", href: "/results" },
+                { label: "Answer Key", href: "/answer-key" },
+                { label: "Syllabus", href: "/syllabus" },
+                { label: "Date Sheet", href: "/date-sheet" },
+                { label: "Mock Test", href: "/mock-test" },
+                { label: "Previous Papers", href: "/previous-papers" },
+                { label: "Study Material", href: "/study-material" },
+              ].map((q: { label: string; href: string }) => (
                 <li key={q.href}>
                   <Link href={q.href} className="text-gray-700 hover:text-primary hover:underline">{q.label}</Link>
                 </li>

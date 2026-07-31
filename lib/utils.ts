@@ -131,3 +131,15 @@ export function getExamContentTypeHref(
 ): string {
   return `${getExamEntityHref(exam)}/${contentType}`;
 }
+
+/**
+ * Escape special characters in user input before using in PostgREST .ilike() filters.
+ * Prevents filter injection via `%`, `_`, and other PostgREST meta-characters.
+ */
+export function escapeSearchQuery(query: string): string {
+  return query
+    .replace(/\\/g, "\\\\")  // escape backslashes first
+    .replace(/%/g, "\\%")    // escape wildcard %
+    .replace(/_/g, "\\_")    // escape single-char wildcard _
+    .trim();
+}

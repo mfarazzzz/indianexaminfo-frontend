@@ -26,20 +26,16 @@ let _staticData: StaticNavigationData | null = null;
 
 async function getStaticData(): Promise<StaticNavigationData> {
   if (_staticData) return _staticData;
-  try {
-    const data = await import("@/data/navigation.json");
-    _staticData = data.default as unknown as StaticNavigationData;
-    return _staticData;
-  } catch {
-    // Return minimal fallback
-    const fallback: StaticNavigationData = {
-      version: "1.0.0",
-      generatedAt: new Date().toISOString(),
-      pillars: {} as any,
-      quickAccess: [],
-    };
-    return fallback;
-  }
+  // Static navigation.json was removed — all navigation is now DB-driven.
+  // Return minimal fallback structure; real data comes from taxonomy_nodes table.
+  const fallback: StaticNavigationData = {
+    version: "1.0.0",
+    generatedAt: new Date().toISOString(),
+    pillars: {} as any,
+    quickAccess: [],
+  };
+  _staticData = fallback;
+  return fallback;
 }
 
 // ═══════════════════════════════════════════════════════════════════

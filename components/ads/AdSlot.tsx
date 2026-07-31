@@ -102,7 +102,7 @@ export function AdSlot({ position, size, className, creative: initialCreative, a
       <div
         ref={ref}
         data-ad-slot={position}
-        style={{ width: "100%", maxWidth: dim.w, margin: "0 auto", display: "block" }}
+        style={{ width: "100%", maxWidth: dim.w, minHeight: dim.h, margin: "0 auto", display: "block" }}
         className={className}
         dangerouslySetInnerHTML={{ __html: sanitizeHtml(creative.htmlCode) }}
         aria-label="Advertisement"
@@ -161,7 +161,7 @@ export function AdSlot({ position, size, className, creative: initialCreative, a
     <div
       ref={ref}
       data-ad-slot={position}
-      style={{ width: "100%", maxWidth: dim.w, margin: "0 auto", display: "block" }}
+      style={{ width: "100%", maxWidth: dim.w, minHeight: dim.h, margin: "0 auto", display: "block" }}
       className={className}
     >
       <ins

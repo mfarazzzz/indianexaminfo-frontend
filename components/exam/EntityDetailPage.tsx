@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { notFound } from "next/navigation";
 import type { ExamEntity, ContentType } from "@/types/exam";
 import { getContentPostsByExam } from "@/services/contentPostService";
 import { getRelatedExams } from "@/services/examService";
@@ -17,7 +16,6 @@ import {
   formatDate,
   statusColor,
   contentTypeLabel,
-  pillarLabel,
 } from "@/lib/utils";
 import { ExternalLink, Calendar, Share2 } from "lucide-react";
 
@@ -139,12 +137,12 @@ export async function EntityDetailPage({ exam, breadcrumbs }: EntityDetailPagePr
 
             {/* Content Type Navigation — placed right after official website */}
             {availableContentTypes.length > 0 && (
-              <nav className="flex flex-wrap gap-2 mb-5" aria-label="Available content modules">
+              <nav className="flex flex-wrap gap-2 mb-5 overflow-x-auto sm:overflow-visible pb-2 sm:pb-0 -mx-1 px-1" aria-label="Available content modules">
                 {availableContentTypes.map((ct) => (
                   <Link
                     key={ct}
                     href={getContentTypeHref(exam, ct)}
-                    className="text-sm font-semibold px-3 py-1.5 bg-primary/10 text-primary rounded border border-primary/20 hover:bg-primary hover:text-white transition-colors focus:ring-2 focus:ring-primary/50 focus:outline-none"
+                    className="text-sm font-semibold px-3.5 py-2 min-h-[44px] flex items-center bg-primary/10 text-primary rounded border border-primary/20 hover:bg-primary hover:text-white transition-colors focus:ring-2 focus:ring-primary/50 focus:outline-none whitespace-nowrap"
                     prefetch={false}
                   >
                     {contentTypeLabel(ct)}
@@ -470,12 +468,43 @@ export async function EntityDetailPage({ exam, breadcrumbs }: EntityDetailPagePr
                   Related Exams
                 </h2>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  {relatedExams.slice(0, 4).map((e) => (
+                  {relatedExams.slice(0, 6).map((e) => (
                     <ExamCard key={e.id} exam={e} />
                   ))}
                 </div>
               </section>
             )}
+
+            {/* Source Attribution + E-E-A-T (Google compliance) */}
+            <section aria-label="Data source and verification" className="mb-5 border-t border-border pt-4">
+              <div className="flex flex-col gap-2 text-xs text-gray-500">
+                {exam.officialWebsite && (
+                  <p>
+                    <span className="font-medium text-gray-600">Data Source:</span>{" "}
+                    <a
+                      href={exam.officialWebsite}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-primary hover:underline"
+                    >
+                      {exam.conductingBody} Official Website
+                    </a>
+                  </p>
+                )}
+                <p>
+                  <span className="font-medium text-gray-600">Last Updated:</span>{" "}
+                  {formatDate(exam.lastUpdated)}
+                </p>
+                <p>
+                  <span className="font-medium text-gray-600">Verified by:</span>{" "}
+                  IndianExamInfo Editorial Team
+                </p>
+                <p className="text-gray-400 mt-1">
+                  Information compiled from official notifications and verified by our editorial team.
+                  Always confirm details from the official website before applying.
+                </p>
+              </div>
+            </section>
           </main>
 
           {/* Sidebar */}

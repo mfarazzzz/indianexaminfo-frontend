@@ -42,8 +42,35 @@ export default function robots(): MetadataRoute.Robots {
         allow: "/",
         disallow: SHARED_DISALLOW,
       },
+      // AI crawlers — explicitly allowed for Generative Engine Optimization (GEO).
+      // These power ChatGPT, Perplexity, Claude, and Google AI Overviews.
+      {
+        userAgent: "GPTBot",
+        allow: "/",
+        disallow: SHARED_DISALLOW,
+      },
+      {
+        userAgent: "ChatGPT-User",
+        allow: "/",
+        disallow: SHARED_DISALLOW,
+      },
+      {
+        userAgent: "PerplexityBot",
+        allow: "/",
+        disallow: SHARED_DISALLOW,
+      },
+      {
+        userAgent: "ClaudeBot",
+        allow: "/",
+        disallow: SHARED_DISALLOW,
+      },
+      {
+        userAgent: "Google-Extended",
+        allow: "/",
+        disallow: SHARED_DISALLOW,
+      },
     ],
-    sitemap: `${BASE}/sitemap.xml`,
+    sitemap: [`${BASE}/sitemap.xml`, `${BASE}/news-sitemap.xml`],
     host: BASE,
   };
 }

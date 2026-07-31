@@ -285,10 +285,12 @@ export async function searchExams(query: string): Promise<ExamEntity[]> {
   if (!query.trim()) return [];
   try {
     const supabase = createServerClient();
+    // Escape special PostgREST characters to prevent filter injection
+    const escaped = query.replace(/\\/g, "\\\\").replace(/%/g, "\\%").replace(/_/g, "\\_").trim();
     const { data, error } = await supabase
       .from("exams")
       .select(LIST_SELECT)
-      .or(`name.ilike.%${query}%,short_name.ilike.%${query}%`)
+      .or(`name.ilike.%${escaped}%,short_name.ilike.%${escaped}%`)
       .limit(20);
     if (error) throw error;
     return (data ?? []).map((r: any) => mapRow(r));

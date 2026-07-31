@@ -1,11 +1,25 @@
 import { NextRequest, NextResponse } from "next/server";
 import { revalidatePath, revalidateTag } from "next/cache";
 import { env } from "@/config/env";
+import { timingSafeEqual } from "crypto";
+
+/** Timing-safe string comparison to prevent token brute-forcing via timing side-channel */
+function safeTokenCompare(a: string, b: string): boolean {
+  if (!a || !b) return false;
+  try {
+    const bufA = Buffer.from(a, "utf8");
+    const bufB = Buffer.from(b, "utf8");
+    if (bufA.length !== bufB.length) return false;
+    return timingSafeEqual(bufA, bufB);
+  } catch {
+    return false;
+  }
+}
 
 export async function POST(request: NextRequest) {
-  const token = request.headers.get("x-revalidate-token");
+  const token = request.headers.get("x-revalidate-token") ?? "";
 
-  if (token !== env.REVALIDATE_TOKEN) {
+  if (!safeTokenCompare(token, env.REVALIDATE_TOKEN)) {
     return NextResponse.json({ error: "Invalid token" }, { status: 401 });
   }
 

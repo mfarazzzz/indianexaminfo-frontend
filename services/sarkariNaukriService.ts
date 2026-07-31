@@ -353,11 +353,13 @@ export async function searchSarkariNaukri(query: string): Promise<SarkariNaukriI
   if (!query.trim()) return [];
   try {
     const supabase = createServerClient();
+    // Escape special PostgREST characters to prevent filter injection
+    const escaped = query.replace(/\\/g, "\\\\").replace(/%/g, "\\%").replace(/_/g, "\\_").trim();
     const { data, error } = await supabase
       .from("sarkari_naukri")
       .select("*")
       .eq("workflow_status", "published")
-      .or(`title.ilike.%${query}%,organization.ilike.%${query}%,department.ilike.%${query}%,category.ilike.%${query}%`)
+      .or(`title.ilike.%${escaped}%,organization.ilike.%${escaped}%,department.ilike.%${escaped}%,category.ilike.%${escaped}%`)
       .order("updated_at", { ascending: false })
       .limit(15);
     if (error) throw error;
@@ -384,7 +386,7 @@ export async function getSarkariNaukriStats(): Promise<{ total: number; exam: nu
       };
     } catch (err) {
       console.error("[sarkariNaukriService] getSarkariNaukriStats failed:", err);
-      return { total: 361, exam: 60, direct: 301 };
+      return { total: 0, exam: 0, direct: 0 };
     }
   }, ["sarkari-naukri", "sarkari-naukri:stats"], { revalidate: 3600 });
 }
