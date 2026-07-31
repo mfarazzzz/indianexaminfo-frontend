@@ -67,15 +67,12 @@ function getContentTypeHref(exam: ExamEntity, ct: ContentType): string {
     "board-exam": "board-exam",
     "board-university": "board-exam",
     "entrance-exam": "entrance-exam",
-    "university-exam": "board-exam",
+    "university-exam": "university-exam",
   };
   const routePillar = pillarRouteMap[exam.pillar] ?? exam.pillar;
 
-  if (routePillar === "board-exam") {
-    if (exam.entityType === "university") {
-      return `/board-exam/university/${exam.slug}/${ct}`;
-    }
-    return `/board-exam/state/${exam.category}/${exam.slug}/${ct}`;
+  if (routePillar === "board-exam" && exam.entityType === "university") {
+    return `/university-exam/${exam.category}/${exam.slug}/${ct}`;
   }
   return `/${routePillar}/${exam.category}/${exam.slug}/${ct}`;
 }

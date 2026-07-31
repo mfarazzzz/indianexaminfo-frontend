@@ -70,9 +70,6 @@ const nextConfig: NextConfig = {
       // /government-jobs/* → /sarkari-naukri (legacy CMS URLs)
       { source: "/government-jobs",              destination: "/sarkari-naukri/bharti",       permanent: false },
       { source: "/government-jobs/:path*",       destination: "/sarkari-naukri/:path*",       permanent: false },
-      // /university-exam/* → /board-exam (until separate route exists)
-      { source: "/university-exam",              destination: "/board-exam",                  permanent: false },
-      { source: "/university-exam/:path*",       destination: "/board-exam/:path*",           permanent: false },
 
       // Legacy redirects
       { source: "/exam/:slug",  destination: "/sarkari-naukri/:slug", permanent: true },
