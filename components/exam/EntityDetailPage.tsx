@@ -89,7 +89,7 @@ export async function EntityDetailPage({ exam, breadcrumbs }: EntityDetailPagePr
 
   const schemas: Record<string, unknown>[] = [];
   if (exam.faqs?.length) schemas.push(buildFAQSchema(exam.faqs));
-  if (exam.pillar === "sarkari-naukri") schemas.push(buildJobPostingSchema(exam));
+  if (exam.pillar === "government-exam") schemas.push(buildJobPostingSchema(exam));
   const eventSchema = buildEventSchema(exam);
   if (eventSchema) schemas.push(eventSchema);
   if (exam.dates.length) schemas.push(buildDatasetSchema(exam, exam.dates));

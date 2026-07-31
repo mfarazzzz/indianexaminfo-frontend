@@ -49,7 +49,7 @@ function isSitemapEligible(exam: SitemapExam): boolean {
   if (!exam.slug) return false;
   if (exam.pillar === "board-exam" && exam.entityType === "university") return true;
   if (!exam.category) return false;
-  if (exam.pillar === "sarkari-naukri" && LEGACY_CATEGORY_SLUGS.has(exam.category)) return false;
+  if (exam.pillar === "government-exam" && LEGACY_CATEGORY_SLUGS.has(exam.category)) return false;
   return true;
 }
 
