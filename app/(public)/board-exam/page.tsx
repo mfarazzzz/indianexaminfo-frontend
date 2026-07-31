@@ -15,12 +15,12 @@ export const metadata: Metadata = buildExamMetadata({
   pageType: "pillar",
   title: `Board Exam ${YEAR} — CBSE, UP Board, Bihar Board Result & Date Sheet`,
   description: `Latest board exam updates ${YEAR}. CBSE Class 10 & 12, UP Board, Bihar Board, RBSE result, date sheet, admit card. University result for BHU, MJPRU, IGNOU and more.`,
-  keywords: buildPageKeywords({ pageType: "pillar", pillar: "board-university" }),
+  keywords: buildPageKeywords({ pageType: "pillar", pillar: "board-exam" }),
   canonicalUrl: `${siteConfig.url}/board-exam`,
 });
 
 export default async function BoardExamPage() {
-  const exams = await getExamsByPillar("board-university");
+  const exams = await getExamsByPillar("board-exam");
 
   const centralBoards = exams.filter((e) => e.category === "cbse" || e.category === "cisce" || e.category === "nios");
   const stateBoards = exams.filter((e) => e.category === "up-board" || e.category === "bihar-board" || e.category === "rbse" || e.category === "mpbse");

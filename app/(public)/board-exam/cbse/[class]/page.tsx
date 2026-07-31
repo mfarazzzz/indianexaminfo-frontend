@@ -18,7 +18,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     pageType: "board",
     title: `CBSE ${classLabel} Result ${year} — Check Marks at cbseresults.nic.in`,
     description: `CBSE ${classLabel} Board Result ${year}. Check your marks, subject-wise scores and pass/fail status. Download marksheet from DigiLocker.`,
-    keywords: buildPageKeywords({ pageType: "board", pillar: "board-university", examSlug: "cbse" }),
+    keywords: buildPageKeywords({ pageType: "board", pillar: "board-exam", examSlug: "cbse" }),
     canonicalUrl: `${siteConfig.url}/board-exam/cbse/${cls}`,
   });
 }

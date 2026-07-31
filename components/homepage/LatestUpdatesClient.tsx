@@ -10,7 +10,7 @@ export type UpdateItem = {
   title: string;
   href: string;
   category: string;
-  pillar: "sarkari-naukri" | "entrance-exam" | "board-university";
+  pillar: "government-exam" | "entrance-exam" | "board-exam";
   contentType: string;
   date: string;
   isUrgent: boolean;
@@ -24,7 +24,7 @@ type Filter = (typeof FILTERS)[number];
 const pillarToFilter: Record<string, Filter> = {
   "sarkari-naukri":   "Government",
   "entrance-exam":    "Entrance",
-  "board-university": "Boards",
+  "board-exam": "Boards",
 };
 
 const ctColors: Record<string, string> = {

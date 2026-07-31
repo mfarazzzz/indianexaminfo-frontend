@@ -11,7 +11,7 @@ type ExamCardProps = {
 };
 
 function getExamHref(exam: ExamEntity): string {
-  if (exam.pillar === "board-university") {
+  if (exam.pillar === "board-exam") {
     return exam.entityType === "university"
       ? `/board-exam/university/${exam.slug}`
       : `/board-exam/state/${exam.category}/${exam.slug}`;
@@ -40,7 +40,7 @@ function statusBadge(status: string): string {
 // Category dot color by pillar
 function categoryDot(pillar: string): string {
   if (pillar === "entrance-exam") return "bg-amber-500";
-  if (pillar === "board-university") return "bg-success";
+  if (pillar === "board-exam") return "bg-success";
   return "bg-primary";
 }
 

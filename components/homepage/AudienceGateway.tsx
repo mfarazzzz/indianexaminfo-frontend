@@ -9,7 +9,7 @@ export async function AudienceGateway() {
   const [sarkariStats, entranceCount, boardCount] = await Promise.all([
     getSarkariNaukriStats(),
     getExamCountByPillar("entrance-exam"),
-    getExamCountByPillar("board-university"),
+    getExamCountByPillar("board-exam"),
   ]);
 
   const examCount = sarkariStats.exam;

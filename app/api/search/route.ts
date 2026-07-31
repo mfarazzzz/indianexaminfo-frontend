@@ -62,7 +62,7 @@ export async function GET(request: NextRequest) {
       id: exam.id,
       title: exam.name,
       url: `/${exam.pillar}/${exam.category}/${exam.slug}`,
-      category: exam.pillar === "entrance-exam" ? "Entrance Exams" : exam.pillar === "board-university" ? "Board & University" : "Exams",
+      category: exam.pillar === "entrance-exam" ? "Entrance Exams" : exam.pillar === "board-exam" ? "Board & University" : "Exams",
       subcategory: exam.conductingBody,
       meta: exam.status.replace(/-/g, " "),
       badge: exam.isFeatured ? "⭐" : null,

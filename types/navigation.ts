@@ -238,5 +238,5 @@ export const LEGACY_PILLAR_MAP: Record<string, NavigationPillar> = {
   "sarkari-naukri": "government-exam",
   "sarkari-bharti": "govt-vacancy",
   "government-jobs": "govt-vacancy",
-  "board-university": "board-exam",
+  "board-exam": "board-exam",
 };

@@ -20,7 +20,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     pageType: "board",
     title: exam.seoTitle ?? `${exam.shortName} ${getCurrentYear()} — Result, Date Sheet & Admit Card`,
     description: exam.seoDescription ?? buildMetaDescription(exam.name, "result", "", getCurrentYear()),
-    keywords: buildPageKeywords({ pageType: "board", pillar: "board-university", examSlug: slug }),
+    keywords: buildPageKeywords({ pageType: "board", pillar: "board-exam", examSlug: slug }),
     canonicalUrl: `${siteConfig.url}/board-exam/state/${stateSlug}/${slug}`,
     updatedAt: exam.lastUpdated,
   });

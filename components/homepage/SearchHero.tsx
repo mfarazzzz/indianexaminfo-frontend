@@ -42,7 +42,7 @@ export function SearchHero() {
               <option value="">All Exams</option>
               <option value="sarkari-naukri">Sarkari Naukri</option>
               <option value="entrance-exam">Entrance Exam</option>
-              <option value="board-university">Board &amp; University</option>
+              <option value="board-exam">Board &amp; University</option>
             </select>
 
             {/* Search input */}

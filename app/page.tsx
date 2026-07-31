@@ -35,9 +35,9 @@ export function generateMetadata(): Metadata {
 export default async function HomePage() {
   const [sarkariExams, entranceExams, boardExams, allExams, latestPosts] =
     await Promise.all([
-      getExamsByPillar("sarkari-naukri"),
+      getExamsByPillar("government-exam"),
       getExamsByPillar("entrance-exam"),
-      getExamsByPillar("board-university"),
+      getExamsByPillar("board-exam"),
       getAllExams(),
       getLatestContentPosts(20),
     ]);

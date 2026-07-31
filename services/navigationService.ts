@@ -278,12 +278,12 @@ export async function getAllNavigationData(): Promise<Record<Pillar, NavigationC
   const [entranceExam, sarkariNaukri, boardUniversity] = await Promise.all([
     getNavigationCategories("entrance-exam"),
     getNavigationCategories("sarkari-naukri"),
-    getNavigationCategories("board-university"),
+    getNavigationCategories("board-exam"),
   ]);
 
   return {
     "entrance-exam": entranceExam,
     "sarkari-naukri": sarkariNaukri,
-    "board-university": boardUniversity,
+    "board-exam": boardUniversity,
   };
 }

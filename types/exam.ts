@@ -5,7 +5,7 @@ export type ExtendedPillar =
   | Pillar
   | "sarkari-naukri"
   | "sarkari-bharti"
-  | "board-university"
+  | "board-exam"
   | "government-jobs";
 
 export type ContentType =

@@ -9,7 +9,7 @@ type CalendarEvent = {
   date: string;       // YYYY-MM-DD
   label: string;
   href: string;
-  pillar: "sarkari-naukri" | "entrance-exam" | "board-university";
+  pillar: "government-exam" | "entrance-exam" | "board-exam";
 };
 
 type ExamCalendarProps = {
@@ -19,7 +19,7 @@ type ExamCalendarProps = {
 const PILLAR_COLORS = {
   "sarkari-naukri":  "bg-primary",
   "entrance-exam":   "bg-editorial",
-  "board-university": "bg-success",
+  "board-exam": "bg-success",
 } as const;
 
 const MONTHS = ["January","February","March","April","May","June",

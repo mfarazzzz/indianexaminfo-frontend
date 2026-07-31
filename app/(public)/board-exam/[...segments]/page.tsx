@@ -24,7 +24,7 @@ export const revalidate = 3600;
 export const dynamicParams = true;
 
 /** Pillars served by this route */
-const SERVED_PILLARS = new Set(["board-exam", "board-university"]);
+const SERVED_PILLARS = new Set(["board-exam", "board-exam"]);
 
 type Props = { params: Promise<{ segments: string[] }> };
 

@@ -15,7 +15,7 @@ export const metadata: Metadata = buildExamMetadata({
   pageType: "pillar",
   title: `Sarkari Exam ${YEAR} — Government Competitive Exam Results & Notifications`,
   description: `Latest Sarkari Exam ${YEAR} results: SSC CGL, IBPS PO, RRB NTPC, UPSC, State PSC. Admit card, answer key, cutoff marks and result dates for all government competitive exams.`,
-  keywords: buildPageKeywords({ pageType: "pillar", pillar: "sarkari-naukri" }),
+  keywords: buildPageKeywords({ pageType: "pillar", pillar: "government-exam" }),
   canonicalUrl: `${siteConfig.url}/sarkari-naukri/exam`,
 });
 

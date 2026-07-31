@@ -5,8 +5,8 @@ import type { ExamEntity } from "@/types/exam";
 
 export async function BoardUniversitySection({ exams: examsProp }: { exams?: ExamEntity[] } = {}) {
   const [exams, categories] = await Promise.all([
-    examsProp ? Promise.resolve(examsProp) : getExamsByPillar("board-university"),
-    getCategoriesByPillar("board-university"),
+    examsProp ? Promise.resolve(examsProp) : getExamsByPillar("board-exam"),
+    getCategoriesByPillar("board-exam"),
   ]);
   const sorted = [...exams].sort((a, b) => (b.isFeatured ? 1 : 0) - (a.isFeatured ? 1 : 0));
 

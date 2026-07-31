@@ -15,7 +15,7 @@ export const metadata: Metadata = buildExamMetadata({
   pageType: "pillar",
   title: `Sarkari Naukri ${YEAR} — Latest Government Jobs & Bharti India`,
   description: `Latest Sarkari Naukri ${YEAR}: Government exam results, direct bharti, merit lists. SSC, Railway, Banking, State-level Anganwadi, Panchayat, Court, Hospital jobs with apply links.`,
-  keywords: buildPageKeywords({ pageType: "pillar", pillar: "sarkari-naukri" }),
+  keywords: buildPageKeywords({ pageType: "pillar", pillar: "government-exam" }),
   canonicalUrl: `${siteConfig.url}/sarkari-naukri`,
 });
 

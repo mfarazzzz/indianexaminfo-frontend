@@ -15,7 +15,7 @@ export const metadata: Metadata = buildExamMetadata({
   pageType: "pillar",
   title: `Sarkari Bharti ${YEAR} — Direct Recruitment, Walk-In, Merit-Based Jobs`,
   description: `Latest Sarkari Bharti ${YEAR}: Anganwadi, Panchayat, Municipal, Hospital, Court, Driver, Group D walk-in and merit-based government jobs. No written exam required — apply directly.`,
-  keywords: buildPageKeywords({ pageType: "pillar", pillar: "sarkari-naukri" }),
+  keywords: buildPageKeywords({ pageType: "pillar", pillar: "government-exam" }),
   canonicalUrl: `${siteConfig.url}/sarkari-naukri/bharti`,
 });
 

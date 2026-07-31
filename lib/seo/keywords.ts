@@ -47,7 +47,7 @@ export const PILLAR_KEYWORDS: Record<Pillar, string[]> = {
     "entrance exam admit card download 2027",
     "entrance exam result 2027 check online",
   ],
-  "board-university": [
+  "board-exam": [
     "board result", "university result",
     "exam result 2027", "marksheet download",
     "date sheet 2027", "time table 2027",

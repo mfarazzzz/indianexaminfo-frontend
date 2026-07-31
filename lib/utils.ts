@@ -79,7 +79,7 @@ export function pillarLabel(pillar: string): string {
   const labels: Record<string, string> = {
     "sarkari-naukri": "Sarkari Naukri",
     "entrance-exam": "Entrance Exam",
-    "board-university": "Board & University",
+    "board-exam": "Board & University",
   };
   return labels[pillar] ?? pillar;
 }
@@ -111,7 +111,7 @@ export function getReadingTimeText(minutes: number): string {
  * Falls back to flat slug URL if category is missing.
  */
 export function getExamEntityHref(exam: { pillar: string; category: string; slug: string; entityType?: string }): string {
-  if (exam.pillar === "board-university") {
+  if (exam.pillar === "board-exam") {
     return exam.entityType === "university"
       ? `/board-exam/university/${exam.slug}`
       : `/board-exam/state/${exam.category}/${exam.slug}`;

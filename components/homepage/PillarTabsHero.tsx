@@ -39,7 +39,7 @@ const pillars = [
     ],
   },
   {
-    id: "board-university",
+    id: "board-exam",
     label: "📚 Board & University",
     searchPlaceholder: "Search board/university — CBSE, UP Board...",
     quickLinks: [

@@ -29,7 +29,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     pageType: "content-type",
     title: buildSEOTitle(exam.shortName, contentType, year),
     description: buildMetaDescription(exam.name, ct, "", year),
-    keywords: buildPageKeywords({ pageType: "content-type", pillar: "board-university", examSlug: slug, contentType: ct }),
+    keywords: buildPageKeywords({ pageType: "content-type", pillar: "board-exam", examSlug: slug, contentType: ct }),
     canonicalUrl: `${siteConfig.url}/board-exam/state/${stateSlug}/${slug}/${contentType}`,
   });
 }

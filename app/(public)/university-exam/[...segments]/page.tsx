@@ -17,7 +17,7 @@ import type { ContentType } from "@/types/exam";
 export const revalidate = 3600;
 export const dynamicParams = true;
 
-const SERVED_PILLARS = new Set(["university-exam", "board-university"]);
+const SERVED_PILLARS = new Set(["university-exam", "board-exam"]);
 
 type Props = { params: Promise<{ segments: string[] }> };
 
