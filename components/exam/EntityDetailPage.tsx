@@ -58,13 +58,26 @@ function hasContentType(exam: ExamEntity, ct: ContentType): boolean {
 }
 
 function getContentTypeHref(exam: ExamEntity, ct: ContentType): string {
-  if (exam.pillar === "board-university") {
+  // Map DB pillar values to frontend route
+  const pillarRouteMap: Record<string, string> = {
+    "government-exam": "sarkari-naukri",
+    "govt-vacancy": "sarkari-naukri",
+    "sarkari-naukri": "sarkari-naukri",
+    "sarkari-bharti": "sarkari-naukri",
+    "board-exam": "board-exam",
+    "board-university": "board-exam",
+    "entrance-exam": "entrance-exam",
+    "university-exam": "board-exam",
+  };
+  const routePillar = pillarRouteMap[exam.pillar] ?? exam.pillar;
+
+  if (routePillar === "board-exam") {
     if (exam.entityType === "university") {
       return `/board-exam/university/${exam.slug}/${ct}`;
     }
     return `/board-exam/state/${exam.category}/${exam.slug}/${ct}`;
   }
-  return `/${exam.pillar}/${exam.category}/${exam.slug}/${ct}`;
+  return `/${routePillar}/${exam.category}/${exam.slug}/${ct}`;
 }
 
 export async function EntityDetailPage({ exam, breadcrumbs }: EntityDetailPageProps) {

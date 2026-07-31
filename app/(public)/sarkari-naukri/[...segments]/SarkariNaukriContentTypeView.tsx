@@ -13,6 +13,30 @@ import { ContentTypeDataRenderer } from "@/components/exam/ContentTypeDataRender
 import type { ExamEntity, ContentType } from "@/types/exam";
 import { ExternalLink, Download, Clock } from "lucide-react";
 
+const CONTENT_TYPE_ORDER: ContentType[] = [
+  "notification", "application", "admit-card", "result",
+  "answer-key", "syllabus", "cutoff", "date-sheet",
+  "previous-papers", "mock-test", "study-material",
+];
+
+function hasContentType(exam: ExamEntity, ct: ContentType): boolean {
+  const map: Record<ContentType, keyof ExamEntity> = {
+    notification: "hasNotification",
+    application: "hasApplication",
+    "admit-card": "hasAdmitCard",
+    "date-sheet": "hasDateSheet",
+    syllabus: "hasSyllabus",
+    "answer-key": "hasAnswerKey",
+    result: "hasResult",
+    cutoff: "hasCutoff",
+    "previous-papers": "hasPreviousPapers",
+    "mock-test": "hasMockTest",
+    "study-material": "hasStudyMaterial",
+    books: "hasStudyMaterial",
+  };
+  return !!exam[map[ct]];
+}
+
 type Props = {
   exam: ExamEntity;
   category: string;
@@ -43,6 +67,24 @@ export async function SarkariNaukriContentTypeView({ exam, category, slug, conte
           { name: exam.shortName, href: `/sarkari-naukri/${category}/${slug}` },
           { name: ctLabel, href: `/sarkari-naukri/${category}/${slug}/${contentType}` },
         ]} />
+
+        {/* Module Tabs — same as EntityDetailPage */}
+        <nav className="flex flex-wrap gap-2 my-4 overflow-x-auto sm:overflow-visible pb-2 sm:pb-0 -mx-1 px-1" aria-label="Content modules">
+          {CONTENT_TYPE_ORDER.filter((ct) => hasContentType(exam, ct)).map((ct) => (
+            <Link
+              key={ct}
+              href={`/sarkari-naukri/${category}/${slug}/${ct}`}
+              className={`text-sm font-semibold px-3.5 py-2 min-h-[44px] flex items-center rounded border transition-colors whitespace-nowrap ${
+                ct === contentType
+                  ? "bg-primary text-white border-primary"
+                  : "bg-primary/10 text-primary border-primary/20 hover:bg-primary hover:text-white"
+              }`}
+              prefetch={false}
+            >
+              {contentTypeLabel(ct)}
+            </Link>
+          ))}
+        </nav>
 
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-6 mt-4">
           <main>
