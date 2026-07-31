@@ -65,7 +65,7 @@ function getContentTypeHref(exam: ExamEntity, ct: ContentType): string {
     "sarkari-naukri": "sarkari-naukri",
     "sarkari-bharti": "sarkari-naukri",
     "board-exam": "board-exam",
-    "board-exam": "board-exam",
+    "board-university": "board-exam",
     "entrance-exam": "entrance-exam",
     "university-exam": "university-exam",
   };
