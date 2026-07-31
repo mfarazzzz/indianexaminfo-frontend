@@ -63,6 +63,14 @@ export const PILLAR_KEYWORDS: Record<string, string[]> = {
     "back paper exam result 2027",
     "improvement exam form 2027",
   ],
+  // New pillar aliases — map to same keywords as legacy equivalents
+  "government-exam": [],  // fallback will use sarkari-naukri keywords
+  "govt-vacancy":    [],
+  "university-exam": [],
+  "news":            ["education news", "exam news", "sarkari result", "admit card", "answer key", "syllabus", "exam date sheet"],
+  "board-university": [],
+  "sarkari-bharti":  [],
+  "government-jobs": [],
 };
 
 // ─────────────────────────────────────────────────
@@ -960,7 +968,7 @@ export function buildPageKeywords(input: BuildKeywordsInput): string[] {
 
   keywords.push(...GLOBAL_SHORT_TAIL);
 
-  if (pillar) keywords.push(...PILLAR_KEYWORDS[pillar]);
+  if (pillar) keywords.push(...(PILLAR_KEYWORDS[pillar] ?? PILLAR_KEYWORDS["sarkari-naukri"] ?? []));
 
   if (examSlug && EXAM_KEYWORDS[examSlug]) {
     const ek = EXAM_KEYWORDS[examSlug];
