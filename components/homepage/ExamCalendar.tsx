@@ -9,18 +9,22 @@ type CalendarEvent = {
   date: string;       // YYYY-MM-DD
   label: string;
   href: string;
-  pillar: "government-exam" | "entrance-exam" | "board-exam";
+  pillar: "government-exam" | "govt-vacancy" | "entrance-exam" | "board-exam" | "university-exam" | string;
 };
 
 type ExamCalendarProps = {
   events: CalendarEvent[];
 };
 
-const PILLAR_COLORS = {
+const PILLAR_COLORS: Record<string, string> = {
+  "government-exam": "bg-primary",
+  "govt-vacancy":    "bg-primary",
   "sarkari-naukri":  "bg-primary",
   "entrance-exam":   "bg-editorial",
-  "board-exam": "bg-success",
-} as const;
+  "board-exam":      "bg-success",
+  "university-exam": "bg-success",
+  "board-university": "bg-success",
+};
 
 const MONTHS = ["January","February","March","April","May","June",
                 "July","August","September","October","November","December"];
