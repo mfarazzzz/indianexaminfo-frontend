@@ -390,40 +390,34 @@ const boardExamCategories: TaxonomyNode[] = [
 
 const newsCategories: TaxonomyNode[] = [
   node({
-    slug: "sarkari-result", label: "Sarkari Result", pillar: "news",
-    path: "news/sarkari-result", depth: 1, icon: "📋", isPinned: true, badge: "trending",
+    slug: "blog", label: "Blog", pillar: "news",
+    path: "news/blog", depth: 1, icon: "✍️", isPinned: true,
+    itemCount: 20, showItemCount: true,
+    children: [
+      node({ slug: "exam-prep", label: "Exam Preparation", pillar: "news", path: "news/exam-prep", depth: 2, badge: "popular" }),
+      node({ slug: "career-guidance", label: "Career Guidance", pillar: "news", path: "news/career-guidance", depth: 2 }),
+      node({ slug: "opinion", label: "Opinion", pillar: "news", path: "news/opinion", depth: 2 }),
+      node({ slug: "student-life", label: "Student Life", pillar: "news", path: "news/student-life", depth: 2 }),
+    ],
+  }),
+  node({
+    slug: "article", label: "Articles", pillar: "news",
+    path: "news/article", depth: 1, icon: "📝", isPinned: true,
+    itemCount: 15, showItemCount: true,
+    children: [
+      node({ slug: "education-news-articles", label: "Education News", pillar: "news", path: "news/education-news", depth: 2, badge: "trending" }),
+      node({ slug: "edtech-articles", label: "EdTech", pillar: "news", path: "news/edtech", depth: 2 }),
+      node({ slug: "study-abroad-articles", label: "Study Abroad", pillar: "news", path: "news/study-abroad", depth: 2 }),
+    ],
+  }),
+  node({
+    slug: "scholarship", label: "Scholarship", pillar: "news",
+    path: "news/scholarship", depth: 1, icon: "🎓", isPinned: true, badge: "new",
     itemCount: 10, showItemCount: true,
     children: [
-      node({ slug: "latest-results", label: "Latest Results", pillar: "news", path: "news/sarkari-result/latest-results", depth: 2 }),
-      node({ slug: "merit-list", label: "Merit List", pillar: "news", path: "news/sarkari-result/merit-list", depth: 2 }),
-      node({ slug: "cut-off", label: "Cut Off", pillar: "news", path: "news/sarkari-result/cut-off", depth: 2 }),
-    ],
-  }),
-  node({
-    slug: "admit-card", label: "Admit Card", pillar: "news",
-    path: "news/admit-card", depth: 1, icon: "🎫", isPinned: true,
-    itemCount: 8, showItemCount: true,
-    children: [
-      node({ slug: "latest-admit-cards", label: "Latest Admit Cards", pillar: "news", path: "news/admit-card/latest-admit-cards", depth: 2 }),
-      node({ slug: "hall-ticket", label: "Hall Ticket", pillar: "news", path: "news/admit-card/hall-ticket", depth: 2 }),
-    ],
-  }),
-  node({
-    slug: "answer-key", label: "Answer Key", pillar: "news",
-    path: "news/answer-key", depth: 1, icon: "🔑",
-    itemCount: 5, showItemCount: true,
-    children: [
-      node({ slug: "latest-answer-keys", label: "Latest Answer Keys", pillar: "news", path: "news/answer-key/latest-answer-keys", depth: 2 }),
-      node({ slug: "objection-tracker", label: "Objection Tracker", pillar: "news", path: "news/answer-key/objection-tracker", depth: 2 }),
-    ],
-  }),
-  node({
-    slug: "syllabus", label: "Syllabus", pillar: "news",
-    path: "news/syllabus", depth: 1, icon: "📑",
-    itemCount: 6, showItemCount: true,
-    children: [
-      node({ slug: "exam-pattern", label: "Exam Pattern", pillar: "news", path: "news/syllabus/exam-pattern", depth: 2 }),
-      node({ slug: "latest-syllabus", label: "Latest Syllabus", pillar: "news", path: "news/syllabus/latest-syllabus", depth: 2 }),
+      node({ slug: "govt-scholarship", label: "Government Scholarships", pillar: "news", path: "news/scholarship", depth: 2 }),
+      node({ slug: "private-scholarship", label: "Private Scholarships", pillar: "news", path: "news/scholarship", depth: 2 }),
+      node({ slug: "international-scholarship", label: "International Scholarships", pillar: "news", path: "news/scholarship", depth: 2 }),
     ],
   }),
   node({
@@ -431,9 +425,27 @@ const newsCategories: TaxonomyNode[] = [
     path: "news/education-news", depth: 1, icon: "📰",
     itemCount: 10, showItemCount: true,
     children: [
-      node({ slug: "policy-updates", label: "Policy Updates", pillar: "news", path: "news/education-news/policy-updates", depth: 2 }),
-      node({ slug: "exam-schedule", label: "Exam Schedule", pillar: "news", path: "news/education-news/exam-schedule", depth: 2 }),
-      node({ slug: "scholarship", label: "Scholarship", pillar: "news", path: "news/education-news/scholarship", depth: 2 }),
+      node({ slug: "policy-updates", label: "Policy Updates", pillar: "news", path: "news/education-news", depth: 2 }),
+      node({ slug: "exam-schedule", label: "Exam Schedule", pillar: "news", path: "news/education-news", depth: 2 }),
+      node({ slug: "breaking-news", label: "Breaking News", pillar: "news", path: "news/education-news", depth: 2 }),
+    ],
+  }),
+  node({
+    slug: "sarkari-result", label: "Sarkari Result", pillar: "news",
+    path: "news/education-news", depth: 1, icon: "📋", badge: "trending",
+    itemCount: 10, showItemCount: true,
+    children: [
+      node({ slug: "latest-results", label: "Latest Results", pillar: "news", path: "news/education-news", depth: 2 }),
+      node({ slug: "merit-list", label: "Merit List", pillar: "news", path: "news/education-news", depth: 2 }),
+      node({ slug: "cut-off", label: "Cut Off", pillar: "news", path: "news/education-news", depth: 2 }),
+    ],
+  }),
+  node({
+    slug: "admit-card", label: "Admit Card", pillar: "news",
+    path: "news/education-news", depth: 1, icon: "🎫",
+    itemCount: 8, showItemCount: true,
+    children: [
+      node({ slug: "latest-admit-cards", label: "Latest Admit Cards", pillar: "news", path: "news/education-news", depth: 2 }),
     ],
   }),
 ];
