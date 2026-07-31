@@ -1,13 +1,15 @@
 import type { Metadata } from "next";
-import { notFound, redirect } from "next/navigation";
+import { notFound } from "next/navigation";
 import Link from "next/link";
 import { getBlogPostsBySection, getAllBlogPosts, getBlogPostBySlug } from "@/services/blogService";
+import { getContentPostBySlug } from "@/services/contentPostService";
 import { Breadcrumb } from "@/components/layout/Breadcrumb";
 import { AdSlot } from "@/components/ads/AdSlot";
 import { buildExamMetadata } from "@/lib/seo/metadata";
 import { GLOBAL_SHORT_TAIL } from "@/lib/seo/keywords";
 import { siteConfig } from "@/config/site";
 import { formatDate } from "@/lib/utils";
+import { safeHtml } from "@/lib/sanitize";
 import type { BlogSection, BlogPost } from "@/types/blog";
 import { Clock } from "lucide-react";
 
@@ -95,11 +97,110 @@ export default async function NewsSectionPage({ params }: Props) {
 
   // If section is not a known category, try looking it up as a post slug
   if (!meta) {
-    const post = await getBlogPostBySlug(section);
-    if (post && post.status === "published") {
-      // Redirect to the proper article URL: /news/[section]/[slug]
-      redirect(`/news/${post.section}/${post.slug}`);
+    // Try blog_posts first
+    const blogPost = await getBlogPostBySlug(section);
+    if (blogPost && blogPost.status === "published") {
+      // Render the blog article inline at /news/[slug]
+      return (
+        <div className="bg-editorial-bg min-h-screen">
+          <div className="container mx-auto px-4 py-4">
+            <Breadcrumb items={[
+              { name: "News & Blog", href: "/news" },
+              { name: blogPost.section.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase()), href: `/news/${blogPost.section}` },
+              { name: blogPost.title.slice(0, 40) + "…", href: `/news/${section}` },
+            ]} />
+            <div className="max-w-4xl mx-auto mt-4">
+              <div className="flex items-center gap-2 mb-3">
+                <Link href={`/news/${blogPost.section}`} className="bg-editorial/10 text-editorial font-semibold text-xs px-2 py-0.5 rounded uppercase tracking-wide hover:bg-editorial hover:text-white transition-colors">
+                  {blogPost.section.replace(/-/g, " ")}
+                </Link>
+                <span className="text-xs text-gray-400 bg-gray-100 px-2 py-0.5 rounded capitalize">{blogPost.postType}</span>
+              </div>
+              <h1 className="font-heading font-bold text-2xl md:text-3xl text-gray-900 mb-3 leading-tight">{blogPost.title}</h1>
+              <p className="text-lg text-gray-500 mb-5 leading-relaxed">{blogPost.excerpt}</p>
+              {blogPost.author?.name && (
+                <div className="flex items-center gap-3 mb-5 text-sm text-gray-500">
+                  <span className="font-medium text-gray-700">{blogPost.author.name}</span>
+                  <span className="flex items-center gap-1"><Clock className="w-3.5 h-3.5" />{blogPost.readingTime} min read</span>
+                  <span>{formatDate(blogPost.publishedAt)}</span>
+                </div>
+              )}
+              <div className="flex justify-center my-5">
+                <AdSlot position="blog-article-after-intro" size="336x280" />
+              </div>
+              <div className="article-body" suppressHydrationWarning {...safeHtml(blogPost.content)} />
+              <div className="flex flex-wrap gap-1.5 my-5">
+                {blogPost.tags.map((tag) => (
+                  <Link key={tag} href={`/news/tag/${tag}`} className="text-xs px-2 py-1 bg-gray-100 text-gray-600 rounded hover:bg-primary hover:text-white transition-colors">#{tag}</Link>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      );
     }
+
+    // Try content_posts table
+    const contentPost = await getContentPostBySlug(section);
+    if (contentPost && contentPost.status === "published") {
+      // Render content post inline at /news/[slug]
+      return (
+        <div className="bg-editorial-bg min-h-screen">
+          <div className="container mx-auto px-4 py-4">
+            <Breadcrumb items={[
+              { name: "News & Blog", href: "/news" },
+              { name: contentPost.contentType.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase()), href: "/news/education-news" },
+              { name: contentPost.title.slice(0, 40) + "…", href: `/news/${section}` },
+            ]} />
+            <div className="max-w-4xl mx-auto mt-4">
+              <div className="flex items-center gap-2 mb-3">
+                <span className="bg-editorial/10 text-editorial font-semibold text-xs px-2 py-0.5 rounded uppercase tracking-wide">
+                  {contentPost.contentType.replace(/-/g, " ")}
+                </span>
+                {contentPost.examEntityName && (
+                  <span className="text-xs text-gray-400 bg-gray-100 px-2 py-0.5 rounded">{contentPost.examEntityName}</span>
+                )}
+              </div>
+              <h1 className="font-heading font-bold text-2xl md:text-3xl text-gray-900 mb-3 leading-tight">{contentPost.title}</h1>
+              {contentPost.excerpt && (
+                <p className="text-lg text-gray-500 mb-5 leading-relaxed">{contentPost.excerpt}</p>
+              )}
+              <div className="flex items-center gap-3 mb-5 text-sm text-gray-500">
+                <span>{formatDate(contentPost.publishedAt)}</span>
+                {contentPost.updatedAt !== contentPost.publishedAt && (
+                  <span>Updated: {formatDate(contentPost.updatedAt)}</span>
+                )}
+              </div>
+              <div className="flex justify-center my-5">
+                <AdSlot position="blog-article-after-intro" size="336x280" />
+              </div>
+              <div className="article-body" suppressHydrationWarning {...safeHtml(contentPost.content)} />
+              {contentPost.tags.length > 0 && (
+                <div className="flex flex-wrap gap-1.5 my-5">
+                  {contentPost.tags.map((tag) => (
+                    <span key={tag} className="text-xs px-2 py-1 bg-gray-100 text-gray-600 rounded">#{tag}</span>
+                  ))}
+                </div>
+              )}
+              {contentPost.faqs && contentPost.faqs.length > 0 && (
+                <section className="mb-6">
+                  <h2 className="font-heading font-bold text-xl text-gray-900 mb-4">FAQs</h2>
+                  <div className="space-y-3">
+                    {contentPost.faqs.map((faq, i) => (
+                      <div key={i} className="border border-border rounded">
+                        <h3 className="font-semibold text-gray-900 text-sm p-4 pb-2">{faq.question}</h3>
+                        <p className="text-sm text-gray-700 px-4 pb-4 leading-relaxed">{faq.answer}</p>
+                      </div>
+                    ))}
+                  </div>
+                </section>
+              )}
+            </div>
+          </div>
+        </div>
+      );
+    }
+
     notFound();
   }
 
