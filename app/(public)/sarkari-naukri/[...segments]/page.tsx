@@ -11,8 +11,9 @@
  */
 import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
+import Link from "next/link";
 import { getSarkariNaukriBySlug, generateStaticSarkariNaukriParams } from "@/services/sarkariNaukriService";
-import { getExamBySlug } from "@/services/examService";
+import { getExamBySlug, getExamsByCategory } from "@/services/examService";
 import { getContentPostsByExam, getLatestByContentType } from "@/services/contentPostService";
 import { EntityDetailPage } from "@/components/exam/EntityDetailPage";
 import { buildExamMetadata } from "@/lib/seo/metadata";
@@ -153,6 +154,26 @@ export default async function SarkariNaukriCatchAll({ params }: Props) {
       );
     }
 
+    // Fallback: try as category slug — show category listing
+    const categoryExams = await getExamsByCategory(slug);
+    if (categoryExams.length > 0) {
+      const categoryLabel = slug.replace(/-/g, " ").replace(/\b\w/g, (c: string) => c.toUpperCase());
+      return (
+        <div className="container mx-auto px-4 py-4">
+          <h1 className="font-heading font-bold text-2xl text-gray-900 mb-4">{categoryLabel}</h1>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {categoryExams.map((e) => (
+              <Link key={e.id} href={`/sarkari-naukri/${e.category || slug}/${e.slug}`}
+                className="block p-4 bg-white border border-gray-200 rounded-lg hover:border-primary hover:shadow-sm transition-all">
+                <h2 className="font-heading font-semibold text-sm text-gray-900">{e.name}</h2>
+                <p className="text-xs text-gray-500 mt-1">{e.conductingBody}</p>
+              </Link>
+            ))}
+          </div>
+        </div>
+      );
+    }
+
     notFound();
   }
 
@@ -161,7 +182,30 @@ export default async function SarkariNaukriCatchAll({ params }: Props) {
     const [category, slug] = segments;
     const exam = await getExamBySlug(slug, category);
 
-    if (!exam || !SERVED_PILLARS.has(exam.pillar)) notFound();
+    if (!exam || !SERVED_PILLARS.has(exam.pillar)) {
+      // Maybe slug is a subcategory — show listing
+      const subCategoryExams = await getExamsByCategory(slug);
+      if (subCategoryExams.length > 0) {
+        const categoryLabel = category.replace(/-/g, " ").replace(/\b\w/g, (c: string) => c.toUpperCase());
+        const subLabel = slug.replace(/-/g, " ").replace(/\b\w/g, (c: string) => c.toUpperCase());
+        return (
+          <div className="container mx-auto px-4 py-4">
+            <h1 className="font-heading font-bold text-2xl text-gray-900 mb-4">{subLabel}</h1>
+            <p className="text-sm text-gray-500 mb-4">Under {categoryLabel}</p>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {subCategoryExams.map((e) => (
+                <Link key={e.id} href={`/sarkari-naukri/${e.category || category}/${e.slug}`}
+                  className="block p-4 bg-white border border-gray-200 rounded-lg hover:border-primary hover:shadow-sm transition-all">
+                  <h2 className="font-heading font-semibold text-sm text-gray-900">{e.name}</h2>
+                  <p className="text-xs text-gray-500 mt-1">{e.conductingBody}</p>
+                </Link>
+              ))}
+            </div>
+          </div>
+        );
+      }
+      notFound();
+    }
 
     const categoryLabel = category.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
 
