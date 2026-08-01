@@ -14,6 +14,10 @@ export const CT_TO_MODULES: Partial<Record<ContentType, string[]>> = {
   cutoff:          ["cut-off"],
   "date-sheet":    ["date-sheet"],
   notification:    ["overview"],
+  // Virtual module-backed tabs
+  about:           ["overview", "eligibility", "vacancy-details", "salary", "age-limit", "selection-process", "documents-required", "reservation"],
+  faqs:            ["faqs"],
+  news:            ["news"],
 };
 
 interface Props {

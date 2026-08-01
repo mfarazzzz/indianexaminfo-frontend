@@ -71,6 +71,10 @@ export function contentTypeLabel(contentType: string): string {
     "mock-test": "Mock Test",
     "study-material": "Study Material",
     books: "Books",
+    // Virtual module-backed tabs
+    about: "About",
+    faqs: "FAQs",
+    news: "News & Updates",
   };
   return labels[contentType] ?? contentType;
 }

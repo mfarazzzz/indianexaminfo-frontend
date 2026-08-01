@@ -26,7 +26,11 @@ export type ContentType =
   | "previous-papers"
   | "mock-test"
   | "study-material"
-  | "books";
+  | "books"
+  // Virtual tabs — served by content modules, no content_post row required
+  | "about"
+  | "faqs"
+  | "news";
 
 export type ExamStatus =
   | "upcoming"

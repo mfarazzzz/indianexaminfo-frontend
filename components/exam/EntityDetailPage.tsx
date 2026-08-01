@@ -37,6 +37,10 @@ const contentTypeOrder: ContentType[] = [
   "mock-test",
   "study-material",
   "books",
+  // Virtual module-backed tabs
+  "about",
+  "faqs",
+  "news",
 ];
 
 function hasContentType(exam: ExamEntity, ct: ContentType): boolean {
@@ -71,6 +75,10 @@ function hasContentType(exam: ExamEntity, ct: ContentType): boolean {
     "answer-key":    ["faqs"],
     "date-sheet":    ["date-sheet"],
     "previous-papers": ["previous-papers"],
+    // Virtual tabs
+    about:           ["overview", "eligibility", "vacancy-details", "salary", "age-limit", "selection-process", "documents-required", "reservation"],
+    faqs:            ["faqs"],
+    news:            ["news"],
   };
   const moduleSlugs = ctToModule[ct] ?? [];
   return moduleSlugs.some(slug => enabledModules.includes(slug));
