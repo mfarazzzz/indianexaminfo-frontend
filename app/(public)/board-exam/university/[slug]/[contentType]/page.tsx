@@ -7,6 +7,7 @@ import { Breadcrumb } from "@/components/layout/Breadcrumb";
 import { AdSlot } from "@/components/ads/AdSlot";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { RelatedKeywordsSection } from "@/components/seo/RelatedKeywords";
+import { buildFAQSchema } from "@/lib/seo/structured-data";
 import { ContentTypeModules } from "@/components/exam/ContentTypeModules";
 import { buildExamMetadata } from "@/lib/seo/metadata";
 import {
