@@ -183,5 +183,27 @@ export default async function BoardExamCatchAll({ params }: Props) {
     );
   }
 
+  // Pattern 4: category/slug/contentType — same as 3 but accessed differently
+  if (segments.length === 4) {
+    // Treat as category/subcategory/slug/contentType — try without subcategory first
+    const [, slug, , contentType] = segments;
+    const category = segments[0];
+    const exam = await getExamBySlug(slug, category);
+    if (exam && SERVED_PILLARS.has(exam.pillar)) {
+      return (
+        <EntityDetailPage
+          exam={exam}
+          breadcrumbs={[
+            { name: "Board Exam", href: "/board-exam" },
+            { name: category.replace(/-/g, " ").replace(/\b\w/g, (c: string) => c.toUpperCase()), href: `/board-exam/${category}` },
+            { name: exam.shortName, href: `/board-exam/${category}/${slug}` },
+            { name: contentTypeLabel(contentType), href: `/board-exam/${category}/${slug}/${contentType}` },
+          ]}
+        />
+      );
+    }
+    notFound();
+  }
+
   notFound();
 }

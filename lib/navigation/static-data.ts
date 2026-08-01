@@ -327,10 +327,11 @@ const boardExamCategories: TaxonomyNode[] = [
     path: "board-exam/cbse", depth: 1, icon: "📘", isPinned: true,
     itemCount: 6, showItemCount: true,
     children: [
-      node({ slug: "cbse-10th-result", label: "CBSE 10th Result", pillar: "board-exam", path: "board-exam/cbse/cbse-10th-result", depth: 2, badge: "trending" }),
-      node({ slug: "cbse-12th-result", label: "CBSE 12th Result", pillar: "board-exam", path: "board-exam/cbse/cbse-12th-result", depth: 2, badge: "trending" }),
-      node({ slug: "cbse-date-sheet", label: "CBSE Date Sheet", pillar: "board-exam", path: "board-exam/cbse/cbse-date-sheet", depth: 2 }),
-      node({ slug: "cbse-syllabus", label: "CBSE Syllabus", pillar: "board-exam", path: "board-exam/cbse/cbse-syllabus", depth: 2 }),
+      node({ slug: "cbse-class-10", label: "CBSE Class 10", pillar: "board-exam", path: "board-exam/cbse/cbse-class-10", depth: 2, badge: "popular" }),
+      node({ slug: "cbse-class-12", label: "CBSE Class 12", pillar: "board-exam", path: "board-exam/cbse/cbse-class-12", depth: 2, badge: "popular" }),
+      node({ slug: "cbse-class-10-result", label: "CBSE 10th Result", pillar: "board-exam", path: "board-exam/cbse/cbse-class-10/result", depth: 2, badge: "trending" }),
+      node({ slug: "cbse-class-12-result", label: "CBSE 12th Result", pillar: "board-exam", path: "board-exam/cbse/cbse-class-12/result", depth: 2, badge: "trending" }),
+      node({ slug: "cbse-class-10-date-sheet", label: "CBSE Date Sheet", pillar: "board-exam", path: "board-exam/cbse/cbse-class-10/date-sheet", depth: 2 }),
     ],
   }),
   node({
@@ -338,9 +339,9 @@ const boardExamCategories: TaxonomyNode[] = [
     path: "board-exam/up-board", depth: 1, icon: "📗", isPinned: true,
     itemCount: 5, showItemCount: true,
     children: [
-      node({ slug: "up-board-10th-result", label: "UP Board 10th Result", pillar: "board-exam", path: "board-exam/up-board/up-board-10th-result", depth: 2, badge: "popular" }),
-      node({ slug: "up-board-12th-result", label: "UP Board 12th Result", pillar: "board-exam", path: "board-exam/up-board/up-board-12th-result", depth: 2, badge: "popular" }),
-      node({ slug: "up-board-date-sheet", label: "UP Board Date Sheet", pillar: "board-exam", path: "board-exam/up-board/up-board-date-sheet", depth: 2 }),
+      node({ slug: "up-board-class-10", label: "UP Board Class 10", pillar: "board-exam", path: "board-exam/up-board", depth: 2 }),
+      node({ slug: "up-board-class-12", label: "UP Board Class 12", pillar: "board-exam", path: "board-exam/up-board", depth: 2 }),
+      node({ slug: "up-board-result", label: "UP Board Result", pillar: "board-exam", path: "board-exam/up-board", depth: 2, badge: "popular" }),
     ],
   }),
   node({
@@ -348,8 +349,8 @@ const boardExamCategories: TaxonomyNode[] = [
     path: "board-exam/bihar-board", depth: 1, icon: "📕",
     itemCount: 4, showItemCount: true,
     children: [
-      node({ slug: "bseb-10th-result", label: "BSEB 10th Result", pillar: "board-exam", path: "board-exam/bihar-board/bseb-10th-result", depth: 2 }),
-      node({ slug: "bseb-12th-result", label: "BSEB 12th Result", pillar: "board-exam", path: "board-exam/bihar-board/bseb-12th-result", depth: 2 }),
+      node({ slug: "bseb-10th", label: "BSEB 10th", pillar: "board-exam", path: "board-exam/bihar-board", depth: 2 }),
+      node({ slug: "bseb-12th", label: "BSEB 12th", pillar: "board-exam", path: "board-exam/bihar-board", depth: 2 }),
     ],
   }),
   node({
@@ -357,8 +358,7 @@ const boardExamCategories: TaxonomyNode[] = [
     path: "board-exam/mp-board", depth: 1, icon: "📙",
     itemCount: 3, showItemCount: true,
     children: [
-      node({ slug: "mp-board-10th-result", label: "MP Board 10th Result", pillar: "board-exam", path: "board-exam/mp-board/mp-board-10th-result", depth: 2 }),
-      node({ slug: "mp-board-12th-result", label: "MP Board 12th Result", pillar: "board-exam", path: "board-exam/mp-board/mp-board-12th-result", depth: 2 }),
+      node({ slug: "mp-board-result", label: "MP Board Result", pillar: "board-exam", path: "board-exam/mp-board", depth: 2 }),
     ],
   }),
   node({
@@ -366,8 +366,7 @@ const boardExamCategories: TaxonomyNode[] = [
     path: "board-exam/haryana-board", depth: 1, icon: "📒",
     itemCount: 3, showItemCount: true,
     children: [
-      node({ slug: "bseh-10th-result", label: "BSEH 10th Result", pillar: "board-exam", path: "board-exam/haryana-board/bseh-10th-result", depth: 2 }),
-      node({ slug: "bseh-12th-result", label: "BSEH 12th Result", pillar: "board-exam", path: "board-exam/haryana-board/bseh-12th-result", depth: 2 }),
+      node({ slug: "bseh-result", label: "BSEH Result", pillar: "board-exam", path: "board-exam/haryana-board", depth: 2 }),
     ],
   }),
   node({
@@ -375,8 +374,7 @@ const boardExamCategories: TaxonomyNode[] = [
     path: "board-exam/rajasthan-board", depth: 1, icon: "📓",
     itemCount: 3, showItemCount: true,
     children: [
-      node({ slug: "rbse-10th-result", label: "RBSE 10th Result", pillar: "board-exam", path: "board-exam/rajasthan-board/rbse-10th-result", depth: 2 }),
-      node({ slug: "rbse-12th-result", label: "RBSE 12th Result", pillar: "board-exam", path: "board-exam/rajasthan-board/rbse-12th-result", depth: 2 }),
+      node({ slug: "rbse-result", label: "RBSE Result", pillar: "board-exam", path: "board-exam/rajasthan-board", depth: 2 }),
     ],
   }),
 ];
