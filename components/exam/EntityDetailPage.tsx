@@ -426,51 +426,133 @@ export async function EntityDetailPage({ exam, breadcrumbs }: EntityDetailPagePr
               </section>
             )}
 
-            {/* Content Modules — from exam_editions.content_modules (overview, eligibility body, application-process, FAQs etc) */}
+            {/* Content Modules — from exam_editions.content_modules */}
             {exam.contentModules && (() => {
               const mods = exam.contentModules!;
               const config = mods._config as { moduleOrder?: string[]; enabledModules?: string[] } | undefined;
               const order: string[] = config?.moduleOrder ?? Object.keys(mods).filter(k => k !== '_config');
               const enabled: string[] = config?.enabledModules ?? order;
 
+              const moduleLabels: Record<string, string> = {
+                "overview": "About This Exam",
+                "eligibility": "Eligibility Criteria",
+                "important-dates": "Important Dates",
+                "application-process": "How to Apply",
+                "exam-pattern": "Exam Pattern",
+                "syllabus": "Syllabus",
+                "faqs": "Frequently Asked Questions",
+                "admit-card": "Admit Card",
+                "result": "Result",
+                "cut-off": "Cut Off Marks",
+                "vacancy-details": "Vacancy Details",
+                "salary": "Salary & Pay Scale",
+                "age-limit": "Age Limit",
+                "selection-process": "Selection Process",
+                "documents-required": "Documents Required",
+                "reservation": "Reservation Policy",
+                "counselling": "Counselling Process",
+                "news": "News & Updates",
+              };
+
+              const safeHtmlStr = (val: unknown) => {
+                if (typeof val !== "string" || !val.trim()) return null;
+                // Strip bare <html><body> wrappers if present
+                return val.replace(/^<html[^>]*><body[^>]*>/i, "").replace(/<\/body><\/html>$/i, "").trim();
+              };
+
               return order
                 .filter(slug => enabled.includes(slug) && mods[slug] && slug !== '_config')
-                .map(slug => {
+                .map((slug): React.ReactNode => {
                   const data = mods[slug] as Record<string, unknown>;
-                  if (!data) return null;
-                  const body = (data.body as string) || (data.content as string) || "";
-                  const summary = data.summary as string | undefined;
-                  const steps = data.steps as { title?: string; description?: string; order?: number }[] | undefined;
-                  const highlights = data.highlights as string[] | undefined;
-                  const links = data.importantLinks as { label: string; url: string }[] | undefined;
-
-                  // Module display name
-                  const moduleLabels: Record<string, string> = {
-                    "overview": "About This Exam",
-                    "eligibility": "Eligibility Criteria",
-                    "important-dates": "Important Dates",
-                    "application-process": "How to Apply",
-                    "exam-pattern": "Exam Pattern",
-                    "syllabus": "Syllabus",
-                    "faqs": "Frequently Asked Questions",
-                    "admit-card": "Admit Card",
-                    "result": "Result",
-                    "cut-off": "Cut Off Marks",
-                    "vacancy-details": "Vacancy Details",
-                    "salary": "Salary & Pay Scale",
-                    "age-limit": "Age Limit",
-                    "selection-process": "Selection Process",
-                    "documents-required": "Documents Required",
-                    "reservation": "Reservation Policy",
-                    "counselling": "Counselling Process",
-                    "news": "News & Updates",
-                  };
+                  if (!data || typeof data !== "object") return null;
                   const label = moduleLabels[slug] ?? slug.replace(/-/g, " ").replace(/\b\w/g, c => c.toUpperCase());
 
-                  // Skip if no meaningful content
-                  const hasContent = body || summary || (steps && steps.length > 0) || (highlights && highlights.length > 0);
-                  if (!hasContent) return null;
+                  // ── eligibility module ──────────────────────────────────
+                  if (slug === "eligibility") {
+                    const qualification = data.qualification as string | undefined;
+                    const ageLimit = data.ageLimit as string | undefined;
+                    const nationality = data.nationality as string | undefined;
+                    const additionalCriteria = safeHtmlStr(data.additionalCriteria);
+                    if (!qualification && !ageLimit && !additionalCriteria) return null;
+                    return (
+                      <section key={slug} aria-label={label} className="mb-5">
+                        <h2 className="font-heading font-semibold text-base text-gray-800 mb-3">{label}</h2>
+                        <div className="overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0">
+                          <table>
+                            <thead><tr><th scope="col">Criteria</th><th scope="col">Details</th></tr></thead>
+                            <tbody>
+                              {ageLimit && <tr><td>Age Limit</td><td>{ageLimit}</td></tr>}
+                              {qualification && <tr><td>Educational Qualification</td><td>{qualification}</td></tr>}
+                              {nationality && <tr><td>Nationality</td><td>{nationality}</td></tr>}
+                            </tbody>
+                          </table>
+                        </div>
+                        {additionalCriteria && (
+                          <div className="article-body text-sm mt-3" dangerouslySetInnerHTML={{ __html: additionalCriteria }} />
+                        )}
+                      </section>
+                    );
+                  }
 
+                  // ── application-process module ──────────────────────────
+                  if (slug === "application-process") {
+                    const steps = data.steps as { title?: string; description?: string }[] | undefined;
+                    const description = safeHtmlStr(data.description);
+                    const fee = safeHtmlStr(data.fee);
+                    if (!steps?.length && !description) return null;
+                    return (
+                      <section key={slug} aria-label={label} className="mb-5">
+                        <h2 className="font-heading font-semibold text-base text-gray-800 mb-3">{label}</h2>
+                        {description && <div className="article-body text-sm mb-4" dangerouslySetInnerHTML={{ __html: description }} />}
+                        {steps && steps.length > 0 && (
+                          <ol className="space-y-3">
+                            {steps.map((step, i) => (
+                              <li key={i} className="flex items-start gap-3 text-sm">
+                                <span className="w-6 h-6 rounded-full bg-primary text-white flex items-center justify-center text-xs font-bold shrink-0 mt-0.5">
+                                  {i + 1}
+                                </span>
+                                <div>
+                                  {step.title && <p className="font-medium text-gray-800">{step.title}</p>}
+                                  {step.description && <p className="text-gray-600 mt-0.5" dangerouslySetInnerHTML={{ __html: step.description }} />}
+                                </div>
+                              </li>
+                            ))}
+                          </ol>
+                        )}
+                        {fee && (
+                          <div className="mt-4 p-3 bg-gray-50 rounded border border-border">
+                            <p className="text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1">Application Fee</p>
+                            <div className="text-sm" dangerouslySetInnerHTML={{ __html: fee }} />
+                          </div>
+                        )}
+                      </section>
+                    );
+                  }
+
+                  // ── overview module ─────────────────────────────────────
+                  if (slug === "overview") {
+                    const body = safeHtmlStr(data.body) || safeHtmlStr(data.content);
+                    const summary = data.summary as string | undefined;
+                    if (!body && !summary) return null;
+                    return (
+                      <section key={slug} aria-label={label} className="mb-5">
+                        <h2 className="font-heading font-semibold text-base text-gray-800 mb-3">{label}</h2>
+                        {summary && <p className="text-sm text-gray-600 mb-3 leading-relaxed">{summary}</p>}
+                        {body && <div className="article-body text-sm" dangerouslySetInnerHTML={{ __html: body }} />}
+                      </section>
+                    );
+                  }
+
+                  // ── news module — skip, rendered separately ─────────────
+                  if (slug === "news") return null;
+
+                  // ── generic fallback for other modules ──────────────────
+                  const body = safeHtmlStr(data.body) || safeHtmlStr(data.content) || safeHtmlStr(data.description);
+                  const summary = data.summary as string | undefined;
+                  const steps = data.steps as { title?: string; description?: string }[] | undefined;
+                  const highlights = data.highlights as string[] | undefined;
+                  const hasContent = body || summary || (steps?.length) || (highlights?.length);
+                  if (!hasContent) return null;
                   return (
                     <section key={slug} aria-label={label} className="mb-5">
                       <h2 className="font-heading font-semibold text-base text-gray-800 mb-3">{label}</h2>
@@ -480,9 +562,7 @@ export async function EntityDetailPage({ exam, breadcrumbs }: EntityDetailPagePr
                         <ol className="space-y-2">
                           {steps.map((step, i) => (
                             <li key={i} className="flex items-start gap-3 text-sm">
-                              <span className="w-6 h-6 rounded-full bg-primary text-white flex items-center justify-center text-xs font-bold shrink-0">
-                                {step.order ?? i + 1}
-                              </span>
+                              <span className="w-6 h-6 rounded-full bg-primary text-white flex items-center justify-center text-xs font-bold shrink-0">{i + 1}</span>
                               <div>
                                 {step.title && <p className="font-medium text-gray-800">{step.title}</p>}
                                 {step.description && <p className="text-gray-600 mt-0.5">{step.description}</p>}
@@ -500,16 +580,6 @@ export async function EntityDetailPage({ exam, breadcrumbs }: EntityDetailPagePr
                             </li>
                           ))}
                         </ul>
-                      )}
-                      {links && links.length > 0 && (
-                        <div className="flex flex-wrap gap-2 mt-3">
-                          {links.map((link, i) => (
-                            <a key={i} href={link.url} target="_blank" rel="noopener noreferrer"
-                              className="inline-flex items-center gap-1.5 text-xs font-medium text-primary border border-primary/20 bg-primary/5 px-2.5 py-1.5 rounded hover:bg-primary hover:text-white transition-colors">
-                              <ExternalLink className="w-3 h-3" /> {link.label}
-                            </a>
-                          ))}
-                        </div>
                       )}
                     </section>
                   );
