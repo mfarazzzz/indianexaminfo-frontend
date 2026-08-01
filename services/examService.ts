@@ -190,7 +190,7 @@ export async function getExamBySlug(
       console.error("[examService] getExamBySlug failed:", err);
       return null;
     }
-  }, ["exams", `exam:${slug}`], { revalidate: 600 });
+  }, ["exams", `exam:${slug}`], { revalidate: 60 }); // 1 min — short TTL so content module changes appear quickly
 }
 
 export async function getExamsByPillar(pillar: Pillar): Promise<ExamEntity[]> {

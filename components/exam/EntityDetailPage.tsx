@@ -54,7 +54,26 @@ function hasContentType(exam: ExamEntity, ct: ContentType): boolean {
     "study-material": "hasStudyMaterial",
     books: "hasStudyMaterial",
   };
-  return !!exam[map[ct]];
+  // Check legacy flags first
+  if (exam[map[ct]]) return true;
+
+  // Also check if the corresponding content module is enabled
+  const moduleConfig = exam.contentModules?._config as { enabledModules?: string[] } | undefined;
+  const enabledModules = moduleConfig?.enabledModules ?? [];
+  // Map content types to their module slugs
+  const ctToModule: Partial<Record<ContentType, string[]>> = {
+    application:     ["application-process"],
+    notification:    ["notification", "overview"],
+    result:          ["result"],
+    cutoff:          ["cut-off"],
+    syllabus:        ["syllabus"],
+    "admit-card":    ["admit-card"],
+    "answer-key":    ["faqs"],
+    "date-sheet":    ["date-sheet"],
+    "previous-papers": ["previous-papers"],
+  };
+  const moduleSlugs = ctToModule[ct] ?? [];
+  return moduleSlugs.some(slug => enabledModules.includes(slug));
 }
 
 function getContentTypeHref(exam: ExamEntity, ct: ContentType): string {
