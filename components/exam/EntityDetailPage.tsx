@@ -446,184 +446,7 @@ export async function EntityDetailPage({ exam, breadcrumbs }: EntityDetailPagePr
             )}
 
             {/* Content Modules — from exam_editions.content_modules */}
-            {exam.contentModules && (() => {
-              const mods = exam.contentModules!;
-              const config = mods._config as { moduleOrder?: string[]; enabledModules?: string[] } | undefined;
-              const order: string[] = config?.moduleOrder ?? Object.keys(mods).filter(k => k !== '_config');
-              const enabled: string[] = config?.enabledModules ?? order;
-
-              const moduleLabels: Record<string, string> = {
-                "overview": "About This Exam",
-                "eligibility": "Eligibility Criteria",
-                "important-dates": "Important Dates",
-                "application-process": "How to Apply",
-                "exam-pattern": "Exam Pattern",
-                "syllabus": "Syllabus",
-                "faqs": "Frequently Asked Questions",
-                "admit-card": "Admit Card",
-                "result": "Result",
-                "cut-off": "Cut Off Marks",
-                "vacancy-details": "Vacancy Details",
-                "salary": "Salary & Pay Scale",
-                "age-limit": "Age Limit",
-                "selection-process": "Selection Process",
-                "documents-required": "Documents Required",
-                "reservation": "Reservation Policy",
-                "counselling": "Counselling Process",
-                "news": "News & Updates",
-              };
-
-              const safeHtmlStr = (val: unknown) => {
-                if (typeof val !== "string" || !val.trim()) return null;
-                // Strip bare <html><body> wrappers if present
-                return val.replace(/^<html[^>]*><body[^>]*>/i, "").replace(/<\/body><\/html>$/i, "").trim();
-              };
-
-              return order
-                .filter(slug => enabled.includes(slug) && mods[slug] && slug !== '_config')
-                .map((slug): React.ReactNode => {
-                  const data = mods[slug] as Record<string, unknown>;
-                  if (!data || typeof data !== "object") return null;
-                  const label = moduleLabels[slug] ?? slug.replace(/-/g, " ").replace(/\b\w/g, c => c.toUpperCase());
-
-                  // ── eligibility module ──────────────────────────────────
-                  if (slug === "eligibility") {
-                    const qualification = data.qualification as string | undefined;
-                    const ageLimit = data.ageLimit as string | undefined;
-                    const nationality = data.nationality as string | undefined;
-                    const additionalCriteria = safeHtmlStr(data.additionalCriteria);
-                    if (!qualification && !ageLimit && !additionalCriteria) return null;
-                    return (
-                      <section key={slug} aria-label={label} className="mb-5">
-                        <h2 className="font-heading font-semibold text-base text-gray-800 mb-3">{label}</h2>
-                        <div className="overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0">
-                          <table>
-                            <thead><tr><th scope="col">Criteria</th><th scope="col">Details</th></tr></thead>
-                            <tbody>
-                              {ageLimit && <tr><td>Age Limit</td><td>{ageLimit}</td></tr>}
-                              {qualification && <tr><td>Educational Qualification</td><td>{qualification}</td></tr>}
-                              {nationality && <tr><td>Nationality</td><td>{nationality}</td></tr>}
-                            </tbody>
-                          </table>
-                        </div>
-                        {additionalCriteria && (
-                          <div className="article-body text-sm mt-3" dangerouslySetInnerHTML={{ __html: additionalCriteria }} />
-                        )}
-                      </section>
-                    );
-                  }
-
-                  // ── application-process module ──────────────────────────
-                  if (slug === "application-process") {
-                    const steps = data.steps as { title?: string; description?: string }[] | undefined;
-                    const description = safeHtmlStr(data.description);
-                    const fee = safeHtmlStr(data.fee);
-                    if (!steps?.length && !description) return null;
-                    return (
-                      <section key={slug} aria-label={label} className="mb-5">
-                        <h2 className="font-heading font-semibold text-base text-gray-800 mb-3">{label}</h2>
-                        {description && <div className="article-body text-sm mb-4" dangerouslySetInnerHTML={{ __html: description }} />}
-                        {steps && steps.length > 0 && (
-                          <ol className="space-y-3">
-                            {steps.map((step, i) => (
-                              <li key={i} className="flex items-start gap-3 text-sm">
-                                <span className="w-6 h-6 rounded-full bg-primary text-white flex items-center justify-center text-xs font-bold shrink-0 mt-0.5">
-                                  {i + 1}
-                                </span>
-                                <div>
-                                  {step.title && <p className="font-medium text-gray-800">{step.title}</p>}
-                                  {step.description && <p className="text-gray-600 mt-0.5" dangerouslySetInnerHTML={{ __html: step.description }} />}
-                                </div>
-                              </li>
-                            ))}
-                          </ol>
-                        )}
-                        {fee && (
-                          <div className="mt-4 p-3 bg-gray-50 rounded border border-border">
-                            <p className="text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1">Application Fee</p>
-                            <div className="text-sm" dangerouslySetInnerHTML={{ __html: fee }} />
-                          </div>
-                        )}
-                      </section>
-                    );
-                  }
-
-                  // ── overview module ─────────────────────────────────────
-                  if (slug === "overview") {
-                    const body = safeHtmlStr(data.body) || safeHtmlStr(data.content);
-                    const summary = data.summary as string | undefined;
-                    if (!body && !summary) return null;
-                    return (
-                      <section key={slug} aria-label={label} className="mb-5">
-                        <h2 className="font-heading font-semibold text-base text-gray-800 mb-3">{label}</h2>
-                        {summary && <p className="text-sm text-gray-600 mb-3 leading-relaxed">{summary}</p>}
-                        {body && <div className="article-body text-sm" dangerouslySetInnerHTML={{ __html: body }} />}
-                      </section>
-                    );
-                  }
-
-                  // ── news module — skip, rendered separately ─────────────
-                  if (slug === "news") return null;
-
-                  // ── generic fallback for other modules ──────────────────
-                  const body = safeHtmlStr(data.body) || safeHtmlStr(data.content) || safeHtmlStr(data.description);
-                  const summary = data.summary as string | undefined;
-                  const steps = data.steps as { title?: string; description?: string }[] | undefined;
-                  const highlights = data.highlights as string[] | undefined;
-                  const hasContent = body || summary || (steps?.length) || (highlights?.length);
-                  if (!hasContent) return null;
-                  return (
-                    <section key={slug} aria-label={label} className="mb-5">
-                      <h2 className="font-heading font-semibold text-base text-gray-800 mb-3">{label}</h2>
-                      {summary && <p className="text-sm text-gray-600 mb-3 leading-relaxed">{summary}</p>}
-                      {body && <div className="article-body text-sm" dangerouslySetInnerHTML={{ __html: body }} />}
-                      {steps && steps.length > 0 && (
-                        <ol className="space-y-2">
-                          {steps.map((step, i) => (
-                            <li key={i} className="flex items-start gap-3 text-sm">
-                              <span className="w-6 h-6 rounded-full bg-primary text-white flex items-center justify-center text-xs font-bold shrink-0">{i + 1}</span>
-                              <div>
-                                {step.title && <p className="font-medium text-gray-800">{step.title}</p>}
-                                {step.description && <p className="text-gray-600 mt-0.5">{step.description}</p>}
-                              </div>
-                            </li>
-                          ))}
-                        </ol>
-                      )}
-                      {highlights && highlights.length > 0 && (
-                        <ul className="grid grid-cols-2 gap-1.5">
-                          {highlights.map((h, i) => (
-                            <li key={i} className="flex items-center gap-2 text-sm text-gray-700">
-                              <span className="w-1.5 h-1.5 rounded-full bg-primary shrink-0" />
-                              {h}
-                            </li>
-                          ))}
-                        </ul>
-                      )}
-                    </section>
-                  );
-                });
-            })()}
-
-            {/* FAQs from content modules (if not already in exam.faqs) */}
-            {exam.contentModules?.faqs && (() => {
-              const faqMod = exam.contentModules!.faqs as { items?: { question: string; answer: string }[] } | undefined;
-              const items = faqMod?.items;
-              if (!items || items.length === 0) return null;
-              return (
-                <section aria-label="Frequently asked questions from modules" className="mb-5">
-                  <h2 className="font-heading font-bold text-lg text-gray-900 mb-4">FAQs</h2>
-                  <div className="space-y-4">
-                    {items.map((faq, i) => (
-                      <div key={i} className="border border-border rounded p-4">
-                        <h3 className="font-semibold text-gray-900 text-sm mb-2">{faq.question}</h3>
-                        <p className="text-sm text-gray-700 leading-relaxed">{faq.answer}</p>
-                      </div>
-                    ))}
-                  </div>
-                </section>
-              );
-            })()}
+            <ContentModulesBlock contentModules={exam.contentModules} />
 
             {/* Content Posts */}
             {contentPosts.length > 0 && (
@@ -769,6 +592,153 @@ export async function EntityDetailPage({ exam, breadcrumbs }: EntityDetailPagePr
           </aside>
         </div>
       </div>
+    </>
+  );
+}
+
+// ── Content Modules Block ─────────────────────────────────────────────────
+
+function safeHtml(val: unknown): string | null {
+  if (typeof val !== "string" || !val.trim()) return null;
+  return val.replace(/^<html[^>]*><body[^>]*>/i, "").replace(/<\/body><\/html>$/i, "").trim();
+}
+
+const MODULE_LABELS: Record<string, string> = {
+  overview: "About This Exam",
+  eligibility: "Eligibility Criteria",
+  "important-dates": "Important Dates",
+  "application-process": "How to Apply",
+  "exam-pattern": "Exam Pattern",
+  syllabus: "Syllabus",
+  faqs: "Frequently Asked Questions",
+  "admit-card": "Admit Card",
+  result: "Result",
+  "cut-off": "Cut Off Marks",
+  "vacancy-details": "Vacancy Details",
+  salary: "Salary & Pay Scale",
+  "age-limit": "Age Limit",
+  "selection-process": "Selection Process",
+  "documents-required": "Documents Required",
+  reservation: "Reservation Policy",
+  counselling: "Counselling Process",
+  news: "News & Updates",
+};
+
+function ContentModulesBlock({ contentModules }: { contentModules?: Record<string, unknown> }) {
+  if (!contentModules) return null;
+  const config = contentModules._config as { moduleOrder?: string[]; enabledModules?: string[] } | undefined;
+  const order = config?.moduleOrder ?? Object.keys(contentModules).filter(k => k !== "_config");
+  const enabled = config?.enabledModules ?? order;
+
+  const items = order.filter(slug => enabled.includes(slug) && contentModules[slug] && slug !== "_config");
+
+  return (
+    <>
+      {items.map(slug => {
+        const data = contentModules[slug] as Record<string, unknown>;
+        if (!data || typeof data !== "object") return null;
+        const label = MODULE_LABELS[slug] ?? slug.replace(/-/g, " ").replace(/\b\w/g, c => c.toUpperCase());
+
+        if (slug === "eligibility") {
+          const qualification = data.qualification as string | undefined;
+          const ageLimit = data.ageLimit as string | undefined;
+          const nationality = data.nationality as string | undefined;
+          const additionalCriteria = safeHtml(data.additionalCriteria);
+          if (!qualification && !ageLimit && !additionalCriteria) return null;
+          return (
+            <section key={slug} aria-label={label} className="mb-5">
+              <h2 className="font-heading font-semibold text-base text-gray-800 mb-3">{label}</h2>
+              <div className="overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0">
+                <table><thead><tr><th scope="col">Criteria</th><th scope="col">Details</th></tr></thead>
+                  <tbody>
+                    {ageLimit && <tr><td>Age Limit</td><td>{ageLimit}</td></tr>}
+                    {qualification && <tr><td>Educational Qualification</td><td>{qualification}</td></tr>}
+                    {nationality && <tr><td>Nationality</td><td>{nationality}</td></tr>}
+                  </tbody>
+                </table>
+              </div>
+              {additionalCriteria && <div className="article-body text-sm mt-3" dangerouslySetInnerHTML={{ __html: additionalCriteria }} />}
+            </section>
+          );
+        }
+
+        if (slug === "application-process") {
+          const steps = data.steps as { title?: string; description?: string }[] | undefined;
+          const description = safeHtml(data.description);
+          const fee = safeHtml(data.fee);
+          if (!steps?.length && !description) return null;
+          return (
+            <section key={slug} aria-label={label} className="mb-5">
+              <h2 className="font-heading font-semibold text-base text-gray-800 mb-3">{label}</h2>
+              {description && <div className="article-body text-sm mb-4" dangerouslySetInnerHTML={{ __html: description }} />}
+              {steps && steps.length > 0 && (
+                <ol className="space-y-3">
+                  {steps.map((step, i) => (
+                    <li key={i} className="flex items-start gap-3 text-sm">
+                      <span className="w-6 h-6 rounded-full bg-primary text-white flex items-center justify-center text-xs font-bold shrink-0 mt-0.5">{i + 1}</span>
+                      <div>
+                        {step.title && <p className="font-medium text-gray-800">{step.title}</p>}
+                        {step.description && <p className="text-gray-600 mt-0.5" dangerouslySetInnerHTML={{ __html: step.description }} />}
+                      </div>
+                    </li>
+                  ))}
+                </ol>
+              )}
+              {fee && (
+                <div className="mt-4 p-3 bg-gray-50 rounded border border-border">
+                  <p className="text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1">Application Fee</p>
+                  <div className="text-sm" dangerouslySetInnerHTML={{ __html: fee }} />
+                </div>
+              )}
+            </section>
+          );
+        }
+
+        if (slug === "overview") {
+          const body = safeHtml(data.body) || safeHtml(data.content);
+          const summary = data.summary as string | undefined;
+          if (!body && !summary) return null;
+          return (
+            <section key={slug} aria-label={label} className="mb-5">
+              <h2 className="font-heading font-semibold text-base text-gray-800 mb-3">{label}</h2>
+              {summary && <p className="text-sm text-gray-600 mb-3 leading-relaxed">{summary}</p>}
+              {body && <div className="article-body text-sm" dangerouslySetInnerHTML={{ __html: body }} />}
+            </section>
+          );
+        }
+
+        if (slug === "faqs") {
+          const items2 = (data.items as { question: string; answer: string }[]) ?? [];
+          if (!items2.length) return null;
+          return (
+            <section key={slug} aria-label={label} className="mb-5">
+              <h2 className="font-heading font-bold text-lg text-gray-900 mb-4">{label}</h2>
+              <div className="space-y-4">
+                {items2.map((faq, i) => (
+                  <div key={i} className="border border-border rounded p-4">
+                    <h3 className="font-semibold text-gray-900 text-sm mb-2">{faq.question}</h3>
+                    <p className="text-sm text-gray-700 leading-relaxed">{faq.answer}</p>
+                  </div>
+                ))}
+              </div>
+            </section>
+          );
+        }
+
+        if (slug === "news") return null;
+
+        // Generic fallback
+        const body = safeHtml(data.body) || safeHtml(data.content) || safeHtml(data.description);
+        const summary = data.summary as string | undefined;
+        if (!body && !summary) return null;
+        return (
+          <section key={slug} aria-label={label} className="mb-5">
+            <h2 className="font-heading font-semibold text-base text-gray-800 mb-3">{label}</h2>
+            {summary && <p className="text-sm text-gray-600 mb-3 leading-relaxed">{summary}</p>}
+            {body && <div className="article-body text-sm" dangerouslySetInnerHTML={{ __html: body }} />}
+          </section>
+        );
+      })}
     </>
   );
 }
