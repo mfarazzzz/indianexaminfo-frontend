@@ -10,8 +10,19 @@ import { buildSEOTitle, buildLastModifiedSignal, getCurrentYear } from "@/lib/se
 import { formatDate, contentTypeLabel } from "@/lib/utils";
 import { safeHtml } from "@/lib/sanitize";
 import { ContentTypeDataRenderer } from "@/components/exam/ContentTypeDataRenderer";
+import { ContentModulesBlock } from "@/components/exam/EntityDetailPage";
 import type { ExamEntity, ContentType } from "@/types/exam";
 import { ExternalLink, Download, Clock } from "lucide-react";
+
+/** Map content type slugs to CMS module slugs that belong on that tab */
+const CT_TO_MODULES: Partial<Record<ContentType, string[]>> = {
+  application:    ["application-process"],
+  syllabus:       ["syllabus", "exam-pattern"],
+  "admit-card":   ["admit-card"],
+  result:         ["result"],
+  cutoff:         ["cut-off"],
+  "date-sheet":   ["date-sheet"],
+};
 
 const CONTENT_TYPE_ORDER: ContentType[] = [
   "notification", "application", "admit-card", "result",
@@ -142,6 +153,25 @@ export async function SarkariNaukriContentTypeView({ exam, category, slug, conte
             </div>
 
             {post?.content && <div className="article-body mb-6" {...safeHtml(post.content)} />}
+
+            {/* CMS Structured Module Content for this tab */}
+            {exam.contentModules && CT_TO_MODULES[contentType as ContentType] && (
+              <ContentModulesBlock
+                contentModules={
+                  // Filter contentModules to only include modules relevant to this tab
+                  Object.fromEntries([
+                    ["_config", {
+                      moduleOrder: CT_TO_MODULES[contentType as ContentType] ?? [],
+                      enabledModules: CT_TO_MODULES[contentType as ContentType] ?? [],
+                    }],
+                    ...Object.entries(exam.contentModules).filter(([k]) =>
+                      CT_TO_MODULES[contentType as ContentType]?.includes(k)
+                    )
+                  ])
+                }
+                onlyTabModules={true}
+              />
+            )}
 
             {/* Structured content-type-specific data */}
             {post?.contentTypeData && (

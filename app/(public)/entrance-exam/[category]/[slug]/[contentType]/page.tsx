@@ -13,6 +13,7 @@ import { siteConfig } from "@/config/site";
 import { formatDate, contentTypeLabel } from "@/lib/utils";
 import { safeHtml } from "@/lib/sanitize";
 import { ContentTypeDataRenderer } from "@/components/exam/ContentTypeDataRenderer";
+import { ContentTypeModules } from "@/components/exam/ContentTypeModules";
 import type { ContentType } from "@/types/exam";
 import { ExternalLink, Download, Clock, ArrowRight } from "lucide-react";
 import Link from "next/link";
@@ -219,7 +220,8 @@ export default async function EntranceContentTypePage({ params }: Props) {
 
             {post?.content && <div className="article-body mb-6" {...safeHtml(post.content)} />}
 
-            {/* Structured content-type-specific data */}
+            {/* CMS Structured Module Content for this tab */}
+            <ContentTypeModules contentModules={exam.contentModules} contentType={contentType} />
             {post?.contentTypeData && (
               <ContentTypeDataRenderer
                 contentType={contentType}

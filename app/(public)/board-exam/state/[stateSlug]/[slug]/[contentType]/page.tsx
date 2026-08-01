@@ -6,7 +6,7 @@ import { getContentPostsByExam, getLatestByContentType } from "@/services/conten
 import { Breadcrumb } from "@/components/layout/Breadcrumb";
 import { AdSlot } from "@/components/ads/AdSlot";
 import { JsonLd } from "@/components/seo/JsonLd";
-import { buildFAQSchema } from "@/lib/seo/structured-data";
+import { ContentTypeModules } from "@/components/exam/ContentTypeModules";
 import { buildExamMetadata } from "@/lib/seo/metadata";
 import { buildPageKeywords, buildSEOTitle, buildMetaDescription, getCurrentYear } from "@/lib/seo/keywords";
 import { siteConfig } from "@/config/site";
@@ -109,6 +109,9 @@ export default async function StateBoardContentTypePage({ params }: Props) {
             </div>
 
             {post?.content && <div className="article-body mb-6" {...safeHtml(post.content)} />}
+
+            {/* CMS Structured Module Content for this tab */}
+            <ContentTypeModules contentModules={exam.contentModules} contentType={contentType} />
 
             <section aria-label="Important dates" className="mb-6">
               <h2 className="font-heading font-bold text-lg text-gray-900 mb-3">Important Dates</h2>

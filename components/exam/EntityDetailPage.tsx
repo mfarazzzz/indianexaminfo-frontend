@@ -302,7 +302,7 @@ export async function EntityDetailPage({ exam, breadcrumbs }: EntityDetailPagePr
             )}
 
             {/* Eligibility */}
-            {exam.eligibility && (
+            {exam.eligibility && Object.values(exam.eligibility).some(v => v) && (
               <section aria-label="Eligibility criteria" className="mb-5">
                 <h2 className="font-heading font-semibold text-base text-gray-800 mb-3">
                   Eligibility Criteria
@@ -596,6 +596,8 @@ export async function EntityDetailPage({ exam, breadcrumbs }: EntityDetailPagePr
   );
 }
 
+export { ContentModulesBlock };
+
 // ── Content Modules Block ─────────────────────────────────────────────────
 
 function safeHtml(val: unknown): string | null {
@@ -624,13 +626,21 @@ const MODULE_LABELS: Record<string, string> = {
   news: "News & Updates",
 };
 
-function ContentModulesBlock({ contentModules }: { contentModules?: Record<string, unknown> }) {
+// These modules show on content type tab pages, not the main exam page
+const TAB_ONLY_MODULES = new Set(["application-process", "admit-card", "result", "cut-off", "syllabus", "date-sheet", "news"]);
+
+function ContentModulesBlock({ contentModules, onlyTabModules = false }: { contentModules?: Record<string, unknown>; onlyTabModules?: boolean }) {
   if (!contentModules) return null;
   const config = contentModules._config as { moduleOrder?: string[]; enabledModules?: string[] } | undefined;
   const order = config?.moduleOrder ?? Object.keys(contentModules).filter(k => k !== "_config");
   const enabled = config?.enabledModules ?? order;
 
-  const items = order.filter(slug => enabled.includes(slug) && contentModules[slug] && slug !== "_config");
+  const items = order.filter(slug => {
+    if (!enabled.includes(slug) || !contentModules[slug] || slug === "_config") return false;
+    // Main page: skip tab-only modules. Tab page: only show that specific module.
+    if (onlyTabModules) return TAB_ONLY_MODULES.has(slug);
+    return !TAB_ONLY_MODULES.has(slug);
+  });
 
   return (
     <>
