@@ -1,3 +1,4 @@
+// University Board Exam — Content Type Page (v2)
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
