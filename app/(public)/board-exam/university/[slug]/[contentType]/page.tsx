@@ -118,6 +118,8 @@ export default async function UniversityContentTypePage({ params }: Props) {
 
             {/* CMS Structured Module Content for this tab */}
             <ContentTypeModules contentModules={exam.contentModules} contentType={contentType} />
+
+            <section aria-label="Important dates" className="mb-6">
               <h2 className="font-heading font-bold text-lg text-gray-900 mb-3">Important Dates</h2>
               <div className="overflow-x-auto">
                 <table>
