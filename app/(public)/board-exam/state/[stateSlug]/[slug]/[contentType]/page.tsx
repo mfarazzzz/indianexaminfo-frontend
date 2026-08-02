@@ -1,3 +1,4 @@
+// Board Exam — State [stateSlug]/[slug]/[contentType] Page
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
@@ -6,6 +7,7 @@ import { getContentPostsByExam, getLatestByContentType } from "@/services/conten
 import { Breadcrumb } from "@/components/layout/Breadcrumb";
 import { AdSlot } from "@/components/ads/AdSlot";
 import { JsonLd } from "@/components/seo/JsonLd";
+import { buildFAQSchema } from "@/lib/seo/structured-data";
 import { ContentTypeModules } from "@/components/exam/ContentTypeModules";
 import { buildExamMetadata } from "@/lib/seo/metadata";
 import { buildPageKeywords, buildSEOTitle, buildMetaDescription, getCurrentYear } from "@/lib/seo/keywords";
