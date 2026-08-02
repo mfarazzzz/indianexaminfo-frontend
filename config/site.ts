@@ -22,7 +22,9 @@ export const siteConfig = {
   locale: "en_IN",
   twitterHandle: "@IndianExamInfo",
   telegramChannel: "https://t.me/indianexaminfo",
-  whatsappGroup: "https://wa.me/indianexaminfo",
+  whatsappChannel: "https://whatsapp.com/channel/0029VbDTeFBHQbSBbmHqKg1o",
+  whatsappGroup: "https://whatsapp.com/channel/0029VbDTeFBHQbSBbmHqKg1o",
+  facebookPage: "https://www.facebook.com/profile.php?id=61592543439991",
   youtubeChannel: "https://www.youtube.com/@IndianExamInfo",
   adsense: { publisherId: "ca-pub-XXXXXXXXXX" },
   organization: {

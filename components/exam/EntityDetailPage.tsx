@@ -6,6 +6,7 @@ import { Breadcrumb, type BreadcrumbItem } from "@/components/layout/Breadcrumb"
 import { ExamCard } from "@/components/exam/ExamCard";
 import { AdSlot } from "@/components/ads/AdSlot";
 import { JsonLd } from "@/components/seo/JsonLd";
+import { SocialChannelBanner } from "@/components/layout/SocialChannelBanner";
 import {
   buildFAQSchema,
   buildJobPostingSchema,
@@ -187,6 +188,9 @@ export async function EntityDetailPage({ exam, breadcrumbs }: EntityDetailPagePr
                 ))}
               </nav>
             )}
+
+            {/* Social Channel CTA — top banner */}
+            <SocialChannelBanner variant="top" />
 
             {/* Summary Box */}
             <section className="summary-box mb-5" aria-label="Quick Summary">
@@ -500,6 +504,9 @@ export async function EntityDetailPage({ exam, breadcrumbs }: EntityDetailPagePr
                 </div>
               </section>
             )}
+
+            {/* Social Channel CTA — bottom banner */}
+            <SocialChannelBanner variant="bottom" />
 
             {/* Related Exams */}
             {relatedExams.length > 0 && (

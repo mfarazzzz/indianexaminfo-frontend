@@ -11,6 +11,7 @@ import { formatDate, contentTypeLabel } from "@/lib/utils";
 import { safeHtml } from "@/lib/sanitize";
 import { ContentTypeDataRenderer } from "@/components/exam/ContentTypeDataRenderer";
 import { ContentModulesBlock } from "@/components/exam/EntityDetailPage";
+import { SocialChannelBanner } from "@/components/layout/SocialChannelBanner";
 import type { ExamEntity, ContentType } from "@/types/exam";
 import { ExternalLink, Download, Clock } from "lucide-react";
 
@@ -153,6 +154,9 @@ export async function SarkariNaukriContentTypeView({ exam, category, slug, conte
             </div>
 
             {post?.content && <div className="article-body mb-6" {...safeHtml(post.content)} />}
+
+            {/* Social Channel CTA */}
+            <SocialChannelBanner variant="top" />
 
             {/* CMS Structured Module Content for this tab */}
             {exam.contentModules && CT_TO_MODULES[contentType as ContentType] && (
