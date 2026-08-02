@@ -45,7 +45,7 @@ const contentTypeOrder: ContentType[] = [
 ];
 
 function hasContentType(exam: ExamEntity, ct: ContentType): boolean {
-  const map: Partial<Record<ContentType, keyof ExamEntity>> = {
+  const map: Partial<Partial<Record<ContentType, keyof ExamEntity>> = {
     notification: "hasNotification",
     application: "hasApplication",
     "admit-card": "hasAdmitCard",
@@ -67,7 +67,7 @@ function hasContentType(exam: ExamEntity, ct: ContentType): boolean {
   const moduleConfig = exam.contentModules?._config as { enabledModules?: string[] } | undefined;
   const enabledModules = moduleConfig?.enabledModules ?? [];
   // Map content types to their module slugs
-  const ctToModule: Partial<Record<ContentType, string[]>> = {
+  const ctToModule: Partial<Partial<Record<ContentType, string[]>> = {
     application:     ["application-process"],
     notification:    ["notification", "overview"],
     result:          ["result"],

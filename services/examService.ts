@@ -58,7 +58,7 @@ function mapRow(row: Record<string, unknown>): ExamEntity {
 }
 
 // ── Explicit mapping for content-type flag lookup ───────────────────────
-const CT_TO_FLAG: Record<ContentType, keyof ExamEntity> = {
+const CT_TO_FLAG: Partial<Record<ContentType, keyof ExamEntity>> = {
   "admit-card":      "hasAdmitCard",
   result:            "hasResult",
   "answer-key":      "hasAnswerKey",
@@ -302,7 +302,7 @@ export async function searchExams(query: string): Promise<ExamEntity[]> {
 }
 
 export async function getExamsByContentType(contentType: ContentType): Promise<ExamEntity[]> {
-  const flagCol: Record<ContentType, string> = {
+  const flagCol: Partial<Record<ContentType, string>> = {
     "admit-card":      "has_admit_card",
     result:            "has_result",
     "answer-key":      "has_answer_key",

@@ -16,7 +16,7 @@ import type { ExamEntity, ContentType } from "@/types/exam";
 import { ExternalLink, Download, Clock } from "lucide-react";
 
 /** Map content type slugs to CMS module slugs that belong on that tab */
-const CT_TO_MODULES: Partial<Record<ContentType, string[]>> = {
+const CT_TO_MODULES: Partial<Partial<Record<ContentType, string[]>> = {
   application:    ["application-process"],
   syllabus:       ["syllabus", "exam-pattern"],
   "admit-card":   ["admit-card"],
@@ -32,7 +32,7 @@ const CONTENT_TYPE_ORDER: ContentType[] = [
 ];
 
 function hasContentType(exam: ExamEntity, ct: ContentType): boolean {
-  const map: Partial<Record<ContentType, keyof ExamEntity>> = {
+  const map: Partial<Partial<Record<ContentType, keyof ExamEntity>> = {
     notification: "hasNotification",
     application: "hasApplication",
     "admit-card": "hasAdmitCard",
