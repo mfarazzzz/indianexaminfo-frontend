@@ -32,7 +32,7 @@ const CONTENT_TYPE_ORDER: ContentType[] = [
 ];
 
 function hasContentType(exam: ExamEntity, ct: ContentType): boolean {
-  const map: Record<ContentType, keyof ExamEntity> = {
+  const map: Partial<Record<ContentType, keyof ExamEntity>> = {
     notification: "hasNotification",
     application: "hasApplication",
     "admit-card": "hasAdmitCard",
@@ -46,7 +46,8 @@ function hasContentType(exam: ExamEntity, ct: ContentType): boolean {
     "study-material": "hasStudyMaterial",
     books: "hasStudyMaterial",
   };
-  return !!exam[map[ct]];
+  const flag = map[ct];
+  return flag ? !!exam[flag] : false;
 }
 
 type Props = {

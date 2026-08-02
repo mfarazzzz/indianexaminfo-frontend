@@ -45,7 +45,7 @@ const contentTypeOrder: ContentType[] = [
 ];
 
 function hasContentType(exam: ExamEntity, ct: ContentType): boolean {
-  const map: Record<ContentType, keyof ExamEntity> = {
+  const map: Partial<Record<ContentType, keyof ExamEntity>> = {
     notification: "hasNotification",
     application: "hasApplication",
     "admit-card": "hasAdmitCard",
@@ -60,7 +60,8 @@ function hasContentType(exam: ExamEntity, ct: ContentType): boolean {
     books: "hasStudyMaterial",
   };
   // Check legacy flags first
-  if (exam[map[ct]]) return true;
+  const flag = map[ct];
+  if (flag && exam[flag]) return true;
 
   // Also check if the corresponding content module is enabled
   const moduleConfig = exam.contentModules?._config as { enabledModules?: string[] } | undefined;
