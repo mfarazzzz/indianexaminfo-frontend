@@ -6,7 +6,7 @@ import { ContentModulesBlock } from "@/components/exam/EntityDetailPage";
 import type { ContentType } from "@/types/exam";
 
 /** Map each content type slug to the CMS module slugs that belong on that tab */
-export const CT_TO_MODULES: Partial<Partial<Record<ContentType, string[]>> = {
+export const CT_TO_MODULES: Partial<Record<ContentType, string[]>> = {
   application:     ["application-process"],
   syllabus:        ["syllabus", "exam-pattern"],
   "admit-card":    ["admit-card"],

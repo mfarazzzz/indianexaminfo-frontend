@@ -1026,7 +1026,7 @@ export function buildMetaDescription(
   year = getCurrentYear(),
 ): string {
   const y = year;
-  const templates: Partial<Partial<Record<ContentType, string>> = {
+  const templates: Partial<Record<ContentType, string>> = {
     "admit-card":
       `Download ${examName} Admit Card ${y}. Get direct link to hall ticket, check release date, steps to download. ${keyDateInfo}. Official link available here.`,
     result:
@@ -1067,7 +1067,7 @@ export function buildImageAlt(
   contentType: ContentType,
   year = getCurrentYear(),
 ): string {
-  const altMap: Partial<Partial<Record<ContentType, string>> = {
+  const altMap: Partial<Record<ContentType, string>> = {
     "admit-card":      `${examName} Admit Card ${year} — Hall Ticket Download`,
     result:            `${examName} Result ${year} — Check Marksheet`,
     "answer-key":      `${examName} Answer Key ${year} — Set Wise PDF`,
@@ -1092,7 +1092,7 @@ export function buildAnchorText(
   contentType: ContentType,
   year = getCurrentYear(),
 ): string {
-  const anchors: Partial<Partial<Record<ContentType, string>> = {
+  const anchors: Partial<Record<ContentType, string>> = {
     "admit-card":      `${examName} Admit Card ${year}`,
     result:            `${examName} Result ${year}`,
     "answer-key":      `${examName} Answer Key ${year}`,
