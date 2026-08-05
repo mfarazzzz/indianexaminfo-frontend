@@ -668,7 +668,7 @@ export type ContentTypeKeywordEntry = {
   actionWords: string[];
 };
 
-export const CONTENT_TYPE_KEYWORDS: Partial<Record<ContentType, ContentTypeKeywordEntry>> = {
+export const CONTENT_TYPE_KEYWORDS: Record<ContentType, ContentTypeKeywordEntry> = {
   "admit-card": {
     suffixes: ["admit card", "hall ticket", "call letter",
       "admit card download", "admit card 2027"],
@@ -835,6 +835,10 @@ export const CONTENT_TYPE_KEYWORDS: Partial<Record<ContentType, ContentTypeKeywo
     ],
     actionWords: ["best", "recommended", "subject wise", "arihant lucent ncert"],
   },
+  // Virtual tabs backed by CMS modules
+  about: { suffixes: ["about", "overview", "information"], longTailTemplates: ["{exam} complete details", "about {exam} exam"], actionWords: ["about", "overview", "details"] },
+  faqs: { suffixes: ["faq", "frequently asked questions"], longTailTemplates: ["{exam} frequently asked questions", "{exam} faq 2027"], actionWords: ["faq", "questions", "answers"] },
+  news: { suffixes: ["news", "updates", "latest news"], longTailTemplates: ["{exam} latest news 2027", "{exam} news and updates"], actionWords: ["news", "updates", "latest"] },
 };
 
 // ─────────────────────────────────────────────────
