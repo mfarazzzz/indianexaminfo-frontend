@@ -643,7 +643,7 @@ const MODULE_LABELS: Record<string, string> = {
 };
 
 // These modules show on content type tab pages, not the main exam page
-const TAB_ONLY_MODULES = new Set(["application-process", "admit-card", "result", "cut-off", "syllabus", "date-sheet", "news"]);
+const TAB_ONLY_MODULES = new Set(["application-process", "admit-card", "result", "cut-off", "syllabus", "date-sheet", "news", "faqs"]);
 
 function ContentModulesBlock({ contentModules, onlyTabModules = false }: { contentModules?: Record<string, unknown>; onlyTabModules?: boolean }) {
   if (!contentModules) return null;
@@ -751,7 +751,24 @@ function ContentModulesBlock({ contentModules, onlyTabModules = false }: { conte
           );
         }
 
-        if (slug === "news") return null;
+        if (slug === "news") {
+          const newsItems = (data.items as { title?: string; content?: string; excerpt?: string; publishedAt?: string }[]) ?? [];
+          if (!newsItems.length) return null;
+          return (
+            <section key={slug} aria-label="News & Updates" className="mb-5">
+              <h2 className="font-heading font-semibold text-base text-gray-800 mb-3">News &amp; Updates</h2>
+              <div className="space-y-4">
+                {newsItems.filter(item => item.title).map((item, i) => (
+                  <div key={i} className="border border-border rounded p-4">
+                    <h3 className="font-semibold text-gray-900 text-sm mb-2">{item.title}</h3>
+                    {item.excerpt && <p className="text-sm text-gray-600 mb-2">{item.excerpt}</p>}
+                    {item.content && <div className="text-sm text-gray-700" dangerouslySetInnerHTML={{ __html: item.content }} />}
+                  </div>
+                ))}
+              </div>
+            </section>
+          );
+        }
 
         // Generic fallback
         const body = safeHtml(data.body) || safeHtml(data.content) || safeHtml(data.description);
