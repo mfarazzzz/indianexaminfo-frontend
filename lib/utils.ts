@@ -18,6 +18,13 @@ export function normalizeUrl(raw: string | null | undefined): string {
   if (!raw) return "";
   const trimmed = raw.trim();
   if (!trimmed) return "";
+  // Reject multi-URL / junk BEFORE new URL(): a single clean URL never contains
+  // whitespace or a comma. Critically, new URL() does NOT reject these — with a
+  // trailing slash it turns the remainder into a percent-encoded path and
+  // returns a truthy-but-broken URL (e.g. "https://a/,%20https://b"). Also
+  // reject values that ALREADY contain %20/%2C, because our own normaliser has
+  // previously written those; without this a mangled value re-saves as "valid".
+  if (/[\s,]/.test(trimmed) || /%20|%2c/i.test(trimmed)) return "";
   const withProto = /^https?:\/\//i.test(trimmed) ? trimmed : `https://${trimmed}`;
   try {
     return new URL(withProto).toString();
