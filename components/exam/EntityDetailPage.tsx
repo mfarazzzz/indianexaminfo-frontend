@@ -44,6 +44,37 @@ const contentTypeOrder: ContentType[] = [
   "news",
 ];
 
+/**
+ * True when a content module actually holds renderable data — not merely when
+ * it's toggled on in enabledModules. Mirrors the per-branch emptiness checks in
+ * ContentModulesBlock so a tab never appears for a module that renders nothing.
+ * An enabled-but-empty module (very common: enabledModules lists a slug the
+ * editor never wrote a payload for) must produce no tab and no page.
+ */
+function moduleHasData(contentModules: Record<string, unknown> | undefined, slug: string): boolean {
+  if (!contentModules) return false;
+  const data = contentModules[slug] as Record<string, unknown> | undefined;
+  if (!data || typeof data !== "object") return false;
+
+  const nonEmptyStr = (v: unknown) => typeof v === "string" && v.trim().length > 0;
+  const nonEmptyArr = (v: unknown) => Array.isArray(v) && v.length > 0;
+
+  switch (slug) {
+    case "eligibility":
+      return nonEmptyStr(data.qualification) || nonEmptyStr(data.ageLimit) || nonEmptyStr(data.additionalCriteria);
+    case "application-process":
+      return nonEmptyArr(data.steps) || nonEmptyStr(data.description);
+    case "overview":
+      return nonEmptyStr(data.body) || nonEmptyStr(data.content) || nonEmptyStr(data.summary);
+    case "faqs":
+      return nonEmptyArr(data.items);
+    case "news":
+      return Array.isArray(data.items) && (data.items as { title?: string }[]).some(i => nonEmptyStr(i?.title));
+    default:
+      return nonEmptyStr(data.body) || nonEmptyStr(data.content) || nonEmptyStr(data.description) || nonEmptyStr(data.summary);
+  }
+}
+
 function hasContentType(exam: ExamEntity, ct: ContentType): boolean {
   const map: Partial<Record<ContentType, keyof ExamEntity>> = {
     notification: "hasNotification",
@@ -83,7 +114,11 @@ function hasContentType(exam: ExamEntity, ct: ContentType): boolean {
     news:            ["news"],
   };
   const moduleSlugs = ctToModule[ct] ?? [];
-  return moduleSlugs.some(slug => enabledModules.includes(slug));
+  // A module counts only when it is enabled AND actually has data. Enabled-but-
+  // empty modules must not produce a tab (they'd lead to a blank/thin page).
+  return moduleSlugs.some(
+    slug => enabledModules.includes(slug) && moduleHasData(exam.contentModules, slug)
+  );
 }
 
 function getContentTypeHref(exam: ExamEntity, ct: ContentType): string {
@@ -197,7 +232,7 @@ export async function EntityDetailPage({ exam, breadcrumbs }: EntityDetailPagePr
             <section className="summary-box mb-5" aria-label="Quick Summary">
               <h2 className="font-heading font-semibold text-sm text-gray-800 mb-2">Key Highlights</h2>
               <ul className="space-y-1.5 text-sm text-gray-700">
-                {exam.vacancy && (
+                {exam.vacancy != null && exam.vacancy > 0 && (
                   <li>
                     <span className="font-medium">Total Vacancies:</span>{" "}
                     {exam.vacancy.toLocaleString("en-IN")}
@@ -559,7 +594,8 @@ export async function EntityDetailPage({ exam, breadcrumbs }: EntityDetailPagePr
           <aside className="flex flex-col gap-4">
             <AdSlot position="article-sidebar" size="300x250" />
 
-            {/* Quick Links */}
+            {/* Quick Links — hide the whole panel when it would be empty */}
+            {(exam.officialWebsite || availableContentTypes.length > 0) && (
             <div className="bg-card border border-border rounded p-4">
               <h2 className="font-heading font-semibold text-sm text-gray-800 mb-3 uppercase tracking-wide pb-2 border-b border-border">
                 Quick Links
@@ -589,6 +625,7 @@ export async function EntityDetailPage({ exam, breadcrumbs }: EntityDetailPagePr
                 ))}
               </ul>
             </div>
+            )}
 
             {/* Tags */}
             <div className="bg-card border border-border rounded p-4">

@@ -102,7 +102,7 @@ export function ExamCard({ exam }: ExamCardProps) {
       {/* Conducting body + vacancy */}
       <div className="px-3 pb-2 text-xs text-gray-500 flex items-center gap-1 flex-wrap">
         <span className="truncate">{exam.conductingBody}</span>
-        {exam.vacancy != null && (
+        {exam.vacancy != null && exam.vacancy > 0 && (
           <>
             <span className="text-gray-300">·</span>
             <span className="font-bold text-primary">
