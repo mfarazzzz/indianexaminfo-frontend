@@ -9,6 +9,7 @@
 import { createServerClient } from "@/lib/supabase/server";
 import { cached } from "@/lib/cache";
 import { normalizeUrl } from "@/lib/utils";
+import { contentTypeHasData, type HasDataView } from "@/lib/sectionRegistry";
 import type { ExamEntity, Pillar, ContentType } from "@/types/exam";
 
 // ── Row mapper: Supabase snake_case → camelCase ExamEntity ─────────────
@@ -341,7 +342,12 @@ export async function getExamsByContentType(contentType: ContentType): Promise<E
       .order("is_featured", { ascending: false })
       .order("updated_at", { ascending: false });
     if (error) throw error;
-    return (data ?? []).map((r: any) => mapRow(r));
+    // Step 2 (d): content-hub link lists must only show exams whose sub-page will
+    // actually 200. Filter the flag-based candidates through the SAME registry gate
+    // used by tabs/sitemap/routes, so hubs never link to a URL that now 404s.
+    return (data ?? [])
+      .map((r: any) => mapRow(r))
+      .filter((exam) => contentTypeHasData(exam as unknown as HasDataView, contentType));
   } catch (err) {
     console.error("[examService] getExamsByContentType failed:", err);
     return [];

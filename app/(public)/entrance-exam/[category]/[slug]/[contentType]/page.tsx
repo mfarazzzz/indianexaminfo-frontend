@@ -14,6 +14,7 @@ import { formatDate, contentTypeLabel } from "@/lib/utils";
 import { safeHtml } from "@/lib/sanitize";
 import { ContentTypeDataRenderer } from "@/components/exam/ContentTypeDataRenderer";
 import { ContentTypeModules } from "@/components/exam/ContentTypeModules";
+import { contentTypeHasData } from "@/lib/sectionRegistry";
 import type { ContentType } from "@/types/exam";
 import { ExternalLink, Download, Clock, ArrowRight } from "lucide-react";
 import Link from "next/link";
@@ -125,6 +126,8 @@ export default async function EntranceContentTypePage({ params }: Props) {
   ]);
 
   if (!exam || exam.pillar !== "entrance-exam") notFound();
+  // Step 2 (c): 404 when this content type has no data (registry gate).
+  if (!contentTypeHasData(exam, contentType)) notFound();
 
   const posts = await getContentPostsByExam(exam.id, contentType as ContentType);
   const post  = posts[0];
@@ -152,10 +155,7 @@ export default async function EntranceContentTypePage({ params }: Props) {
             Overview
           </Link>
           {(["notification","application","admit-card","answer-key","syllabus","result","cutoff"] as ContentType[])
-            .filter((ct) => {
-              const map: Record<string, keyof typeof exam> = { notification: "hasNotification", application: "hasApplication", "admit-card": "hasAdmitCard", "answer-key": "hasAnswerKey", syllabus: "hasSyllabus", result: "hasResult", cutoff: "hasCutoff" };
-              return !!(exam as any)[map[ct]];
-            })
+            .filter((ct) => contentTypeHasData(exam, ct))
             .map((ct) => (
               <Link key={ct} href={`/entrance-exam/${category}/${slug}/${ct}`}
                 className={`text-xs font-semibold px-2.5 py-1 rounded border transition-colors ${

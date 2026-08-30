@@ -8,6 +8,7 @@ import {
   getStateList,
 } from "@/services/sarkariNaukriService";
 import { HIGH_PRIORITY_SLUGS } from "@/lib/seo/keywords";
+import { contentTypeHasData, type HasDataView } from "@/lib/sectionRegistry";
 import type { ContentType } from "@/types/exam";
 
 const BASE = siteConfig.url;
@@ -136,8 +137,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: isHigh ? 0.9 : 0.8,
     };
 
+    // Step 2 (b): CT sub-page URLs are emitted iff the section has data — the
+    // SAME registry gate that drives tabs and route 404s. Prevents ~1,900 empty
+    // sub-pages from being submitted to search (see REBUILD_PLAN Step 2).
     const ctPages: MetadataRoute.Sitemap = CT_FLAGS
-      .filter(({ flag }) => (exam as Record<string, unknown>)[flag] === true)
+      .filter(({ ct }) => contentTypeHasData(exam as unknown as HasDataView, ct))
       .map(({ ct }) => ({
         url: ctUrl(exam, ct),
         lastModified: lastMod,

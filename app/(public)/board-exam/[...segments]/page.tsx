@@ -18,6 +18,7 @@ import { buildExamMetadata } from "@/lib/seo/metadata";
 import { buildPageKeywords, buildSEOTitle, buildMetaDescription, getCurrentYear } from "@/lib/seo/keywords";
 import { siteConfig } from "@/config/site";
 import { contentTypeLabel } from "@/lib/utils";
+import { contentTypeHasData } from "@/lib/sectionRegistry";
 import type { ContentType } from "@/types/exam";
 
 export const revalidate = 3600;
@@ -164,9 +165,9 @@ export default async function BoardExamCatchAll({ params }: Props) {
     const [category, slug, contentType] = segments;
     const exam = await getExamBySlug(slug, category);
     if (!exam || !SERVED_PILLARS.has(exam.pillar)) notFound();
+    // Step 2 (c): 404 when this content type has no data (registry gate).
+    if (!contentTypeHasData(exam, contentType)) notFound();
 
-    const posts = await getContentPostsByExam(exam.id, contentType as ContentType);
-    const post = posts[0];
     const ctLabel = contentTypeLabel(contentType);
 
     // Render EntityDetailPage with content type focus (reuse existing component)
@@ -189,7 +190,7 @@ export default async function BoardExamCatchAll({ params }: Props) {
     const [, slug, , contentType] = segments;
     const category = segments[0];
     const exam = await getExamBySlug(slug, category);
-    if (exam && SERVED_PILLARS.has(exam.pillar)) {
+    if (exam && SERVED_PILLARS.has(exam.pillar) && contentTypeHasData(exam, contentType)) {
       return (
         <EntityDetailPage
           exam={exam}

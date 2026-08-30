@@ -18,6 +18,7 @@ import {
   statusColor,
   contentTypeLabel,
 } from "@/lib/utils";
+import { contentTypeHasData } from "@/lib/sectionRegistry";
 import { ExternalLink, Calendar, Share2 } from "lucide-react";
 
 type EntityDetailPageProps = {
@@ -44,82 +45,8 @@ const contentTypeOrder: ContentType[] = [
   "news",
 ];
 
-/**
- * True when a content module actually holds renderable data — not merely when
- * it's toggled on in enabledModules. Mirrors the per-branch emptiness checks in
- * ContentModulesBlock so a tab never appears for a module that renders nothing.
- * An enabled-but-empty module (very common: enabledModules lists a slug the
- * editor never wrote a payload for) must produce no tab and no page.
- */
-function moduleHasData(contentModules: Record<string, unknown> | undefined, slug: string): boolean {
-  if (!contentModules) return false;
-  const data = contentModules[slug] as Record<string, unknown> | undefined;
-  if (!data || typeof data !== "object") return false;
-
-  const nonEmptyStr = (v: unknown) => typeof v === "string" && v.trim().length > 0;
-  const nonEmptyArr = (v: unknown) => Array.isArray(v) && v.length > 0;
-
-  switch (slug) {
-    case "eligibility":
-      return nonEmptyStr(data.qualification) || nonEmptyStr(data.ageLimit) || nonEmptyStr(data.additionalCriteria);
-    case "application-process":
-      return nonEmptyArr(data.steps) || nonEmptyStr(data.description);
-    case "overview":
-      return nonEmptyStr(data.body) || nonEmptyStr(data.content) || nonEmptyStr(data.summary);
-    case "faqs":
-      return nonEmptyArr(data.items);
-    case "news":
-      return Array.isArray(data.items) && (data.items as { title?: string }[]).some(i => nonEmptyStr(i?.title));
-    default:
-      return nonEmptyStr(data.body) || nonEmptyStr(data.content) || nonEmptyStr(data.description) || nonEmptyStr(data.summary);
-  }
-}
-
-function hasContentType(exam: ExamEntity, ct: ContentType): boolean {
-  const map: Partial<Record<ContentType, keyof ExamEntity>> = {
-    notification: "hasNotification",
-    application: "hasApplication",
-    "admit-card": "hasAdmitCard",
-    "date-sheet": "hasDateSheet",
-    syllabus: "hasSyllabus",
-    "answer-key": "hasAnswerKey",
-    result: "hasResult",
-    cutoff: "hasCutoff",
-    "previous-papers": "hasPreviousPapers",
-    "mock-test": "hasMockTest",
-    "study-material": "hasStudyMaterial",
-    books: "hasStudyMaterial",
-  };
-  // Check legacy flags first
-  const flag = map[ct];
-  if (flag && exam[flag]) return true;
-
-  // Also check if the corresponding content module is enabled
-  const moduleConfig = exam.contentModules?._config as { enabledModules?: string[] } | undefined;
-  const enabledModules = moduleConfig?.enabledModules ?? [];
-  // Map content types to their module slugs
-  const ctToModule: Partial<Record<ContentType, string[]>> = {
-    application:     ["application-process"],
-    notification:    ["notification", "overview"],
-    result:          ["result"],
-    cutoff:          ["cut-off"],
-    syllabus:        ["syllabus"],
-    "admit-card":    ["admit-card"],
-    "answer-key":    ["faqs"],
-    "date-sheet":    ["date-sheet"],
-    "previous-papers": ["previous-papers"],
-    // Virtual tabs
-    about:           ["overview", "eligibility", "vacancy-details", "salary", "age-limit", "selection-process", "documents-required", "reservation"],
-    faqs:            ["faqs"],
-    news:            ["news"],
-  };
-  const moduleSlugs = ctToModule[ct] ?? [];
-  // A module counts only when it is enabled AND actually has data. Enabled-but-
-  // empty modules must not produce a tab (they'd lead to a blank/thin page).
-  return moduleSlugs.some(
-    slug => enabledModules.includes(slug) && moduleHasData(exam.contentModules, slug)
-  );
-}
+// Tab derivation now lives in the shared registry (contentTypeHasData). The old
+// hasContentType/moduleHasData (has_*/enabledModules-based) were removed in Step 2.
 
 function getContentTypeHref(exam: ExamEntity, ct: ContentType): string {
   // Map DB pillar values to frontend route
@@ -147,8 +74,11 @@ export async function EntityDetailPage({ exam, breadcrumbs }: EntityDetailPagePr
     getRelatedExams(exam.id),
   ]);
 
+  // Step 2: tabs gated by the ONE registry hasData rule (presence of content is
+  // the only switch). Replaces the old has_*/enabledModules logic that showed
+  // tabs for empty pages. Same predicate drives sitemap + route 404 + hub lists.
   const availableContentTypes = contentTypeOrder.filter((ct) =>
-    hasContentType(exam, ct)
+    contentTypeHasData(exam, ct)
   );
 
   const schemas: Record<string, unknown>[] = [];

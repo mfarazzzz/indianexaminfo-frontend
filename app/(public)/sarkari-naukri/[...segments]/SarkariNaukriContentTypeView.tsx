@@ -12,6 +12,7 @@ import { safeHtml } from "@/lib/sanitize";
 import { ContentTypeDataRenderer } from "@/components/exam/ContentTypeDataRenderer";
 import { ContentModulesBlock } from "@/components/exam/EntityDetailPage";
 import { SocialChannelBanner } from "@/components/layout/SocialChannelBanner";
+import { contentTypeHasData } from "@/lib/sectionRegistry";
 import type { ExamEntity, ContentType } from "@/types/exam";
 import { ExternalLink, Download, Clock } from "lucide-react";
 
@@ -25,30 +26,13 @@ const CT_TO_MODULES: Partial<Record<ContentType, string[]>> = {
   "date-sheet":   ["date-sheet"],
 };
 
+// Tab order preserved; visibility now comes from the shared registry gate
+// (contentTypeHasData) instead of the local has_*-based hasContentType (removed).
 const CONTENT_TYPE_ORDER: ContentType[] = [
   "notification", "application", "admit-card", "result",
   "answer-key", "syllabus", "cutoff", "date-sheet",
   "previous-papers", "mock-test", "study-material",
 ];
-
-function hasContentType(exam: ExamEntity, ct: ContentType): boolean {
-  const map: Partial<Record<ContentType, keyof ExamEntity>> = {
-    notification: "hasNotification",
-    application: "hasApplication",
-    "admit-card": "hasAdmitCard",
-    "date-sheet": "hasDateSheet",
-    syllabus: "hasSyllabus",
-    "answer-key": "hasAnswerKey",
-    result: "hasResult",
-    cutoff: "hasCutoff",
-    "previous-papers": "hasPreviousPapers",
-    "mock-test": "hasMockTest",
-    "study-material": "hasStudyMaterial",
-    books: "hasStudyMaterial",
-  };
-  const flag = map[ct];
-  return flag ? !!exam[flag] : false;
-}
 
 type Props = {
   exam: ExamEntity;
@@ -58,6 +42,10 @@ type Props = {
 };
 
 export async function SarkariNaukriContentTypeView({ exam, category, slug, contentType }: Props) {
+  // Step 2 (c): a content-type sub-page 404s when its section has no data, so
+  // stale links / crawler hits get a clean 404 instead of an empty 200 shell.
+  if (!contentTypeHasData(exam, contentType)) notFound();
+
   const [posts, relatedPosts] = await Promise.all([
     getContentPostsByExam(exam.id, contentType as ContentType),
     getLatestByContentType(contentType as ContentType, 5),
@@ -83,7 +71,7 @@ export async function SarkariNaukriContentTypeView({ exam, category, slug, conte
 
         {/* Module Tabs — same as EntityDetailPage */}
         <nav className="flex flex-wrap gap-2 my-4 overflow-x-auto sm:overflow-visible pb-2 sm:pb-0 -mx-1 px-1" aria-label="Content modules">
-          {CONTENT_TYPE_ORDER.filter((ct) => hasContentType(exam, ct)).map((ct) => (
+          {CONTENT_TYPE_ORDER.filter((ct) => contentTypeHasData(exam, ct)).map((ct) => (
             <Link
               key={ct}
               href={`/sarkari-naukri/${category}/${slug}/${ct}`}

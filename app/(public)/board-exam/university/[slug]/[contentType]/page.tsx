@@ -18,6 +18,7 @@ import {
 import { siteConfig } from "@/config/site";
 import { formatDate, contentTypeLabel } from "@/lib/utils";
 import { safeHtml } from "@/lib/sanitize";
+import { contentTypeHasData } from "@/lib/sectionRegistry";
 import type { ContentType } from "@/types/exam";
 import { ExternalLink, Download, Clock } from "lucide-react";
 
@@ -48,6 +49,8 @@ export default async function UniversityContentTypePage({ params }: Props) {
     getLatestByContentType(contentType as ContentType, 5),
   ]);
   if (!exam || exam.entityType !== "university") notFound();
+  // Step 2 (c): 404 when this content type has no data (registry gate).
+  if (!contentTypeHasData(exam, contentType)) notFound();
 
   const posts  = await getContentPostsByExam(exam.id, contentType as ContentType);
   const post   = posts[0];
