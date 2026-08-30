@@ -37,17 +37,26 @@ function mapRow(row: Record<string, unknown>): ExamEntity {
     hasApplication: (ed?.has_application as boolean) ?? (row.has_application as boolean) ?? false,
     hasNotification: (ed?.has_notification as boolean) ?? (row.has_notification as boolean) ?? false,
     hasCutoff: (ed?.has_cutoff as boolean) ?? (row.has_cutoff as boolean) ?? false,
-    dates: ((ed?.important_dates ?? row.important_dates) as unknown[] ?? []) as ExamEntity["dates"],
-    eligibility: (ed?.eligibility as ExamEntity["eligibility"]) ?? (row.eligibility as ExamEntity["eligibility"]) ?? undefined,
-    vacancy: (ed?.vacancy as number) ?? (row.vacancy as number) ?? undefined,
-    applicationFee: (ed?.application_fee as ExamEntity["applicationFee"]) ?? (row.application_fee as ExamEntity["applicationFee"]) ?? undefined,
+    // Edition is the single source of truth for temporal data. The legacy
+    // exams.* columns are no longer read (see AUDIT_REPORT ADDENDUM 2 / Group 2):
+    // an empty edition array/object is truthy and would silently shadow a
+    // populated legacy value, so the `?? row.*` fallbacks were removed after
+    // migrating legacy data onto the current edition. Terminal defaults kept
+    // so a NULL/absent edition value still coalesces to a safe empty value.
+    dates: ((ed?.important_dates as unknown[]) ?? []) as ExamEntity["dates"],
+    eligibility: (ed?.eligibility as ExamEntity["eligibility"]) ?? undefined,
+    vacancy: (ed?.vacancy as number) ?? undefined,
+    applicationFee: (ed?.application_fee as ExamEntity["applicationFee"]) ?? undefined,
     selectionProcess: (row.selection_process as string[]) ?? [],
     syllabusHighlights: (row.syllabus_highlights as string[]) ?? [],
     academicYear: (row.academic_year as string) ?? undefined,
     semester: (row.semester as string) ?? undefined,
     admissionTo: (row.admission_to as string) ?? undefined,
     tags: (row.tags as string[]) ?? [],
-    lastUpdated: (row.last_updated as string) ?? (row.updated_at as string) ?? new Date().toISOString().split("T")[0],
+    // Prefer updated_at (trigger-maintained real last-write timestamp) over the
+    // legacy last_updated DATE column, which defaults to CURRENT_DATE at insert
+    // and is never bumped on edits (see AUDIT_REPORT Finding #6 / Group 3).
+    lastUpdated: (row.updated_at as string) ?? (row.last_updated as string) ?? new Date().toISOString().split("T")[0],
     isFeatured: (row.is_featured as boolean) ?? false,
     searchKeywords: (row.search_keywords as string[]) ?? [],
     seoTitle: (row.seo_title as string) ?? undefined,
