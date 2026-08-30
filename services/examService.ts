@@ -8,6 +8,7 @@
 
 import { createServerClient } from "@/lib/supabase/server";
 import { cached } from "@/lib/cache";
+import { normalizeUrl } from "@/lib/utils";
 import type { ExamEntity, Pillar, ContentType } from "@/types/exam";
 
 // ── Row mapper: Supabase snake_case → camelCase ExamEntity ─────────────
@@ -24,7 +25,11 @@ function mapRow(row: Record<string, unknown>): ExamEntity {
     subcategory: (row.subcategory_slug as string) ?? (row as any).subcat?.slug ?? "",
     entityType: (row.entity_type as ExamEntity["entityType"]) ?? "exam",
     conductingBody: (row.conducting_body as string) ?? "",
-    officialWebsite: (row.official_website as string) ?? "",
+    // Read-side guard (Finding #3): ensure a protocol so links never render as
+    // same-origin (which 500s on click) and new URL() never throws. A malformed
+    // multi-URL value normalises to "" → link hidden. Canonical fix is write-side
+    // normalisation + backfill; this stays as defense against non-form writers.
+    officialWebsite: normalizeUrl(row.official_website as string),
     status: (ed?.status as ExamEntity["status"]) ?? (row.status as ExamEntity["status"]) ?? "upcoming",
     hasAdmitCard: (ed?.has_admit_card as boolean) ?? (row.has_admit_card as boolean) ?? false,
     hasResult: (ed?.has_result as boolean) ?? (row.has_result as boolean) ?? false,

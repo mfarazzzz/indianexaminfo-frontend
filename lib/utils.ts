@@ -5,6 +5,27 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
+/**
+ * Normalise a stored website value into a valid absolute URL.
+ * Does exactly one thing: prepend "https://" when no protocol is present.
+ * Returns "" if the result doesn't parse as a URL — callers already guard on
+ * empty and hide the link, which is the correct failure mode (a bare value
+ * like "www.ibps.in" otherwise renders as a same-origin link that 500s on
+ * click). Multi-URL values (e.g. "https://a, https://b") fail new URL() and
+ * return "" by design — those are fixed by hand in the CMS, not parsed here.
+ */
+export function normalizeUrl(raw: string | null | undefined): string {
+  if (!raw) return "";
+  const trimmed = raw.trim();
+  if (!trimmed) return "";
+  const withProto = /^https?:\/\//i.test(trimmed) ? trimmed : `https://${trimmed}`;
+  try {
+    return new URL(withProto).toString();
+  } catch {
+    return "";
+  }
+}
+
 export function formatDate(dateStr: string, options?: Intl.DateTimeFormatOptions): string {
   if (!dateStr) return "";
   const date = new Date(dateStr);
