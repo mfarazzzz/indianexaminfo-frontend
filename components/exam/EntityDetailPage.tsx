@@ -18,7 +18,8 @@ import {
   statusColor,
   contentTypeLabel,
 } from "@/lib/utils";
-import { contentTypeHasData } from "@/lib/sectionRegistry";
+import { contentTypeHasData, hasData, mainSectionsForPillar, type HasDataView, type Pillar } from "@/lib/sectionRegistry";
+import { SECTION_SUMMARY_RENDERERS } from "@/components/exam/sectionRenderers";
 import { ExternalLink, Calendar, Share2 } from "lucide-react";
 
 type EntityDetailPageProps = {
@@ -47,6 +48,48 @@ const contentTypeOrder: ContentType[] = [
 
 // Tab derivation now lives in the shared registry (contentTypeHasData). The old
 // hasContentType/moduleHasData (has_*/enabledModules-based) were removed in Step 2.
+
+// ── Slice 1: one ordered section loop, gated to GDS pillars ──────────────────
+// Only these pillars use the new registry-driven ordered render. The other
+// pillars keep the legacy hardcoded body until later slices (coexisting paths,
+// no feature flag — the gate disappears when Slice 5 rolls out to all pillars).
+const NEW_RENDER_PILLARS = new Set<string>(["government-exam", "govt-vacancy"]);
+
+// Toggle for the Key Highlights comparison (user decides on the rendered page).
+// When false, Key Highlights is dropped from the ordered render.
+const SHOW_KEY_HIGHLIGHTS = true;
+
+/** Build the minimal view sectionRegistry.hasData needs from an ExamEntity. */
+function buildHasDataView(exam: ExamEntity): HasDataView {
+  return {
+    pillar: exam.pillar,
+    dates: exam.dates,
+    eligibility: exam.eligibility ?? null,
+    vacancy: exam.vacancy ?? null,
+    applicationFee: (exam.applicationFee ?? null) as HasDataView["applicationFee"],
+    selectionProcess: exam.selectionProcess ?? null,
+    syllabusHighlights: exam.syllabusHighlights ?? null,
+    faqs: exam.faqs ?? null,
+    contentModules: exam.contentModules,
+  };
+}
+
+/**
+ * The one ordered render: every main-page section for this pillar, filtered to
+ * those with data, in registry order, each via its Summary renderer. No
+ * hardcoded section order, no per-section JSX in the page. Empty sections absent.
+ */
+function renderOrderedSections(exam: ExamEntity): React.ReactNode {
+  const view = buildHasDataView(exam);
+  return mainSectionsForPillar(exam.pillar as Pillar)
+    .filter((s) => (s.slug === "key-highlights" ? SHOW_KEY_HIGHLIGHTS : true))
+    .filter((s) => hasData(view, s.slug))
+    .map((s) => {
+      const Render = SECTION_SUMMARY_RENDERERS[s.slug];
+      const node = Render ? Render(exam) : null;
+      return node ? <div key={s.slug}>{node}</div> : null;
+    });
+}
 
 function getContentTypeHref(exam: ExamEntity, ct: ContentType): string {
   // Map DB pillar values to frontend route
@@ -158,6 +201,12 @@ export async function EntityDetailPage({ exam, breadcrumbs }: EntityDetailPagePr
             {/* Social Channel CTA — top banner */}
             <SocialChannelBanner variant="top" />
 
+            {/* ── Slice 1: GDS pillars render one ordered section list from the
+                registry; other pillars keep the legacy hardcoded body below. ── */}
+            {NEW_RENDER_PILLARS.has(exam.pillar) ? (
+              renderOrderedSections(exam)
+            ) : (
+            <>
             {/* Summary Box */}
             <section className="summary-box mb-5" aria-label="Quick Summary">
               <h2 className="font-heading font-semibold text-sm text-gray-800 mb-2">Key Highlights</h2>
@@ -470,6 +519,9 @@ export async function EntityDetailPage({ exam, breadcrumbs }: EntityDetailPagePr
                 </div>
               </section>
             )}
+            </>
+            )}
+            {/* ── end legacy body / ordered-render branch ── */}
 
             {/* Social Channel CTA — bottom banner */}
             <SocialChannelBanner variant="bottom" />
