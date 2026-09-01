@@ -18,83 +18,6 @@ import { Calendar } from "lucide-react";
 /** A section summary component receives the exam and returns the section JSX (or null). */
 export type SectionSummary = (exam: ExamEntity) => React.ReactNode;
 
-// ── Key Highlights (synthesized) ─────────────────────────────────────────────
-const KeyHighlightsSummary: SectionSummary = (exam) => (
-  <section className="summary-box mb-5" aria-label="Quick Summary">
-    <h2 className="font-heading font-semibold text-sm text-gray-800 mb-2">Key Highlights</h2>
-    <ul className="space-y-1.5 text-sm text-gray-700">
-      {exam.vacancy != null && exam.vacancy > 0 && (
-        <li>
-          <span className="font-medium">Total Vacancies:</span>{" "}
-          {exam.vacancy.toLocaleString("en-IN")}
-        </li>
-      )}
-      {exam.eligibility && (
-        <li>
-          <span className="font-medium">Eligibility:</span>{" "}
-          {exam.eligibility.qualification}
-        </li>
-      )}
-      {exam.applicationFee && (
-        <li>
-          <span className="font-medium">Application Fee:</span>{" "}
-          {(() => {
-            const fee = exam.applicationFee;
-            const amounts: Record<number, string[]> = {};
-            if (fee.general != null && fee.general > 0) {
-              amounts[fee.general] = [...(amounts[fee.general] ?? []), "General"];
-            }
-            if (fee.obc != null && fee.obc > 0 && fee.obc !== fee.general) {
-              amounts[fee.obc] = [...(amounts[fee.obc] ?? []), "OBC"];
-            } else if (fee.obc != null && fee.obc > 0) {
-              amounts[fee.obc] = [...(amounts[fee.obc] ?? []), "OBC"];
-            }
-            if (fee.sc != null && fee.sc > 0) {
-              const scCategories = ["SC"];
-              if (fee.st != null && fee.st === fee.sc) scCategories.push("ST");
-              if (fee.pwd != null && fee.pwd === fee.sc) scCategories.push("PwBD");
-              amounts[fee.sc] = [...(amounts[fee.sc] ?? []), ...scCategories];
-            }
-            if (fee.st != null && fee.st > 0 && fee.st !== fee.sc) {
-              amounts[fee.st] = [...(amounts[fee.st] ?? []), "ST"];
-            }
-            const entries = Object.entries(amounts).filter(([amt]) => Number(amt) > 0);
-            if (entries.length === 0) return "Check official notification";
-            return entries.map(([amt, cats]) => `₹${Number(amt).toLocaleString("en-IN")} (${cats.join("/")})`).join(" | ");
-          })()}
-        </li>
-      )}
-      {(() => {
-        const now = new Date();
-        const futureDates = exam.dates.filter((d) => new Date(d.date) > now);
-        const pastDates = exam.dates.filter((d) => new Date(d.date) <= now);
-        const urgentFuture = futureDates.filter((d) => d.isUrgent);
-        const relevantDates = [
-          ...urgentFuture,
-          ...(pastDates.length > 0 ? [pastDates[pastDates.length - 1]] : []),
-          ...futureDates.filter((d) => !d.isUrgent),
-        ].slice(0, 2);
-        return relevantDates.map((d) => (
-          <li key={d.label}>
-            <span className="font-medium">{d.label}:</span>{" "}
-            <span className={d.isUrgent ? "text-accent font-semibold" : ""}>
-              {formatDate(d.date)}
-            </span>
-          </li>
-        ));
-      })()}
-      {exam.officialWebsite && (
-        <li>
-          <span className="font-medium">Official Website:</span>{" "}
-          <a href={exam.officialWebsite} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
-            {(() => { try { return new URL(exam.officialWebsite).hostname; } catch { return exam.officialWebsite; } })()}
-          </a>
-        </li>
-      )}
-    </ul>
-  </section>
-);
-
 // ── Important Dates (column) ──────────────────────────────────────────────────
 const ImportantDatesSummary: SectionSummary = (exam) => (
   <section aria-label="Important dates" className="mb-5">
@@ -152,9 +75,15 @@ const EligibilitySummary: SectionSummary = (exam) => {
             </tr>
           </thead>
           <tbody>
-            <tr><td>Age Limit</td><td>{exam.eligibility.age}</td></tr>
-            <tr><td>Educational Qualification</td><td>{exam.eligibility.qualification}</td></tr>
-            <tr><td>Nationality</td><td>{exam.eligibility.nationality}</td></tr>
+            {exam.eligibility.age && exam.eligibility.age.trim() && (
+              <tr><td>Age Limit</td><td>{exam.eligibility.age}</td></tr>
+            )}
+            {exam.eligibility.qualification && exam.eligibility.qualification.trim() && (
+              <tr><td>Educational Qualification</td><td>{exam.eligibility.qualification}</td></tr>
+            )}
+            {exam.eligibility.nationality && exam.eligibility.nationality.trim() && (
+              <tr><td>Nationality</td><td>{exam.eligibility.nationality}</td></tr>
+            )}
           </tbody>
         </table>
       </div>
@@ -353,7 +282,7 @@ function makeGenericEditorial(slug: string, label: string): SectionSummary {
  * and calls the renderer here. Sections with no entry render nothing.
  */
 export const SECTION_SUMMARY_RENDERERS: Record<string, SectionSummary> = {
-  "key-highlights": KeyHighlightsSummary,
+  // key-highlights removed — each fact now has its own ordered section below
   overview: OverviewSummary,
   "important-dates": ImportantDatesSummary,
   eligibility: EligibilitySummary,
