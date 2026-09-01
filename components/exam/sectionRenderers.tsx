@@ -36,8 +36,8 @@ const ImportantDatesSummary: SectionSummary = (exam) => (
           </tr>
         </thead>
         <tbody>
-          {exam.dates.map((d) => (
-            <tr key={d.label}>
+          {exam.dates.map((d, i) => (
+            <tr key={`${d.label}-${i}`}>
               <td className="font-medium text-gray-800">{d.label}</td>
               <td className={`font-mono ${d.isUrgent ? "text-accent font-semibold" : "text-gray-700"}`}>
                 {formatDate(d.date)}
