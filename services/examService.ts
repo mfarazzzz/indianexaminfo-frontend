@@ -31,8 +31,12 @@ async function fetchDerivedStatuses(
       map.set((row as any).exam_id, (row as any).derived_status);
     }
     return map;
-  } catch {
-    return new Map(); // non-fatal — fall back to stored status
+  } catch (err) {
+    // Log but don't throw — derived status is non-fatal; callers fall back
+    // to the stored status column. Without this log, the failure was completely
+    // invisible and caused wrong status badges to show for days.
+    console.error("[examService] fetchDerivedStatuses failed:", err);
+    return new Map();
   }
 }
 

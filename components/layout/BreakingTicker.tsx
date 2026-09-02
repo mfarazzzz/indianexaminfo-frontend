@@ -38,6 +38,7 @@ export async function BreakingTicker() {
             <Link
               key={`${item.id}-${i}`}
               href={item.href}
+              prefetch={false}
               className="inline-flex items-center gap-2 text-xs text-gray-700 hover:text-primary transition-colors px-4"
               data-speakable="true"
             >

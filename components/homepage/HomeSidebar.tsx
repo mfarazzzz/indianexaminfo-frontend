@@ -57,6 +57,7 @@ export async function HomeSidebar({ exams: examsProp }: { exams?: ExamEntity[] }
             <Link
               key={i}
               href={row.href}
+              prefetch={false}
               className="flex items-start justify-between gap-2 px-3 py-2 hover:bg-gray-50 transition-colors group"
             >
               <div className="min-w-0">
@@ -95,6 +96,7 @@ export async function HomeSidebar({ exams: examsProp }: { exams?: ExamEntity[] }
             <li key={item.href}>
               <Link
                 href={item.href}
+                prefetch={false}
                 className="flex items-center gap-2 px-3 py-2 hover:bg-gray-50 transition-colors group text-xs"
               >
                 <span className="w-4 shrink-0 text-gray-300 font-mono font-medium text-right">
@@ -135,6 +137,7 @@ export async function HomeSidebar({ exams: examsProp }: { exams?: ExamEntity[] }
                 <li key={e.id}>
                   <Link
                     href={href}
+                    prefetch={false}
                     className="flex items-center justify-between gap-2 px-3 py-2 hover:bg-gray-50 transition-colors group text-xs"
                   >
                     <span className="text-gray-700 group-hover:text-primary flex-1 truncate">
@@ -171,6 +174,7 @@ export async function HomeSidebar({ exams: examsProp }: { exams?: ExamEntity[] }
             <Link
               key={l.href}
               href={l.href}
+              prefetch={false}
               className="px-3 py-2 text-xs text-gray-700 hover:text-primary hover:bg-gray-50 transition-colors flex items-center gap-1"
             >
               <ExternalLink className="w-3 h-3 shrink-0 text-gray-300" aria-hidden="true" />

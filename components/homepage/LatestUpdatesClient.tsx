@@ -95,6 +95,7 @@ export function LatestUpdatesClient({ items }: Props) {
           <Link
             key={item.id}
             href={item.href}
+            prefetch={false}
             className="flex items-start gap-3 px-4 py-3 hover:bg-gray-50 transition-colors group"
           >
             <span className={cn("shrink-0 mt-0.5 text-xs font-bold uppercase tracking-wide px-2 py-0.5 rounded", ctColor(item.contentType))}>
