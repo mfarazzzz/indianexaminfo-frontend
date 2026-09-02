@@ -12,8 +12,32 @@ import { normalizeUrl } from "@/lib/utils";
 import { contentTypeHasData, type HasDataView } from "@/lib/sectionRegistry";
 import type { ExamEntity, Pillar, ContentType } from "@/types/exam";
 
+// ── Derived status lookup ───────────────────────────────────────────────
+// Fetches derived_status from exam_derived_status VIEW for a batch of exam IDs.
+// Returns a map of exam_id → derived_status.
+// Falls back silently — if the view is unavailable, callers use the stored column.
+async function fetchDerivedStatuses(
+  supabase: ReturnType<typeof createServerClient>,
+  examIds: string[]
+): Promise<Map<string, string>> {
+  if (examIds.length === 0) return new Map();
+  try {
+    const { data } = await supabase
+      .from("exam_derived_status")
+      .select("exam_id, derived_status, strip_eligible, has_confirmed_dates")
+      .in("exam_id", examIds);
+    const map = new Map<string, string>();
+    for (const row of data ?? []) {
+      map.set((row as any).exam_id, (row as any).derived_status);
+    }
+    return map;
+  } catch {
+    return new Map(); // non-fatal — fall back to stored status
+  }
+}
+
 // ── Row mapper: Supabase snake_case → camelCase ExamEntity ─────────────
-function mapRow(row: Record<string, unknown>): ExamEntity {
+function mapRow(row: Record<string, unknown>, derivedStatus?: string): ExamEntity {
   // If a current edition exists, prefer its temporal data over legacy columns
   const ed = (row as any).current_ed;
   return {
@@ -31,7 +55,14 @@ function mapRow(row: Record<string, unknown>): ExamEntity {
     // multi-URL value normalises to "" → link hidden. Canonical fix is write-side
     // normalisation + backfill; this stays as defense against non-form writers.
     officialWebsite: normalizeUrl(row.official_website as string),
-    status: (ed?.status as ExamEntity["status"]) ?? (row.status as ExamEntity["status"]) ?? "upcoming",
+    // Status priority: derived (VIEW) > edition column > exam column > fallback.
+    // derivedStatus is computed from actual date data with IST-correct timezone
+    // and state-aware logic. The stored columns are stale snapshots that were
+    // never updated after initial seed and disagree with real dates.
+    status: (derivedStatus as ExamEntity["status"]) ??
+            (ed?.status as ExamEntity["status"]) ??
+            (row.status as ExamEntity["status"]) ??
+            "upcoming",
     hasAdmitCard: (ed?.has_admit_card as boolean) ?? (row.has_admit_card as boolean) ?? false,
     hasResult: (ed?.has_result as boolean) ?? (row.has_result as boolean) ?? false,
     hasAnswerKey: (ed?.has_answer_key as boolean) ?? (row.has_answer_key as boolean) ?? false,
@@ -121,7 +152,9 @@ export async function getAllExams(): Promise<ExamEntity[]> {
         .order("is_featured", { ascending: false })
         .order("updated_at", { ascending: false });
       if (error) throw error;
-      return (data ?? []).map((r: any) => mapRow(r));
+      const rows = data ?? [];
+      const derivedMap = await fetchDerivedStatuses(supabase, rows.map((r: any) => r.id));
+      return rows.map((r: any) => mapRow(r, derivedMap.get(r.id)));
     } catch (err) {
       console.error("[examService] getAllExams failed:", err);
       return [];
@@ -200,7 +233,9 @@ export async function getExamBySlug(
       }
 
       if (!data) return null;
-      return mapRow(data as Record<string, unknown>);
+      // Fetch derived status in parallel with the map — single record, one row
+      const derivedMap = await fetchDerivedStatuses(supabase, [(data as any).id]);
+      return mapRow(data as Record<string, unknown>, derivedMap.get((data as any).id));
     } catch (err) {
       console.error("[examService] getExamBySlug failed:", err);
       return null;
@@ -219,7 +254,9 @@ export async function getExamsByPillar(pillar: Pillar): Promise<ExamEntity[]> {
         .order("is_featured", { ascending: false })
         .order("updated_at", { ascending: false });
       if (error) throw error;
-      return (data ?? []).map((r: any) => mapRow(r));
+      const rows = data ?? [];
+      const derivedMap = await fetchDerivedStatuses(supabase, rows.map((r: any) => r.id));
+      return rows.map((r: any) => mapRow(r, derivedMap.get(r.id)));
     } catch (err) {
       console.error("[examService] getExamsByPillar failed:", err);
       return [];
@@ -246,7 +283,9 @@ export async function getExamsByCategory(category: string): Promise<ExamEntity[]
         .eq("category_id", (catData as any).id)
         .order("is_featured", { ascending: false });
       if (error) throw error;
-      return (data ?? []).map((r: any) => mapRow(r));
+      const rows = data ?? [];
+      const derivedMap = await fetchDerivedStatuses(supabase, rows.map((r: any) => r.id));
+      return rows.map((r: any) => mapRow(r, derivedMap.get(r.id)));
     } catch (err) {
       console.error("[examService] getExamsByCategory failed:", err);
       return [];
@@ -263,7 +302,9 @@ export async function getFeaturedExams(): Promise<ExamEntity[]> {
       .eq("is_featured", true)
       .order("updated_at", { ascending: false });
     if (error) throw error;
-    return (data ?? []).map((r: any) => mapRow(r));
+    const rows = data ?? [];
+    const derivedMap = await fetchDerivedStatuses(supabase, rows.map((r: any) => r.id));
+    return rows.map((r: any) => mapRow(r, derivedMap.get(r.id)));
   } catch (err) {
     console.error("[examService] getFeaturedExams failed:", err);
     return [];
@@ -290,7 +331,9 @@ export async function getRelatedExams(examId: string): Promise<ExamEntity[]> {
       .eq("category_id", (examData as any).category_id)
       .limit(4);
     if (error) throw error;
-    return (data ?? []).map((r: any) => mapRow(r));
+    const rows = data ?? [];
+    const derivedMap = await fetchDerivedStatuses(supabase, rows.map((r: any) => r.id));
+    return rows.map((r: any) => mapRow(r, derivedMap.get(r.id)));
   } catch (err) {
     console.error("[examService] getRelatedExams failed:", err);
     return [];
@@ -309,7 +352,9 @@ export async function searchExams(query: string): Promise<ExamEntity[]> {
       .or(`name.ilike.%${escaped}%,short_name.ilike.%${escaped}%`)
       .limit(20);
     if (error) throw error;
-    return (data ?? []).map((r: any) => mapRow(r));
+    const rows = data ?? [];
+    const derivedMap = await fetchDerivedStatuses(supabase, rows.map((r: any) => r.id));
+    return rows.map((r: any) => mapRow(r, derivedMap.get(r.id)));
   } catch (err) {
     console.error("[examService] searchExams failed:", err);
     return [];
@@ -345,8 +390,10 @@ export async function getExamsByContentType(contentType: ContentType): Promise<E
     // Step 2 (d): content-hub link lists must only show exams whose sub-page will
     // actually 200. Filter the flag-based candidates through the SAME registry gate
     // used by tabs/sitemap/routes, so hubs never link to a URL that now 404s.
-    return (data ?? [])
-      .map((r: any) => mapRow(r))
+    const rows = data ?? [];
+    const derivedMap = await fetchDerivedStatuses(supabase, rows.map((r: any) => r.id));
+    return rows
+      .map((r: any) => mapRow(r, derivedMap.get(r.id)))
       .filter((exam) => contentTypeHasData(exam as unknown as HasDataView, contentType));
   } catch (err) {
     console.error("[examService] getExamsByContentType failed:", err);
@@ -363,7 +410,9 @@ export async function getExamsByStatus(status: string): Promise<ExamEntity[]> {
       .eq("status", status)
       .order("updated_at", { ascending: false });
     if (error) throw error;
-    return (data ?? []).map((r: any) => mapRow(r));
+    const rows = data ?? [];
+    const derivedMap = await fetchDerivedStatuses(supabase, rows.map((r: any) => r.id));
+    return rows.map((r: any) => mapRow(r, derivedMap.get(r.id)));
   } catch (err) {
     console.error("[examService] getExamsByStatus failed:", err);
     return [];

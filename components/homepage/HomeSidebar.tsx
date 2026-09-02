@@ -121,7 +121,13 @@ export async function HomeSidebar({ exams: examsProp }: { exams?: ExamEntity[] }
         </div>
         <ul className="divide-y divide-border">
           {exams
-            .filter((e) => e.status === "upcoming" || e.status === "registration-open")
+            .filter((e) => (
+              e.status === "upcoming" ||
+              e.status === "registration-open" ||
+              e.status === "notified" ||
+              e.status === "registration-closed" ||
+              e.status === "admit-card-out"
+            ))
             .slice(0, 6)
             .map((e) => {
               const href = getExamEntityHref(e);

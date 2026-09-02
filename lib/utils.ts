@@ -118,13 +118,19 @@ export function pillarLabel(pillar: string): string {
 
 export function statusColor(status: string): string {
   const colors: Record<string, string> = {
-    upcoming: "text-warning bg-warning/10",
-    active: "text-success bg-success/10",
-    "registration-open": "text-success bg-success/10",
-    "registration-closed": "text-accent bg-accent/10",
-    "result-declared": "text-primary bg-primary/10",
-    completed: "text-muted bg-gray-100",
-    ongoing: "text-editorial bg-editorial/10",
+    upcoming:               "text-warning bg-warning/10",
+    active:                 "text-success bg-success/10",
+    "registration-open":    "text-success bg-success/10",
+    "registration-closed":  "text-accent bg-accent/10",
+    "result-declared":      "text-primary bg-primary/10",
+    "result-awaited":       "text-primary bg-primary/10",
+    completed:              "text-muted bg-gray-100",
+    ongoing:                "text-editorial bg-editorial/10",
+    notified:               "text-warning bg-warning/10",
+    "admit-card-out":       "text-success bg-success/10",
+    "dates-awaited":        "text-muted bg-gray-100",
+    postponed:              "text-accent bg-accent/10",
+    cancelled:              "text-red-600 bg-red-50",
   };
   return colors[status] ?? "text-muted bg-gray-100";
 }

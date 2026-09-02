@@ -38,8 +38,14 @@ export type ExamStatus =
   | "registration-open"
   | "registration-closed"
   | "result-declared"
+  | "result-awaited"
   | "completed"
-  | "ongoing";
+  | "ongoing"
+  | "notified"
+  | "admit-card-out"
+  | "dates-awaited"
+  | "postponed"
+  | "cancelled";
 
 export type ExamEntity = {
   id: string;
