@@ -55,14 +55,25 @@ function mapRow(row: Record<string, unknown>, derivedStatus?: string): ExamEntit
     // multi-URL value normalises to "" → link hidden. Canonical fix is write-side
     // normalisation + backfill; this stays as defense against non-form writers.
     officialWebsite: normalizeUrl(row.official_website as string),
-    // Status priority: derived (VIEW) > edition column > exam column > fallback.
-    // derivedStatus is computed from actual date data with IST-correct timezone
-    // and state-aware logic. The stored columns are stale snapshots that were
-    // never updated after initial seed and disagree with real dates.
-    status: (derivedStatus as ExamEntity["status"]) ??
-            (ed?.status as ExamEntity["status"]) ??
-            (row.status as ExamEntity["status"]) ??
-            "upcoming",
+    // Status priority (three-tier):
+    //   1. Stored status wins when it is 'cancelled' or 'postponed' — these are
+    //      editorial assertions the VIEW cannot derive (case (c): genuine record
+    //      cancellation; or a manual postponement flag set in the CMS). All other
+    //      stored values are stale seeds that disagree with real dates.
+    //   2. Derived status from the VIEW — computed from actual date data with
+    //      IST-correct timezone, type-aware rules, and state field on each row.
+    //   3. Fallback to stored columns only when the VIEW query failed silently.
+    status: ((): ExamEntity["status"] => {
+      const stored = (row.status as string) ?? (ed?.status as string);
+      // Override: editor-asserted statuses always win
+      if (stored === "cancelled" || stored === "postponed") {
+        return stored as ExamEntity["status"];
+      }
+      return (derivedStatus as ExamEntity["status"])
+          ?? (ed?.status   as ExamEntity["status"])
+          ?? (row.status   as ExamEntity["status"])
+          ?? "upcoming";
+    })(),
     hasAdmitCard: (ed?.has_admit_card as boolean) ?? (row.has_admit_card as boolean) ?? false,
     hasResult: (ed?.has_result as boolean) ?? (row.has_result as boolean) ?? false,
     hasAnswerKey: (ed?.has_answer_key as boolean) ?? (row.has_answer_key as boolean) ?? false,
