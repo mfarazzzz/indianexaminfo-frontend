@@ -12,10 +12,9 @@ const trending = [
 ];
 
 const stats = [
-  { value: "500+",    label: "Exams Covered" },
-  { value: "50,000+", label: "Daily Visitors" },
-  { value: "1,200+",  label: "Articles" },
-  { value: "Daily",   label: "Updates" },
+  { value: "500+",   label: "Exams Covered" },
+  { value: "1,200+", label: "Articles" },
+  { value: "Daily",  label: "Updates" },
 ];
 
 export function SearchHero() {
@@ -84,7 +83,7 @@ export function SearchHero() {
         </form>
 
         {/* Stats bar */}
-        <div className="max-w-lg mx-auto mt-6 pt-5 border-t border-white/10 grid grid-cols-4 gap-4">
+        <div className="max-w-lg mx-auto mt-6 pt-5 border-t border-white/10 grid grid-cols-3 gap-4">
           {stats.map((s) => (
             <div key={s.label} className="text-center">
               <div className="text-white font-black text-lg leading-tight">{s.value}</div>

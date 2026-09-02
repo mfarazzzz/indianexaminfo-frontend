@@ -4,8 +4,9 @@
  * HeaderMegaNav — Client component for desktop navigation triggers
  * and mobile toggle. Uses hover intent with 60ms open / 200ms close delay.
  */
-import React, { useCallback, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { ChevronDown, Menu, X, Search } from "lucide-react";
 import { NavigationPanel } from "./NavigationPanel";
 import { MegaMenuMobileLazy } from "./MegaMenuMobileLazy";
@@ -53,6 +54,14 @@ export function HeaderMegaNav({ pillars, quickAccessItems }: Props) {
   const handleClose = useCallback(() => {
     setActivePillar(null);
   }, []);
+
+  // Close the mega menu on any route change — catches Link clicks that don't
+  // trigger a full page reload (Next.js client-side navigation).
+  const pathname = usePathname();
+  useEffect(() => {
+    setActivePillar(null);
+    setMobileOpen(false);
+  }, [pathname]);
 
   // Find the active tree
   const activeTree = pillars.find((p) => p.pillar === activePillar) ?? null;
