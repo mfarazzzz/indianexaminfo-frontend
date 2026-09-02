@@ -74,13 +74,17 @@ function mapRow(row: Record<string, unknown>, derivedStatus?: string): ExamEntit
     hasApplication: (ed?.has_application as boolean) ?? (row.has_application as boolean) ?? false,
     hasNotification: (ed?.has_notification as boolean) ?? (row.has_notification as boolean) ?? false,
     hasCutoff: (ed?.has_cutoff as boolean) ?? (row.has_cutoff as boolean) ?? false,
-    // Edition is the single source of truth for temporal data. The legacy
-    // exams.* columns are no longer read (see AUDIT_REPORT ADDENDUM 2 / Group 2):
-    // an empty edition array/object is truthy and would silently shadow a
-    // populated legacy value, so the `?? row.*` fallbacks were removed after
-    // migrating legacy data onto the current edition. Terminal defaults kept
-    // so a NULL/absent edition value still coalesces to a safe empty value.
-    dates: ((ed?.important_dates as unknown[]) ?? []) as ExamEntity["dates"],
+    // Edition is the single source of truth for temporal data.
+    dates: ((ed?.important_dates as unknown[]) ?? []).map((d: any) => ({
+      label:       d.label       as string,
+      date:        d.date        as string,
+      isUrgent:    d.isUrgent    as boolean ?? false,
+      // Step 2 fields — present after type backfill; absent on legacy rows
+      state:       d.state       as string | undefined,
+      type:        d.type        as string | undefined,
+      stage_label: d.stage_label as string | undefined,
+      verified:    d.verified    as boolean | undefined,
+    })) as ExamEntity["dates"],
     eligibility: (ed?.eligibility as ExamEntity["eligibility"]) ?? undefined,
     vacancy: (ed?.vacancy as number) ?? undefined,
     applicationFee: (ed?.application_fee as ExamEntity["applicationFee"]) ?? undefined,

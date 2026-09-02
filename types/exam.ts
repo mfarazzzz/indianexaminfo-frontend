@@ -77,6 +77,21 @@ export type ExamEntity = {
     label: string;
     date: string;
     isUrgent: boolean;
+    /** Date lifecycle state — added in Step 2 type backfill.
+     *  confirmed = officially announced (from source PDF/notification)
+     *  expected  = tentative / not yet officially announced
+     *  tba       = to be announced (no date value yet)
+     *  postponed = previously confirmed, now delayed
+     *  cancelled = this specific event is cancelled
+     *  Absent on pre-backfill rows — treat as 'confirmed'.
+     */
+    state?: "confirmed" | "expected" | "tba" | "postponed" | "cancelled";
+    /** Machine-readable event type — see type vocabulary in CMS_REDESIGN.md */
+    type?: string;
+    /** Stage label for multi-stage exams (e.g. "Prelims", "Tier I") */
+    stage_label?: string;
+    /** Has a human verified this date against the official source? */
+    verified?: boolean;
   }[];
 
   eligibility?: {

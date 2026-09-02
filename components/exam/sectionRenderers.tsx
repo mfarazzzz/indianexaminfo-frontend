@@ -36,23 +36,62 @@ const ImportantDatesSummary: SectionSummary = (exam) => (
           </tr>
         </thead>
         <tbody>
-          {exam.dates.map((d, i) => (
-            <tr key={`${d.label}-${i}`}>
-              <td className="font-medium text-gray-800">{d.label}</td>
-              <td className={`font-mono ${d.isUrgent ? "text-accent font-semibold" : "text-gray-700"}`}>
-                {formatDate(d.date)}
-              </td>
-              <td>
-                {new Date(d.date) < new Date() ? (
-                  <span className="text-xs text-gray-400">Passed</span>
-                ) : d.isUrgent ? (
-                  <span className="text-xs text-accent font-semibold">Urgent</span>
-                ) : (
-                  <span className="text-xs text-success">Upcoming</span>
-                )}
-              </td>
-            </tr>
-          ))}
+          {exam.dates.map((d, i) => {
+            const isCancelled = d.state === "cancelled";
+            const isExpected  = d.state === "expected" || d.state === "tba";
+            const isPostponed = d.state === "postponed";
+            const isPast = !isCancelled && !isExpected && new Date(d.date) < new Date();
+
+            return (
+              <tr key={`${d.label}-${i}`} className={isCancelled ? "opacity-60" : undefined}>
+                {/* Event label — struck through when cancelled */}
+                <td className={`font-medium ${isCancelled ? "text-gray-400 line-through" : "text-gray-800"}`}>
+                  {d.label}
+                </td>
+
+                {/* Date cell */}
+                <td className={`font-mono ${
+                  isCancelled ? "text-gray-400 line-through"
+                  : isExpected ? "text-gray-500"
+                  : d.isUrgent ? "text-accent font-semibold"
+                  : "text-gray-700"
+                }`}>
+                  {isCancelled ? (
+                    <span>{formatDate(d.date)}</span>
+                  ) : isExpected ? (
+                    <span
+                      title="Tentative date — not yet officially confirmed. Check the official website before acting on this."
+                      className="cursor-help"
+                    >
+                      {formatDate(d.date)}{" "}
+                      <span className="text-[11px] font-normal not-italic">(expected)</span>
+                    </span>
+                  ) : (
+                    formatDate(d.date)
+                  )}
+                </td>
+
+                {/* Status chip */}
+                <td>
+                  {isCancelled ? (
+                    <span className="text-xs font-semibold text-red-600 bg-red-50 px-1.5 py-0.5 rounded">
+                      Cancelled
+                    </span>
+                  ) : isPostponed ? (
+                    <span className="text-xs font-medium text-amber-600">Postponed</span>
+                  ) : isExpected ? (
+                    <span className="text-xs text-gray-400">Tentative</span>
+                  ) : isPast ? (
+                    <span className="text-xs text-gray-400">Passed</span>
+                  ) : d.isUrgent ? (
+                    <span className="text-xs text-accent font-semibold">Urgent</span>
+                  ) : (
+                    <span className="text-xs text-success">Upcoming</span>
+                  )}
+                </td>
+              </tr>
+            );
+          })}
         </tbody>
       </table>
     </div>
