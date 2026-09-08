@@ -76,7 +76,7 @@ export function Header({ primaryNav, megaMenus }: HeaderProps) {
         <div className="container mx-auto px-4">
           <div className="flex items-center h-14 gap-4">
             {/* Logo */}
-            <Link href="/" className="shrink-0 flex items-center gap-2 mr-4" prefetch>
+            <Link href="/" className="shrink-0 flex items-center gap-2 mr-4" prefetch={null}>
               <div className="w-8 h-8 bg-primary rounded flex items-center justify-center">
                 <span className="text-white font-heading font-bold text-sm">IE</span>
               </div>
@@ -111,7 +111,7 @@ export function Header({ primaryNav, megaMenus }: HeaderProps) {
                           ? "text-primary bg-primary/5"
                           : "text-gray-700 hover:text-primary hover:bg-gray-50"
                       )}
-                      prefetch
+                      prefetch={null}
                       aria-haspopup={hasMega ? "true" : undefined}
                       aria-expanded={isActive ? "true" : undefined}
                     >

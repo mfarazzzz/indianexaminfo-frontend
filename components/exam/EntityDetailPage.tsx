@@ -550,6 +550,7 @@ export async function EntityDetailPage({ exam, breadcrumbs }: EntityDetailPagePr
                     <Link
                       href={getContentTypeHref(exam, ct)}
                       className="text-sm text-gray-700 hover:text-primary hover:underline"
+                      prefetch={false}
                     >
                       {exam.shortName} {contentTypeLabel(ct)}
                     </Link>

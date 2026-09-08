@@ -54,6 +54,7 @@ export function Breadcrumb({ items }: BreadcrumbProps) {
                   href={item.href}
                   itemProp="item"
                   className="text-gray-600 hover:text-primary transition-colors"
+                  prefetch={false}
                 >
                   <span itemProp="name">{item.name}</span>
                 </Link>
@@ -75,7 +76,7 @@ export function Breadcrumb({ items }: BreadcrumbProps) {
                   {item.name}
                 </span>
               ) : (
-                <Link href={item.href} className="text-gray-600 hover:text-primary">
+                <Link href={item.href} className="text-gray-600 hover:text-primary" prefetch={false}>
                   {item.name}
                 </Link>
               )}

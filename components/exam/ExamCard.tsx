@@ -99,7 +99,10 @@ export function ExamCard({ exam }: ExamCardProps) {
       {/* Title */}
       <div className="px-3 pt-2 pb-1">
         <h3 className="font-heading font-bold text-gray-900 text-sm leading-snug">
-          <Link href={href} className="hover:text-primary transition-colors" prefetch={false}>
+          {/* prefetch={null}: this is the primary listing→detail click path, so
+              prefetch the static shell on viewport (cheap) to keep clicks instant.
+              The chip links below stay prefetch={false} — they're secondary. */}
+          <Link href={href} className="hover:text-primary transition-colors" prefetch={null}>
             {exam.name}
           </Link>
         </h3>
