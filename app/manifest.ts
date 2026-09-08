@@ -12,9 +12,11 @@ export default function manifest(): MetadataRoute.Manifest {
     theme_color: "#1A3C6E",
     orientation: "portrait",
     icons: [
-      { src: "/icons/icon-192.png", sizes: "192x192", type: "image/png" },
-      { src: "/icons/icon-512.png", sizes: "512x512", type: "image/png" },
-      { src: "/icons/icon-512.png", sizes: "512x512", type: "image/png", purpose: "maskable" },
+      // Real vector logo (public/icons/icon.svg == public/logo.svg). Scales to
+      // any install size. Add raster PNGs (192/512) later only if a target
+      // launcher rejects SVG; modern Android/Chrome install SVG fine.
+      { src: "/icons/icon.svg", sizes: "any", type: "image/svg+xml", purpose: "any" },
+      { src: "/icons/icon.svg", sizes: "any", type: "image/svg+xml", purpose: "maskable" },
     ],
     categories: ["education", "news"],
     lang: "en-IN",

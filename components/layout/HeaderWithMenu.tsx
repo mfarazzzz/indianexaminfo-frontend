@@ -17,10 +17,9 @@ export async function HeaderWithMenu() {
         <div className="max-w-7xl mx-auto px-4">
           <div className="flex items-center h-14 gap-6">
             {/* Logo */}
-            <Link href="/" className="shrink-0 flex items-center gap-2.5" prefetch>
-              <div className="w-8 h-8 bg-gradient-to-br from-primary to-primary/80 rounded-lg flex items-center justify-center shadow-sm">
-                <span className="text-white font-heading font-bold text-sm">IE</span>
-              </div>
+            <Link href="/" className="shrink-0 flex items-center gap-2.5" prefetch={false}>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/icon.svg" alt="IndianExamInfo" width={36} height={36} className="w-9 h-9" />
               <span className="font-heading font-bold text-primary text-lg hidden sm:block tracking-tight">
                 IndianExamInfo
               </span>
