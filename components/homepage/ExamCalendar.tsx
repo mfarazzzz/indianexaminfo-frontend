@@ -143,7 +143,7 @@ export function ExamCalendar({ events }: ExamCalendarProps) {
           <ul className="space-y-1.5">
             {popup.events.map((ev, i) => (
               <li key={i}>
-                <Link href={ev.href} className="text-xs text-primary hover:underline flex items-center gap-1.5">
+                <Link href={ev.href} prefetch={false} className="text-xs text-primary hover:underline flex items-center gap-1.5">
                   <span className={cn("w-2 h-2 rounded-full shrink-0", PILLAR_COLORS[ev.pillar])} />
                   {ev.label}
                 </Link>

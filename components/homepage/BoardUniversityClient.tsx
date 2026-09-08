@@ -25,7 +25,7 @@ export function BoardUniversityClient({ exams, tabs }: { exams: ExamEntity[]; ta
           </h2>
           <p className="text-xs text-gray-400 mt-0.5">Class 10 &amp; 12 results, date sheets, university exams &amp; admit cards</p>
         </div>
-        <Link href="/board-exam" className="text-xs font-semibold text-success hover:text-green-800 flex items-center gap-1 whitespace-nowrap mt-1">
+        <Link href="/board-exam" prefetch={false} className="text-xs font-semibold text-success hover:text-green-800 flex items-center gap-1 whitespace-nowrap mt-1">
           View All <ArrowRight className="w-3.5 h-3.5" />
         </Link>
       </div>

@@ -25,7 +25,7 @@ export function EntranceExamClient({ exams, tabs }: { exams: ExamEntity[]; tabs:
           </h2>
           <p className="text-xs text-gray-400 mt-0.5">Engineering, Medical, MBA, Law &amp; more</p>
         </div>
-        <Link href="/entrance-exam" className="text-xs font-semibold text-amber-700 hover:text-amber-800 flex items-center gap-1 whitespace-nowrap mt-1">
+        <Link href="/entrance-exam" prefetch={false} className="text-xs font-semibold text-amber-700 hover:text-amber-800 flex items-center gap-1 whitespace-nowrap mt-1">
           View All <ArrowRight className="w-3.5 h-3.5" />
         </Link>
       </div>

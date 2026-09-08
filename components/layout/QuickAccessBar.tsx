@@ -25,6 +25,7 @@ export function QuickAccessBar({ items }: Props) {
             <Link
               key={item.id}
               href={item.href}
+              prefetch={false}
               className="shrink-0 flex items-center gap-1 px-2.5 py-1 text-[11px] font-medium text-gray-600 hover:text-primary hover:bg-white/80 rounded transition-colors whitespace-nowrap"
             >
               <span className="text-xs">{item.icon}</span>

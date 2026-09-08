@@ -99,10 +99,10 @@ export function ExamCard({ exam }: ExamCardProps) {
       {/* Title */}
       <div className="px-3 pt-2 pb-1">
         <h3 className="font-heading font-bold text-gray-900 text-sm leading-snug">
-          {/* prefetch={null}: this is the primary listing→detail click path, so
-              prefetch the static shell on viewport (cheap) to keep clicks instant.
-              The chip links below stay prefetch={false} — they're secondary. */}
-          <Link href={href} className="hover:text-primary transition-colors" prefetch={null}>
+          {/* prefetch={false}: exam detail routes are dynamic/ISR, so prefetch={null}
+              (the default) fetches the FULL RSC payload, not a static shell — measured
+              at 25-108KB per link on prod. false is the only real "off" for these. */}
+          <Link href={href} className="hover:text-primary transition-colors" prefetch={false}>
             {exam.name}
           </Link>
         </h3>

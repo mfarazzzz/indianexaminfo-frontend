@@ -55,7 +55,7 @@ export async function EditorialSpotlight() {
           </h2>
           <p className="text-xs text-gray-400 mt-0.5">Expert guides, news &amp; exam preparation</p>
         </div>
-        <Link href="/blog" className="text-xs font-semibold text-editorial hover:underline flex items-center gap-1 whitespace-nowrap">
+        <Link href="/blog" prefetch={false} className="text-xs font-semibold text-editorial hover:underline flex items-center gap-1 whitespace-nowrap">
           All Articles <ArrowRight className="w-3.5 h-3.5" />
         </Link>
       </div>
@@ -77,7 +77,7 @@ export async function EditorialSpotlight() {
 
           <div className="p-4 flex flex-col gap-2 flex-1">
             <h3 className="font-heading font-bold text-sm text-gray-900 leading-snug">
-              <Link href={`/blog/${featured.section}/${featured.slug}`} className="hover:text-primary transition-colors">
+              <Link href={`/blog/${featured.section}/${featured.slug}`} prefetch={false} className="hover:text-primary transition-colors">
                 {featured.title}
               </Link>
             </h3>
@@ -102,7 +102,7 @@ export async function EditorialSpotlight() {
                     {post.section.replace(/-/g, " ")}
                   </span>
                   <h3 className="font-heading text-xs font-bold text-gray-900 mt-0.5 leading-snug line-clamp-2">
-                    <Link href={`/blog/${post.section}/${post.slug}`} className="hover:text-primary transition-colors">
+                    <Link href={`/blog/${post.section}/${post.slug}`} prefetch={false} className="hover:text-primary transition-colors">
                       {post.title}
                     </Link>
                   </h3>

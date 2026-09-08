@@ -5,7 +5,9 @@
  * The CMS manages zones → campaigns → creatives. This API finds the best
  * matching active creative for the requested position.
  *
- * Response: AdCreative JSON or 404 if no active ad.
+ * Response: AdCreative JSON, or 200 with null body when there is no active ad.
+ * "No ad to show" is a normal empty result, NOT a client error — returning 404
+ * here polluted every page load with console errors and failed requests.
  */
 
 import { NextRequest, NextResponse } from "next/server";
@@ -31,8 +33,14 @@ export async function GET(
       .eq("is_active", true)
       .maybeSingle();
 
+    // No zone / campaign / creative = "no ad to show" = 200 null, not an error.
+    const emptyAd = () =>
+      NextResponse.json(null, {
+        headers: { "Cache-Control": "public, s-maxage=300, stale-while-revalidate=60" },
+      });
+
     if (!zone) {
-      return NextResponse.json(null, { status: 404 });
+      return emptyAd();
     }
 
     const today = new Date().toISOString().split("T")[0];
@@ -50,7 +58,7 @@ export async function GET(
       .maybeSingle();
 
     if (!campaign) {
-      return NextResponse.json(null, { status: 404 });
+      return emptyAd();
     }
 
     // 3. Get an active creative for this campaign
@@ -64,7 +72,7 @@ export async function GET(
       .maybeSingle();
 
     if (!creative) {
-      return NextResponse.json(null, { status: 404 });
+      return emptyAd();
     }
 
     // 4. Return the creative data

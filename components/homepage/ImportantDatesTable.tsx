@@ -50,7 +50,7 @@ export async function ImportantDatesTable() {
                 )}
               >
                 <td className="px-3 py-2 border-0">
-                  <Link href={row.examHref} className="text-primary hover:underline font-medium text-xs">
+                  <Link href={row.examHref} prefetch={false} className="text-primary hover:underline font-medium text-xs">
                     {row.examName}
                   </Link>
                 </td>

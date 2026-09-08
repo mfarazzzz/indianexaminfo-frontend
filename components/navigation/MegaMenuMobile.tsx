@@ -146,6 +146,7 @@ export function MegaMenuMobile({ pillars, quickAccessItems, onClose }: Props) {
                   key={item.id}
                   href={item.href}
                   onClick={onClose}
+                  prefetch={false}
                   className="shrink-0 flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-gray-600 bg-gray-50 rounded-lg hover:bg-primary/5 hover:text-primary transition-colors min-h-[44px]"
                 >
                   <span className="text-sm">{item.icon}</span>

@@ -84,6 +84,7 @@ export function HeaderMegaNav({ pillars, quickAccessItems }: Props) {
           >
             <Link
               href={tree.href}
+              prefetch={false}
               className={`flex items-center gap-1.5 px-4 py-2.5 text-sm font-semibold rounded-md transition-all duration-150 ${
                 activePillar === tree.pillar
                   ? "text-primary bg-primary/8 shadow-sm"
@@ -118,6 +119,7 @@ export function HeaderMegaNav({ pillars, quickAccessItems }: Props) {
       <div className="flex items-center gap-1.5 ml-auto">
         <Link
           href="/search"
+          prefetch={false}
           className="p-2 text-gray-500 hover:text-primary rounded-md hover:bg-gray-50 transition-colors"
           aria-label="Search"
         >

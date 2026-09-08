@@ -37,7 +37,7 @@ export function RecentlyViewed() {
       <ul className="space-y-1.5">
         {items.map((item) => (
           <li key={item.href}>
-            <Link href={item.href} className="text-sm text-gray-700 hover:text-primary hover:underline transition-colors flex items-center gap-2">
+            <Link href={item.href} prefetch={false} className="text-sm text-gray-700 hover:text-primary hover:underline transition-colors flex items-center gap-2">
               <span className="w-1.5 h-1.5 rounded-full bg-primary/40 shrink-0" aria-hidden="true" />
               {item.name}
             </Link>

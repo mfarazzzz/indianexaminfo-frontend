@@ -32,7 +32,7 @@ export function ContentTypeQuickLinks() {
               key={link.href}
               href={link.href}
               className={`flex flex-col items-center gap-2 p-3 rounded border border-border transition-all duration-150 group ${link.color}`}
-              prefetch
+              prefetch={false}
             >
               <Icon className="w-6 h-6 shrink-0" aria-hidden="true" />
               <span className="text-xs font-semibold text-center leading-tight">{link.label}</span>

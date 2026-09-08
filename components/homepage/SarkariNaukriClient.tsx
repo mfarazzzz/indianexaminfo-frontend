@@ -25,7 +25,7 @@ export function SarkariNaukriClient({ exams, tabs }: { exams: ExamEntity[]; tabs
           </h2>
           <p className="text-xs text-gray-400 mt-0.5">Latest notifications, admit cards &amp; results</p>
         </div>
-        <Link href="/sarkari-naukri" className="text-xs font-semibold text-primary hover:text-primary-700 flex items-center gap-1 whitespace-nowrap mt-1">
+        <Link href="/sarkari-naukri" prefetch={false} className="text-xs font-semibold text-primary hover:text-primary-700 flex items-center gap-1 whitespace-nowrap mt-1">
           View All <ArrowRight className="w-3.5 h-3.5" />
         </Link>
       </div>

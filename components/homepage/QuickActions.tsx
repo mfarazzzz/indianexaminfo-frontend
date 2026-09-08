@@ -102,7 +102,7 @@ export function QuickActions() {
                 border border-border ${action.hoverBorder}
                 shadow-sm hover:shadow-md transition-all group
               `}
-              prefetch
+              prefetch={false}
             >
               <div className={`w-9 h-9 rounded flex items-center justify-center ${action.bg}`}>
                 <Icon className={`w-4 h-4 ${action.iconColor}`} aria-hidden="true" />
