@@ -42,34 +42,62 @@ async function fetchDerivedStatuses(
 
 // ── Row mapper: Supabase snake_case → camelCase ExamEntity ─────────────
 function mapRow(row: Record<string, unknown>, derivedStatus?: string): ExamEntity {
-  // If a current edition exists, prefer its temporal data over legacy columns
+  // The current edition is the SINGLE SOURCE OF TRUTH for all cycle-specific data
+  // (dates, vacancy, eligibility, fee). The parent `exams.*` copies are migration
+  // residue and are NOT read here (they were dual-source: ~67% of has_* rows
+  // disagreed — see NORMALIZATION_AUDIT.md). No `?? row.*` fallback.
   const ed = (row as any).current_ed;
+
+  // Temporal / cycle fields — edition-only.
+  const dates = ((ed?.important_dates as unknown[]) ?? []).map((d: any) => ({
+    label:       d.label       as string,
+    date:        d.date        as string,
+    isUrgent:    d.isUrgent    as boolean ?? false,
+    state:       d.state       as string | undefined,
+    type:        d.type        as string | undefined,
+    stage_label: d.stage_label as string | undefined,
+    verified:    d.verified    as boolean | undefined,
+  })) as ExamEntity["dates"];
+  const eligibility = (ed?.eligibility as ExamEntity["eligibility"]) ?? undefined;
+  const vacancy = (ed?.vacancy as number) ?? undefined;
+  const applicationFee = (ed?.application_fee as ExamEntity["applicationFee"]) ?? undefined;
+  const selectionProcess = (row.selection_process as string[]) ?? [];
+  const syllabusHighlights = (row.syllabus_highlights as string[]) ?? [];
+  const faqs = (row.faqs as ExamEntity["faqs"]) ?? [];
+  const contentModules = (ed?.content_modules as Record<string, unknown>) ?? undefined;
+  const pillar = row.pillar as Pillar;
+
+  // has_* flags are read EDITION-ONLY (no ?? row.has_* parent fallback). The
+  // parent copies were the dual source (~67% disagreed); the edition flag is
+  // what the CMS writes and what renders today.
+  //
+  // NOTE: has_* is NOT yet derived from content presence. Measurement showed
+  // ~390 published exams set the edition result/admit-card/application flag TRUE
+  // with an EMPTY content_modules blob — those sections render today from
+  // structured/dated data, not an editorial module. Deriving via hasData (which
+  // only inspects content_modules for these editorial sections) would wrongly
+  // hide them site-wide. Deriving is deferred until hasData recognises
+  // structured/dated presence for result/admit-card/application. See
+  // NORMALIZATION_AUDIT.md. For now: edition-authoritative, parent dropped.
+  const edFlag = (v: unknown) => (v as boolean) ?? false;
+
   return {
     id: row.id as string,
     slug: row.slug as string,
     name: row.name as string,
     shortName: (row.short_name as string) ?? "",
-    pillar: row.pillar as Pillar,
+    pillar,
     category: (row.category_slug as string) ?? (row as any).cat?.slug ?? "",
     subcategory: (row.subcategory_slug as string) ?? (row as any).subcat?.slug ?? "",
     entityType: (row.entity_type as ExamEntity["entityType"]) ?? "exam",
     conductingBody: (row.conducting_body as string) ?? "",
     // Read-side guard (Finding #3): ensure a protocol so links never render as
-    // same-origin (which 500s on click) and new URL() never throws. A malformed
-    // multi-URL value normalises to "" → link hidden. Canonical fix is write-side
-    // normalisation + backfill; this stays as defense against non-form writers.
+    // same-origin (which 500s on click) and new URL() never throws.
     officialWebsite: normalizeUrl(row.official_website as string),
-    // Status priority (three-tier):
-    //   1. Stored status wins when it is 'cancelled' or 'postponed' — these are
-    //      editorial assertions the VIEW cannot derive (case (c): genuine record
-    //      cancellation; or a manual postponement flag set in the CMS). All other
-    //      stored values are stale seeds that disagree with real dates.
-    //   2. Derived status from the VIEW — computed from actual date data with
-    //      IST-correct timezone, type-aware rules, and state field on each row.
-    //   3. Fallback to stored columns only when the VIEW query failed silently.
+    // Status priority: editor-asserted cancelled/postponed win, else the derived
+    // VIEW status, else the stored column only if the VIEW query failed.
     status: ((): ExamEntity["status"] => {
       const stored = (row.status as string) ?? (ed?.status as string);
-      // Override: editor-asserted statuses always win
       if (stored === "cancelled" || stored === "postponed") {
         return stored as ExamEntity["status"];
       }
@@ -78,47 +106,40 @@ function mapRow(row: Record<string, unknown>, derivedStatus?: string): ExamEntit
           ?? (row.status   as ExamEntity["status"])
           ?? "upcoming";
     })(),
-    hasAdmitCard: (ed?.has_admit_card as boolean) ?? (row.has_admit_card as boolean) ?? false,
-    hasResult: (ed?.has_result as boolean) ?? (row.has_result as boolean) ?? false,
-    hasAnswerKey: (ed?.has_answer_key as boolean) ?? (row.has_answer_key as boolean) ?? false,
-    hasSyllabus: (ed?.has_syllabus as boolean) ?? (row.has_syllabus as boolean) ?? false,
-    hasDateSheet: (row.has_date_sheet as boolean) ?? false,
-    hasMockTest: (row.has_mock_test as boolean) ?? false,
+    // ── Content flags: edition-only (was: (ed?.has_x) ?? (row.has_x) ?? false) ──
+    // date-sheet/mock-test/previous-papers/study-material have NO edition column
+    // (they exist only on exams), so they remain parent-read for now — they are
+    // a separate follow-up, not part of the parent-fallback removal.
+    hasAdmitCard:      edFlag(ed?.has_admit_card),
+    hasResult:         edFlag(ed?.has_result),
+    hasAnswerKey:      edFlag(ed?.has_answer_key),
+    hasSyllabus:       edFlag(ed?.has_syllabus),
+    hasDateSheet:      (row.has_date_sheet as boolean) ?? false,
+    hasMockTest:       (row.has_mock_test as boolean) ?? false,
     hasPreviousPapers: (row.has_previous_papers as boolean) ?? false,
-    hasStudyMaterial: (row.has_study_material as boolean) ?? false,
-    hasApplication: (ed?.has_application as boolean) ?? (row.has_application as boolean) ?? false,
-    hasNotification: (ed?.has_notification as boolean) ?? (row.has_notification as boolean) ?? false,
-    hasCutoff: (ed?.has_cutoff as boolean) ?? (row.has_cutoff as boolean) ?? false,
-    // Edition is the single source of truth for temporal data.
-    dates: ((ed?.important_dates as unknown[]) ?? []).map((d: any) => ({
-      label:       d.label       as string,
-      date:        d.date        as string,
-      isUrgent:    d.isUrgent    as boolean ?? false,
-      // Step 2 fields — present after type backfill; absent on legacy rows
-      state:       d.state       as string | undefined,
-      type:        d.type        as string | undefined,
-      stage_label: d.stage_label as string | undefined,
-      verified:    d.verified    as boolean | undefined,
-    })) as ExamEntity["dates"],
-    eligibility: (ed?.eligibility as ExamEntity["eligibility"]) ?? undefined,
-    vacancy: (ed?.vacancy as number) ?? undefined,
-    applicationFee: (ed?.application_fee as ExamEntity["applicationFee"]) ?? undefined,
-    selectionProcess: (row.selection_process as string[]) ?? [],
-    syllabusHighlights: (row.syllabus_highlights as string[]) ?? [],
+    hasStudyMaterial:  (row.has_study_material as boolean) ?? false,
+    hasApplication:    edFlag(ed?.has_application),
+    hasNotification:   edFlag(ed?.has_notification),
+    hasCutoff:         edFlag(ed?.has_cutoff),
+    dates,
+    eligibility,
+    vacancy,
+    applicationFee,
+    selectionProcess,
+    syllabusHighlights,
     academicYear: (row.academic_year as string) ?? undefined,
     semester: (row.semester as string) ?? undefined,
     admissionTo: (row.admission_to as string) ?? undefined,
     tags: (row.tags as string[]) ?? [],
-    // Prefer updated_at (trigger-maintained real last-write timestamp) over the
-    // legacy last_updated DATE column, which defaults to CURRENT_DATE at insert
-    // and is never bumped on edits (see AUDIT_REPORT Finding #6 / Group 3).
-    lastUpdated: (row.updated_at as string) ?? (row.last_updated as string) ?? new Date().toISOString().split("T")[0],
+    // updated_at is the real last-write timestamp; last_updated is NOT read
+    // (legacy CURRENT_DATE-at-insert column, cycle residue on exams).
+    lastUpdated: (row.updated_at as string) ?? new Date().toISOString().split("T")[0],
     isFeatured: (row.is_featured as boolean) ?? false,
     searchKeywords: (row.search_keywords as string[]) ?? [],
     seoTitle: (row.seo_title as string) ?? undefined,
     seoDescription: (row.seo_description as string) ?? undefined,
-    faqs: (row.faqs as ExamEntity["faqs"]) ?? [],
-    contentModules: (ed?.content_modules as Record<string, unknown>) ?? undefined,
+    faqs,
+    contentModules,
   };
 }
 
