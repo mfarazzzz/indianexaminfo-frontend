@@ -94,30 +94,30 @@ function mapRow(row: Record<string, unknown>, derivedStatus?: string): ExamEntit
     // Read-side guard (Finding #3): ensure a protocol so links never render as
     // same-origin (which 500s on click) and new URL() never throws.
     officialWebsite: normalizeUrl(row.official_website as string),
-    // Status priority: editor-asserted cancelled/postponed win, else the derived
-    // VIEW status, else the stored column only if the VIEW query failed.
+    // Status priority: editor-asserted cancelled/postponed win (edition-only now
+    // that exams.status is dropped), else the derived VIEW status, else edition.
     status: ((): ExamEntity["status"] => {
-      const stored = (row.status as string) ?? (ed?.status as string);
+      const stored = (ed?.status as string);
       if (stored === "cancelled" || stored === "postponed") {
         return stored as ExamEntity["status"];
       }
       return (derivedStatus as ExamEntity["status"])
           ?? (ed?.status   as ExamEntity["status"])
-          ?? (row.status   as ExamEntity["status"])
           ?? "upcoming";
     })(),
-    // ── Content flags: edition-only (was: (ed?.has_x) ?? (row.has_x) ?? false) ──
-    // date-sheet/mock-test/previous-papers/study-material have NO edition column
-    // (they exist only on exams), so they remain parent-read for now — they are
-    // a separate follow-up, not part of the parent-fallback removal.
+    // ── Content flags: edition-only. Parent exams.has_* were DROPPED (step 4).
+    // date-sheet/mock-test/previous-papers/study-material had NO edition column and
+    // only ever existed on the parent — now dropped, so they are always false until
+    // a proper edition-level source exists (previous-papers/study-material/mock-test
+    // move to the exam_resources library; date-sheet is a board concept with no home).
     hasAdmitCard:      edFlag(ed?.has_admit_card),
     hasResult:         edFlag(ed?.has_result),
     hasAnswerKey:      edFlag(ed?.has_answer_key),
     hasSyllabus:       edFlag(ed?.has_syllabus),
-    hasDateSheet:      (row.has_date_sheet as boolean) ?? false,
-    hasMockTest:       (row.has_mock_test as boolean) ?? false,
-    hasPreviousPapers: (row.has_previous_papers as boolean) ?? false,
-    hasStudyMaterial:  (row.has_study_material as boolean) ?? false,
+    hasDateSheet:      false,
+    hasMockTest:       false,
+    hasPreviousPapers: false,
+    hasStudyMaterial:  false,
     hasApplication:    edFlag(ed?.has_application),
     hasNotification:   edFlag(ed?.has_notification),
     hasCutoff:         edFlag(ed?.has_cutoff),
@@ -160,12 +160,13 @@ const CT_TO_FLAG: Partial<Record<ContentType, keyof ExamEntity>> = {
 };
 
 // ── Base Supabase select for exam list ──────────────────────────────────
+// Parent exams.* cycle columns (has_*, important_dates, vacancy, last_updated,
+// status) were DROPPED in step 4. All cycle data + status now read from the
+// current edition (and status from the exam_derived_status VIEW). updated_at is
+// the real last-write timestamp.
 const LIST_SELECT = `
-  id, slug, name, short_name, pillar, entity_type, status, is_featured,
-  vacancy, last_updated, updated_at,
-  has_admit_card, has_result, has_answer_key, has_syllabus, has_date_sheet,
-  has_mock_test, has_previous_papers, has_study_material, has_application,
-  has_notification, has_cutoff, tags, search_keywords, important_dates,
+  id, slug, name, short_name, pillar, entity_type, is_featured,
+  updated_at, tags, search_keywords,
   cat:categories!category_id(slug), subcat:categories!subcategory_id(slug),
   current_ed:exam_editions!current_edition_id(
     id, year, edition_label, status, important_dates, vacancy,
@@ -402,34 +403,18 @@ export async function searchExams(query: string): Promise<ExamEntity[]> {
 }
 
 export async function getExamsByContentType(contentType: ContentType): Promise<ExamEntity[]> {
-  const flagCol: Partial<Record<ContentType, string>> = {
-    "admit-card":      "has_admit_card",
-    result:            "has_result",
-    "answer-key":      "has_answer_key",
-    syllabus:          "has_syllabus",
-    "date-sheet":      "has_date_sheet",
-    "mock-test":       "has_mock_test",
-    "previous-papers": "has_previous_papers",
-    "study-material":  "has_study_material",
-    application:       "has_application",
-    notification:      "has_notification",
-    cutoff:            "has_cutoff",
-    books:             "has_study_material",
-  };
-  const col = flagCol[contentType];
-  if (!col) return [];
+  // The parent exams.has_* flag columns were dropped (step 4). Presence is now
+  // decided solely by hasData/contentTypeHasData (the registry gate used by tabs,
+  // sitemap, and routes). Fetch all exams, then filter by real data presence —
+  // fetch-then-filter replaces the old `.eq(has_x, true)` SQL prefilter.
   try {
     const supabase = createServerClient();
     const { data, error } = await supabase
       .from("exams")
       .select(LIST_SELECT)
-      .eq(col, true)
       .order("is_featured", { ascending: false })
       .order("updated_at", { ascending: false });
     if (error) throw error;
-    // Step 2 (d): content-hub link lists must only show exams whose sub-page will
-    // actually 200. Filter the flag-based candidates through the SAME registry gate
-    // used by tabs/sitemap/routes, so hubs never link to a URL that now 404s.
     const rows = data ?? [];
     const derivedMap = await fetchDerivedStatuses(supabase, rows.map((r: any) => r.id));
     return rows
@@ -442,17 +427,21 @@ export async function getExamsByContentType(contentType: ContentType): Promise<E
 }
 
 export async function getExamsByStatus(status: string): Promise<ExamEntity[]> {
+  // exams.status was dropped (step 4); status now derives from the VIEW + edition
+  // via mapRow. Fetch-then-filter on the resolved status instead of a SQL .eq on
+  // the removed parent column.
   try {
     const supabase = createServerClient();
     const { data, error } = await supabase
       .from("exams")
       .select(LIST_SELECT)
-      .eq("status", status)
       .order("updated_at", { ascending: false });
     if (error) throw error;
     const rows = data ?? [];
     const derivedMap = await fetchDerivedStatuses(supabase, rows.map((r: any) => r.id));
-    return rows.map((r: any) => mapRow(r, derivedMap.get(r.id)));
+    return rows
+      .map((r: any) => mapRow(r, derivedMap.get(r.id)))
+      .filter((exam) => exam.status === status);
   } catch (err) {
     console.error("[examService] getExamsByStatus failed:", err);
     return [];
