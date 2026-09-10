@@ -13,13 +13,13 @@
 import { ExternalLink, FileText, BookOpen, ClipboardList, ScrollText, FileCheck } from "lucide-react";
 import type { ExamResourceRow, ResourceKind } from "@/services/examService";
 
-// Stable display order + label + icon per kind.
-const KIND_ORDER: { kind: ResourceKind; label: string; Icon: typeof FileText }[] = [
-  { kind: "previous-paper", label: "Previous Year Papers", Icon: ScrollText },
-  { kind: "sample-paper",   label: "Sample Papers",        Icon: FileCheck },
-  { kind: "mock-test",      label: "Mock Tests",           Icon: ClipboardList },
-  { kind: "study-material", label: "Study Material",       Icon: BookOpen },
-  { kind: "syllabus-pdf",   label: "Syllabus PDFs",        Icon: FileText },
+// Stable display order + singular/plural label + icon per kind. Heading pluralizes by count.
+const KIND_ORDER: { kind: ResourceKind; singular: string; plural: string; Icon: typeof FileText }[] = [
+  { kind: "previous-paper", singular: "Previous Year Paper", plural: "Previous Year Papers", Icon: ScrollText },
+  { kind: "sample-paper",   singular: "Sample Paper",        plural: "Sample Papers",        Icon: FileCheck },
+  { kind: "mock-test",      singular: "Mock Test",           plural: "Mock Tests",           Icon: ClipboardList },
+  { kind: "study-material", singular: "Study Material",      plural: "Study Materials",      Icon: BookOpen },
+  { kind: "syllabus-pdf",   singular: "Syllabus PDF",        plural: "Syllabus PDFs",        Icon: FileText },
 ];
 
 /** Sort within a kind: undated first (evergreen), then newest year descending. */
@@ -53,7 +53,10 @@ export function ResourceLibrary({ resources }: { resources: ExamResourceRow[] })
   if (!resources || resources.length === 0) return null;
 
   const groups = KIND_ORDER
-    .map((k) => ({ ...k, items: sortForKind(resources.filter((r) => r.kind === k.kind)) }))
+    .map((k) => {
+      const items = sortForKind(resources.filter((r) => r.kind === k.kind));
+      return { ...k, items, label: items.length === 1 ? k.singular : k.plural };
+    })
     .filter((g) => g.items.length > 0);
 
   if (groups.length === 0) return null;
