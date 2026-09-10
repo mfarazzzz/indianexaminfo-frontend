@@ -1,10 +1,12 @@
 /**
  * ResourceLibrary — renders the exam's accumulated library (exam_resources).
  *
- * Shows on the main exam page AND every archived edition page. The library is the SAME
- * for all editions (it's exam-level), so an archived 2024 page shows 2024's dates/result
- * but the COMPLETE library. Grouped by kind; within each kind, undated ("All years")
- * evergreen items first, then newest year descending. Renders nothing when empty — the
+ * Renders on the MAIN exam page (via EntityDetailPage). It is designed to ALSO render on
+ * archived edition pages showing the COMPLETE exam-level library (not that year's subset),
+ * but the archive route does NOT yet render through this component — see NORMALIZATION_AUDIT
+ * "ARCHIVED-EDITION LIBRARY: NOT WORKING". Wire it in when archived editions ships.
+ * Grouped by kind; within each kind, undated (evergreen, no year label) items first, then
+ * newest year descending. Renders nothing when empty — the
  * rows passed in are already RLS-filtered to published, non-deleted (see getExamResources),
  * so an all-unpublished library arrives here as an empty array and this returns null.
  */
