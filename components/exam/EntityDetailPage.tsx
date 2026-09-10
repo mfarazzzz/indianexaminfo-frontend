@@ -1,7 +1,8 @@
 import Link from "next/link";
 import type { ExamEntity, ContentType } from "@/types/exam";
 import { getContentPostsByExam } from "@/services/contentPostService";
-import { getRelatedExams } from "@/services/examService";
+import { getRelatedExams, getExamResources } from "@/services/examService";
+import { ResourceLibrary } from "@/components/exam/ResourceLibrary";
 import { Breadcrumb, type BreadcrumbItem } from "@/components/layout/Breadcrumb";
 import { ExamCard } from "@/components/exam/ExamCard";
 import { AdSlot } from "@/components/ads/AdSlot";
@@ -112,9 +113,10 @@ function getContentTypeHref(exam: ExamEntity, ct: ContentType): string {
 }
 
 export async function EntityDetailPage({ exam, breadcrumbs }: EntityDetailPageProps) {
-  const [contentPosts, relatedExams] = await Promise.all([
+  const [contentPosts, relatedExams, resources] = await Promise.all([
     getContentPostsByExam(exam.id),
     getRelatedExams(exam.id),
+    getExamResources(exam.id),
   ]);
 
   // Step 2: tabs gated by the ONE registry hasData rule (presence of content is
@@ -424,6 +426,10 @@ export async function EntityDetailPage({ exam, breadcrumbs }: EntityDetailPagePr
 
             {/* Content Modules — from exam_editions.content_modules */}
             <ContentModulesBlock contentModules={exam.contentModules} />
+
+            {/* Resource library — exam-level, shared across editions (exam_resources).
+                Hidden when empty; RLS already excludes unpublished/deleted rows. */}
+            <ResourceLibrary resources={resources} />
 
             {/* Content Posts */}
             {contentPosts.length > 0 && (

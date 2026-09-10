@@ -460,6 +460,57 @@ export async function generateStaticExamParams(): Promise<{ slug: string }[]> {
   }
 }
 
+// ── exam_resources: the accumulated library (level 3) ─────────────────────
+// Year-tagged materials shared across all editions. RLS enforces the published +
+// not-deleted + parent-published filter, so unpublished rows never reach here.
+
+export type ResourceKind =
+  | "previous-paper" | "study-material" | "mock-test" | "sample-paper" | "syllabus-pdf";
+
+export interface ExamResourceRow {
+  id: string;
+  kind: ResourceKind;
+  year: number | null;
+  stageLabel: string | null;
+  title: string;
+  url: string;
+  description: string | null;
+  language: string | null;
+  paperType: string | null;
+  fileSizeKb: number | null;
+  displayOrder: number;
+}
+
+/**
+ * The exam's resource library. RLS already restricts to published, non-deleted rows on
+ * published exams — so a caller never has to re-filter is_published. Ordered undated-first
+ * ("All years" evergreen items at the top of their kind), then newest year, then order/title.
+ */
+export async function getExamResources(examId: string): Promise<ExamResourceRow[]> {
+  return cached(async () => {
+    try {
+      const supabase = createServerClient();
+      const { data, error } = await supabase
+        .from("exam_resources")
+        .select("id, kind, year, stage_label, title, url, description, language, paper_type, file_size_kb, display_order")
+        .eq("exam_id", examId)
+        .order("display_order", { ascending: true })
+        .order("title", { ascending: true });
+      if (error) throw error;
+      return (data ?? []).map((r: any): ExamResourceRow => ({
+        id: r.id, kind: r.kind, year: (r.year as number) ?? null,
+        stageLabel: (r.stage_label as string) ?? null, title: r.title, url: r.url,
+        description: (r.description as string) ?? null, language: (r.language as string) ?? null,
+        paperType: (r.paper_type as string) ?? null, fileSizeKb: (r.file_size_kb as number) ?? null,
+        displayOrder: (r.display_order as number) ?? 0,
+      }));
+    } catch (err) {
+      console.error("[examService] getExamResources failed:", err);
+      return [];
+    }
+  }, ["exams", `exam-resources:${examId}`], { revalidate: 1800 });
+}
+
 /**
  * Live count of exams in a pillar. Used by homepage cards so the numbers
  * reflect the database instead of hardcoded literals. Returns 0 on failure —
