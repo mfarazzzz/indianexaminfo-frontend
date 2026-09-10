@@ -479,6 +479,7 @@ export interface ExamResourceRow {
   paperType: string | null;
   fileSizeKb: number | null;
   displayOrder: number;
+  isPublished: boolean;
 }
 
 /**
@@ -492,18 +493,24 @@ export async function getExamResources(examId: string): Promise<ExamResourceRow[
       const supabase = createServerClient();
       const { data, error } = await supabase
         .from("exam_resources")
-        .select("id, kind, year, stage_label, title, url, description, language, paper_type, file_size_kb, display_order")
+        .select("id, kind, year, stage_label, title, url, description, language, paper_type, file_size_kb, display_order, is_published")
         .eq("exam_id", examId)
+        // Defense in depth: RLS already excludes unpublished for the anon client, but a
+        // second app-level filter guarantees hasData never counts one even if a future
+        // code path runs authenticated (staff_read_all would otherwise return them).
+        .eq("is_published", true)
         .order("display_order", { ascending: true })
         .order("title", { ascending: true });
       if (error) throw error;
-      return (data ?? []).map((r: any): ExamResourceRow => ({
-        id: r.id, kind: r.kind, year: (r.year as number) ?? null,
-        stageLabel: (r.stage_label as string) ?? null, title: r.title, url: r.url,
-        description: (r.description as string) ?? null, language: (r.language as string) ?? null,
-        paperType: (r.paper_type as string) ?? null, fileSizeKb: (r.file_size_kb as number) ?? null,
-        displayOrder: (r.display_order as number) ?? 0,
-      }));
+      return (data ?? [])
+        .filter((r: any) => r.is_published === true)
+        .map((r: any): ExamResourceRow => ({
+          id: r.id, kind: r.kind, year: (r.year as number) ?? null,
+          stageLabel: (r.stage_label as string) ?? null, title: r.title, url: r.url,
+          description: (r.description as string) ?? null, language: (r.language as string) ?? null,
+          paperType: (r.paper_type as string) ?? null, fileSizeKb: (r.file_size_kb as number) ?? null,
+          displayOrder: (r.display_order as number) ?? 0, isPublished: r.is_published === true,
+        }));
     } catch (err) {
       console.error("[examService] getExamResources failed:", err);
       return [];

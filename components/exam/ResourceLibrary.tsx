@@ -71,12 +71,11 @@ export function ResourceLibrary({ resources }: { resources: ExamResourceRow[] })
                 <Icon size={14} className="text-gray-400" /> {label}
               </div>
               {undated.length > 0 && (
-                <div className="mb-2">
-                  <div className="text-xs text-gray-400 mb-0.5">All years</div>
-                  <ul className="space-y-1 pl-1">
-                    {undated.map((r) => <ResourceItem key={r.id} r={r} />)}
-                  </ul>
-                </div>
+                // Undated (evergreen) items: NO year label — an empty year or dash reads
+                // like missing data. Just the titles, directly under the kind heading.
+                <ul className="space-y-1 pl-1 mb-2">
+                  {undated.map((r) => <ResourceItem key={r.id} r={r} />)}
+                </ul>
               )}
               {years.map((y) => (
                 <div key={y} className="mb-2">
