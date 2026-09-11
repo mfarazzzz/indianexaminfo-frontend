@@ -505,6 +505,73 @@ const AcademicInfoSummary: SectionSummary = (exam) => {
   );
 };
 
+// ── Structured content modules (2026-09-11) ─────────────────────────────────
+// Field keys mirror indianexaminfo-cms/src/config/moduleRegistry.ts. Built against the
+// ACTUAL data shapes: documents and statistics are HTML strings (not lists/objects).
+// result & admit-card render their `body` HERE so replacing the generic editorial renderer
+// does not lose the body text.
+
+/** Result — fields: declarationDate, checkLink, statistics(HTML), body(HTML). Replaces the
+ *  generic editorial renderer, so body is rendered here too. */
+const ResultSummary: SectionSummary = (exam) => {
+  const d = moduleData(exam, "result");
+  if (!d) return null;
+  const declarationDate = str(d.declarationDate), checkLink = str(d.checkLink);
+  const statistics = safeHtml(d.statistics);
+  const body = safeHtml(d.body) || safeHtml(d.content) || safeHtml(d.description);
+  if (!declarationDate && !checkLink && !statistics && !body) return null;
+  return (
+    <section aria-label="Result" className="mb-5">
+      <h2 className="font-heading font-semibold text-base text-gray-800 mb-3">Result</h2>
+      {declarationDate && (
+        <p className="text-sm text-gray-700 mb-2">
+          <span className="font-medium text-gray-800">Declared:</span> {formatDate(declarationDate)}
+        </p>
+      )}
+      {body && <div className="article-body text-sm" dangerouslySetInnerHTML={{ __html: body }} />}
+      {statistics && <div className="article-body text-sm mt-2" dangerouslySetInnerHTML={{ __html: statistics }} />}
+      {checkLink && (
+        <div className="mt-2">
+          <a href={checkLink} target="_blank" rel="noopener noreferrer nofollow" className="text-primary hover:underline text-sm font-medium">Check Result</a>
+        </div>
+      )}
+    </section>
+  );
+};
+
+/** Admit Card — fields: releaseDate, downloadLink, documents(HTML), body(HTML). Replaces the
+ *  generic editorial renderer, so body is rendered here too. */
+const AdmitCardSummary: SectionSummary = (exam) => {
+  const d = moduleData(exam, "admit-card");
+  if (!d) return null;
+  const releaseDate = str(d.releaseDate), downloadLink = str(d.downloadLink);
+  const documents = safeHtml(d.documents);
+  const body = safeHtml(d.body) || safeHtml(d.content) || safeHtml(d.description);
+  if (!releaseDate && !downloadLink && !documents && !body) return null;
+  return (
+    <section aria-label="Admit card" className="mb-5">
+      <h2 className="font-heading font-semibold text-base text-gray-800 mb-3">Admit Card</h2>
+      {releaseDate && (
+        <p className="text-sm text-gray-700 mb-2">
+          <span className="font-medium text-gray-800">Release Date:</span> {formatDate(releaseDate)}
+        </p>
+      )}
+      {body && <div className="article-body text-sm" dangerouslySetInnerHTML={{ __html: body }} />}
+      {documents && (
+        <div className="mt-2">
+          <h3 className="text-sm font-medium text-gray-800 mb-1">Documents to carry</h3>
+          <div className="article-body text-sm" dangerouslySetInnerHTML={{ __html: documents }} />
+        </div>
+      )}
+      {downloadLink && (
+        <div className="mt-2">
+          <a href={downloadLink} target="_blank" rel="noopener noreferrer nofollow" className="text-primary hover:underline text-sm font-medium">Download Admit Card</a>
+        </div>
+      )}
+    </section>
+  );
+};
+
 /**
  * slug → Summary renderer. The detail page loops the registry (order/placement)
  * and calls the renderer here. Sections with no entry render nothing.
@@ -520,8 +587,9 @@ export const SECTION_SUMMARY_RENDERERS: Record<string, SectionSummary> = {
   "selection-process": SelectionProcessSummary,
   salary: makeGenericEditorial("salary", "Salary & Pay Scale"),
   "age-limit": makeGenericEditorial("age-limit", "Age Limit"),
-  "admit-card": makeGenericEditorial("admit-card", "Admit Card"),
-  result: makeGenericEditorial("result", "Result"),
+  // Structured renderers REPLACE the generic editorial ones (they render body internally too).
+  "admit-card": AdmitCardSummary,
+  result: ResultSummary,
   "documents-required": makeGenericEditorial("documents-required", "Documents Required"),
   reservation: makeGenericEditorial("reservation", "Reservation Policy"),
   "academic-info": AcademicInfoSummary,
