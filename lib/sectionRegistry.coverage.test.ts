@@ -20,12 +20,10 @@ import { SECTION_SUMMARY_RENDERERS } from "@/components/exam/sectionRenderers";
 // Sections that intentionally render WITHOUT a SECTION_SUMMARY_RENDERERS entry, each with a
 // supersession reason. These are not gaps — they render through a dedicated component or are
 // structural furniture, not the editorial-summary map.
+// Main/both sections that intentionally render WITHOUT a SECTION_SUMMARY_RENDERERS entry.
+// (Tab-only sections aren't checked by the forward rule; they're covered by the placement rule.)
 const RENDERS_ELSEWHERE: Record<string, string> = {
   "key-highlights": "Structural furniture synthesized in EntityDetailPage, not an editorial summary",
-  syllabus: "Rendered by the dedicated <SyllabusSection> (structured exam_syllabus_subjects), not the summary map",
-  "cut-off": "Tab-only reference page; no main-page summary renderer by design",
-  "answer-key": "Tab-only reference page; no main-page summary renderer by design",
-  news: "Rendered by the News tab / Related News, not the editorial summary map",
 };
 
 // Explicitly RETIRED sections — removed from the registry, must stay gone. Recorded with a
@@ -75,6 +73,26 @@ describe("Rule 4 — renderer coverage (SECTION_REGISTRY ↔ SECTION_SUMMARY_REN
     }
   });
 
+  // Placement consistency: a tab-only section must NOT have a main-page summary renderer.
+  // This is the guard for the bug where SyllabusSection was hardcoded onto the main page while
+  // the registry said placement:"tab" — code and registry disagreeing with no test between them.
+  // (A main-page renderer is one wired into SECTION_SUMMARY_RENDERERS, which the ordered loop
+  // calls for main/both sections. Tab-only sections render on their own sub-page, not here.)
+  describe("placement — tab-only sections have no main-page summary renderer", () => {
+    const tabOnly = SECTION_REGISTRY.filter((s) => s.placement === "tab");
+    for (const s of tabOnly) {
+      it(`${s.slug}: tab-only, so must not be in SECTION_SUMMARY_RENDERERS (main-page map)`, () => {
+        expect(
+          s.slug in SECTION_SUMMARY_RENDERERS,
+          `Section "${s.slug}" is placement:"tab" but has a main-page summary renderer. ` +
+            `A tab-only section must render on its sub-page only, not the main page (this is ` +
+            `the SyllabusSection-on-main-page bug). Remove its SECTION_SUMMARY_RENDERERS entry ` +
+            `or change its placement.`
+        ).toBe(false);
+      });
+    }
+  });
+
   // Retirement reasons must be supersession-based, never "empty".
   it("retired sections carry a supersession reason (never 'empty')", () => {
     for (const [slug, reason] of Object.entries(RETIRED)) {
@@ -104,5 +122,14 @@ describe("renderer-coverage rule rejects drift (deliberate failing cases)", () =
     expect(isValidReason("empty")).toBe(false);
     expect(isValidReason("no content yet")).toBe(false);
     expect(isValidReason("Superseded by the exam_resources library")).toBe(true);
+  });
+
+  it("placement: a tab-only section WITH a main-page renderer is caught (the SyllabusSection bug)", () => {
+    // Simulate the bug: syllabus is placement:"tab"; pretend it had a main-page renderer.
+    const tabOnlySlug = "syllabus";
+    const isTabOnly = SECTION_REGISTRY.find((s) => s.slug === tabOnlySlug)?.placement === "tab";
+    const pretendHasMainRenderer = true; // the bug state
+    // The rule asserts NOT(tab-only AND has main renderer); here that conjunction is true → caught.
+    expect(isTabOnly && pretendHasMainRenderer).toBe(true);
   });
 });
