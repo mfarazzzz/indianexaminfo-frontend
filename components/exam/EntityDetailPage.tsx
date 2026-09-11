@@ -1,7 +1,7 @@
 import Link from "next/link";
 import type { ExamEntity, ContentType } from "@/types/exam";
 import { getContentPostsByExam } from "@/services/contentPostService";
-import { getRelatedExams, getExamResources, getExamSyllabus } from "@/services/examService";
+import { getRelatedExams, getExamResources, getExamSyllabus, type StructuredSyllabus, type ExamResourceRow } from "@/services/examService";
 import { ResourceLibrary } from "@/components/exam/ResourceLibrary";
 import { SyllabusSection } from "@/components/exam/SyllabusSection";
 import { Breadcrumb, type BreadcrumbItem } from "@/components/layout/Breadcrumb";
@@ -73,6 +73,7 @@ function buildHasDataView(exam: ExamEntity, hasStructuredSyllabus: boolean): Has
     vacancy: exam.vacancy ?? null,
     applicationFee: (exam.applicationFee ?? null) as HasDataView["applicationFee"],
     selectionProcess: exam.selectionProcess ?? null,
+    academicInfo: { academicYear: exam.academicYear ?? null, semester: exam.semester ?? null, admissionTo: exam.admissionTo ?? null },
     hasStructuredSyllabus,
     faqs: exam.faqs ?? null,
     contentModules: exam.contentModules,
@@ -84,9 +85,19 @@ function buildHasDataView(exam: ExamEntity, hasStructuredSyllabus: boolean): Has
  * those with data, in registry order, each via its Summary renderer. No
  * hardcoded section order, no per-section JSX in the page. Empty sections absent.
  */
-function renderOrderedSections(exam: ExamEntity, hasStructuredSyllabus: boolean): React.ReactNode {
+// The unified body EVERY pillar renders. The registry-driven ordered section loop, then the
+// standalone pieces that were previously legacy-branch-only (SyllabusSection, ContentModules,
+// ResourceLibrary, content-posts). This is feature-complete parity with the old legacy body,
+// so the gate can widen to all pillars and the legacy branch can be deleted.
+function renderOrderedSections(
+  exam: ExamEntity,
+  hasStructuredSyllabus: boolean,
+  syllabus: StructuredSyllabus,
+  resources: ExamResourceRow[],
+  contentPosts: Awaited<ReturnType<typeof getContentPostsByExam>>,
+): React.ReactNode {
   const view = buildHasDataView(exam, hasStructuredSyllabus);
-  return mainSectionsForPillar(exam.pillar as Pillar)
+  const orderedSections = mainSectionsForPillar(exam.pillar as Pillar)
     .filter((s) => (s.slug === "key-highlights" ? SHOW_KEY_HIGHLIGHTS : true))
     .filter((s) => hasData(view, s.slug))
     .map((s) => {
@@ -94,6 +105,44 @@ function renderOrderedSections(exam: ExamEntity, hasStructuredSyllabus: boolean)
       const node = Render ? Render(exam) : null;
       return node ? <div key={s.slug}>{node}</div> : null;
     });
+
+  return (
+    <>
+      {orderedSections}
+
+      {/* Structured syllabus — exam-level, subjects + weightage. Hidden when empty. */}
+      <SyllabusSection syllabus={syllabus} />
+
+      {/* Content Modules — editorial modules from exam_editions.content_modules (overview,
+          exam-pattern, cut-off, counselling, date-sheet, etc.). Renders nothing when empty. */}
+      <ContentModulesBlock contentModules={exam.contentModules} />
+
+      {/* Resource library — exam-level, shared across editions (exam_resources). */}
+      <ResourceLibrary resources={resources} />
+
+      {/* Content Posts — Latest Updates linked to this exam. */}
+      {contentPosts.length > 0 && (
+        <section aria-label="Related content" className="mb-5">
+          <h2 className="font-heading font-semibold text-base text-gray-800 mb-3">Latest Updates</h2>
+          <div className="space-y-3">
+            {contentPosts.map((post) => (
+              <Link
+                key={post.id}
+                href={`/${post.pillar}/${post.examEntityName.toLowerCase().replace(/\s+/g, "-")}/${post.slug}`}
+                className="flex items-start gap-3 p-3 bg-card border border-border rounded hover:border-primary transition-colors group"
+              >
+                <span className="content-type-badge bg-primary/10 text-primary mt-0.5 shrink-0">{contentTypeLabel(post.contentType)}</span>
+                <div>
+                  <p className="text-sm font-semibold text-gray-900 group-hover:text-primary leading-snug">{post.title}</p>
+                  <p className="text-xs text-gray-500 mt-0.5">{formatDate(post.updatedAt)}</p>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
+    </>
+  );
 }
 
 function getContentTypeHref(exam: ExamEntity, ct: ContentType): string {
@@ -216,7 +265,7 @@ export async function EntityDetailPage({ exam, breadcrumbs }: EntityDetailPagePr
             {/* ── Slice 1: GDS pillars render one ordered section list from the
                 registry; other pillars keep the legacy hardcoded body below. ── */}
             {NEW_RENDER_PILLARS.has(exam.pillar) ? (
-              renderOrderedSections(exam, hasStructuredSyllabus)
+              renderOrderedSections(exam, hasStructuredSyllabus, syllabus, resources, contentPosts)
             ) : (
             <>
             {/* Important Dates Table */}

@@ -481,6 +481,28 @@ const SeatAllotmentSummary: SectionSummary = (exam) => {
   );
 };
 
+/** Academic Info (columns: academicYear / semester / admissionTo). Moved verbatim from the
+ *  legacy body so widening the render gate preserves it (122/123 entrance records carry it). */
+const AcademicInfoSummary: SectionSummary = (exam) => {
+  if (!exam.academicYear && !exam.semester && !exam.admissionTo) return null;
+  return (
+    <section aria-label="Academic information" className="mb-5">
+      <h2 className="font-heading font-semibold text-base text-gray-800 mb-3">Academic Information</h2>
+      <div className="overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0">
+        <table className="min-w-[280px]">
+          <caption className="sr-only">Academic details for {exam.name}</caption>
+          <thead><tr><th scope="col">Detail</th><th scope="col">Value</th></tr></thead>
+          <tbody>
+            {exam.academicYear && <tr><td className="font-medium text-gray-800">Academic Year</td><td className="text-gray-700">{exam.academicYear}</td></tr>}
+            {exam.semester && <tr><td className="font-medium text-gray-800">Semester</td><td className="text-gray-700">{exam.semester}</td></tr>}
+            {exam.admissionTo && <tr><td className="font-medium text-gray-800">Admission To</td><td className="text-gray-700">{exam.admissionTo}</td></tr>}
+          </tbody>
+        </table>
+      </div>
+    </section>
+  );
+};
+
 /**
  * slug → Summary renderer. The detail page loops the registry (order/placement)
  * and calls the renderer here. Sections with no entry render nothing.
@@ -500,6 +522,7 @@ export const SECTION_SUMMARY_RENDERERS: Record<string, SectionSummary> = {
   result: makeGenericEditorial("result", "Result"),
   "documents-required": makeGenericEditorial("documents-required", "Documents Required"),
   reservation: makeGenericEditorial("reservation", "Reservation Policy"),
+  "academic-info": AcademicInfoSummary,
   faqs: FaqsSummary,
   // Selection-outcome sections (content_modules-backed)
   "merit-list": MeritListSummary,
