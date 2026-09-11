@@ -113,7 +113,6 @@ export type ExamEntity = {
   };
 
   selectionProcess?: string[];
-  syllabusHighlights?: string[];
   academicYear?: string;
   semester?: string;
   admissionTo?: string;

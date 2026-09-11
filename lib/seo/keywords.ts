@@ -913,6 +913,19 @@ export function getCurrentYear(): number {
   return new Date().getFullYear();
 }
 
+/**
+ * Compose an exam display name with a year appended — but NOT if the name already
+ * ends in a 4-digit year (avoids "…Engineering 2026 2026"). 124 exam names carry
+ * their year in the official name; the name's own year is authoritative for display.
+ * Only appends when the name has no trailing year.
+ */
+export function nameWithYear(name: string, year: number = getCurrentYear()): string {
+  const trimmed = name.trimEnd();
+  // Already ends in a 4-digit year (19xx/20xx)? Show the name as-is.
+  if (/\b(19|20)\d{2}$/.test(trimmed)) return trimmed;
+  return `${trimmed} ${year}`;
+}
+
 /** Academic year range e.g. "2027-28" */
 export function getCurrentYearRange(): string {
   const y = getCurrentYear();

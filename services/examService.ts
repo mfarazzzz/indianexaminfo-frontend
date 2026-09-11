@@ -62,7 +62,6 @@ function mapRow(row: Record<string, unknown>, derivedStatus?: string): ExamEntit
   const vacancy = (ed?.vacancy as number) ?? undefined;
   const applicationFee = (ed?.application_fee as ExamEntity["applicationFee"]) ?? undefined;
   const selectionProcess = (row.selection_process as string[]) ?? [];
-  const syllabusHighlights = (row.syllabus_highlights as string[]) ?? [];
   const faqs = (row.faqs as ExamEntity["faqs"]) ?? [];
   const contentModules = (ed?.content_modules as Record<string, unknown>) ?? undefined;
   const pillar = row.pillar as Pillar;
@@ -126,7 +125,6 @@ function mapRow(row: Record<string, unknown>, derivedStatus?: string): ExamEntit
     vacancy,
     applicationFee,
     selectionProcess,
-    syllabusHighlights,
     syllabusWeightageType: (row.syllabus_weightage_type as "marks"|"questions"|"percent") ?? null,
     academicYear: (row.academic_year as string) ?? undefined,
     semester: (row.semester as string) ?? undefined,

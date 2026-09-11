@@ -22,6 +22,7 @@ import {
 } from "@/lib/utils";
 import { contentTypeHasData, hasData, mainSectionsForPillar, type HasDataView, type Pillar } from "@/lib/sectionRegistry";
 import { SECTION_SUMMARY_RENDERERS } from "@/components/exam/sectionRenderers";
+import { nameWithYear } from "@/lib/seo/keywords";
 import { ExternalLink, Calendar, Share2 } from "lucide-react";
 
 type EntityDetailPageProps = {
@@ -61,8 +62,10 @@ const NEW_RENDER_PILLARS = new Set<string>(["government-exam", "govt-vacancy"]);
 // When false, Key Highlights is dropped from the ordered render.
 const SHOW_KEY_HIGHLIGHTS = false;
 
-/** Build the minimal view sectionRegistry.hasData needs from an ExamEntity. */
-function buildHasDataView(exam: ExamEntity): HasDataView {
+/** Build the minimal view sectionRegistry.hasData needs from an ExamEntity.
+ *  hasStructuredSyllabus comes from the separately-loaded exam_syllabus_subjects
+ *  (the flat syllabus_highlights column was dropped 2026-09-11). */
+function buildHasDataView(exam: ExamEntity, hasStructuredSyllabus: boolean): HasDataView {
   return {
     pillar: exam.pillar,
     dates: exam.dates,
@@ -70,7 +73,7 @@ function buildHasDataView(exam: ExamEntity): HasDataView {
     vacancy: exam.vacancy ?? null,
     applicationFee: (exam.applicationFee ?? null) as HasDataView["applicationFee"],
     selectionProcess: exam.selectionProcess ?? null,
-    syllabusHighlights: exam.syllabusHighlights ?? null,
+    hasStructuredSyllabus,
     faqs: exam.faqs ?? null,
     contentModules: exam.contentModules,
   };
@@ -81,8 +84,8 @@ function buildHasDataView(exam: ExamEntity): HasDataView {
  * those with data, in registry order, each via its Summary renderer. No
  * hardcoded section order, no per-section JSX in the page. Empty sections absent.
  */
-function renderOrderedSections(exam: ExamEntity): React.ReactNode {
-  const view = buildHasDataView(exam);
+function renderOrderedSections(exam: ExamEntity, hasStructuredSyllabus: boolean): React.ReactNode {
+  const view = buildHasDataView(exam, hasStructuredSyllabus);
   return mainSectionsForPillar(exam.pillar as Pillar)
     .filter((s) => (s.slug === "key-highlights" ? SHOW_KEY_HIGHLIGHTS : true))
     .filter((s) => hasData(view, s.slug))
@@ -121,11 +124,16 @@ export async function EntityDetailPage({ exam, breadcrumbs }: EntityDetailPagePr
     getExamSyllabus(exam.id, exam.syllabusWeightageType ?? null),
   ]);
 
+  // Structured syllabus presence (exam_syllabus_subjects) drives the Syllabus tab,
+  // now that the flat syllabus_highlights column is gone.
+  const hasStructuredSyllabus = syllabus.subjects.length > 0;
+  const hasDataView = buildHasDataView(exam, hasStructuredSyllabus);
+
   // Step 2: tabs gated by the ONE registry hasData rule (presence of content is
   // the only switch). Replaces the old has_*/enabledModules logic that showed
   // tabs for empty pages. Same predicate drives sitemap + route 404 + hub lists.
   const availableContentTypes = contentTypeOrder.filter((ct) =>
-    contentTypeHasData(exam, ct)
+    contentTypeHasData(hasDataView, ct)
   );
 
   const schemas: Record<string, unknown>[] = [];
@@ -159,7 +167,7 @@ export async function EntityDetailPage({ exam, breadcrumbs }: EntityDetailPagePr
 
             {/* H1 */}
             <h1 className="font-heading font-bold text-2xl text-gray-900 mb-3 article-title">
-              {exam.name} {new Date().getFullYear()} — Notification, Eligibility &amp; Apply
+              {nameWithYear(exam.name)} — Notification, Eligibility &amp; Apply
             </h1>
 
             {/* Meta row */}
@@ -208,7 +216,7 @@ export async function EntityDetailPage({ exam, breadcrumbs }: EntityDetailPagePr
             {/* ── Slice 1: GDS pillars render one ordered section list from the
                 registry; other pillars keep the legacy hardcoded body below. ── */}
             {NEW_RENDER_PILLARS.has(exam.pillar) ? (
-              renderOrderedSections(exam)
+              renderOrderedSections(exam, hasStructuredSyllabus)
             ) : (
             <>
             {/* Important Dates Table */}
@@ -389,22 +397,10 @@ export async function EntityDetailPage({ exam, breadcrumbs }: EntityDetailPagePr
               </section>
             )}
 
-            {/* Syllabus Highlights */}
-            {exam.syllabusHighlights && exam.syllabusHighlights.length > 0 && (
-              <section aria-label="Syllabus highlights" className="mb-5">
-                <h2 className="font-heading font-semibold text-base text-gray-800 mb-3">
-                  Syllabus Highlights
-                </h2>
-                <ul className="grid grid-cols-2 gap-1.5">
-                  {exam.syllabusHighlights.map((subject) => (
-                    <li key={subject} className="flex items-center gap-2 text-sm text-gray-700">
-                      <span className="w-1.5 h-1.5 rounded-full bg-primary shrink-0" />
-                      {subject}
-                    </li>
-                  ))}
-                </ul>
-              </section>
-            )}
+            {/* Syllabus Highlights section REMOVED (2026-09-11): the flat
+                syllabus_highlights column was dropped. Syllabus now renders once
+                via <SyllabusSection> (structured exam_syllabus_subjects). This block
+                was the source of the GATE double-render. */}
 
             {/* Academic Info (Board/University exams) */}
             {(exam.academicYear || exam.semester || exam.admissionTo) && (
