@@ -493,6 +493,30 @@ export interface StructuredSyllabus {
   subjects: SyllabusSubjectRow[];
 }
 
+/**
+ * THE single source for "does this exam have a structured syllabus?" — used by BOTH the tab
+ * row (EntityDetailPage) AND the /syllabus sub-page gate, so tab visibility and page existence
+ * can never disagree (they did: the tab showed while the page 404'd). Same cache key as
+ * getExamSyllabus so a revalidation refreshes both together.
+ */
+export async function hasStructuredSyllabus(examId: string): Promise<boolean> {
+  const syllabus = await getExamSyllabus(examId, null);
+  return syllabus.subjects.length > 0;
+}
+
+/**
+ * THE single content-type gate for exam sub-pages, used by EVERY pillar route (entrance,
+ * board, university, sarkari). Wraps the synchronous registry contentTypeHasData but first
+ * injects hasStructuredSyllabus (which requires a DB read hasData can't do synchronously),
+ * so tab visibility and page existence read the SAME rule. Prevents the "syllabus tab shows
+ * but /syllabus 404s" class across all pillars from one place.
+ */
+export async function contentTypeAvailable(exam: ExamEntity, contentType: string): Promise<boolean> {
+  const needsSyllabus = contentType === "syllabus";
+  const flag = needsSyllabus ? await hasStructuredSyllabus(exam.id) : false;
+  return contentTypeHasData({ ...(exam as unknown as HasDataView), hasStructuredSyllabus: flag }, contentType);
+}
+
 /** The exam's structured syllabus: per-exam weightage unit + subject rows (order preserved). */
 export async function getExamSyllabus(examId: string, weightageType: WeightageType | null): Promise<StructuredSyllabus> {
   return cached(async () => {

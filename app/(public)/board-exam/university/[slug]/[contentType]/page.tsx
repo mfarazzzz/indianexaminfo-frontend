@@ -2,7 +2,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { getExamBySlug } from "@/services/examService";
+import { getExamBySlug, contentTypeAvailable } from "@/services/examService";
 import { getContentPostsByExam, getLatestByContentType } from "@/services/contentPostService";
 import { Breadcrumb } from "@/components/layout/Breadcrumb";
 import { AdSlot } from "@/components/ads/AdSlot";
@@ -18,7 +18,6 @@ import {
 import { siteConfig } from "@/config/site";
 import { formatDate, contentTypeLabel } from "@/lib/utils";
 import { safeHtml } from "@/lib/sanitize";
-import { contentTypeHasData } from "@/lib/sectionRegistry";
 import type { ContentType } from "@/types/exam";
 import { ExternalLink, Download, Clock } from "lucide-react";
 
@@ -49,8 +48,8 @@ export default async function UniversityContentTypePage({ params }: Props) {
     getLatestByContentType(contentType as ContentType, 5),
   ]);
   if (!exam || exam.entityType !== "university") notFound();
-  // Step 2 (c): 404 when this content type has no data (registry gate).
-  if (!contentTypeHasData(exam, contentType)) notFound();
+  // Step 2 (c): 404 when this content type has no data. Shared async gate (incl. syllabus).
+  if (!(await contentTypeAvailable(exam, contentType))) notFound();
 
   const posts  = await getContentPostsByExam(exam.id, contentType as ContentType);
   const post   = posts[0];

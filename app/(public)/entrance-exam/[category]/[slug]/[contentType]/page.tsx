@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { getExamBySlug, getExamArchive } from "@/services/examService";
+import { getExamBySlug, getExamArchive, contentTypeAvailable, getExamSyllabus } from "@/services/examService";
+import { SyllabusSection } from "@/components/exam/SyllabusSection";
 import { getContentPostsByExam, getLatestByContentType } from "@/services/contentPostService";
 import { Breadcrumb } from "@/components/layout/Breadcrumb";
 import { AdSlot } from "@/components/ads/AdSlot";
@@ -126,8 +127,15 @@ export default async function EntranceContentTypePage({ params }: Props) {
   ]);
 
   if (!exam || exam.pillar !== "entrance-exam") notFound();
-  // Step 2 (c): 404 when this content type has no data (registry gate).
-  if (!contentTypeHasData(exam, contentType)) notFound();
+  // Step 2 (c): 404 when this content type has no data. Uses the shared async gate so tab
+  // visibility and page existence read ONE rule (incl. hasStructuredSyllabus for /syllabus).
+  if (!(await contentTypeAvailable(exam, contentType))) notFound();
+
+  // On the syllabus sub-page, load the structured syllabus so it renders the full table
+  // (subjects + topics + typed weightage) — the same SyllabusSection the main page uses.
+  const syllabus = contentType === "syllabus"
+    ? await getExamSyllabus(exam.id, exam.syllabusWeightageType ?? null)
+    : null;
 
   const posts = await getContentPostsByExam(exam.id, contentType as ContentType);
   const post  = posts[0];
@@ -219,6 +227,10 @@ export default async function EntranceContentTypePage({ params }: Props) {
             </div>
 
             {post?.content && <div className="article-body mb-6" {...safeHtml(post.content)} />}
+
+            {/* Structured syllabus (subjects + topics + typed weightage) — same component
+                as the main page; this sub-page is its dedicated, indexable home. */}
+            {contentType === "syllabus" && syllabus && <SyllabusSection syllabus={syllabus} />}
 
             {/* CMS Structured Module Content for this tab */}
             <ContentTypeModules contentModules={exam.contentModules} contentType={contentType} />

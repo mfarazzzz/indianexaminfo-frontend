@@ -11,14 +11,13 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { getExamBySlug, getExamsByCategory } from "@/services/examService";
+import { getExamBySlug, getExamsByCategory, contentTypeAvailable } from "@/services/examService";
 import { getContentPostsByExam, getLatestByContentType } from "@/services/contentPostService";
 import { EntityDetailPage } from "@/components/exam/EntityDetailPage";
 import { buildExamMetadata } from "@/lib/seo/metadata";
 import { buildPageKeywords, buildSEOTitle, buildMetaDescription, getCurrentYear } from "@/lib/seo/keywords";
 import { siteConfig } from "@/config/site";
 import { contentTypeLabel } from "@/lib/utils";
-import { contentTypeHasData } from "@/lib/sectionRegistry";
 import type { ContentType } from "@/types/exam";
 
 export const revalidate = 3600;
@@ -165,8 +164,8 @@ export default async function BoardExamCatchAll({ params }: Props) {
     const [category, slug, contentType] = segments;
     const exam = await getExamBySlug(slug, category);
     if (!exam || !SERVED_PILLARS.has(exam.pillar)) notFound();
-    // Step 2 (c): 404 when this content type has no data (registry gate).
-    if (!contentTypeHasData(exam, contentType)) notFound();
+    // Step 2 (c): 404 when this content type has no data. Shared async gate (incl. syllabus).
+    if (!(await contentTypeAvailable(exam, contentType))) notFound();
 
     const ctLabel = contentTypeLabel(contentType);
 
@@ -190,7 +189,7 @@ export default async function BoardExamCatchAll({ params }: Props) {
     const [, slug, , contentType] = segments;
     const category = segments[0];
     const exam = await getExamBySlug(slug, category);
-    if (exam && SERVED_PILLARS.has(exam.pillar) && contentTypeHasData(exam, contentType)) {
+    if (exam && SERVED_PILLARS.has(exam.pillar) && (await contentTypeAvailable(exam, contentType))) {
       return (
         <EntityDetailPage
           exam={exam}

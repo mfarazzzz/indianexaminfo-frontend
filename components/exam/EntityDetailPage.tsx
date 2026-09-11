@@ -1,9 +1,8 @@
 import Link from "next/link";
 import type { ExamEntity, ContentType } from "@/types/exam";
 import { getContentPostsByExam } from "@/services/contentPostService";
-import { getRelatedExams, getExamResources, getExamSyllabus, type StructuredSyllabus, type ExamResourceRow } from "@/services/examService";
+import { getRelatedExams, getExamResources, getExamSyllabus, type ExamResourceRow } from "@/services/examService";
 import { ResourceLibrary } from "@/components/exam/ResourceLibrary";
-import { SyllabusSection } from "@/components/exam/SyllabusSection";
 import { Breadcrumb, type BreadcrumbItem } from "@/components/layout/Breadcrumb";
 import { ExamCard } from "@/components/exam/ExamCard";
 import { AdSlot } from "@/components/ads/AdSlot";
@@ -88,12 +87,11 @@ function buildHasDataView(exam: ExamEntity, hasStructuredSyllabus: boolean): Has
 // so the gate can widen to all pillars and the legacy branch can be deleted.
 function renderOrderedSections(
   exam: ExamEntity,
-  hasStructuredSyllabus: boolean,
-  syllabus: StructuredSyllabus,
+  hasStructuredSyllabusFlag: boolean,
   resources: ExamResourceRow[],
   contentPosts: Awaited<ReturnType<typeof getContentPostsByExam>>,
 ): React.ReactNode {
-  const view = buildHasDataView(exam, hasStructuredSyllabus);
+  const view = buildHasDataView(exam, hasStructuredSyllabusFlag);
   const orderedSections = mainSectionsForPillar(exam.pillar as Pillar)
     .filter((s) => (s.slug === "key-highlights" ? SHOW_KEY_HIGHLIGHTS : true))
     .filter((s) => hasData(view, s.slug))
@@ -107,8 +105,9 @@ function renderOrderedSections(
     <>
       {orderedSections}
 
-      {/* Structured syllabus — exam-level, subjects + weightage. Hidden when empty. */}
-      <SyllabusSection syllabus={syllabus} />
+      {/* Syllabus is placement:"tab" in the registry — it renders on its own /syllabus
+          sub-page, NOT the main page. Do not render SyllabusSection here (that violated the
+          tab-only placement and put it on the main page by mistake). */}
 
       {/* Content Modules — editorial modules from exam_editions.content_modules (overview,
           exam-pattern, cut-off, counselling, date-sheet, etc.). Renders nothing when empty. */}
@@ -170,10 +169,11 @@ export async function EntityDetailPage({ exam, breadcrumbs }: EntityDetailPagePr
     getExamSyllabus(exam.id, exam.syllabusWeightageType ?? null),
   ]);
 
-  // Structured syllabus presence (exam_syllabus_subjects) drives the Syllabus tab,
-  // now that the flat syllabus_highlights column is gone.
-  const hasStructuredSyllabus = syllabus.subjects.length > 0;
-  const hasDataView = buildHasDataView(exam, hasStructuredSyllabus);
+  // Structured syllabus presence (exam_syllabus_subjects) drives the Syllabus TAB — the same
+  // signal the /syllabus sub-page gate reads (both derive from getExamSyllabus, one source),
+  // so the tab can't show while the page 404s.
+  const hasStructuredSyllabusFlag = syllabus.subjects.length > 0;
+  const hasDataView = buildHasDataView(exam, hasStructuredSyllabusFlag);
 
   // Step 2: tabs gated by the ONE registry hasData rule (presence of content is
   // the only switch). Replaces the old has_*/enabledModules logic that showed
@@ -263,7 +263,7 @@ export async function EntityDetailPage({ exam, breadcrumbs }: EntityDetailPagePr
                 renderOrderedSections is feature-complete (ordered sections + SyllabusSection
                 + ContentModulesBlock + ResourceLibrary + content-posts), so the legacy
                 hardcoded body was fully unreachable and has been deleted. */}
-            {renderOrderedSections(exam, hasStructuredSyllabus, syllabus, resources, contentPosts)}
+            {renderOrderedSections(exam, hasStructuredSyllabusFlag, resources, contentPosts)}
 
             {/* Social Channel CTA — bottom banner */}
             <SocialChannelBanner variant="bottom" />
