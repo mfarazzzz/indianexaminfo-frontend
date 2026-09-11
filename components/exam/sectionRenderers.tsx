@@ -252,7 +252,9 @@ function moduleData(exam: ExamEntity, slug: string): Record<string, unknown> | n
 const OverviewSummary: SectionSummary = (exam) => {
   const data = moduleData(exam, "overview");
   if (!data) return null;
-  const body = safeHtml(data.body) || safeHtml(data.content);
+  // `description` is the field the CMS actually writes for overview (268 of 273 records) —
+  // it was previously unread, making the About-This-Exam text invisible. Read it too.
+  const body = safeHtml(data.body) || safeHtml(data.content) || safeHtml(data.description);
   const summary = data.summary as string | undefined;
   if (!body && !summary) return null;
   return (

@@ -582,7 +582,9 @@ function ContentModulesBlock({ contentModules, onlyTabModules = false }: { conte
         }
 
         if (slug === "overview") {
-          const body = safeHtml(data.body) || safeHtml(data.content);
+          // `description` is the field the CMS writes for overview (268/273 records) — read it
+          // so the About-This-Exam text is visible (it was previously invisible on both paths).
+          const body = safeHtml(data.body) || safeHtml(data.content) || safeHtml(data.description);
           const summary = data.summary as string | undefined;
           if (!body && !summary) return null;
           return (
