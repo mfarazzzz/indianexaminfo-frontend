@@ -45,17 +45,26 @@ export function SyllabusSection({
             </tr>
           </thead>
           <tbody>
-            {syllabus.subjects.map((s, i) => (
-              <tr key={i} className="border-t border-gray-100">
+            {syllabus.subjects.map((s, i) => {
+              const topics = (s.topics ?? "").split("\n").map((t) => t.trim()).filter(Boolean);
+              return (
+              <tr key={i} className="border-t border-gray-100 align-top">
                 <td className="py-1.5 pr-4 font-medium text-gray-800">{s.subject}</td>
-                <td className="py-1.5 pr-4 text-gray-600">{s.topics || "—"}</td>
+                <td className="py-1.5 pr-4 text-gray-600">
+                  {topics.length === 0 ? "—" : topics.length === 1 ? topics[0] : (
+                    <ul className="list-disc pl-4 space-y-0.5">
+                      {topics.map((t, ti) => <li key={ti}>{t}</li>)}
+                    </ul>
+                  )}
+                </td>
                 {showWeightage && (
                   <td className="py-1.5 text-right text-gray-700">
                     {s.weightageValue != null ? `${s.weightageValue}${syllabus.weightageType === "percent" ? "%" : ""}` : "—"}
                   </td>
                 )}
               </tr>
-            ))}
+              );
+            })}
           </tbody>
         </table>
       </div>
