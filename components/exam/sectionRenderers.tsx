@@ -316,6 +316,171 @@ function makeGenericEditorial(slug: string, label: string): SectionSummary {
   };
 }
 
+// ── Selection-outcome sections (2026-09-11) ──────────────────────────────────
+// Read from content_modules[slug], written by the CMS module editor (saveModuleContent).
+// Field keys mirror indianexaminfo-cms/src/config/moduleRegistry.ts exactly.
+// These make merit-based / interview-based selection outcomes visible — previously
+// recruitment records had no way to show their selection result at all.
+
+const str = (v: unknown): string | null => (typeof v === "string" && v.trim() ? v.trim() : null);
+const num = (v: unknown): number | null => (typeof v === "number" ? v : null);
+const rows = (v: unknown): Record<string, unknown>[] =>
+  Array.isArray(v) ? v.filter((r) => r && typeof r === "object") as Record<string, unknown>[] : [];
+
+/** Merit List — fields: listType, releaseDate, meritListUrl, totalSelected, verificationDates, reportingVenue */
+const MeritListSummary: SectionSummary = (exam) => {
+  const d = moduleData(exam, "merit-list");
+  if (!d) return null;
+  const url = str(d.meritListUrl), releaseDate = str(d.releaseDate);
+  if (!url && !releaseDate) return null; // nothing substantive
+  const listType = str(d.listType), total = num(d.totalSelected);
+  return (
+    <section aria-label="Merit List" className="mb-5">
+      <h2 className="font-heading font-semibold text-base text-gray-800 mb-2">Merit List</h2>
+      <dl className="text-sm text-gray-700 space-y-1">
+        {listType && <div><dt className="inline font-medium text-gray-800">Type: </dt><dd className="inline capitalize">{listType}</dd></div>}
+        {releaseDate && <div><dt className="inline font-medium text-gray-800">Released: </dt><dd className="inline">{formatDate(releaseDate)}</dd></div>}
+        {total != null && <div><dt className="inline font-medium text-gray-800">Total selected: </dt><dd className="inline">{total.toLocaleString("en-IN")}</dd></div>}
+        {str(d.verificationDates) && <div><dt className="inline font-medium text-gray-800">Verification: </dt><dd className="inline">{str(d.verificationDates)}</dd></div>}
+        {str(d.reportingVenue) && <div><dt className="inline font-medium text-gray-800">Reporting venue: </dt><dd className="inline">{str(d.reportingVenue)}</dd></div>}
+      </dl>
+      {url && (
+        <a href={url} target="_blank" rel="noopener noreferrer nofollow" className="inline-flex items-center gap-1 mt-2 text-primary hover:underline text-sm font-medium">
+          Download Merit List
+        </a>
+      )}
+    </section>
+  );
+};
+
+/** Interview Schedule — fields: callLetterDate, callLetterUrl, rounds[{round,date,venue}], marksWeightage, instructions */
+const InterviewScheduleSummary: SectionSummary = (exam) => {
+  const d = moduleData(exam, "interview-schedule");
+  if (!d) return null;
+  const callUrl = str(d.callLetterUrl), roundRows = rows(d.rounds);
+  if (!callUrl && roundRows.length === 0 && !str(d.callLetterDate)) return null;
+  return (
+    <section aria-label="Interview Schedule" className="mb-5">
+      <h2 className="font-heading font-semibold text-base text-gray-800 mb-2">Interview Schedule</h2>
+      {str(d.callLetterDate) && <p className="text-sm text-gray-700 mb-1"><span className="font-medium text-gray-800">Call letter: </span>{formatDate(str(d.callLetterDate)!)}</p>}
+      {str(d.marksWeightage) && <p className="text-sm text-gray-700 mb-1"><span className="font-medium text-gray-800">Weightage: </span>{str(d.marksWeightage)}</p>}
+      {roundRows.length > 0 && (
+        <div className="overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0 mt-2">
+          <table className="min-w-[320px] w-full text-sm">
+            <thead><tr className="text-left text-gray-500"><th scope="col" className="py-1 pr-4">Round</th><th scope="col" className="py-1 pr-4">Date</th><th scope="col" className="py-1">Venue</th></tr></thead>
+            <tbody>
+              {roundRows.map((r, i) => (
+                <tr key={i} className="border-t border-gray-100">
+                  <td className="py-1.5 pr-4 font-medium text-gray-800">{str(r.round) ?? "—"}</td>
+                  <td className="py-1.5 pr-4 text-gray-600">{str(r.date) ? formatDate(str(r.date)!) : "—"}</td>
+                  <td className="py-1.5 text-gray-600">{str(r.venue) ?? "—"}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+      {str(d.instructions) && <p className="text-sm text-gray-600 mt-2 leading-relaxed">{str(d.instructions)}</p>}
+      {callUrl && (
+        <a href={callUrl} target="_blank" rel="noopener noreferrer nofollow" className="inline-flex items-center gap-1 mt-2 text-primary hover:underline text-sm font-medium">
+          Download Interview Call Letter
+        </a>
+      )}
+    </section>
+  );
+};
+
+/** Document Verification — fields: startDate, endDate, venue, callLetterUrl, documentsRequired[{document,notes}], instructions */
+const DocumentVerificationSummary: SectionSummary = (exam) => {
+  const d = moduleData(exam, "document-verification");
+  if (!d) return null;
+  const docRows = rows(d.documentsRequired);
+  if (!str(d.startDate) && !str(d.venue) && !str(d.callLetterUrl) && docRows.length === 0) return null;
+  return (
+    <section aria-label="Document Verification" className="mb-5">
+      <h2 className="font-heading font-semibold text-base text-gray-800 mb-2">Document Verification</h2>
+      <dl className="text-sm text-gray-700 space-y-1">
+        {str(d.startDate) && <div><dt className="inline font-medium text-gray-800">Dates: </dt><dd className="inline">{formatDate(str(d.startDate)!)}{str(d.endDate) ? ` – ${formatDate(str(d.endDate)!)}` : ""}</dd></div>}
+        {str(d.venue) && <div><dt className="inline font-medium text-gray-800">Venue: </dt><dd className="inline">{str(d.venue)}</dd></div>}
+      </dl>
+      {docRows.length > 0 && (
+        <div className="mt-2">
+          <p className="text-sm font-medium text-gray-800 mb-1">Documents to bring</p>
+          <ul className="list-disc pl-4 space-y-0.5 text-sm text-gray-700">
+            {docRows.map((r, i) => (
+              <li key={i}>{str(r.document) ?? "—"}{str(r.notes) ? <span className="text-gray-500"> — {str(r.notes)}</span> : null}</li>
+            ))}
+          </ul>
+        </div>
+      )}
+      {str(d.instructions) && <p className="text-sm text-gray-600 mt-2 leading-relaxed">{str(d.instructions)}</p>}
+      {str(d.callLetterUrl) && (
+        <a href={str(d.callLetterUrl)!} target="_blank" rel="noopener noreferrer nofollow" className="inline-flex items-center gap-1 mt-2 text-primary hover:underline text-sm font-medium">
+          Download DV Call Letter
+        </a>
+      )}
+    </section>
+  );
+};
+
+/** Final Selection — fields: releaseDate, finalListUrl, totalSelected, joiningDetails */
+const FinalSelectionSummary: SectionSummary = (exam) => {
+  const d = moduleData(exam, "final-selection");
+  if (!d) return null;
+  const url = str(d.finalListUrl), releaseDate = str(d.releaseDate);
+  if (!url && !releaseDate) return null;
+  const total = num(d.totalSelected);
+  return (
+    <section aria-label="Final Selection" className="mb-5">
+      <h2 className="font-heading font-semibold text-base text-gray-800 mb-2">Final Selection</h2>
+      <dl className="text-sm text-gray-700 space-y-1">
+        {releaseDate && <div><dt className="inline font-medium text-gray-800">Released: </dt><dd className="inline">{formatDate(releaseDate)}</dd></div>}
+        {total != null && <div><dt className="inline font-medium text-gray-800">Total selected: </dt><dd className="inline">{total.toLocaleString("en-IN")}</dd></div>}
+        {str(d.joiningDetails) && <div><dt className="inline font-medium text-gray-800">Joining: </dt><dd className="inline">{str(d.joiningDetails)}</dd></div>}
+      </dl>
+      {url && (
+        <a href={url} target="_blank" rel="noopener noreferrer nofollow" className="inline-flex items-center gap-1 mt-2 text-primary hover:underline text-sm font-medium">
+          Download Final Selection List
+        </a>
+      )}
+    </section>
+  );
+};
+
+/** Seat Allotment — fields: rounds[{round,allotmentDate,reportingLastDate}], allotmentResultUrl, seatMatrixUrl, acceptanceProcess */
+const SeatAllotmentSummary: SectionSummary = (exam) => {
+  const d = moduleData(exam, "seat-allotment");
+  if (!d) return null;
+  const roundRows = rows(d.rounds), url = str(d.allotmentResultUrl);
+  if (roundRows.length === 0 && !url && !str(d.acceptanceProcess)) return null;
+  return (
+    <section aria-label="Seat Allotment" className="mb-5">
+      <h2 className="font-heading font-semibold text-base text-gray-800 mb-2">Seat Allotment</h2>
+      {roundRows.length > 0 && (
+        <div className="overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0">
+          <table className="min-w-[320px] w-full text-sm">
+            <thead><tr className="text-left text-gray-500"><th scope="col" className="py-1 pr-4">Round</th><th scope="col" className="py-1 pr-4">Allotment</th><th scope="col" className="py-1">Reporting by</th></tr></thead>
+            <tbody>
+              {roundRows.map((r, i) => (
+                <tr key={i} className="border-t border-gray-100">
+                  <td className="py-1.5 pr-4 font-medium text-gray-800">{str(r.round) ?? "—"}</td>
+                  <td className="py-1.5 pr-4 text-gray-600">{str(r.allotmentDate) ? formatDate(str(r.allotmentDate)!) : "—"}</td>
+                  <td className="py-1.5 text-gray-600">{str(r.reportingLastDate) ? formatDate(str(r.reportingLastDate)!) : "—"}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+      {str(d.acceptanceProcess) && <p className="text-sm text-gray-600 mt-2 leading-relaxed">{str(d.acceptanceProcess)}</p>}
+      <div className="flex flex-wrap gap-3 mt-2">
+        {url && <a href={url} target="_blank" rel="noopener noreferrer nofollow" className="text-primary hover:underline text-sm font-medium">Allotment Result</a>}
+        {str(d.seatMatrixUrl) && <a href={str(d.seatMatrixUrl)!} target="_blank" rel="noopener noreferrer nofollow" className="text-primary hover:underline text-sm font-medium">Seat Matrix</a>}
+      </div>
+    </section>
+  );
+};
+
 /**
  * slug → Summary renderer. The detail page loops the registry (order/placement)
  * and calls the renderer here. Sections with no entry render nothing.
@@ -336,4 +501,10 @@ export const SECTION_SUMMARY_RENDERERS: Record<string, SectionSummary> = {
   "documents-required": makeGenericEditorial("documents-required", "Documents Required"),
   reservation: makeGenericEditorial("reservation", "Reservation Policy"),
   faqs: FaqsSummary,
+  // Selection-outcome sections (content_modules-backed)
+  "merit-list": MeritListSummary,
+  "interview-schedule": InterviewScheduleSummary,
+  "document-verification": DocumentVerificationSummary,
+  "final-selection": FinalSelectionSummary,
+  "seat-allotment": SeatAllotmentSummary,
 };
