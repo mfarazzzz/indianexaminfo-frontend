@@ -151,7 +151,7 @@ export default async function UniversityExamCatchAll({ params }: Props) {
     // Step 2 (c): 404 when this content type has no data. Shared async gate (incl. syllabus).
     if (!(await contentTypeAvailable(exam, contentType))) notFound();
     return (
-      <EntityDetailPage exam={exam} breadcrumbs={[
+      <EntityDetailPage exam={exam} contentType={contentType as ContentType} breadcrumbs={[
         { name: "University Exam", href: "/university-exam" },
         { name: category.replace(/-/g, " ").replace(/\b\w/g, (c: string) => c.toUpperCase()), href: `/university-exam/${category}` },
         { name: exam.shortName, href: `/university-exam/${category}/${slug}` },

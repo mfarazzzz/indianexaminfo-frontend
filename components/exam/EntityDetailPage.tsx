@@ -3,6 +3,7 @@ import type { ExamEntity, ContentType } from "@/types/exam";
 import { getContentPostsByExam } from "@/services/contentPostService";
 import { getRelatedExams, getExamResources, getExamSyllabus, type ExamResourceRow } from "@/services/examService";
 import { ResourceLibrary } from "@/components/exam/ResourceLibrary";
+import { SyllabusSection } from "@/components/exam/SyllabusSection";
 import { Breadcrumb, type BreadcrumbItem } from "@/components/layout/Breadcrumb";
 import { ExamCard } from "@/components/exam/ExamCard";
 import { AdSlot } from "@/components/ads/AdSlot";
@@ -27,6 +28,11 @@ import { ExternalLink, Share2 } from "lucide-react";
 type EntityDetailPageProps = {
   exam: ExamEntity;
   breadcrumbs: BreadcrumbItem[];
+  /** When set, this is a content-type sub-page (e.g. /slug/syllabus), not the main page.
+   *  Routes that reuse EntityDetailPage as a CT page (university, board) pass this so the
+   *  focused section (e.g. structured syllabus) renders — matching the entrance CT page.
+   *  One component, one behaviour across pillars. */
+  contentType?: ContentType;
 };
 
 const contentTypeOrder: ContentType[] = [
@@ -161,7 +167,7 @@ function getContentTypeHref(exam: ExamEntity, ct: ContentType): string {
   return `/${routePillar}/${exam.category}/${exam.slug}/${ct}`;
 }
 
-export async function EntityDetailPage({ exam, breadcrumbs }: EntityDetailPageProps) {
+export async function EntityDetailPage({ exam, breadcrumbs, contentType }: EntityDetailPageProps) {
   const [contentPosts, relatedExams, resources, syllabus] = await Promise.all([
     getContentPostsByExam(exam.id),
     getRelatedExams(exam.id),
@@ -258,6 +264,11 @@ export async function EntityDetailPage({ exam, breadcrumbs }: EntityDetailPagePr
 
             {/* Social Channel CTA — top banner */}
             <SocialChannelBanner variant="top" />
+
+            {/* Content-type focus: on a /syllabus sub-page (contentType==="syllabus"), render the
+                structured syllabus here — its dedicated, indexable home. Same SyllabusSection the
+                entrance CT page uses, so university/board/board-university behave identically. */}
+            {contentType === "syllabus" && <SyllabusSection syllabus={syllabus} />}
 
             {/* All five pillars render one ordered, registry-driven body (2026-09-11).
                 renderOrderedSections is feature-complete (ordered sections + SyllabusSection

@@ -2,13 +2,14 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { getExamBySlug } from "@/services/examService";
+import { getExamBySlug, contentTypeAvailable, getExamSyllabus } from "@/services/examService";
 import { getContentPostsByExam, getLatestByContentType } from "@/services/contentPostService";
 import { Breadcrumb } from "@/components/layout/Breadcrumb";
 import { AdSlot } from "@/components/ads/AdSlot";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { buildFAQSchema } from "@/lib/seo/structured-data";
 import { ContentTypeModules } from "@/components/exam/ContentTypeModules";
+import { SyllabusSection } from "@/components/exam/SyllabusSection";
 import { buildExamMetadata } from "@/lib/seo/metadata";
 import { buildPageKeywords, buildSEOTitle, buildMetaDescription, getCurrentYear } from "@/lib/seo/keywords";
 import { siteConfig } from "@/config/site";
@@ -43,6 +44,12 @@ export default async function StateBoardContentTypePage({ params }: Props) {
     getLatestByContentType(contentType as ContentType, 5),
   ]);
   if (!exam) notFound();
+  // Shared async gate (incl. syllabus) — consistent with every other content-type route.
+  if (!(await contentTypeAvailable(exam, contentType))) notFound();
+
+  const syllabus = contentType === "syllabus"
+    ? await getExamSyllabus(exam.id, exam.syllabusWeightageType ?? null)
+    : null;
 
   const posts  = await getContentPostsByExam(exam.id, contentType as ContentType);
   const post   = posts[0];
@@ -111,6 +118,9 @@ export default async function StateBoardContentTypePage({ params }: Props) {
             </div>
 
             {post?.content && <div className="article-body mb-6" {...safeHtml(post.content)} />}
+
+            {/* Structured syllabus — consistent across all pillars/routes. */}
+            {contentType === "syllabus" && syllabus && <SyllabusSection syllabus={syllabus} />}
 
             {/* CMS Structured Module Content for this tab */}
             <ContentTypeModules contentModules={exam.contentModules} contentType={contentType} />

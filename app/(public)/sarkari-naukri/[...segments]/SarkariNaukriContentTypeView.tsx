@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getContentPostsByExam, getLatestByContentType } from "@/services/contentPostService";
+import { contentTypeAvailable, getExamSyllabus } from "@/services/examService";
+import { SyllabusSection } from "@/components/exam/SyllabusSection";
 import { Breadcrumb } from "@/components/layout/Breadcrumb";
 import { AdSlot } from "@/components/ads/AdSlot";
 import { JsonLd } from "@/components/seo/JsonLd";
@@ -42,9 +44,15 @@ type Props = {
 };
 
 export async function SarkariNaukriContentTypeView({ exam, category, slug, contentType }: Props) {
-  // Step 2 (c): a content-type sub-page 404s when its section has no data, so
-  // stale links / crawler hits get a clean 404 instead of an empty 200 shell.
-  if (!contentTypeHasData(exam, contentType)) notFound();
+  // Step 2 (c): 404 when this content type has no data. Shared async gate (incl. syllabus)
+  // so tab visibility and page existence read ONE rule across all pillars.
+  if (!(await contentTypeAvailable(exam, contentType))) notFound();
+
+  // On the syllabus sub-page, load structured syllabus so it renders the full table —
+  // same SyllabusSection as every other pillar's CT page. One behaviour across routes.
+  const syllabus = contentType === "syllabus"
+    ? await getExamSyllabus(exam.id, exam.syllabusWeightageType ?? null)
+    : null;
 
   const [posts, relatedPosts] = await Promise.all([
     getContentPostsByExam(exam.id, contentType as ContentType),
@@ -143,6 +151,9 @@ export async function SarkariNaukriContentTypeView({ exam, category, slug, conte
             </div>
 
             {post?.content && <div className="article-body mb-6" {...safeHtml(post.content)} />}
+
+            {/* Structured syllabus (subjects + topics + typed weightage) — consistent across pillars. */}
+            {contentType === "syllabus" && syllabus && <SyllabusSection syllabus={syllabus} />}
 
             {/* Social Channel CTA */}
             <SocialChannelBanner variant="top" />

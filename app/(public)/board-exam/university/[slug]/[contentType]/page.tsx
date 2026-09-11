@@ -2,8 +2,9 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { getExamBySlug, contentTypeAvailable } from "@/services/examService";
+import { getExamBySlug, contentTypeAvailable, getExamSyllabus } from "@/services/examService";
 import { getContentPostsByExam, getLatestByContentType } from "@/services/contentPostService";
+import { SyllabusSection } from "@/components/exam/SyllabusSection";
 import { Breadcrumb } from "@/components/layout/Breadcrumb";
 import { AdSlot } from "@/components/ads/AdSlot";
 import { JsonLd } from "@/components/seo/JsonLd";
@@ -50,6 +51,11 @@ export default async function UniversityContentTypePage({ params }: Props) {
   if (!exam || exam.entityType !== "university") notFound();
   // Step 2 (c): 404 when this content type has no data. Shared async gate (incl. syllabus).
   if (!(await contentTypeAvailable(exam, contentType))) notFound();
+
+  // On the syllabus sub-page, load structured syllabus so it renders the full table.
+  const syllabus = contentType === "syllabus"
+    ? await getExamSyllabus(exam.id, exam.syllabusWeightageType ?? null)
+    : null;
 
   const posts  = await getContentPostsByExam(exam.id, contentType as ContentType);
   const post   = posts[0];
@@ -117,6 +123,10 @@ export default async function UniversityContentTypePage({ params }: Props) {
             </div>
 
             {post?.content && <div className="article-body mb-6" {...safeHtml(post.content)} />}
+
+            {/* Structured syllabus (subjects + topics + typed weightage) — same component
+                as the main/entrance pages; consistent across all pillars. */}
+            {contentType === "syllabus" && syllabus && <SyllabusSection syllabus={syllabus} />}
 
             {/* CMS Structured Module Content for this tab */}
             <ContentTypeModules contentModules={exam.contentModules} contentType={contentType} />

@@ -173,6 +173,7 @@ export default async function BoardExamCatchAll({ params }: Props) {
     return (
       <EntityDetailPage
         exam={exam}
+        contentType={contentType as ContentType}
         breadcrumbs={[
           { name: "Board Exam", href: "/board-exam" },
           { name: category.replace(/-/g, " ").replace(/\b\w/g, (c: string) => c.toUpperCase()), href: `/board-exam/${category}` },
@@ -193,6 +194,7 @@ export default async function BoardExamCatchAll({ params }: Props) {
       return (
         <EntityDetailPage
           exam={exam}
+          contentType={contentType as ContentType}
           breadcrumbs={[
             { name: "Board Exam", href: "/board-exam" },
             { name: category.replace(/-/g, " ").replace(/\b\w/g, (c: string) => c.toUpperCase()), href: `/board-exam/${category}` },
