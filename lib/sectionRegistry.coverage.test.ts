@@ -171,6 +171,9 @@ type RenderMethod = "direct" | "entityDetailPage" | "none";
 interface RouteDeclaration {
   /** Human label for diagnostics */
   route: string;
+  /** The actual source file (POSIX-relative to repo root). The filesystem check asserts every
+   *  file using contentTypeAvailable is declared here, and every declared file exists. */
+  sourceFile: string;
   /** Pillar(s) this route serves */
   pillars: Pillar[];
   /** The content-type URL slugs this route handles (or "*" for all mapped in CONTENT_TYPE_TO_SECTION) */
@@ -185,6 +188,7 @@ interface RouteDeclaration {
 const ROUTE_DECLARATIONS: RouteDeclaration[] = [
   {
     route: "entrance-exam/[category]/[slug]/[contentType]/page.tsx",
+    sourceFile: "app/(public)/entrance-exam/[category]/[slug]/[contentType]/page.tsx",
     pillars: ["entrance-exam"],
     contentTypes: "*",
     renderMethod: "direct",
@@ -192,6 +196,7 @@ const ROUTE_DECLARATIONS: RouteDeclaration[] = [
   },
   {
     route: "university-exam/[...segments]/page.tsx (segments.length===3)",
+    sourceFile: "app/(public)/university-exam/[...segments]/page.tsx",
     pillars: ["university-exam"],
     contentTypes: "*",
     renderMethod: "entityDetailPage",
@@ -199,6 +204,7 @@ const ROUTE_DECLARATIONS: RouteDeclaration[] = [
   },
   {
     route: "board-exam/[...segments]/page.tsx (segments.length===3,4)",
+    sourceFile: "app/(public)/board-exam/[...segments]/page.tsx",
     pillars: ["board-exam"],
     contentTypes: "*",
     renderMethod: "entityDetailPage",
@@ -206,6 +212,7 @@ const ROUTE_DECLARATIONS: RouteDeclaration[] = [
   },
   {
     route: "board-exam/state/[stateSlug]/[slug]/[contentType]/page.tsx",
+    sourceFile: "app/(public)/board-exam/state/[stateSlug]/[slug]/[contentType]/page.tsx",
     pillars: ["board-exam"],
     contentTypes: "*",
     renderMethod: "direct",
@@ -213,6 +220,7 @@ const ROUTE_DECLARATIONS: RouteDeclaration[] = [
   },
   {
     route: "board-exam/university/[slug]/[contentType]/page.tsx",
+    sourceFile: "app/(public)/board-exam/university/[slug]/[contentType]/page.tsx",
     pillars: ["board-exam"],
     contentTypes: "*",
     renderMethod: "direct",
@@ -220,6 +228,7 @@ const ROUTE_DECLARATIONS: RouteDeclaration[] = [
   },
   {
     route: "sarkari-naukri/[...segments] → SarkariNaukriContentTypeView.tsx",
+    sourceFile: "app/(public)/sarkari-naukri/[...segments]/SarkariNaukriContentTypeView.tsx",
     pillars: ["government-exam", "govt-vacancy"],
     contentTypes: "*",
     renderMethod: "direct",
@@ -375,6 +384,73 @@ describe("Rule 5 — per-route divergence (content-type consistency across pilla
         expect(ROUTE_EXCEPTIONS).toHaveLength(0);
       });
     }
+  });
+});
+
+// ── Rule 5b — FILESYSTEM check: no undeclared content-type route ─────────────
+//
+// Closes the gap Rule 5's declarations alone can't: an undeclared route FILE. This was the
+// actual board-state bug — a route that existed with no gate and no declaration; only a manual
+// grep found it. A directory glob is deterministic and local (no network, no DB), so we CAN
+// catch it in a unit test.
+//
+// SIGNAL: any .tsx file under app/ that references `contentTypeAvailable` (the shared CT gate)
+// IS a content-type-serving route and MUST appear in ROUTE_DECLARATIONS.sourceFile.
+//   Discovered-but-not-declared → a new route slipped in without registration (fails).
+//   Declared-but-not-discovered → a declared route was deleted or stopped using the gate (fails).
+describe("Rule 5b — filesystem: every content-type route is declared", () => {
+  // Lazy require so the rest of the suite stays pure; fs/path are deterministic + local.
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  const fs = require("node:fs") as typeof import("node:fs");
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  const path = require("node:path") as typeof import("node:path");
+
+  const APP_DIR = path.resolve(__dirname, "..", "app");
+  const GATE_SIGNAL = "contentTypeAvailable";
+
+  /** Recursively collect .tsx files under a directory. */
+  function walk(dir: string): string[] {
+    const out: string[] = [];
+    for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+      const full = path.join(dir, entry.name);
+      if (entry.isDirectory()) out.push(...walk(full));
+      else if (entry.isFile() && entry.name.endsWith(".tsx")) out.push(full);
+    }
+    return out;
+  }
+
+  /** POSIX-relative-to-repo-root path (matches ROUTE_DECLARATIONS.sourceFile format). */
+  function relPosix(full: string): string {
+    const repoRoot = path.resolve(__dirname, "..");
+    return path.relative(repoRoot, full).split(path.sep).join("/");
+  }
+
+  const discovered = walk(APP_DIR)
+    .filter((f) => fs.readFileSync(f, "utf8").includes(GATE_SIGNAL))
+    .map(relPosix)
+    .sort();
+
+  const declared = ROUTE_DECLARATIONS.map((d) => d.sourceFile).sort();
+
+  it("every file using contentTypeAvailable is declared in ROUTE_DECLARATIONS", () => {
+    const undeclared = discovered.filter((f) => !declared.includes(f));
+    expect(
+      undeclared,
+      `These files use the content-type gate (${GATE_SIGNAL}) but are NOT in ROUTE_DECLARATIONS:\n` +
+        `${undeclared.join("\n")}\n` +
+        `A content-type route must be declared so Rule 5 can enforce cross-pillar consistency. ` +
+        `This is the "undeclared route" gap (the board-state bug). Add a ROUTE_DECLARATIONS entry.`
+    ).toEqual([]);
+  });
+
+  it("every declared route file exists and still uses the gate", () => {
+    const missing = declared.filter((f) => !discovered.includes(f));
+    expect(
+      missing,
+      `These ROUTE_DECLARATIONS entries no longer match a file using ${GATE_SIGNAL}:\n` +
+        `${missing.join("\n")}\n` +
+        `Either the file was moved/deleted, or it stopped using the shared gate. Update the declaration.`
+    ).toEqual([]);
   });
 });
 
