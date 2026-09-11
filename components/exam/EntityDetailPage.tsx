@@ -20,7 +20,7 @@ import {
   statusColor,
   contentTypeLabel,
 } from "@/lib/utils";
-import { contentTypeHasData, hasData, mainSectionsForPillar, type HasDataView, type Pillar } from "@/lib/sectionRegistry";
+import { contentTypeHasData, hasData, mainSectionsForPillar, CONTENT_TYPE_TO_SECTION, type HasDataView, type Pillar } from "@/lib/sectionRegistry";
 import { SECTION_SUMMARY_RENDERERS } from "@/components/exam/sectionRenderers";
 import { nameWithYear } from "@/lib/seo/keywords";
 import { ExternalLink, Share2 } from "lucide-react";
@@ -147,6 +147,85 @@ function renderOrderedSections(
   );
 }
 
+/**
+ * FOCUSED content-type body — rendered when `contentType` is set (a /slug/{ct} sub-page).
+ * Mirrors the bespoke entrance CT page structure so university/board CONVERGE on one shape:
+ * CT badge + H1, the content-type section itself, a compact dates reference, and FAQs.
+ * Deliberately does NOT render the full ordered body (eligibility, fee, vacancy, resources,
+ * related exams) — those belong on the main page only. This removes the duplicate-content
+ * problem where every CT URL re-rendered the whole main page.
+ */
+function renderFocusedContentType(
+  exam: ExamEntity,
+  contentType: ContentType,
+  syllabus: Awaited<ReturnType<typeof getExamSyllabus>>,
+): React.ReactNode {
+  const ctLabel = contentTypeLabel(contentType);
+  return (
+    <>
+      {/* CT badge + focused H1 */}
+      <span className="content-type-badge bg-primary/10 text-primary mb-3 inline-block">{ctLabel}</span>
+      <h1 className="font-heading font-bold text-2xl text-gray-900 mb-3 article-title">
+        {nameWithYear(exam.name)} {ctLabel}
+      </h1>
+
+      {/* The content-type section itself. Syllabus → structured SyllabusSection. Otherwise
+          render the section this content type maps to (CONTENT_TYPE_TO_SECTION) using the SAME
+          summary renderer the main page uses — so notification→overview, result→result, etc.
+          render their real content. Fall back to the filtered ContentModulesBlock for any
+          content type whose section has no summary renderer (e.g. tab-only editorial modules). */}
+      {(() => {
+        if (contentType === "syllabus") return <SyllabusSection syllabus={syllabus} />;
+        const sectionSlug = CONTENT_TYPE_TO_SECTION[contentType];
+        const Render = sectionSlug ? SECTION_SUMMARY_RENDERERS[sectionSlug] : undefined;
+        if (Render) {
+          const node = Render(exam);
+          if (node) return node;
+        }
+        // Fallback: render the mapped module (or tab-only modules) directly from content_modules.
+        return <ContentModulesBlock contentModules={exam.contentModules} onlyTabModules />;
+      })()}
+
+      {/* Compact Important Dates reference — matches the entrance CT page. A short dates list
+          is genuinely useful on a result/admit-card page; it is NOT the full main-page section. */}
+      {exam.dates.length > 0 && (
+        <section aria-label="Important dates" className="mb-6 mt-6">
+          <h2 className="font-heading font-semibold text-base text-gray-800 mb-3">Important Dates</h2>
+          <div className="overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0">
+            <table className="min-w-[320px]">
+              <caption className="sr-only">Key dates for {exam.name} {ctLabel}</caption>
+              <thead><tr><th scope="col">Event</th><th scope="col">Date</th></tr></thead>
+              <tbody>
+                {exam.dates.slice(0, 8).map((d, i) => (
+                  <tr key={`${d.label}-${i}`}>
+                    <td className="font-medium text-gray-800">{d.label}</td>
+                    <td className={`font-mono ${d.isUrgent ? "text-accent font-semibold" : "text-gray-700"}`}>{formatDate(d.date)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </section>
+      )}
+
+      {/* FAQs from the exam (column), if present. */}
+      {exam.faqs && exam.faqs.length > 0 && (
+        <section aria-label="Frequently asked questions" className="mb-6">
+          <h2 className="font-heading font-bold text-lg text-gray-900 mb-4">Frequently Asked Questions</h2>
+          <div className="space-y-3">
+            {exam.faqs.map((faq, i) => (
+              <div key={i} className="border border-border rounded p-4">
+                <h3 className="font-semibold text-gray-900 text-sm mb-2">{faq.question}</h3>
+                <p className="text-sm text-gray-700 leading-relaxed">{faq.answer}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+    </>
+  );
+}
+
 function getContentTypeHref(exam: ExamEntity, ct: ContentType): string {
   // Map DB pillar values to frontend route
   const pillarRouteMap: Record<string, string> = {
@@ -217,10 +296,13 @@ export async function EntityDetailPage({ exam, breadcrumbs, contentType }: Entit
               </span>
             </div>
 
-            {/* H1 */}
-            <h1 className="font-heading font-bold text-2xl text-gray-900 mb-3 article-title">
-              {nameWithYear(exam.name)} — Notification, Eligibility &amp; Apply
-            </h1>
+            {/* Main-page H1 — only on the main page (no contentType). On a CT sub-page the
+                focused body renders its own CT-specific H1. */}
+            {!contentType && (
+              <h1 className="font-heading font-bold text-2xl text-gray-900 mb-3 article-title">
+                {nameWithYear(exam.name)} — Notification, Eligibility &amp; Apply
+              </h1>
+            )}
 
             {/* Meta row */}
             <div className="flex flex-wrap items-center gap-3 mb-4 pb-4 border-b border-border text-sm">
@@ -246,14 +328,19 @@ export async function EntityDetailPage({ exam, breadcrumbs, contentType }: Entit
               </button>
             </div>
 
-            {/* Content Type Navigation — placed right after official website */}
+            {/* Content Type Navigation — the tab row. Shown on both main and CT pages; on a CT
+                page the active tab is highlighted. */}
             {availableContentTypes.length > 0 && (
               <nav className="flex flex-wrap gap-2 mb-5 overflow-x-auto sm:overflow-visible pb-2 sm:pb-0 -mx-1 px-1" aria-label="Available content modules">
                 {availableContentTypes.map((ct) => (
                   <Link
                     key={ct}
                     href={getContentTypeHref(exam, ct)}
-                    className="text-sm font-semibold px-3.5 py-2 min-h-[44px] flex items-center bg-primary/10 text-primary rounded border border-primary/20 hover:bg-primary hover:text-white transition-colors focus:ring-2 focus:ring-primary/50 focus:outline-none whitespace-nowrap"
+                    className={`text-sm font-semibold px-3.5 py-2 min-h-[44px] flex items-center rounded border transition-colors focus:ring-2 focus:ring-primary/50 focus:outline-none whitespace-nowrap ${
+                      ct === contentType
+                        ? "bg-primary text-white border-primary"
+                        : "bg-primary/10 text-primary border-primary/20 hover:bg-primary hover:text-white"
+                    }`}
                     prefetch={false}
                   >
                     {contentTypeLabel(ct)}
@@ -265,32 +352,33 @@ export async function EntityDetailPage({ exam, breadcrumbs, contentType }: Entit
             {/* Social Channel CTA — top banner */}
             <SocialChannelBanner variant="top" />
 
-            {/* Content-type focus: on a /syllabus sub-page (contentType==="syllabus"), render the
-                structured syllabus here — its dedicated, indexable home. Same SyllabusSection the
-                entrance CT page uses, so university/board/board-university behave identically. */}
-            {contentType === "syllabus" && <SyllabusSection syllabus={syllabus} />}
+            {contentType ? (
+              /* FOCUSED content-type view — the CT section + compact shell. Suppresses the full
+                 ordered body so a CT URL is NOT a duplicate of the main page. Converges with the
+                 bespoke entrance/board/sarkari CT pages (same shape). */
+              renderFocusedContentType(exam, contentType, syllabus)
+            ) : (
+              <>
+                {/* MAIN PAGE — the one ordered, registry-driven body for all five pillars. */}
+                {renderOrderedSections(exam, hasStructuredSyllabusFlag, resources, contentPosts)}
 
-            {/* All five pillars render one ordered, registry-driven body (2026-09-11).
-                renderOrderedSections is feature-complete (ordered sections + SyllabusSection
-                + ContentModulesBlock + ResourceLibrary + content-posts), so the legacy
-                hardcoded body was fully unreachable and has been deleted. */}
-            {renderOrderedSections(exam, hasStructuredSyllabusFlag, resources, contentPosts)}
+                {/* Social Channel CTA — bottom banner */}
+                <SocialChannelBanner variant="bottom" />
 
-            {/* Social Channel CTA — bottom banner */}
-            <SocialChannelBanner variant="bottom" />
-
-            {/* Related Exams */}
-            {relatedExams.length > 0 && (
-              <section aria-label="Related exams" className="mb-5">
-                <h2 className="font-heading font-semibold text-base text-gray-800 mb-3">
-                  Related Exams
-                </h2>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  {relatedExams.slice(0, 6).map((e) => (
-                    <ExamCard key={e.id} exam={e} />
-                  ))}
-                </div>
-              </section>
+                {/* Related Exams — main page only. */}
+                {relatedExams.length > 0 && (
+                  <section aria-label="Related exams" className="mb-5">
+                    <h2 className="font-heading font-semibold text-base text-gray-800 mb-3">
+                      Related Exams
+                    </h2>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      {relatedExams.slice(0, 6).map((e) => (
+                        <ExamCard key={e.id} exam={e} />
+                      ))}
+                    </div>
+                  </section>
+                )}
+              </>
             )}
 
             {/* Source Attribution + E-E-A-T (Google compliance) */}
