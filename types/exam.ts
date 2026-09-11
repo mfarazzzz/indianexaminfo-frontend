@@ -101,6 +101,7 @@ export type ExamEntity = {
   };
 
   vacancy?: number;
+  syllabusWeightageType?: "marks" | "questions" | "percent" | null;
 
   applicationFee?: {
     general: number;

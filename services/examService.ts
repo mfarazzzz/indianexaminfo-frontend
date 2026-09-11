@@ -127,6 +127,7 @@ function mapRow(row: Record<string, unknown>, derivedStatus?: string): ExamEntit
     applicationFee,
     selectionProcess,
     syllabusHighlights,
+    syllabusWeightageType: (row.syllabus_weightage_type as "marks"|"questions"|"percent") ?? null,
     academicYear: (row.academic_year as string) ?? undefined,
     semester: (row.semester as string) ?? undefined,
     admissionTo: (row.admission_to as string) ?? undefined,
@@ -480,6 +481,42 @@ export interface ExamResourceRow {
   fileSizeKb: number | null;
   displayOrder: number;
   isPublished: boolean;
+}
+
+// ── Structured syllabus (identity-level, exam_syllabus_subjects) ──────────
+export type WeightageType = "marks" | "questions" | "percent";
+export interface SyllabusSubjectRow {
+  subject: string;
+  topics: string | null;
+  weightageValue: number | null;
+}
+export interface StructuredSyllabus {
+  weightageType: WeightageType | null;
+  subjects: SyllabusSubjectRow[];
+}
+
+/** The exam's structured syllabus: per-exam weightage unit + subject rows (order preserved). */
+export async function getExamSyllabus(examId: string, weightageType: WeightageType | null): Promise<StructuredSyllabus> {
+  return cached(async () => {
+    try {
+      const supabase = createServerClient();
+      const { data, error } = await supabase
+        .from("exam_syllabus_subjects")
+        .select("subject, topics, weightage_value")
+        .eq("exam_id", examId)
+        .order("display_order", { ascending: true });
+      if (error) throw error;
+      return {
+        weightageType,
+        subjects: (data ?? []).map((r: any): SyllabusSubjectRow => ({
+          subject: r.subject, topics: (r.topics as string) ?? null, weightageValue: (r.weightage_value as number) ?? null,
+        })),
+      };
+    } catch (err) {
+      console.error("[examService] getExamSyllabus failed:", err);
+      return { weightageType, subjects: [] };
+    }
+  }, ["exams", `exam-syllabus:${examId}`], { revalidate: 1800 });
 }
 
 /**

@@ -1,8 +1,9 @@
 import Link from "next/link";
 import type { ExamEntity, ContentType } from "@/types/exam";
 import { getContentPostsByExam } from "@/services/contentPostService";
-import { getRelatedExams, getExamResources } from "@/services/examService";
+import { getRelatedExams, getExamResources, getExamSyllabus } from "@/services/examService";
 import { ResourceLibrary } from "@/components/exam/ResourceLibrary";
+import { SyllabusSection } from "@/components/exam/SyllabusSection";
 import { Breadcrumb, type BreadcrumbItem } from "@/components/layout/Breadcrumb";
 import { ExamCard } from "@/components/exam/ExamCard";
 import { AdSlot } from "@/components/ads/AdSlot";
@@ -113,10 +114,11 @@ function getContentTypeHref(exam: ExamEntity, ct: ContentType): string {
 }
 
 export async function EntityDetailPage({ exam, breadcrumbs }: EntityDetailPageProps) {
-  const [contentPosts, relatedExams, resources] = await Promise.all([
+  const [contentPosts, relatedExams, resources, syllabus] = await Promise.all([
     getContentPostsByExam(exam.id),
     getRelatedExams(exam.id),
     getExamResources(exam.id),
+    getExamSyllabus(exam.id, exam.syllabusWeightageType ?? null),
   ]);
 
   // Step 2: tabs gated by the ONE registry hasData rule (presence of content is
@@ -423,6 +425,9 @@ export async function EntityDetailPage({ exam, breadcrumbs }: EntityDetailPagePr
                 </div>
               </section>
             )}
+
+            {/* Structured syllabus — exam-level, subjects + weightage. Hidden when empty. */}
+            <SyllabusSection syllabus={syllabus} />
 
             {/* Content Modules — from exam_editions.content_modules */}
             <ContentModulesBlock contentModules={exam.contentModules} />
