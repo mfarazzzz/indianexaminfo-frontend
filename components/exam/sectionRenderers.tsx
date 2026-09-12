@@ -328,10 +328,27 @@ const str = (v: unknown): string | null => (typeof v === "string" && v.trim() ? 
 const num = (v: unknown): number | null => (typeof v === "number" ? v : null);
 const rows = (v: unknown): Record<string, unknown>[] =>
   Array.isArray(v) ? v.filter((r) => r && typeof r === "object") as Record<string, unknown>[] : [];
+/** Coerce a value the CMS may store as number or numeric string (e.g. exam-pattern.totalMarks). */
+const strOrNum = (v: unknown): string | null => {
+  if (typeof v === "number" && Number.isFinite(v)) return String(v);
+  return str(v);
+};
+/** A CMS array field holding plain strings (e.g. exam-pattern.sections = ["Maths", ...]). */
+const strList = (v: unknown): string[] =>
+  Array.isArray(v) ? v.filter((x): x is string => typeof x === "string" && x.trim().length > 0).map((x) => x.trim()) : [];
+
+/**
+ * ModuleRenderer — renders a single content_modules[slug] object DIRECTLY from its data,
+ * with no ExamEntity. This is the shared form both render paths call:
+ *   - SECTION_SUMMARY_RENDERERS wraps it via moduleData(exam, slug) (main page + focused CT view)
+ *   - ContentModulesBlock calls it with the module data it already holds (bespoke CT tab pages)
+ * Column-backed renderers (eligibility, vacancy, dates, faqs, academic-info) are NOT module
+ * renderers — they stay ExamEntity-typed so module renderers can never read column data.
+ */
+type ModuleRenderer = (d: Record<string, unknown>) => React.ReactNode;
 
 /** Merit List — fields: listType, releaseDate, meritListUrl, totalSelected, verificationDates, reportingVenue */
-const MeritListSummary: SectionSummary = (exam) => {
-  const d = moduleData(exam, "merit-list");
+const MeritListModule: ModuleRenderer = (d) => {
   if (!d) return null;
   const url = str(d.meritListUrl), releaseDate = str(d.releaseDate);
   if (!url && !releaseDate) return null; // nothing substantive
@@ -356,8 +373,7 @@ const MeritListSummary: SectionSummary = (exam) => {
 };
 
 /** Interview Schedule — fields: callLetterDate, callLetterUrl, rounds[{round,date,venue}], marksWeightage, instructions */
-const InterviewScheduleSummary: SectionSummary = (exam) => {
-  const d = moduleData(exam, "interview-schedule");
+const InterviewScheduleModule: ModuleRenderer = (d) => {
   if (!d) return null;
   const callUrl = str(d.callLetterUrl), roundRows = rows(d.rounds);
   if (!callUrl && roundRows.length === 0 && !str(d.callLetterDate)) return null;
@@ -393,8 +409,7 @@ const InterviewScheduleSummary: SectionSummary = (exam) => {
 };
 
 /** Document Verification — fields: startDate, endDate, venue, callLetterUrl, documentsRequired[{document,notes}], instructions */
-const DocumentVerificationSummary: SectionSummary = (exam) => {
-  const d = moduleData(exam, "document-verification");
+const DocumentVerificationModule: ModuleRenderer = (d) => {
   if (!d) return null;
   const docRows = rows(d.documentsRequired);
   if (!str(d.startDate) && !str(d.venue) && !str(d.callLetterUrl) && docRows.length === 0) return null;
@@ -426,8 +441,7 @@ const DocumentVerificationSummary: SectionSummary = (exam) => {
 };
 
 /** Final Selection — fields: releaseDate, finalListUrl, totalSelected, joiningDetails */
-const FinalSelectionSummary: SectionSummary = (exam) => {
-  const d = moduleData(exam, "final-selection");
+const FinalSelectionModule: ModuleRenderer = (d) => {
   if (!d) return null;
   const url = str(d.finalListUrl), releaseDate = str(d.releaseDate);
   if (!url && !releaseDate) return null;
@@ -450,8 +464,7 @@ const FinalSelectionSummary: SectionSummary = (exam) => {
 };
 
 /** Seat Allotment — fields: rounds[{round,allotmentDate,reportingLastDate}], allotmentResultUrl, seatMatrixUrl, acceptanceProcess */
-const SeatAllotmentSummary: SectionSummary = (exam) => {
-  const d = moduleData(exam, "seat-allotment");
+const SeatAllotmentModule: ModuleRenderer = (d) => {
   if (!d) return null;
   const roundRows = rows(d.rounds), url = str(d.allotmentResultUrl);
   if (roundRows.length === 0 && !url && !str(d.acceptanceProcess)) return null;
@@ -513,8 +526,7 @@ const AcademicInfoSummary: SectionSummary = (exam) => {
 
 /** Result — fields: declarationDate, checkLink, statistics(HTML), body(HTML). Replaces the
  *  generic editorial renderer, so body is rendered here too. */
-const ResultSummary: SectionSummary = (exam) => {
-  const d = moduleData(exam, "result");
+const ResultModule: ModuleRenderer = (d) => {
   if (!d) return null;
   const declarationDate = str(d.declarationDate), checkLink = str(d.checkLink);
   const statistics = safeHtml(d.statistics);
@@ -541,8 +553,7 @@ const ResultSummary: SectionSummary = (exam) => {
 
 /** Admit Card — fields: releaseDate, downloadLink, documents(HTML), body(HTML). Replaces the
  *  generic editorial renderer, so body is rendered here too. */
-const AdmitCardSummary: SectionSummary = (exam) => {
-  const d = moduleData(exam, "admit-card");
+const AdmitCardModule: ModuleRenderer = (d) => {
   if (!d) return null;
   const releaseDate = str(d.releaseDate), downloadLink = str(d.downloadLink);
   const documents = safeHtml(d.documents);
@@ -572,6 +583,72 @@ const AdmitCardSummary: SectionSummary = (exam) => {
   );
 };
 
+/** Exam Pattern — fields: mode, duration, totalMarks, markingScheme, sections[string], notes.
+ *  Surfaces on the syllabus tab (CT_TO_MODULES.syllabus). Built against the real shapes:
+ *  sections is string[], totalMarks is number|string, notes is HTML. */
+const ExamPatternModule: ModuleRenderer = (d) => {
+  if (!d) return null;
+  const mode = str(d.mode), duration = str(d.duration), totalMarks = strOrNum(d.totalMarks);
+  const marking = str(d.markingScheme), sections = strList(d.sections), notes = safeHtml(d.notes);
+  if (!mode && !duration && !totalMarks && !marking && sections.length === 0 && !notes) return null;
+  const specRows: [string, string][] = [];
+  if (mode) specRows.push(["Mode", mode]);
+  if (duration) specRows.push(["Duration", duration]);
+  if (totalMarks) specRows.push(["Total Marks", totalMarks]);
+  if (marking) specRows.push(["Marking Scheme", marking]);
+  return (
+    <section aria-label="Exam pattern" className="mb-5">
+      <h2 className="font-heading font-semibold text-base text-gray-800 mb-3">Exam Pattern</h2>
+      {specRows.length > 0 && (
+        <div className="overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0">
+          <table className="min-w-[320px] w-full text-sm">
+            <tbody>
+              {specRows.map(([k, v]) => (
+                <tr key={k} className="border-t border-gray-100">
+                  <td className="py-1.5 pr-4 font-medium text-gray-800 whitespace-nowrap">{k}</td>
+                  <td className="py-1.5 text-gray-700">{v}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+      {sections.length > 0 && (
+        <div className="mt-3">
+          <h3 className="text-sm font-medium text-gray-800 mb-1">Sections</h3>
+          <ul className="flex flex-wrap gap-2">
+            {sections.map((s, i) => (
+              <li key={i} className="inline-block bg-gray-100 text-gray-700 text-xs rounded px-2 py-1">{s}</li>
+            ))}
+          </ul>
+        </div>
+      )}
+      {notes && <div className="article-body text-sm mt-3" dangerouslySetInnerHTML={{ __html: notes }} />}
+    </section>
+  );
+};
+
+/**
+ * slug → module renderer, keyed by content_modules slug. THE single home for each structured
+ * module's markup. Both render paths delegate here (see ModuleRenderer doc above), so the main
+ * page, the focused CT view, and the bespoke CT tab pages render byte-identical output — no
+ * divergence between "the same thing rendered two ways".
+ */
+export const MODULE_RENDERERS: Record<string, ModuleRenderer> = {
+  "merit-list": MeritListModule,
+  "interview-schedule": InterviewScheduleModule,
+  "document-verification": DocumentVerificationModule,
+  "final-selection": FinalSelectionModule,
+  "seat-allotment": SeatAllotmentModule,
+  result: ResultModule,
+  "admit-card": AdmitCardModule,
+  "exam-pattern": ExamPatternModule,
+};
+
+/** Wrap a ModuleRenderer as a SectionSummary: read the module data by slug from the exam. */
+const fromModule = (slug: string, render: ModuleRenderer): SectionSummary =>
+  (exam) => render(moduleData(exam, slug) ?? ({} as Record<string, unknown>));
+
 /**
  * slug → Summary renderer. The detail page loops the registry (order/placement)
  * and calls the renderer here. Sections with no entry render nothing.
@@ -588,16 +665,17 @@ export const SECTION_SUMMARY_RENDERERS: Record<string, SectionSummary> = {
   salary: makeGenericEditorial("salary", "Salary & Pay Scale"),
   "age-limit": makeGenericEditorial("age-limit", "Age Limit"),
   // Structured renderers REPLACE the generic editorial ones (they render body internally too).
-  "admit-card": AdmitCardSummary,
-  result: ResultSummary,
+  // Delegated to MODULE_RENDERERS so ContentModulesBlock renders identically (no divergence).
+  "admit-card": fromModule("admit-card", AdmitCardModule),
+  result: fromModule("result", ResultModule),
   "documents-required": makeGenericEditorial("documents-required", "Documents Required"),
   reservation: makeGenericEditorial("reservation", "Reservation Policy"),
   "academic-info": AcademicInfoSummary,
   faqs: FaqsSummary,
-  // Selection-outcome sections (content_modules-backed)
-  "merit-list": MeritListSummary,
-  "interview-schedule": InterviewScheduleSummary,
-  "document-verification": DocumentVerificationSummary,
-  "final-selection": FinalSelectionSummary,
-  "seat-allotment": SeatAllotmentSummary,
+  // Selection-outcome sections (content_modules-backed) — delegated to MODULE_RENDERERS.
+  "merit-list": fromModule("merit-list", MeritListModule),
+  "interview-schedule": fromModule("interview-schedule", InterviewScheduleModule),
+  "document-verification": fromModule("document-verification", DocumentVerificationModule),
+  "final-selection": fromModule("final-selection", FinalSelectionModule),
+  "seat-allotment": fromModule("seat-allotment", SeatAllotmentModule),
 };

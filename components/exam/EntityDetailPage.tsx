@@ -21,7 +21,7 @@ import {
   contentTypeLabel,
 } from "@/lib/utils";
 import { contentTypeHasData, hasData, mainSectionsForPillar, CONTENT_TYPE_TO_SECTION, type HasDataView, type Pillar } from "@/lib/sectionRegistry";
-import { SECTION_SUMMARY_RENDERERS } from "@/components/exam/sectionRenderers";
+import { SECTION_SUMMARY_RENDERERS, MODULE_RENDERERS } from "@/components/exam/sectionRenderers";
 import { nameWithYear } from "@/lib/seo/keywords";
 import { ExternalLink, Share2 } from "lucide-react";
 
@@ -504,7 +504,9 @@ const MODULE_LABELS: Record<string, string> = {
 };
 
 // These modules show on content type tab pages, not the main exam page
-const TAB_ONLY_MODULES = new Set(["application-process", "admit-card", "result", "cut-off", "syllabus", "date-sheet", "news", "faqs"]);
+// exam-pattern is tab-only (surfaces on the syllabus tab via CT_TO_MODULES.syllabus). Listed
+// here so the onlyTabModules filter admits it on the tab page and excludes it from the main page.
+const TAB_ONLY_MODULES = new Set(["application-process", "admit-card", "result", "cut-off", "syllabus", "date-sheet", "news", "faqs", "exam-pattern"]);
 
 function ContentModulesBlock({ contentModules, onlyTabModules = false }: { contentModules?: Record<string, unknown>; onlyTabModules?: boolean }) {
   if (!contentModules) return null;
@@ -525,6 +527,17 @@ function ContentModulesBlock({ contentModules, onlyTabModules = false }: { conte
         const data = contentModules[slug] as Record<string, unknown>;
         if (!data || typeof data !== "object") return null;
         const label = MODULE_LABELS[slug] ?? slug.replace(/-/g, " ").replace(/\b\w/g, c => c.toUpperCase());
+
+        // Structured modules render through the SHARED MODULE_RENDERERS (one home). This is what
+        // makes the bespoke CT tab pages render identically to the main page / focused CT view —
+        // e.g. result, admit-card, exam-pattern, and the selection-outcome modules show their
+        // structured fields here instead of body-only. Any slug not in the map falls through to
+        // the branches below (eligibility, application-process, overview, faqs, news, generic).
+        const moduleRender = MODULE_RENDERERS[slug];
+        if (moduleRender) {
+          const node = moduleRender(data);
+          return node ? <div key={slug}>{node}</div> : null;
+        }
 
         if (slug === "eligibility") {
           const qualification = data.qualification as string | undefined;
