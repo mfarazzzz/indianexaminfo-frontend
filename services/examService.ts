@@ -685,3 +685,106 @@ export async function getExamEditions(examSlug: string): Promise<EditionSummary[
     return [];
   }
 }
+
+// ── Other editions (non-current cycles) ──────────────────────────────────────
+// The YEAR IS A LABEL, NOT A TIMELINE POSITION. Indian recruitment names cycles for a year that
+// may be ahead of or behind the calendar (RRB NTPC 2027 runs in 2026; UPPCS 2025 slips into
+// 2026). The ONLY authority for what is live is is_current / current_edition_id — NEVER a
+// year-vs-today or year-vs-current comparison. So:
+//   is_current = true  → the live cycle (main exam page), whatever its year
+//   is_current = false → an "other edition", reachable at its year URL if it has content
+// We deliberately do NOT use the word "archive" or derive past/future from the year.
+
+export type OtherEditionSummary = {
+  year: number;
+  editionLabel: string;
+  status: string;
+  isCurrent: boolean;
+  hasContent: boolean;
+};
+
+/** True when an edition row carries substantive cycle content (dates/vacancy/eligibility/modules). */
+function editionHasContent(ed: Record<string, unknown>): boolean {
+  const dates = ed.important_dates as unknown[] | null;
+  const elig = ed.eligibility as Record<string, unknown> | null;
+  const cm = ed.content_modules as Record<string, unknown> | null;
+  const moduleKeys = cm ? Object.keys(cm).filter((k) => k !== "_config") : [];
+  return (
+    (Array.isArray(dates) && dates.length > 0) ||
+    (ed.vacancy != null) ||
+    (!!elig && Object.keys(elig).length > 0) ||
+    moduleKeys.length > 0
+  );
+}
+
+/**
+ * All editions of an exam for the year-pill switcher: the current one (from current_edition_id,
+ * NOT from year order) plus every non-current one, sorted by year DESCENDING (how candidates
+ * think about cycles — a sort key only, never a status signal). Each carries isCurrent + a
+ * content flag. Drives: the "Other Editions" tab gate, the switcher pills, the year route's
+ * notFound() decision, and sitemap emission — one source so all four agree.
+ */
+export async function getExamEditionsForSwitcher(examSlug: string): Promise<OtherEditionSummary[]> {
+  return cached(async () => {
+    try {
+      const supabase = createServerClient();
+      const { data: exam } = await supabase
+        .from("exams")
+        .select("id, current_edition_id")
+        .eq("slug", examSlug)
+        .maybeSingle();
+      if (!exam) return [];
+
+      const { data: rows, error } = await supabase
+        .from("exam_editions")
+        .select("id, year, edition_label, status, is_current, important_dates, vacancy, eligibility, content_modules")
+        .eq("exam_id", (exam as any).id)
+        .order("year", { ascending: false }); // sort key only — NOT a status signal
+      if (error) throw error;
+
+      const currentId = (exam as any).current_edition_id;
+      return (rows ?? []).map((r: any): OtherEditionSummary => ({
+        year: r.year,
+        editionLabel: r.edition_label,
+        status: r.status,
+        isCurrent: r.id === currentId || r.is_current === true,
+        hasContent: editionHasContent(r as Record<string, unknown>),
+      }));
+    } catch (err) {
+      console.error("[examService] getExamEditionsForSwitcher failed:", err);
+      return [];
+    }
+  }, ["exams", `editions-switcher:${examSlug}`], { revalidate: 600 });
+}
+
+/**
+ * The single gate: does this exam have at least one NON-CURRENT edition WITH content? Drives the
+ * "Other Editions" tab (show/hide), the sitemap (emit year URLs or not), and the year route
+ * (thin/absent edition 404s). Same-shape rule as contentTypeHasData — presence, not year math.
+ */
+export async function hasOtherEditions(examSlug: string): Promise<boolean> {
+  const eds = await getExamEditionsForSwitcher(examSlug);
+  return eds.some((e) => !e.isCurrent && e.hasContent);
+}
+
+/**
+ * Resolve a requested year URL for an exam. Renders a non-current edition ONLY if it exists and
+ * has content; the current edition's own year URL redirects intent to the main page (caller
+ * decides); anything else 404s. No past/future concept — is_current + content only.
+ */
+export async function resolveEditionYear(
+  slug: string,
+  year: number,
+): Promise<
+  | { kind: "edition"; exam: ExamEntity; isCurrent: boolean; hasContent: boolean }
+  | { kind: "notfound" }
+> {
+  const editions = await getExamEditionsForSwitcher(slug);
+  const match = editions.find((e) => e.year === year);
+  if (!match) return { kind: "notfound" };
+  // A non-current edition with no content is a thin page → 404 (same rule as everything else).
+  if (!match.isCurrent && !match.hasContent) return { kind: "notfound" };
+  const exam = await getExamArchive(slug, year);
+  if (!exam) return { kind: "notfound" };
+  return { kind: "edition", exam, isCurrent: match.isCurrent, hasContent: match.hasContent };
+}

@@ -1,0 +1,31 @@
+{
+  "$comment": "TEST FIXTURE / SNAPSHOT of the live `module_registry` DB table (the authoritative editor-field vocabulary), captured read-only. This is NOT the runtime registry and MUST NOT be treated as an editable source of truth — the live contract is the DB table (seeded from BUILT_IN_MODULES in the CMS repo). Refresh via a read-only script (see CANONICAL_CONTRACT_CI_SPEC.md §13); do not hand-edit to 'fix' a finding. Used by contract.coverage.test.ts to run offline without DB credentials.",
+  "$freshness": "STALE-RISK PROTECTION (Phase 2, Option A): this snapshot carries capturedAt + source + moduleCount. The test asserts INTERNAL CONSISTENCY (moduleCount === number of module keys) so a partial/corrupt edit is caught, and reports the capturedAt so reviewers can judge staleness. This does NOT make the snapshot automatically fresh — it can still drift from the live DB between refreshes. CI never queries production. Treat as 'unverified/stale-risk' until a dated refresh; only a manual read-only refresh (script) makes it 'verified as of capturedAt'.",
+  "capturedAt": "2026-09-12",
+  "source": "public.module_registry (read-only snapshot, 22 rows)",
+  "moduleCount": 22,
+  "modules": {
+    "admit-card": ["releaseDate", "downloadLink", "body", "documents"],
+    "age-limit": ["minAge", "maxAge", "asOnDate", "relaxation", "notes"],
+    "application-process": ["description", "steps", "applyLink", "fee"],
+    "counselling": ["body", "officialLink", "rounds", "documents"],
+    "cut-off": ["body", "categories", "notes"],
+    "date-sheet": ["releaseDate", "downloadLink", "schedule", "notes"],
+    "documents-required": ["documents", "notes"],
+    "eligibility": ["qualification", "ageLimit", "nationality", "attempts", "additionalCriteria"],
+    "exam-pattern": ["mode", "duration", "totalMarks", "markingScheme", "sections", "notes"],
+    "faqs": ["items"],
+    "important-dates": ["dates"],
+    "news": ["items"],
+    "overview": ["summary", "body"],
+    "practical-exams": ["startDate", "endDate", "body"],
+    "reservation": ["categories", "notes"],
+    "result": ["declarationDate", "checkLink", "body", "statistics"],
+    "revaluation": ["lastDate", "fee", "applyLink", "process"],
+    "salary": ["payScale", "gradePay", "inHandSalary", "allowances"],
+    "sample-papers": ["papers", "notes"],
+    "selection-process": ["stages", "notes"],
+    "syllabus": ["subjects", "downloadLink", "notes"],
+    "vacancy-details": ["totalPosts", "categories", "notes"]
+  }
+}

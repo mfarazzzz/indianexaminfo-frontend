@@ -1,0 +1,141 @@
+{
+  "$comment": "Canonical data contract. Declares architectural INTENT, not every field in code. Authoritative for editor vocabulary = the module_registry DB table (see module-registry.snapshot.json). Hand-maintained and small on purpose. Ownership rules come ONLY from CANONICAL_DATA_OWNERSHIP_AUDIT.md / CANONICAL_CONTRACT_CI_SPEC.md — do not invent new ones.",
+  "$todo_editorfields_duplication": "KNOWN DEBT (do NOT refactor in Phase 2): editorFields here duplicate module_registry/BUILT_IN_MODULES. Class 4 checks they agree, but both must be re-synced by hand when the DB registry changes. Eventual direction: runtime/editor vocabulary -> snapshot/registry -> architectural overlay (this file: class/ownership/deprecations/forbidden only, NOT re-listing editorFields) -> CI. Deferred to a later phase.",
+  "version": 1,
+  "phase": 3,
+
+  "$baseline_note": "Phase 3: only NEW (non-baseline) COMPETING_SOURCE and RENDERER_ONLY findings block CI. Each baseline entry is a narrow, dated, owned exception naming the exact module+field+class — NOT an ignore-all. Editing this list is a deliberate, reviewable diff; a new violation cannot be silenced by a drive-by edit without review.",
+  "baseline": [
+    {
+      "module": "vacancy-details",
+      "field": "totalPosts",
+      "cls": "COMPETING_SOURCE",
+      "reason": "Known GDS conflict: content_modules.vacancy-details.totalPosts (555) vs canonical exam_editions.vacancy (44228). Not rendered today (vacancy-details not enabled; no renderer). Resolution is a user-owned CMS data decision (verify official figure) tracked in ROADMAP_EXECUTION_PLAN.md — WAIT item, not a code fix.",
+      "owner": "user (CMS data)",
+      "since": "2026-09-12"
+    }
+  ],
+
+  "canonicalFacts": {
+    "eligibility": {
+      "home": "exam_editions.eligibility",
+      "migration": { "phase": "none", "newHome": "entity_eligibility", "removalCondition": "eligibility engine ships + entity_eligibility backfilled + frontend reads it" }
+    },
+    "important_dates": {
+      "home": "exam_editions.important_dates",
+      "migration": { "phase": "none", "newHome": "entity_timeline_event", "removalCondition": "lifecycle/notifications ship + entity_timeline_event backfilled + frontend reads it" }
+    },
+    "vacancy_total": {
+      "home": "exam_editions.vacancy",
+      "migration": { "phase": "none", "newHome": "entity_vacancy", "removalCondition": "reservation/category vacancy becomes a committed feature (NOT committed today)" }
+    },
+    "application_fee": {
+      "home": "exam_editions.application_fee",
+      "migration": { "phase": "none", "newHome": "entity_fee", "removalCondition": "fee filtering becomes a feature" }
+    },
+    "official_website": { "home": "exams.official_website", "migration": { "phase": "none" } },
+    "syllabus": {
+      "home": "exam_syllabus_subjects",
+      "migration": { "phase": "none", "newHome": "entity_syllabus_subject", "removalCondition": "NEVER unless V2 identity migration; already relational" }
+    },
+    "faqs": { "home": "exams.faqs", "migration": { "phase": "none" } },
+    "selection_process": { "home": "exams.selection_process", "migration": { "phase": "none" } }
+  },
+
+  "systemKeys": ["_meta", "_config"],
+
+  "modules": {
+    "overview": {
+      "status": "ACTIVE",
+      "class": "editorial",
+      "editorFields": ["summary", "body"],
+      "rendererFields": [],
+      "rendererFallback": { "prose": ["body", "content", "description"] },
+      "deprecatedFields": [
+        { "key": "description", "renamedTo": "summary", "since": "2026-09", "reason": "legacy import residue; 268 records; migrate to summary (see ROADMAP_EXECUTION_PLAN.md)" }
+      ],
+      "legacyFields": ["content", "examMode", "frequency", "conductingBody", "officialWebsite", "recruitmentType"],
+      "note": "OverviewSummary reads summary + prose fallback. content/description are read-only fallbacks, not editor fields. examMode/frequency/etc are legacy import keys not read by the exam renderer."
+    },
+
+    "eligibility": {
+      "status": "ACTIVE",
+      "class": "editorial-for",
+      "canonicalFact": "eligibility",
+      "editorFields": ["qualification", "ageLimit", "nationality", "attempts", "additionalCriteria"],
+      "rendererFields": ["qualification", "ageLimit", "nationality", "additionalCriteria"],
+      "renderSurfaces": ["EntityDetailPage.ContentModulesBlock (eligibility branch)"],
+      "syncsTo": "exam_editions.eligibility",
+      "note": "CANONICAL VALUE = exam_editions.eligibility column (rendered by EligibilitySummary on the main page). The module ALSO has an editorial render surface: the ContentModulesBlock eligibility branch on bespoke CT/tab pages renders qualification/ageLimit/nationality/additionalCriteria. This does NOT make the module canonical — it is an editorial/rendering surface whose structured domain value is owned by the column. 'attempts' is editor-only (not rendered)."
+    },
+
+    "important-dates": {
+      "status": "ACTIVE",
+      "class": "mirror-of",
+      "canonicalFact": "important_dates",
+      "editorFields": ["dates"],
+      "rendererFields": [],
+      "mirrorOf": "exam_editions.important_dates",
+      "generated": true,
+      "note": "Auto passthrough mirror of the canonical column (dataBindingService.generateImportantDatesAuto). Not independently authored. Frontend renders the column via ImportantDatesSummary."
+    },
+
+    "result": {
+      "status": "ACTIVE",
+      "class": "editorial",
+      "editorFields": ["declarationDate", "checkLink", "body", "statistics"],
+      "rendererFields": ["declarationDate", "checkLink", "statistics"],
+      "rendererFallback": { "prose": ["body", "content", "description"] },
+      "note": "Own editorial module; no column duplicate. ResultModule renders declarationDate/checkLink/statistics + prose fallback."
+    },
+
+    "admit-card": {
+      "status": "ACTIVE",
+      "class": "editorial",
+      "editorFields": ["releaseDate", "downloadLink", "body", "documents"],
+      "rendererFields": ["releaseDate", "downloadLink", "documents"],
+      "rendererFallback": { "prose": ["body", "content", "description"] },
+      "note": "Own editorial module; no column duplicate. AdmitCardModule renders releaseDate/downloadLink/documents + prose fallback."
+    },
+
+    "exam-pattern": {
+      "status": "ACTIVE",
+      "class": "editorial",
+      "editorFields": ["mode", "duration", "totalMarks", "markingScheme", "sections", "notes"],
+      "rendererFields": ["mode", "duration", "totalMarks", "markingScheme", "sections", "notes"],
+      "note": "Flat live shape rendered on the syllabus tab (ExamPatternModule). The richer papers[] shape in the decorative src/config/moduleRegistry.ts is NOT the contract."
+    },
+
+    "vacancy-details": {
+      "status": "LEGACY",
+      "class": "forbidden-canonical",
+      "canonicalFact": "vacancy_total",
+      "editorFields": ["totalPosts", "categories", "notes"],
+      "rendererFields": [],
+      "forbiddenFields": [
+        { "key": "totalPosts", "reason": "The canonical vacancy total lives in exam_editions.vacancy. totalPosts must NOT carry the total (GDS conflict: module 555 vs column 44228). Not rendered today; do not build a renderer for it." }
+      ],
+      "note": "Module is not enabled/rendered for the exam pages. Breakdown fields (categories) belong to the dormant entity_vacancy (NOT committed). Kept LEGACY so a new totalPosts write is a Class-6 finding."
+    },
+
+    "syllabus": {
+      "status": "DEPRECATED",
+      "class": "deprecated",
+      "canonicalFact": "syllabus",
+      "editorFields": ["subjects", "downloadLink", "notes"],
+      "rendererFields": [],
+      "note": "The rendered syllabus is exclusively the relational exam_syllabus_subjects table (SyllabusSection). This content_modules.syllabus store is unread/deprecated; do not add a reader."
+    },
+
+    "application-process": {
+      "status": "ACTIVE",
+      "class": "editorial",
+      "editorFields": ["description", "steps", "applyLink", "fee"],
+      "rendererFields": ["description", "steps", "fee"],
+      "intentionallyUnrendered": [
+        { "key": "applyLink", "reason": "Editorial action link; currently unread by the exam frontend (render-or-deprecate is a WAIT item). Distinct from exams.official_website." }
+      ],
+      "note": "The 'fee' field is editorial prose and is a DIFFERENT concept from the structured exam_editions.application_fee amounts — not a competing source."
+    }
+  }
+}

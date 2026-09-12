@@ -13,7 +13,8 @@ import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
 import Link from "next/link";
 import { getSarkariNaukriBySlug, generateStaticSarkariNaukriParams } from "@/services/sarkariNaukriService";
-import { getExamBySlug, getExamsByCategory } from "@/services/examService";
+import { getExamBySlug, getExamsByCategory, getExamEditionsForSwitcher, hasOtherEditions, resolveEditionYear } from "@/services/examService";
+import { isEditionYear, buildEditionContext } from "@/lib/exam/editions";
 import { getContentPostsByExam, getLatestByContentType } from "@/services/contentPostService";
 import { EntityDetailPage } from "@/components/exam/EntityDetailPage";
 import { buildExamMetadata } from "@/lib/seo/metadata";
@@ -100,8 +101,34 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   }
 
   if (segments.length === 3) {
-    // category/slug/contentType — content type page
-    const [category, slug, contentType] = segments;
+    const [category, slug, seg3] = segments;
+    const basePath = `${siteConfig.url}/sarkari-naukri/${category}/${slug}`;
+
+    // Year → a specific edition page. SEO: canonical → MAIN exam URL; noindex (edition pages are
+    // supporting cycle detail, not competing indexable pages). A thin/absent edition renders as a
+    // 404 (handled in the page), so metadata here only covers a real, content-bearing edition.
+    if (isEditionYear(seg3)) {
+      const resolved = await resolveEditionYear(slug, Number(seg3));
+      if (resolved.kind === "notfound") return {};
+      if (resolved.isCurrent) {
+        // current edition's year URL redirects to main; give it the main canonical, no noindex.
+        return buildExamMetadata({
+          pageType: "exam-entity",
+          title: resolved.exam.seoTitle ?? `${resolved.exam.name} — Notification, Eligibility & Apply`,
+          canonicalUrl: basePath,
+        });
+      }
+      return buildExamMetadata({
+        pageType: "exam-entity",
+        title: `${resolved.exam.name} ${seg3} — Cycle Details | IndianExamInfo`,
+        description: `${resolved.exam.name} ${seg3} cycle: dates, vacancy, result and cutoff for that edition. For the current cycle see the main ${resolved.exam.shortName} page.`,
+        canonicalUrl: basePath, // canonical → MAIN page (not self)
+        noIndex: true, // noindex the non-current edition
+      });
+    }
+
+    // Otherwise → content type page
+    const contentType = seg3;
     const exam = await getExamBySlug(slug, category);
     if (!exam || !SERVED_PILLARS.has(exam.pillar)) return {};
     const year = getCurrentYear();
@@ -208,6 +235,15 @@ export default async function SarkariNaukriCatchAll({ params }: Props) {
     }
 
     const categoryLabel = category.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+    const basePath = `/sarkari-naukri/${category}/${slug}`;
+
+    // Switcher on the MAIN page when ≥1 other edition with content exists. viewingYear = the
+    // CURRENT edition's year (resolved from is_current, NOT from year order).
+    const editions = await getExamEditionsForSwitcher(slug);
+    const currentEd = editions.find((e) => e.isCurrent);
+    const editionContext = currentEd
+      ? buildEditionContext(editions, currentEd.year, basePath)
+      : null;
 
     return (
       <EntityDetailPage
@@ -215,19 +251,48 @@ export default async function SarkariNaukriCatchAll({ params }: Props) {
         breadcrumbs={[
           { name: "Sarkari Naukri", href: "/sarkari-naukri" },
           { name: categoryLabel, href: `/sarkari-naukri/${category}` },
-          { name: exam.shortName, href: `/sarkari-naukri/${category}/${slug}` },
+          { name: exam.shortName, href: basePath },
         ]}
+        editionContext={editionContext ?? undefined}
       />
     );
   }
 
-  // ─── Pattern 3: category/slug/contentType — Content type page ───────
+  // ─── Pattern 3: category/slug/{contentType | year} ──────────────────
   if (segments.length === 3) {
-    const [category, slug, contentType] = segments;
+    const [category, slug, seg3] = segments;
+
+    // 3a. Year segment → a specific edition (see CORE INVARIANT: year is a label, not lifecycle).
+    if (isEditionYear(seg3)) {
+      const year = Number(seg3);
+      const basePath = `/sarkari-naukri/${category}/${slug}`;
+      const resolved = await resolveEditionYear(slug, year);
+      if (resolved.kind === "notfound") notFound(); // thin/absent edition → 404
+      // The current edition's own year URL is not a second indexable page — send to the canonical main URL.
+      if (resolved.isCurrent) redirect(basePath);
+      const exam = resolved.exam;
+      if (!SERVED_PILLARS.has(exam.pillar)) notFound();
+      const editions = await getExamEditionsForSwitcher(slug);
+      const editionContext = buildEditionContext(editions, year, basePath);
+      const categoryLabel = category.replace(/-/g, " ").replace(/\b\w/g, (c: string) => c.toUpperCase());
+      return (
+        <EntityDetailPage
+          exam={exam}
+          breadcrumbs={[
+            { name: "Sarkari Naukri", href: "/sarkari-naukri" },
+            { name: categoryLabel, href: `/sarkari-naukri/${category}` },
+            { name: exam.shortName, href: basePath },
+            { name: String(year), href: `${basePath}/${year}` },
+          ]}
+          editionContext={editionContext ?? undefined}
+        />
+      );
+    }
+
+    // 3b. Otherwise → content-type page (existing behaviour).
+    const contentType = seg3;
     const exam = await getExamBySlug(slug, category);
-
     if (!exam || !SERVED_PILLARS.has(exam.pillar)) notFound();
-
     return (
       <SarkariNaukriContentTypeView
         exam={exam}

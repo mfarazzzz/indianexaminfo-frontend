@@ -23,7 +23,7 @@ import {
 import { contentTypeHasData, hasData, mainSectionsForPillar, CONTENT_TYPE_TO_SECTION, type HasDataView, type Pillar } from "@/lib/sectionRegistry";
 import { SECTION_SUMMARY_RENDERERS, MODULE_RENDERERS } from "@/components/exam/sectionRenderers";
 import { nameWithYear } from "@/lib/seo/keywords";
-import { ExternalLink, Share2 } from "lucide-react";
+import { ExternalLink, Share2, ArrowRight } from "lucide-react";
 
 type EntityDetailPageProps = {
   exam: ExamEntity;
@@ -33,6 +33,19 @@ type EntityDetailPageProps = {
    *  focused section (e.g. structured syllabus) renders — matching the entrance CT page.
    *  One component, one behaviour across pillars. */
   contentType?: ContentType;
+  /** When set, this renders a NON-CURRENT edition at its year URL (e.g. /slug/2026), NOT the
+   *  main page. Same body + renderers as the main page (one home) plus: an "other edition"
+   *  banner linking to the live cycle, and the year-pill switcher. The YEAR IS A LABEL — never
+   *  a timeline signal; `isCurrent` (from current_edition_id) is the only live-cycle authority.
+   *  Canonical→main + noindex-until-content are set by the ROUTE's generateMetadata, not here. */
+  editionContext?: {
+    /** The year label of the edition being viewed (this page's edition). */
+    viewingYear: number;
+    /** All editions for the switcher pills, year-desc; `isCurrent` marks the live one. */
+    editions: { year: number; editionLabel: string; isCurrent: boolean; hasContent: boolean }[];
+    /** Base path for building year-pill + "current cycle" hrefs, e.g. "/sarkari-naukri/banking/ibps-clerk". */
+    basePath: string;
+  };
 };
 
 const contentTypeOrder: ContentType[] = [
@@ -246,7 +259,75 @@ function getContentTypeHref(exam: ExamEntity, ct: ContentType): string {
   return `/${routePillar}/${exam.category}/${exam.slug}/${ct}`;
 }
 
-export async function EntityDetailPage({ exam, breadcrumbs, contentType }: EntityDetailPageProps) {
+/** Year-pill switcher for cycles. Year is the LABEL and the sort key only — the live pill is
+ *  marked from `isCurrent` (current_edition_id), never from year order. Caps at 8 pills with a
+ *  "+N more" that links to the current cycle's page (where the full set is also shown). Links are
+ *  real anchors so they are crawlable. Shown on the main page and on other-edition pages. */
+function EditionSwitcher({
+  editions, activeYear, basePath,
+}: {
+  editions: { year: number; editionLabel: string; isCurrent: boolean; hasContent: boolean }[];
+  activeYear: number; // the year currently shown (current edition's year on the main page)
+  basePath: string;
+}) {
+  // Only pill editions that are the current one OR non-current WITH content (thin cycles get no page).
+  const pillable = editions.filter((e) => e.isCurrent || e.hasContent);
+  if (pillable.length <= 1) return null; // nothing to switch between
+  const CAP = 8;
+  const shown = pillable.slice(0, CAP);
+  const moreCount = pillable.length - shown.length;
+  const current = editions.find((e) => e.isCurrent);
+  const hrefFor = (e: { year: number; isCurrent: boolean }) =>
+    e.isCurrent ? basePath : `${basePath}/${e.year}`;
+  return (
+    <nav className="flex flex-wrap items-center gap-2 mb-4" aria-label="Exam cycles">
+      <span className="text-xs font-medium text-gray-500 uppercase tracking-wide">Cycle:</span>
+      {shown.map((e) => (
+        <Link
+          key={e.year}
+          href={hrefFor(e)}
+          prefetch={false}
+          aria-current={e.year === activeYear ? "page" : undefined}
+          className={`text-sm font-semibold px-3 py-1.5 rounded border transition-colors ${
+            e.year === activeYear
+              ? "bg-primary text-white border-primary"
+              : "bg-white text-gray-700 border-border hover:border-primary hover:text-primary"
+          }`}
+        >
+          {e.year}{e.isCurrent ? " · current" : ""}
+        </Link>
+      ))}
+      {moreCount > 0 && current && (
+        <Link href={basePath} prefetch={false} className="text-sm text-gray-500 hover:text-primary hover:underline px-2 py-1.5">
+          +{moreCount} more
+        </Link>
+      )}
+    </nav>
+  );
+}
+
+/** Banner shown on a NON-CURRENT edition page. States which cycle you're on and links to the
+ *  live one. No "archived" wording — true whether the non-current cycle's year is behind or ahead
+ *  of the current one (the year is a label, not a position). */
+function OtherEditionBanner({
+  viewingLabel, currentLabel, currentHref,
+}: {
+  viewingLabel: string; currentLabel: string | null; currentHref: string;
+}) {
+  return (
+    <div className="mt-1 mb-4 bg-amber-50 border border-amber-200 rounded-lg px-4 py-3 flex items-center justify-between gap-3">
+      <p className="text-sm text-amber-800">
+        You&apos;re viewing the <strong>{viewingLabel}</strong> cycle.
+        {currentLabel ? <> The current cycle is <strong>{currentLabel}</strong>.</> : null}
+      </p>
+      <Link href={currentHref} className="text-sm font-medium text-amber-800 hover:text-amber-900 flex items-center gap-1 whitespace-nowrap">
+        Go to current cycle <ArrowRight className="w-3.5 h-3.5" />
+      </Link>
+    </div>
+  );
+}
+
+export async function EntityDetailPage({ exam, breadcrumbs, contentType, editionContext }: EntityDetailPageProps) {
   const [contentPosts, relatedExams, resources, syllabus] = await Promise.all([
     getContentPostsByExam(exam.id),
     getRelatedExams(exam.id),
@@ -296,12 +377,38 @@ export async function EntityDetailPage({ exam, breadcrumbs, contentType }: Entit
               </span>
             </div>
 
+            {/* Other-edition banner — ONLY when viewing a NON-CURRENT edition at its year URL.
+                Suppressed on the main page (where viewingYear === the current cycle's year). */}
+            {editionContext && !editionContext.editions.some((e) => e.isCurrent && e.year === editionContext.viewingYear) && (() => {
+              const cur = editionContext.editions.find((e) => e.isCurrent);
+              const viewing = editionContext.editions.find((e) => e.year === editionContext.viewingYear);
+              return (
+                <OtherEditionBanner
+                  viewingLabel={viewing?.editionLabel ?? String(editionContext.viewingYear)}
+                  currentLabel={cur?.editionLabel ?? null}
+                  currentHref={editionContext.basePath}
+                />
+              );
+            })()}
+
             {/* Main-page H1 — only on the main page (no contentType). On a CT sub-page the
-                focused body renders its own CT-specific H1. */}
+                focused body renders its own CT-specific H1. On a NON-CURRENT edition page, label
+                the cycle by its year (the year is a label). */}
             {!contentType && (
               <h1 className="font-heading font-bold text-2xl text-gray-900 mb-3 article-title">
-                {nameWithYear(exam.name)} — Notification, Eligibility &amp; Apply
+                {editionContext && !editionContext.editions.some((e) => e.isCurrent && e.year === editionContext.viewingYear)
+                  ? `${exam.name} ${editionContext.viewingYear} — Cycle Details`
+                  : `${nameWithYear(exam.name)} — Notification, Eligibility & Apply`}
               </h1>
+            )}
+
+            {/* Cycle switcher (year pills) — main page and edition pages, when >1 cycle exists. */}
+            {editionContext && (
+              <EditionSwitcher
+                editions={editionContext.editions}
+                activeYear={editionContext.viewingYear}
+                basePath={editionContext.basePath}
+              />
             )}
 
             {/* Meta row */}
