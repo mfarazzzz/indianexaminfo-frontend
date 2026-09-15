@@ -90,6 +90,10 @@ function mapRow(row: Record<string, unknown>, derivedStatus?: string): ExamEntit
     subcategory: (row.subcategory_slug as string) ?? (row as any).subcat?.slug ?? "",
     entityType: (row.entity_type as ExamEntity["entityType"]) ?? "exam",
     conductingBody: (row.conducting_body as string) ?? "",
+    // Current edition's year LABEL, from the already-loaded current_ed (current_edition_id FK
+    // join). No extra query, no edition re-selection. Drives the main-page title/H1 year so it
+    // reflects the current cycle instead of the calendar year.
+    currentEditionYear: (ed?.year as number) ?? undefined,
     // Read-side guard (Finding #3): ensure a protocol so links never render as
     // same-origin (which 500s on click) and new URL() never throws.
     officialWebsite: normalizeUrl(row.official_website as string),

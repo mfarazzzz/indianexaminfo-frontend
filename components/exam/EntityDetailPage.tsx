@@ -179,7 +179,7 @@ function renderFocusedContentType(
       {/* CT badge + focused H1 */}
       <span className="content-type-badge bg-primary/10 text-primary mb-3 inline-block">{ctLabel}</span>
       <h1 className="font-heading font-bold text-2xl text-gray-900 mb-3 article-title">
-        {nameWithYear(exam.name)} {ctLabel}
+        {nameWithYear(exam.name, exam.currentEditionYear)} {ctLabel}
       </h1>
 
       {/* The content-type section itself. Syllabus → structured SyllabusSection. Otherwise
@@ -398,7 +398,7 @@ export async function EntityDetailPage({ exam, breadcrumbs, contentType, edition
               <h1 className="font-heading font-bold text-2xl text-gray-900 mb-3 article-title">
                 {editionContext && !editionContext.editions.some((e) => e.isCurrent && e.year === editionContext.viewingYear)
                   ? `${exam.name} ${editionContext.viewingYear} — Cycle Details`
-                  : `${nameWithYear(exam.name)} — Notification, Eligibility & Apply`}
+                  : `${nameWithYear(exam.name, exam.currentEditionYear)} — Notification, Eligibility & Apply`}
               </h1>
             )}
 

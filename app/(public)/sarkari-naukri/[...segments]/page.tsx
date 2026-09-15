@@ -70,7 +70,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     // Try exams table
     const exam = await getExamBySlug(slug);
     if (exam && SERVED_PILLARS.has(exam.pillar)) {
-      const year = getCurrentYear();
+      // Title year = the CURRENT edition's year (current_edition_id), not the calendar year,
+      // so the main page's title matches the cycle it renders. Falls back to calendar year
+      // only when no current edition is loaded.
+      const year = exam.currentEditionYear ?? getCurrentYear();
       return buildExamMetadata({
         pageType: "exam-entity",
         title: exam.seoTitle ?? `${exam.name} ${year} — Notification, Eligibility & Apply`,
@@ -89,7 +92,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     const [category, slug] = segments;
     const exam = await getExamBySlug(slug, category);
     if (!exam || !SERVED_PILLARS.has(exam.pillar)) return {};
-    const year = getCurrentYear();
+    // Title year = current edition's year (current_edition_id), not calendar year.
+    const year = exam.currentEditionYear ?? getCurrentYear();
     return buildExamMetadata({
       pageType: "exam-entity",
       title: exam.seoTitle ?? `${exam.name} ${year} — Notification, Eligibility & Apply`,

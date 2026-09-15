@@ -60,6 +60,12 @@ export type ExamEntity = {
   officialWebsite: string;
   status: ExamStatus;
 
+  /** Year LABEL of the current edition (from current_edition_id → exam_editions.year).
+   *  This is the year the MAIN exam page represents — used for the title/H1 year so it
+   *  reflects the current cycle, NOT the calendar year (getCurrentYear). A label, never a
+   *  lifecycle signal. undefined when no current edition is loaded. */
+  currentEditionYear?: number;
+
   // Content availability flags
   hasAdmitCard: boolean;
   hasResult: boolean;
