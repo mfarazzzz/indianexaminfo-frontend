@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { getExamBySlug } from "@/services/examService";
+import { getExamBySlug, getExamEditionsForSwitcher } from "@/services/examService";
 import { EntityDetailPage } from "@/components/exam/EntityDetailPage";
+import { buildEditionContext } from "@/lib/exam/editions";
 import { buildExamMetadata } from "@/lib/seo/metadata";
 import {
   buildPageKeywords, buildMetaDescription, getCurrentYear,
@@ -33,14 +34,21 @@ export default async function UniversityPage({ params }: Props) {
 
   if (!exam || exam.entityType !== "university") notFound();
 
+  const basePath = `/board-exam/university/${slug}`;
+  // Other-editions switcher on the MAIN page (null for ≤1 edition). Same rule as every pillar.
+  const editions = await getExamEditionsForSwitcher(slug);
+  const currentEd = editions.find((e) => e.isCurrent);
+  const editionContext = currentEd ? buildEditionContext(editions, currentEd.year, basePath) : null;
+
   return (
     <EntityDetailPage
       exam={exam}
       breadcrumbs={[
         { name: "Board Exam", href: "/board-exam" },
         { name: "Universities", href: "/board-exam" },
-        { name: exam.shortName, href: `/board-exam/university/${slug}` },
+        { name: exam.shortName, href: basePath },
       ]}
+      editionContext={editionContext ?? undefined}
     />
   );
 }

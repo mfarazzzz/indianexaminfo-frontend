@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { getExamBySlug, getExamArchive, contentTypeAvailable, getExamSyllabus } from "@/services/examService";
+import { getExamBySlug, contentTypeAvailable, getExamSyllabus } from "@/services/examService";
 import { SyllabusSection } from "@/components/exam/SyllabusSection";
 import { getContentPostsByExam, getLatestByContentType } from "@/services/contentPostService";
 import { Breadcrumb } from "@/components/layout/Breadcrumb";
@@ -16,20 +16,17 @@ import { safeHtml } from "@/lib/sanitize";
 import { ContentTypeDataRenderer } from "@/components/exam/ContentTypeDataRenderer";
 import { ContentTypeModules } from "@/components/exam/ContentTypeModules";
 import { contentTypeHasData } from "@/lib/sectionRegistry";
+import { isEditionYear } from "@/lib/exam/editions";
+import { buildEditionMetadata, renderEditionPage } from "@/lib/exam/editionDispatch";
 import type { ContentType } from "@/types/exam";
-import { ExternalLink, Download, Clock, ArrowRight } from "lucide-react";
+import { ExternalLink, Download, Clock } from "lucide-react";
 import Link from "next/link";
-import { ExamCard } from "@/components/exam/ExamCard";
 
 export const revalidate = 1800;
 
-type Props = { params: Promise<{ category: string; slug: string; contentType: string }> };
+const SERVED_PILLARS = new Set(["entrance-exam"]);
 
-/** Check if the contentType param is actually a year (e.g. "2025", "2026") */
-function isYearParam(val: string): boolean {
-  const num = parseInt(val);
-  return !isNaN(num) && num >= 2000 && num <= 2100 && val === String(num);
-}
+type Props = { params: Promise<{ category: string; slug: string; contentType: string }> };
 
 function actionText(ct: string) {
   const m: Record<string, string> = {
@@ -45,18 +42,16 @@ function actionText(ct: string) {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { category, slug, contentType } = await params;
 
-  // Handle year-based archive pages
-  if (isYearParam(contentType)) {
-    const year = contentType;
-    const exam = await getExamArchive(slug, parseInt(year));
-    if (!exam) return { title: "Not Found" };
-    return {
-      title: `${exam.name} ${year} — Archive | IndianExamInfo`,
-      description: `Archived information for ${exam.name} ${year} including dates, results, and cutoff data.`,
-      alternates: {
-        canonical: `${siteConfig.url}/entrance-exam/${category}/${slug}/${year}`,
-      },
-    };
+  // Year → edition page. Routes through the SHARED dispatch (canonical → MAIN exam URL,
+  // noindex non-current, 404-safe). Replaces the old self-canonical, no-noindex Archive
+  // metadata that this route used to emit.
+  if (isEditionYear(contentType)) {
+    return buildEditionMetadata({
+      slug,
+      year: Number(contentType),
+      absoluteBasePath: `${siteConfig.url}/entrance-exam/${category}/${slug}`,
+      servedPillars: SERVED_PILLARS,
+    });
   }
 
   const exam = await getExamBySlug(slug);
@@ -76,48 +71,27 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function EntranceContentTypePage({ params }: Props) {
   const { category, slug, contentType } = await params;
 
-  // Handle year-based archive pages
-  if (isYearParam(contentType)) {
-    const yearNum = parseInt(contentType);
-    const exam = await getExamArchive(slug, yearNum);
-    if (!exam) return notFound();
-
-    const label = category.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
-
-    return (
-      <div className="container mx-auto px-4 py-4">
-        <Breadcrumb
-          items={[
-            { name: "Entrance Exam", href: "/entrance-exam" },
-            { name: label, href: `/entrance-exam/${category}` },
-            { name: exam.shortName || exam.name, href: `/entrance-exam/${category}/${slug}` },
-            { name: contentType, href: `/entrance-exam/${category}/${slug}/${contentType}` },
-          ]}
-        />
-        <div className="mt-4 mb-5 bg-amber-50 border border-amber-200 rounded-lg px-4 py-3 flex items-center justify-between">
-          <p className="text-sm text-amber-800">
-            📋 You&apos;re viewing <strong>{exam.name} {contentType}</strong> (archived edition).
-          </p>
-          <Link
-            href={`/entrance-exam/${category}/${slug}`}
-            className="text-sm font-medium text-amber-700 hover:text-amber-900 flex items-center gap-1"
-          >
-            See latest <ArrowRight size={14} />
-          </Link>
-        </div>
-        <h1 className="font-heading font-bold text-2xl text-gray-900 mb-5">
-          {exam.name} {contentType} — Archive
-        </h1>
-        <div className="grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-6">
-          <main>
-            <ExamCard exam={exam} />
-          </main>
-          <aside className="text-sm text-slate-500">
-            <p>This is an archived edition. For the most current information, visit the main exam page.</p>
-          </aside>
-        </div>
-      </div>
-    );
+  // Year segment → a specific edition. Now routed through the SHARED dispatch so entrance
+  // renders like every other pillar (full EntityDetailPage + switcher + resource library),
+  // NOT the old minimal ExamCard "Archive" template. Shared dispatch owns resolve →
+  // current-year redirect → thin-404 → render.
+  if (isEditionYear(contentType)) {
+    const year = Number(contentType);
+    const basePath = `/entrance-exam/${category}/${slug}`;
+    const catLabel = category.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+    return renderEditionPage({
+      slug,
+      year,
+      basePath,
+      absoluteBasePath: `${siteConfig.url}${basePath}`,
+      servedPillars: SERVED_PILLARS,
+      breadcrumbs: (exam, y) => [
+        { name: "Entrance Exam", href: "/entrance-exam" },
+        { name: catLabel, href: `/entrance-exam/${category}` },
+        { name: exam.shortName, href: basePath },
+        { name: String(y), href: `${basePath}/${y}` },
+      ],
+    });
   }
 
   // Normal content type page

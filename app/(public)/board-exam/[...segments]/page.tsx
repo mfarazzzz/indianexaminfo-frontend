@@ -11,20 +11,22 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { getExamBySlug, getExamsByCategory, contentTypeAvailable } from "@/services/examService";
+import { getExamBySlug, getExamsByCategory, contentTypeAvailable, getExamEditionsForSwitcher } from "@/services/examService";
 import { getContentPostsByExam, getLatestByContentType } from "@/services/contentPostService";
 import { EntityDetailPage } from "@/components/exam/EntityDetailPage";
 import { buildExamMetadata } from "@/lib/seo/metadata";
 import { buildPageKeywords, buildSEOTitle, buildMetaDescription, getCurrentYear } from "@/lib/seo/keywords";
 import { siteConfig } from "@/config/site";
 import { contentTypeLabel } from "@/lib/utils";
+import { isEditionYear, buildEditionContext } from "@/lib/exam/editions";
+import { buildEditionMetadata, renderEditionPage } from "@/lib/exam/editionDispatch";
 import type { ContentType } from "@/types/exam";
 
 export const revalidate = 3600;
 export const dynamicParams = true;
 
 /** Pillars served by this route */
-const SERVED_PILLARS = new Set(["board-exam", "board-exam"]);
+const SERVED_PILLARS = new Set(["board-exam"]);
 
 type Props = { params: Promise<{ segments: string[] }> };
 
@@ -63,7 +65,17 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   }
 
   if (segments.length === 3) {
-    const [category, slug, contentType] = segments;
+    const [category, slug, seg3] = segments;
+    // Year → edition page. Shared dispatch owns canonical → MAIN / noindex / 404-safe.
+    if (isEditionYear(seg3)) {
+      return buildEditionMetadata({
+        slug,
+        year: Number(seg3),
+        absoluteBasePath: `${siteConfig.url}/board-exam/${category}/${slug}`,
+        servedPillars: SERVED_PILLARS,
+      });
+    }
+    const contentType = seg3;
     const exam = await getExamBySlug(slug, category);
     if (exam && SERVED_PILLARS.has(exam.pillar)) {
       return buildExamMetadata({
@@ -88,12 +100,17 @@ export default async function BoardExamCatchAll({ params }: Props) {
     const slug = segments[0];
     const exam = await getExamBySlug(slug);
     if (exam && SERVED_PILLARS.has(exam.pillar)) {
+      const basePath = `/board-exam/${slug}`;
+      const editions = await getExamEditionsForSwitcher(slug);
+      const currentEd = editions.find((e) => e.isCurrent);
+      const editionContext = currentEd ? buildEditionContext(editions, currentEd.year, basePath) : null;
       return (
         <EntityDetailPage
           exam={exam}
+          editionContext={editionContext ?? undefined}
           breadcrumbs={[
             { name: "Board Exam", href: "/board-exam" },
-            { name: exam.shortName, href: `/board-exam/${slug}` },
+            { name: exam.shortName, href: basePath },
           ]}
         />
       );
@@ -126,13 +143,18 @@ export default async function BoardExamCatchAll({ params }: Props) {
     const exam = await getExamBySlug(slug, category);
     if (exam && SERVED_PILLARS.has(exam.pillar)) {
       const catLabel = category.replace(/-/g, " ").replace(/\b\w/g, (c: string) => c.toUpperCase());
+      const basePath = `/board-exam/${category}/${slug}`;
+      const editions = await getExamEditionsForSwitcher(slug);
+      const currentEd = editions.find((e) => e.isCurrent);
+      const editionContext = currentEd ? buildEditionContext(editions, currentEd.year, basePath) : null;
       return (
         <EntityDetailPage
           exam={exam}
+          editionContext={editionContext ?? undefined}
           breadcrumbs={[
             { name: "Board Exam", href: "/board-exam" },
             { name: catLabel, href: `/board-exam/${category}` },
-            { name: exam.shortName, href: `/board-exam/${category}/${slug}` },
+            { name: exam.shortName, href: basePath },
           ]}
         />
       );
@@ -159,9 +181,31 @@ export default async function BoardExamCatchAll({ params }: Props) {
     notFound();
   }
 
-  // Pattern 3: category/slug/contentType — content type page
+  // Pattern 3: category/slug/{contentType | year}
   if (segments.length === 3) {
-    const [category, slug, contentType] = segments;
+    const [category, slug, seg3] = segments;
+
+    // Year segment → a specific edition (see CORE INVARIANT: year is a label, not lifecycle).
+    if (isEditionYear(seg3)) {
+      const year = Number(seg3);
+      const basePath = `/board-exam/${category}/${slug}`;
+      const catLabel = category.replace(/-/g, " ").replace(/\b\w/g, (c: string) => c.toUpperCase());
+      return renderEditionPage({
+        slug,
+        year,
+        basePath,
+        absoluteBasePath: `${siteConfig.url}${basePath}`,
+        servedPillars: SERVED_PILLARS,
+        breadcrumbs: (exam, y) => [
+          { name: "Board Exam", href: "/board-exam" },
+          { name: catLabel, href: `/board-exam/${category}` },
+          { name: exam.shortName, href: basePath },
+          { name: String(y), href: `${basePath}/${y}` },
+        ],
+      });
+    }
+
+    const contentType = seg3;
     const exam = await getExamBySlug(slug, category);
     if (!exam || !SERVED_PILLARS.has(exam.pillar)) notFound();
     // Step 2 (c): 404 when this content type has no data. Shared async gate (incl. syllabus).

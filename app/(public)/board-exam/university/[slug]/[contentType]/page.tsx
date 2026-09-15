@@ -19,15 +19,31 @@ import {
 import { siteConfig } from "@/config/site";
 import { formatDate, contentTypeLabel } from "@/lib/utils";
 import { safeHtml } from "@/lib/sanitize";
+import { isEditionYear } from "@/lib/exam/editions";
+import { buildEditionMetadata, renderEditionPage } from "@/lib/exam/editionDispatch";
 import type { ContentType } from "@/types/exam";
 import { ExternalLink, Download, Clock } from "lucide-react";
 
 export const revalidate = 900;
 
+const SERVED_PILLARS = new Set(["board-exam"]);
+
 type Props = { params: Promise<{ slug: string; contentType: string }> };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug, contentType } = await params;
+
+  // Year in the [contentType] slot → edition page. Shared dispatch owns canonical → MAIN /
+  // noindex / 404-safe. (Year is a label, not lifecycle — same rule as every pillar route.)
+  if (isEditionYear(contentType)) {
+    return buildEditionMetadata({
+      slug,
+      year: Number(contentType),
+      absoluteBasePath: `${siteConfig.url}/board-exam/university/${slug}`,
+      servedPillars: SERVED_PILLARS,
+    });
+  }
+
   const exam = await getExamBySlug(slug);
   if (!exam) return {};
   const ct = contentType as ContentType;
@@ -44,6 +60,26 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function UniversityContentTypePage({ params }: Props) {
   const { slug, contentType } = await params;
+
+  // Year segment → a specific edition (see CORE INVARIANT: year is a label, not lifecycle).
+  if (isEditionYear(contentType)) {
+    const year = Number(contentType);
+    const basePath = `/board-exam/university/${slug}`;
+    return renderEditionPage({
+      slug,
+      year,
+      basePath,
+      absoluteBasePath: `${siteConfig.url}${basePath}`,
+      servedPillars: SERVED_PILLARS,
+      breadcrumbs: (exam, y) => [
+        { name: "Board Exam", href: "/board-exam" },
+        { name: "Universities", href: "/board-exam" },
+        { name: exam.shortName, href: basePath },
+        { name: String(y), href: `${basePath}/${y}` },
+      ],
+    });
+  }
+
   const [exam, relatedPosts] = await Promise.all([
     getExamBySlug(slug),
     getLatestByContentType(contentType as ContentType, 5),

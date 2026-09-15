@@ -788,3 +788,50 @@ export async function resolveEditionYear(
   if (!exam) return { kind: "notfound" };
   return { kind: "edition", exam, isCurrent: match.isCurrent, hasContent: match.hasContent };
 }
+
+// ── Sitemap: non-current editions WITH content ───────────────────────────────
+//
+// The sitemap emits a year URL for an edition ONLY when that edition is non-current AND has
+// content — the SAME rule (editionHasContent) that drives the switcher pills, the "Other
+// Editions" surface, and the year route's notFound(). One predicate, four consumers, so they
+// can never disagree (the ~1,900-thin-URL coupling). Current editions are NOT emitted here:
+// their content lives at the main exam URL, and the current edition's own year URL redirects
+// to main — emitting it would be a duplicate. One bulk query, not one call per exam.
+
+export type EditionSitemapEntry = {
+  slug: string;
+  pillar: string;
+  year: number;
+};
+
+export async function getEditionSitemapEntries(): Promise<EditionSitemapEntry[]> {
+  return cached(async () => {
+    try {
+      const supabase = createServerClient();
+      const { data, error } = await supabase
+        .from("exam_editions")
+        .select(
+          "year, is_current, important_dates, vacancy, eligibility, content_modules, " +
+            "exam:exams!exam_id(slug, pillar, current_edition_id, workflow_status), id",
+        );
+      if (error) throw error;
+
+      const out: EditionSitemapEntry[] = [];
+      for (const r of (data ?? []) as any[]) {
+        const exam = r.exam;
+        if (!exam?.slug) continue;
+        // Draft/unpublished exams never enter the sitemap.
+        if (exam.workflow_status && exam.workflow_status !== "published") continue;
+        // is_current is the ONLY lifecycle authority — never year math.
+        const isCurrent = r.id === exam.current_edition_id || r.is_current === true;
+        if (isCurrent) continue; // current edition lives at the main URL, not a year URL
+        if (!editionHasContent(r as Record<string, unknown>)) continue; // same gate as everything else
+        out.push({ slug: exam.slug, pillar: exam.pillar, year: r.year });
+      }
+      return out;
+    } catch (err) {
+      console.error("[examService] getEditionSitemapEntries failed:", err);
+      return [];
+    }
+  }, ["exams", "edition-sitemap"], { revalidate: 1800 });
+}

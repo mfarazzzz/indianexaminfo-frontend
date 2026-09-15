@@ -1,6 +1,6 @@
 import type { MetadataRoute } from "next";
 import { siteConfig } from "@/config/site";
-import { getAllExams } from "@/services/examService";
+import { getAllExams, getEditionSitemapEntries } from "@/services/examService";
 import { getAllBlogPosts } from "@/services/blogService";
 import { getAllPublishedPages } from "@/services/pageService";
 import {
@@ -90,12 +90,13 @@ const CT_FLAGS: { ct: ContentType; flag: string }[] = [
 ];
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const [exams, blogPosts, cmsPages, sarkariEntries, states] = await Promise.all([
+  const [exams, blogPosts, cmsPages, sarkariEntries, states, editionEntries] = await Promise.all([
     getAllExams(),
     getAllBlogPosts(),
     getAllPublishedPages(),
     getSarkariNaukriSitemapEntries(),
     getStateList(),
+    getEditionSitemapEntries(),
   ]);
   const now = new Date();
 
@@ -150,6 +151,25 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       }));
 
     return [base, ...ctPages];
+  });
+
+  // ── Non-current edition (year) pages ─────────────
+  // Emitted ONLY for editions that getEditionSitemapEntries() returned — i.e. non-current
+  // AND content-bearing (the SAME editionHasContent gate as the switcher and the year route's
+  // 404). The URL is the exam's canonical URL + /{year}; we reuse examUrl() (one URL builder,
+  // DB-derived) rather than constructing a year URL by hand. Editions whose exam is not
+  // sitemap-eligible (no category, legacy-redirect category) are skipped for the same reason
+  // their main page is.
+  const examBySlug = new Map(exams.map((e) => [e.slug, e as unknown as SitemapExam]));
+  const editionPages: MetadataRoute.Sitemap = editionEntries.flatMap((ed) => {
+    const exam = examBySlug.get(ed.slug);
+    if (!exam || !isSitemapEligible(exam)) return [];
+    return [{
+      url: `${examUrl(exam)}/${ed.year}`,
+      lastModified: now,
+      changeFrequency: "weekly" as const,
+      priority: 0.6,
+    }];
   });
 
   // ── Blog section pages ────────────────────────────
@@ -237,6 +257,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...staticPages,
     ...sarkariHubPages,
     ...examPages,
+    ...editionPages,
     ...sarkariPages,
     ...sarkariStatePages,
     ...blogSectionPages,

@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { getExamBySlug } from "@/services/examService";
+import { getExamBySlug, getExamEditionsForSwitcher } from "@/services/examService";
 import { EntityDetailPage } from "@/components/exam/EntityDetailPage";
+import { buildEditionContext } from "@/lib/exam/editions";
 import { buildExamMetadata } from "@/lib/seo/metadata";
 import { buildPageKeywords, buildMetaDescription, getCurrentYear } from "@/lib/seo/keywords";
 import { siteConfig } from "@/config/site";
@@ -34,6 +35,14 @@ export default async function EntranceExamEntityPage({ params }: Props) {
   if (!exam || exam.pillar !== "entrance-exam") notFound();
 
   const categoryLabel = category.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+  const basePath = `/entrance-exam/${category}/${slug}`;
+
+  // Other-editions switcher on the MAIN page when >1 pillable edition exists. viewingYear =
+  // the CURRENT edition's year (from is_current, NOT year order). buildEditionContext returns
+  // null for ≤1 edition, so single-edition exams render no switcher. Same as sarkari-naukri.
+  const editions = await getExamEditionsForSwitcher(slug);
+  const currentEd = editions.find((e) => e.isCurrent);
+  const editionContext = currentEd ? buildEditionContext(editions, currentEd.year, basePath) : null;
 
   return (
     <EntityDetailPage
@@ -41,8 +50,9 @@ export default async function EntranceExamEntityPage({ params }: Props) {
       breadcrumbs={[
         { name: "Entrance Exam", href: "/entrance-exam" },
         { name: categoryLabel, href: `/entrance-exam/${category}` },
-        { name: exam.shortName, href: `/entrance-exam/${category}/${slug}` },
+        { name: exam.shortName, href: basePath },
       ]}
+      editionContext={editionContext ?? undefined}
     />
   );
 }
