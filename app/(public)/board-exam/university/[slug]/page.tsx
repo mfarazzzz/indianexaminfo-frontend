@@ -1,54 +1,31 @@
-import type { Metadata } from "next";
-import { notFound } from "next/navigation";
-import { getExamBySlug, getExamEditionsForSwitcher } from "@/services/examService";
-import { EntityDetailPage } from "@/components/exam/EntityDetailPage";
-import { buildEditionContext } from "@/lib/exam/editions";
-import { buildExamMetadata } from "@/lib/seo/metadata";
-import {
-  buildPageKeywords, buildMetaDescription, getCurrentYear,
-} from "@/lib/seo/keywords";
-import { siteConfig } from "@/config/site";
+import { notFound, permanentRedirect } from "next/navigation";
+import { getExamBySlug } from "@/services/examService";
 
 export const revalidate = 3600;
 export const dynamicParams = true; // serve new exams added after build without rebuilding
 
 type Props = { params: Promise<{ slug: string }> };
 
-export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { slug } = await params;
-  const exam = await getExamBySlug(slug);
-  if (!exam) return {};
-  return buildExamMetadata({
-    pageType: "university",
-    title: exam.seoTitle ?? `${exam.shortName} ${getCurrentYear()} — Check Result & Date Sheet`,
-    description: exam.seoDescription ?? buildMetaDescription(exam.name, "result", "", getCurrentYear()),
-    keywords: buildPageKeywords({ pageType: "university", pillar: "board-exam", examSlug: slug }),
-    canonicalUrl: `${siteConfig.url}/board-exam/university/${slug}`,
-    updatedAt: exam.lastUpdated,
-  });
-}
-
+/**
+ * LEGACY/DUPLICATE ROUTE — permanently redirected to the canonical university-exam form.
+ * University entities (pillar=university-exam, entity_type=university) are canonical at
+ * /university-exam/{category}/{slug}. This /board-exam/university/{slug} form used to render
+ * a self-canonical duplicate (indexable), causing duplicate-content. It now 301s to the
+ * canonical, with the destination CATEGORY derived from the DB entity (never hardcoded).
+ * No metadata is emitted for a redirecting route.
+ *
+ * Loop-safety: the destination is the university-exam/[...segments] route (a different route),
+ * so this redirect cannot loop back here.
+ */
 export default async function UniversityPage({ params }: Props) {
   const { slug } = await params;
   const exam = await getExamBySlug(slug);
 
+  // Not a real university entity → keep 404 (do not redirect a non-existent/other entity).
   if (!exam || exam.entityType !== "university") notFound();
+  // Defensive: without a category we cannot build the canonical URL — 404 rather than emit a
+  // malformed `/university-exam//{slug}`. (DB shows 0 null categories for this pillar.)
+  if (!exam.category) notFound();
 
-  const basePath = `/board-exam/university/${slug}`;
-  // Other-editions switcher on the MAIN page (null for ≤1 edition). Same rule as every pillar.
-  const editions = await getExamEditionsForSwitcher(slug);
-  const currentEd = editions.find((e) => e.isCurrent);
-  const editionContext = currentEd ? buildEditionContext(editions, currentEd.year, basePath) : null;
-
-  return (
-    <EntityDetailPage
-      exam={exam}
-      breadcrumbs={[
-        { name: "Board Exam", href: "/board-exam" },
-        { name: "Universities", href: "/board-exam" },
-        { name: exam.shortName, href: basePath },
-      ]}
-      editionContext={editionContext ?? undefined}
-    />
-  );
+  permanentRedirect(`/university-exam/${exam.category}/${slug}`);
 }

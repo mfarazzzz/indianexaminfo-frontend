@@ -29,10 +29,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     const slug = segments[0];
     const exam = await getExamBySlug(slug);
     if (exam && SERVED_PILLARS.has(exam.pillar)) {
+      // Title year = current edition's year (current_edition_id), not the calendar year.
+      const year = exam.currentEditionYear ?? getCurrentYear();
       return buildExamMetadata({
         pageType: "exam-entity",
-        title: exam.seoTitle ?? `${exam.name} ${getCurrentYear()} — Result, Date Sheet & Admission`,
-        description: exam.seoDescription ?? buildMetaDescription(exam.name, "result", "", getCurrentYear()),
+        title: exam.seoTitle ?? `${exam.name} ${year} — Result, Date Sheet & Admission`,
+        description: exam.seoDescription ?? buildMetaDescription(exam.name, "result", "", year),
         canonicalUrl: `${siteConfig.url}/university-exam/${exam.category}/${slug}`,
         updatedAt: exam.lastUpdated,
       });
@@ -43,10 +45,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     const [category, slug] = segments;
     const exam = await getExamBySlug(slug, category);
     if (exam && SERVED_PILLARS.has(exam.pillar)) {
+      // Title year = current edition's year (current_edition_id), not the calendar year.
+      const year = exam.currentEditionYear ?? getCurrentYear();
       return buildExamMetadata({
         pageType: "exam-entity",
-        title: exam.seoTitle ?? `${exam.name} ${getCurrentYear()} — Result, Date Sheet & Admission`,
-        description: exam.seoDescription ?? buildMetaDescription(exam.name, "result", "", getCurrentYear()),
+        title: exam.seoTitle ?? `${exam.name} ${year} — Result, Date Sheet & Admission`,
+        description: exam.seoDescription ?? buildMetaDescription(exam.name, "result", "", year),
         keywords: buildPageKeywords({ pageType: "exam-entity", pillar: "university-exam", examSlug: slug }),
         canonicalUrl: `${siteConfig.url}/university-exam/${category}/${slug}`,
         updatedAt: exam.lastUpdated,
