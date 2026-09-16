@@ -1,4 +1,35 @@
 import type { NextConfig } from "next";
+import { execSync } from "child_process";
+
+/**
+ * Build-time git stamp — baked in at build so "which commit is deployed?" is
+ * answerable from view-source (a <meta name="build"> in the root layout), with
+ * no runtime git dependency. Degrades to "unknown" if git is unavailable.
+ * `sync` reports the relationship to origin/main at build:
+ * clean | ahead | behind | dirty | unknown.
+ */
+function gitStamp() {
+  const run = (cmd: string) => {
+    try { return execSync(cmd, { stdio: ["ignore", "pipe", "ignore"] }).toString().trim(); }
+    catch { return ""; }
+  };
+  const sha = run("git rev-parse --short HEAD") || "unknown";
+  const time = new Date().toISOString();
+  let sync = "unknown";
+  const head = run("git rev-parse HEAD");
+  const dirty = run("git status --porcelain");
+  const origin = run("git rev-parse origin/main");
+  if (head && origin) {
+    if (dirty) sync = "dirty";
+    else if (head === origin) sync = "clean";
+    else sync = run(`git merge-base --is-ancestor ${origin} ${head} && echo yes`) === "yes" ? "ahead" : "behind";
+  } else if (head && dirty) {
+    sync = "dirty";
+  }
+  return { sha, time, sync };
+}
+
+const BUILD = gitStamp();
 
 const CSP = [
   "default-src 'self'",
@@ -14,6 +45,14 @@ const CSP = [
 ].join("; ");
 
 const nextConfig: NextConfig = {
+  // Build stamp — exposed to the client bundle so the root layout can emit a
+  // <meta name="build"> tag (invisible to readers, visible in view-source).
+  env: {
+    NEXT_PUBLIC_BUILD_SHA: BUILD.sha,
+    NEXT_PUBLIC_BUILD_TIME: BUILD.time,
+    NEXT_PUBLIC_BUILD_SYNC: BUILD.sync,
+  },
+
   // Image optimization
   images: {
     formats: ["image/avif", "image/webp"],

@@ -9,6 +9,7 @@ import { JsonLd } from "@/components/seo/JsonLd";
 import { buildOrganizationSchema, buildWebSiteSchema } from "@/lib/seo/structured-data";
 import { siteConfig } from "@/config/site";
 import { env } from "@/config/env";
+import { buildStampString } from "@/config/buildInfo";
 import { GLOBAL_SHORT_TAIL, getCurrentYear } from "@/lib/seo/keywords";
 
 // ── Fonts via next/font — prevents layout shift, no render-blocking ──────
@@ -98,6 +99,10 @@ export default function RootLayout({
       className={`${merriweather.variable} ${inter.variable} ${jetbrainsMono.variable}`}
     >
       <head>
+        {/* Build stamp — deployed commit SHA + sync state + build time. Invisible
+            to readers; visible in view-source and via curl. Answers "which commit
+            is deployed?" without a route. */}
+        <meta name="build" content={buildStampString()} />
         <JsonLd data={buildOrganizationSchema()} />
         <JsonLd data={buildWebSiteSchema()} />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
