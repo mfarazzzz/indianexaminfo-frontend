@@ -90,8 +90,8 @@ export default async function HomePage() {
       <section className="bg-white border-b border-border py-6">
         <div className="container mx-auto px-4">
           <AudienceGateway
-            sarkariExamCount={sarkariStats.exam}
-            sarkariDirectCount={sarkariStats.direct}
+            governmentExamCount={sarkariStats.exam}
+            governmentVacancyCount={sarkariStats.direct}
             admissionsCount={admissionsCount}
             boardCount={boardCount}
             universityCount={universityCount}
@@ -106,11 +106,11 @@ export default async function HomePage() {
           {/* Main column */}
           <div className="min-w-0 space-y-8">
 
-            {/* ④ Latest Updates — pre-fetched data passed in */}
-            <LatestUpdates exams={allExams} posts={latestPosts} />
-
-            {/* ⑤ Quick Actions */}
+            {/* ④ Quick Actions — compact utility bar, above Latest Updates */}
             <QuickActions />
+
+            {/* ⑤ Latest Updates — pre-fetched data passed in */}
+            <LatestUpdates exams={allExams} posts={latestPosts} />
 
             {/* Mid-page leaderboard */}
             <div className="flex justify-center">

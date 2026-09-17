@@ -1,74 +1,33 @@
 import Link from "next/link";
 import { Download, ClipboardList, Key, BookOpen, Calendar } from "lucide-react";
 
-// Exactly five above-the-fold quick actions. Mock Test / Previous Papers /
-// Study Material / Cutoff were removed (consistent with the retired module
-// types). Each href points at an existing route.
+// Exactly five above-the-fold quick actions, styled as a compact utility bar
+// (not large cards). Mock Test / Previous Papers / Study Material / Cutoff were
+// removed earlier (retired module types). Each href points at an existing route.
 const actions = [
-  {
-    label: "Admit Card",
-    href: "/admit-card",
-    icon: Download,
-    bg: "bg-accent/10",
-    iconColor: "text-accent",
-    hoverBorder: "hover:border-accent",
-  },
-  {
-    label: "Result",
-    href: "/results",
-    icon: ClipboardList,
-    bg: "bg-success/10",
-    iconColor: "text-success",
-    hoverBorder: "hover:border-success",
-  },
-  {
-    label: "Answer Key",
-    href: "/answer-key",
-    icon: Key,
-    bg: "bg-warning/10",
-    iconColor: "text-warning",
-    hoverBorder: "hover:border-warning",
-  },
-  {
-    label: "Syllabus",
-    href: "/syllabus",
-    icon: BookOpen,
-    bg: "bg-primary/10",
-    iconColor: "text-primary",
-    hoverBorder: "hover:border-primary",
-  },
-  {
-    label: "Date Sheet",
-    href: "/date-sheet",
-    icon: Calendar,
-    bg: "bg-teal-50",
-    iconColor: "text-teal-700",
-    hoverBorder: "hover:border-teal-500",
-  },
+  { label: "Admit Card", href: "/admit-card", icon: Download, iconColor: "text-accent" },
+  { label: "Result", href: "/results", icon: ClipboardList, iconColor: "text-success" },
+  { label: "Answer Key", href: "/answer-key", icon: Key, iconColor: "text-warning" },
+  { label: "Syllabus", href: "/syllabus", icon: BookOpen, iconColor: "text-primary" },
+  { label: "Date Sheet", href: "/date-sheet", icon: Calendar, iconColor: "text-teal-700" },
 ] as const;
 
 export function QuickActions() {
   return (
     <section aria-label="Quick content actions">
       <h2 className="sr-only">Quick Access</h2>
-      <div className="grid grid-cols-3 sm:grid-cols-5 gap-2">
+      <div className="flex flex-wrap items-stretch gap-2 rounded-md border border-border bg-white p-1.5">
         {actions.map((action) => {
           const Icon = action.icon;
           return (
             <Link
               key={action.href + action.label}
               href={action.href}
-              className={`
-                flex flex-col items-center gap-2 p-3 bg-white
-                border border-border ${action.hoverBorder}
-                shadow-sm hover:shadow-md transition-all group
-              `}
               prefetch={false}
+              className="group flex flex-1 min-w-[88px] items-center justify-center gap-2 rounded px-3 py-2 text-sm hover:bg-gray-50 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
             >
-              <div className={`w-9 h-9 rounded flex items-center justify-center ${action.bg}`}>
-                <Icon className={`w-4 h-4 ${action.iconColor}`} aria-hidden="true" />
-              </div>
-              <span className="text-xs font-semibold text-gray-700 text-center leading-tight group-hover:text-primary transition-colors">
+              <Icon className={`w-4 h-4 shrink-0 ${action.iconColor}`} aria-hidden="true" />
+              <span className="font-semibold text-gray-700 group-hover:text-primary transition-colors whitespace-nowrap">
                 {action.label}
               </span>
             </Link>
