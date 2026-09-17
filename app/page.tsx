@@ -17,7 +17,7 @@ import {
   getExamsByPillar,
   getAllExams,
   getExamCountByPillar,
-  getDeadlineStripItems,
+  getDeadlineBands,
 } from "@/services/examService";
 import { getSarkariNaukriStats } from "@/services/sarkariNaukriService";
 import { getLatestContentPosts } from "@/services/contentPostService";
@@ -53,7 +53,7 @@ export default async function HomePage() {
     admissionsCount,
     boardCount,
     universityCount,
-    deadlineItems,
+    deadlineBands,
   ] = await Promise.all([
     getExamsByPillar("government-exam"),
     getExamsByPillar("entrance-exam"),
@@ -64,7 +64,7 @@ export default async function HomePage() {
     getExamCountByPillar("entrance-exam"),
     getExamCountByPillar("board-exam"),
     getExamCountByPillar("university-exam"),
-    getDeadlineStripItems(20),
+    getDeadlineBands(8),
   ]);
 
   return (
@@ -80,8 +80,8 @@ export default async function HomePage() {
         </div>
       </div>
 
-      {/* ① Deadline / status strip — date-derived (exam_derived_status VIEW) */}
-      <DeadlineStrip items={deadlineItems} />
+      {/* ① Deadline / status strip — four date-derived bands (exam_derived_status VIEW) */}
+      <DeadlineStrip bands={deadlineBands} />
 
       {/* ② Search Hero */}
       <SearchHero />

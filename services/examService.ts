@@ -603,62 +603,92 @@ export async function getExamCountByPillar(pillar: Pillar): Promise<number> {
   }, ["exams", `exams:count:${pillar}`], { revalidate: 1800 });
 }
 
-// ── Deadline / status strip ──────────────────────────────────────────────
-// Homepage top strip. Reads the EXISTING exam_derived_status VIEW — the same
-// date-derived status infrastructure used for exam status badges. NO new status
-// model, NO manually hard-coded deadlines. Only strip_eligible=true rows enter
-// the strip (the VIEW's own gate), and each row carries has_confirmed_dates so
-// the UI can present confirmed dates as firm while never dressing expected /
-// tentative dates up as confirmed facts. derived_status keeps its established
-// priority so cancelled/postponed override the date framing.
+// ── Deadline / status bands ───────────────────────────────────────────────
+// Homepage top strip, rebuilt as FOUR distinct date-derived bands instead of one
+// flat list. Reads the EXISTING exam_derived_status VIEW — no new status model,
+// no manually hard-coded deadlines. "Today" is the VIEW's own today_ist (IST),
+// NOT the calendar year and NOT strip_eligible-as-urgency (the earlier bug).
 //
-// Fetched ONCE here and passed to the strip component as props — the component
-// never queries Supabase itself (avoids the per-component duplicate-query
-// pattern the homepage single-Promise.all orchestration exists to prevent).
-export type DeadlineStripItem = {
+// Bands (each classified purely on real, confirmed dates relative to today_ist):
+//   closing-soon      → app_close_date is in the FUTURE (>= today). This is the
+//                       ONLY band that means "closing soon", and it filters on
+//                       app_close_date — never on strip_eligible alone.
+//   admit-card-out    → admit_card_date has passed (<= today) and the exam has
+//                       not started yet (exam_start_date >= today or unknown).
+//   results-out       → result_date is within the last 30 days (recent result).
+//   exams-this-month  → exam_start_date is within the next 30 days.
+// A given exam can legitimately appear in more than one band (different real
+// facts). Past-dated app-close rows (e.g. an exam whose application already
+// closed) simply do NOT enter closing-soon — they may still surface under
+// admit-card-out or exams-this-month via their own future dates.
+//
+// Fetched ONCE at page level and passed to the component as props — the strip
+// component performs no Supabase query of its own.
+export type DeadlineBandItem = {
   examId: string;
   slug: string;
   pillar: Pillar;
   name: string;
   shortName: string;
   category: string;
-  /** Date-derived lifecycle status from the VIEW (authoritative for cancelled/postponed). */
   derivedStatus: string;
-  /** Only true when the VIEW confirms officially-announced dates for this exam. */
-  hasConfirmedDates: boolean;
-  /** Nearest upcoming confirmed date (ISO yyyy-mm-dd) or null. */
-  nextConfirmedDate: string | null;
-  appCloseDate: string | null;
-  admitCardDate: string | null;
-  resultDate: string | null;
+  /** The single date this band is about (ISO yyyy-mm-dd). */
+  date: string;
 };
 
+export type DeadlineBands = {
+  today: string | null;
+  closingSoon: DeadlineBandItem[];
+  admitCardOut: DeadlineBandItem[];
+  resultsOut: DeadlineBandItem[];
+  examsThisMonth: DeadlineBandItem[];
+};
+
+const EMPTY_BANDS: DeadlineBands = {
+  today: null,
+  closingSoon: [],
+  admitCardOut: [],
+  resultsOut: [],
+  examsThisMonth: [],
+};
+
+/** yyyy-mm-dd string compare is safe (ISO dates sort lexically). Add N days via Date. */
+function addDaysISO(iso: string, days: number): string {
+  const d = new Date(iso + "T00:00:00Z");
+  d.setUTCDate(d.getUTCDate() + days);
+  return d.toISOString().slice(0, 10);
+}
+
 /**
- * Strip-eligible exams for the homepage deadline strip, nearest confirmed date
- * first. Reuses the exam_derived_status VIEW; joins `exams` only for display
- * name + category (href building). Returns [] on failure so the homepage simply
- * omits the strip rather than showing a guess.
+ * The homepage deadline strip as four date-derived bands. Reuses the
+ * exam_derived_status VIEW; a second keyed lookup on `exams` supplies display
+ * name + category for labels and href building (the VIEW exposes neither).
+ * Returns empty bands on failure so the homepage simply omits the strip.
+ *
+ * @param perBand cap applied to each band independently (no horizontal scroll).
  */
-export async function getDeadlineStripItems(limit = 20): Promise<DeadlineStripItem[]> {
+export async function getDeadlineBands(perBand = 8): Promise<DeadlineBands> {
   return cached(async () => {
     try {
       const supabase = createServerClient();
       const { data, error } = await supabase
         .from("exam_derived_status")
         .select(
-          `exam_id, slug, pillar, derived_status, has_confirmed_dates,
-           next_confirmed_date, app_close_date, admit_card_date, result_date`
+          `exam_id, slug, pillar, derived_status, today_ist,
+           app_close_date, admit_card_date, result_date, exam_start_date`
         )
-        .eq("strip_eligible", true)
-        .order("next_confirmed_date", { ascending: true, nullsFirst: false })
-        .limit(limit);
+        .eq("strip_eligible", true);
       if (error) throw error;
       const rows = data ?? [];
-      if (rows.length === 0) return [];
+      if (rows.length === 0) return EMPTY_BANDS;
 
-      // Second lightweight lookup for display name + category. The VIEW is not a
-      // real table so a PostgREST embed can't be relied on; a keyed .in() lookup
-      // keeps this to exactly two queries (still fetched once, at page level).
+      // "Today" per the VIEW (IST). All rows carry the same today_ist.
+      const today = (rows[0] as any).today_ist as string;
+      const in30 = addDaysISO(today, 30);
+      const ago30 = addDaysISO(today, -30);
+
+      // Name + category lookup (single extra query; VIEW is not a real table so
+      // a PostgREST embed can't be relied on).
       const ids = rows.map((r: any) => r.exam_id as string);
       const { data: examRows } = await supabase
         .from("exams")
@@ -673,7 +703,7 @@ export async function getDeadlineStripItems(limit = 20): Promise<DeadlineStripIt
         });
       }
 
-      return rows.map((r: any): DeadlineStripItem => {
+      const item = (r: any, date: string): DeadlineBandItem => {
         const meta = examMap.get(r.exam_id as string);
         return {
           examId: r.exam_id as string,
@@ -683,18 +713,52 @@ export async function getDeadlineStripItems(limit = 20): Promise<DeadlineStripIt
           shortName: meta?.short_name ?? meta?.name ?? (r.slug as string),
           category: meta?.category_slug ?? "",
           derivedStatus: (r.derived_status as string) ?? "upcoming",
-          hasConfirmedDates: (r.has_confirmed_dates as boolean) ?? false,
-          nextConfirmedDate: (r.next_confirmed_date as string) ?? null,
-          appCloseDate: (r.app_close_date as string) ?? null,
-          admitCardDate: (r.admit_card_date as string) ?? null,
-          resultDate: (r.result_date as string) ?? null,
+          date,
         };
-      });
+      };
+      const byDateAsc = (a: DeadlineBandItem, b: DeadlineBandItem) => a.date.localeCompare(b.date);
+      const byDateDesc = (a: DeadlineBandItem, b: DeadlineBandItem) => b.date.localeCompare(a.date);
+
+      const closingSoon: DeadlineBandItem[] = [];
+      const admitCardOut: DeadlineBandItem[] = [];
+      const resultsOut: DeadlineBandItem[] = [];
+      const examsThisMonth: DeadlineBandItem[] = [];
+
+      for (const r of rows as any[]) {
+        const appClose = r.app_close_date as string | null;
+        const admit = r.admit_card_date as string | null;
+        const result = r.result_date as string | null;
+        const examStart = r.exam_start_date as string | null;
+
+        // closing-soon: application close date is still in the future.
+        if (appClose && appClose >= today) closingSoon.push(item(r, appClose));
+
+        // admit-card-out: admit card released, exam not yet started.
+        if (admit && admit <= today && (!examStart || examStart >= today)) {
+          admitCardOut.push(item(r, admit));
+        }
+
+        // results-out: result declared within the last 30 days.
+        if (result && result <= today && result >= ago30) resultsOut.push(item(r, result));
+
+        // exams-this-month: exam starts within the next 30 days.
+        if (examStart && examStart >= today && examStart < in30) {
+          examsThisMonth.push(item(r, examStart));
+        }
+      }
+
+      return {
+        today,
+        closingSoon: closingSoon.sort(byDateAsc).slice(0, perBand),
+        admitCardOut: admitCardOut.sort(byDateAsc).slice(0, perBand),
+        resultsOut: resultsOut.sort(byDateDesc).slice(0, perBand),
+        examsThisMonth: examsThisMonth.sort(byDateAsc).slice(0, perBand),
+      };
     } catch (err) {
-      console.error("[examService] getDeadlineStripItems failed:", err);
-      return [];
+      console.error("[examService] getDeadlineBands failed:", err);
+      return EMPTY_BANDS;
     }
-  }, ["exams", "exams:deadline-strip"], { revalidate: 1800 });
+  }, ["exams", "exams:deadline-bands"], { revalidate: 1800 });
 }
 
 // ── Edition-aware functions ─────────────────────────────────────────────
