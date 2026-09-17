@@ -12,7 +12,14 @@ import { AdSlot } from "@/components/ads/AdSlot";
 import { buildHomepageMetadata } from "@/lib/seo/metadata";
 import { GLOBAL_SHORT_TAIL, getCurrentYear } from "@/lib/seo/keywords";
 import { siteConfig } from "@/config/site";
-import { getExamsByPillar, getAllExams } from "@/services/examService";
+import { DeadlineStrip } from "@/components/homepage/DeadlineStrip";
+import {
+  getExamsByPillar,
+  getAllExams,
+  getExamCountByPillar,
+  getDeadlineStripItems,
+} from "@/services/examService";
+import { getSarkariNaukriStats } from "@/services/sarkariNaukriService";
 import { getLatestContentPosts } from "@/services/contentPostService";
 
 export const revalidate = 1800;
@@ -33,14 +40,32 @@ export function generateMetadata(): Metadata {
  * Now: 1 Promise.all → 5 parallel queries → pass data down as props.
  */
 export default async function HomePage() {
-  const [sarkariExams, entranceExams, boardExams, allExams, latestPosts] =
-    await Promise.all([
-      getExamsByPillar("government-exam"),
-      getExamsByPillar("entrance-exam"),
-      getExamsByPillar("board-exam"),
-      getAllExams(),
-      getLatestContentPosts(20),
-    ]);
+  // CQ-02: every homepage query runs once here, in one Promise.all, and the
+  // results are passed down as props. Category-card counts and the deadline
+  // strip are fetched here too, so no child component issues its own query.
+  const [
+    sarkariExams,
+    entranceExams,
+    boardExams,
+    allExams,
+    latestPosts,
+    sarkariStats,
+    admissionsCount,
+    boardCount,
+    universityCount,
+    deadlineItems,
+  ] = await Promise.all([
+    getExamsByPillar("government-exam"),
+    getExamsByPillar("entrance-exam"),
+    getExamsByPillar("board-exam"),
+    getAllExams(),
+    getLatestContentPosts(20),
+    getSarkariNaukriStats(),
+    getExamCountByPillar("entrance-exam"),
+    getExamCountByPillar("board-exam"),
+    getExamCountByPillar("university-exam"),
+    getDeadlineStripItems(20),
+  ]);
 
   return (
     <>
@@ -55,13 +80,22 @@ export default async function HomePage() {
         </div>
       </div>
 
-      {/* ① Search Hero */}
+      {/* ① Deadline / status strip — date-derived (exam_derived_status VIEW) */}
+      <DeadlineStrip items={deadlineItems} />
+
+      {/* ② Search Hero */}
       <SearchHero />
 
-      {/* ② Audience Gateway */}
+      {/* ③ Audience Gateway — counts pre-fetched, passed as props */}
       <section className="bg-white border-b border-border py-6">
         <div className="container mx-auto px-4">
-          <AudienceGateway />
+          <AudienceGateway
+            sarkariExamCount={sarkariStats.exam}
+            sarkariDirectCount={sarkariStats.direct}
+            admissionsCount={admissionsCount}
+            boardCount={boardCount}
+            universityCount={universityCount}
+          />
         </div>
       </section>
 

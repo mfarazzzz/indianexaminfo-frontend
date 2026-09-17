@@ -11,12 +11,6 @@ const trending = [
   { label: "CBSE Date Sheet",  href: "/board-exam/cbse/class-12" },
 ];
 
-const stats = [
-  { value: "500+",   label: "Exams Covered" },
-  { value: "1,200+", label: "Articles" },
-  { value: "Daily",  label: "Updates" },
-];
-
 export function SearchHero() {
   return (
     <section className="bg-primary py-7 border-b-4 border-primary-800" aria-label="Site search">
@@ -81,16 +75,6 @@ export function SearchHero() {
             ))}
           </div>
         </form>
-
-        {/* Stats bar */}
-        <div className="max-w-lg mx-auto mt-6 pt-5 border-t border-white/10 grid grid-cols-3 gap-4">
-          {stats.map((s) => (
-            <div key={s.label} className="text-center">
-              <div className="text-white font-black text-lg leading-tight">{s.value}</div>
-              <div className="text-blue-200 text-xs mt-0.5">{s.label}</div>
-            </div>
-          ))}
-        </div>
 
       </div>
     </section>

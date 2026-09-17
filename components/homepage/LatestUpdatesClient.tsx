@@ -47,13 +47,22 @@ function ctColor(ct: string): string {
   return ctColors[ct] ?? ctColors.default;
 }
 
+/** Prominent items shown before "View All" expands the rest. */
+const INITIAL_COUNT = 6;
+
 export function LatestUpdatesClient({ items }: Props) {
   const [active, setActive] = useState<Filter>("All");
+  const [expanded, setExpanded] = useState(false);
 
   const filtered =
     active === "All"
       ? items
       : items.filter((i) => pillarToFilter[i.pillar] === active);
+
+  // Reuse the already-fetched items — "View All" reveals the rest client-side,
+  // it does NOT trigger another request.
+  const visible = expanded ? filtered : filtered.slice(0, INITIAL_COUNT);
+  const hiddenCount = filtered.length - visible.length;
 
   return (
     <section aria-labelledby="latest-updates-heading">
@@ -73,7 +82,7 @@ export function LatestUpdatesClient({ items }: Props) {
           {FILTERS.map((f) => (
             <button
               key={f}
-              onClick={() => setActive(f)}
+              onClick={() => { setActive(f); setExpanded(false); }}
               aria-pressed={active === f}
               className={cn(
                 "px-3 py-1.5 text-xs font-semibold border-r border-border last:border-r-0 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary",
@@ -91,7 +100,7 @@ export function LatestUpdatesClient({ items }: Props) {
         {filtered.length === 0 && (
           <p className="py-6 text-center text-sm text-gray-400">No updates found.</p>
         )}
-        {filtered.slice(0, 12).map((item) => (
+        {visible.map((item) => (
           <Link
             key={item.id}
             href={item.href}
@@ -110,6 +119,19 @@ export function LatestUpdatesClient({ items }: Props) {
           </Link>
         ))}
       </div>
+
+      {/* View All — reveals the remaining already-fetched items; no new request. */}
+      {hiddenCount > 0 && (
+        <div className="mt-3 flex justify-center">
+          <button
+            type="button"
+            onClick={() => setExpanded(true)}
+            className="w-full sm:w-auto px-6 py-2.5 text-sm font-semibold text-primary bg-white border border-primary/30 hover:bg-primary/5 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+          >
+            View All Updates ({hiddenCount} more)
+          </button>
+        </div>
+      )}
     </section>
   );
 }

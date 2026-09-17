@@ -1,16 +1,9 @@
 import Link from "next/link";
-import {
-  Download,
-  ClipboardList,
-  Key,
-  BookOpen,
-  Calendar,
-  FileText,
-  ScrollText,
-  BookMarked,
-  TrendingDown,
-} from "lucide-react";
+import { Download, ClipboardList, Key, BookOpen, Calendar } from "lucide-react";
 
+// Exactly five above-the-fold quick actions. Mock Test / Previous Papers /
+// Study Material / Cutoff were removed (consistent with the retired module
+// types). Each href points at an existing route.
 const actions = [
   {
     label: "Admit Card",
@@ -21,7 +14,7 @@ const actions = [
     hoverBorder: "hover:border-accent",
   },
   {
-    label: "Results",
+    label: "Result",
     href: "/results",
     icon: ClipboardList,
     bg: "bg-success/10",
@@ -52,45 +45,13 @@ const actions = [
     iconColor: "text-teal-700",
     hoverBorder: "hover:border-teal-500",
   },
-  {
-    label: "Mock Test",
-    href: "/mock-test",
-    icon: FileText,
-    bg: "bg-purple-50",
-    iconColor: "text-purple-700",
-    hoverBorder: "hover:border-purple-400",
-  },
-  {
-    label: "Prev. Papers",
-    href: "/previous-papers",
-    icon: ScrollText,
-    bg: "bg-cyan-50",
-    iconColor: "text-cyan-700",
-    hoverBorder: "hover:border-cyan-400",
-  },
-  {
-    label: "Study Material",
-    href: "/study-material",
-    icon: BookMarked,
-    bg: "bg-emerald-50",
-    iconColor: "text-emerald-700",
-    hoverBorder: "hover:border-emerald-400",
-  },
-  {
-    label: "Cutoff",
-    href: "/results",
-    icon: TrendingDown,
-    bg: "bg-rose-50",
-    iconColor: "text-rose-700",
-    hoverBorder: "hover:border-rose-400",
-  },
 ] as const;
 
 export function QuickActions() {
   return (
     <section aria-label="Quick content actions">
       <h2 className="sr-only">Quick Access</h2>
-      <div className="grid grid-cols-3 sm:grid-cols-5 md:grid-cols-9 gap-2">
+      <div className="grid grid-cols-3 sm:grid-cols-5 gap-2">
         {actions.map((action) => {
           const Icon = action.icon;
           return (

@@ -603,6 +603,100 @@ export async function getExamCountByPillar(pillar: Pillar): Promise<number> {
   }, ["exams", `exams:count:${pillar}`], { revalidate: 1800 });
 }
 
+// ── Deadline / status strip ──────────────────────────────────────────────
+// Homepage top strip. Reads the EXISTING exam_derived_status VIEW — the same
+// date-derived status infrastructure used for exam status badges. NO new status
+// model, NO manually hard-coded deadlines. Only strip_eligible=true rows enter
+// the strip (the VIEW's own gate), and each row carries has_confirmed_dates so
+// the UI can present confirmed dates as firm while never dressing expected /
+// tentative dates up as confirmed facts. derived_status keeps its established
+// priority so cancelled/postponed override the date framing.
+//
+// Fetched ONCE here and passed to the strip component as props — the component
+// never queries Supabase itself (avoids the per-component duplicate-query
+// pattern the homepage single-Promise.all orchestration exists to prevent).
+export type DeadlineStripItem = {
+  examId: string;
+  slug: string;
+  pillar: Pillar;
+  name: string;
+  shortName: string;
+  category: string;
+  /** Date-derived lifecycle status from the VIEW (authoritative for cancelled/postponed). */
+  derivedStatus: string;
+  /** Only true when the VIEW confirms officially-announced dates for this exam. */
+  hasConfirmedDates: boolean;
+  /** Nearest upcoming confirmed date (ISO yyyy-mm-dd) or null. */
+  nextConfirmedDate: string | null;
+  appCloseDate: string | null;
+  admitCardDate: string | null;
+  resultDate: string | null;
+};
+
+/**
+ * Strip-eligible exams for the homepage deadline strip, nearest confirmed date
+ * first. Reuses the exam_derived_status VIEW; joins `exams` only for display
+ * name + category (href building). Returns [] on failure so the homepage simply
+ * omits the strip rather than showing a guess.
+ */
+export async function getDeadlineStripItems(limit = 20): Promise<DeadlineStripItem[]> {
+  return cached(async () => {
+    try {
+      const supabase = createServerClient();
+      const { data, error } = await supabase
+        .from("exam_derived_status")
+        .select(
+          `exam_id, slug, pillar, derived_status, has_confirmed_dates,
+           next_confirmed_date, app_close_date, admit_card_date, result_date`
+        )
+        .eq("strip_eligible", true)
+        .order("next_confirmed_date", { ascending: true, nullsFirst: false })
+        .limit(limit);
+      if (error) throw error;
+      const rows = data ?? [];
+      if (rows.length === 0) return [];
+
+      // Second lightweight lookup for display name + category. The VIEW is not a
+      // real table so a PostgREST embed can't be relied on; a keyed .in() lookup
+      // keeps this to exactly two queries (still fetched once, at page level).
+      const ids = rows.map((r: any) => r.exam_id as string);
+      const { data: examRows } = await supabase
+        .from("exams")
+        .select("id, name, short_name, cat:categories!category_id(slug)")
+        .in("id", ids);
+      const examMap = new Map<string, { name: string; short_name: string; category_slug: string | null }>();
+      for (const e of examRows ?? []) {
+        examMap.set((e as any).id, {
+          name: (e as any).name,
+          short_name: (e as any).short_name,
+          category_slug: (e as any).cat?.slug ?? null,
+        });
+      }
+
+      return rows.map((r: any): DeadlineStripItem => {
+        const meta = examMap.get(r.exam_id as string);
+        return {
+          examId: r.exam_id as string,
+          slug: r.slug as string,
+          pillar: r.pillar as Pillar,
+          name: meta?.name ?? (r.slug as string),
+          shortName: meta?.short_name ?? meta?.name ?? (r.slug as string),
+          category: meta?.category_slug ?? "",
+          derivedStatus: (r.derived_status as string) ?? "upcoming",
+          hasConfirmedDates: (r.has_confirmed_dates as boolean) ?? false,
+          nextConfirmedDate: (r.next_confirmed_date as string) ?? null,
+          appCloseDate: (r.app_close_date as string) ?? null,
+          admitCardDate: (r.admit_card_date as string) ?? null,
+          resultDate: (r.result_date as string) ?? null,
+        };
+      });
+    } catch (err) {
+      console.error("[examService] getDeadlineStripItems failed:", err);
+      return [];
+    }
+  }, ["exams", "exams:deadline-strip"], { revalidate: 1800 });
+}
+
 // ── Edition-aware functions ─────────────────────────────────────────────
 
 export type EditionSummary = {
