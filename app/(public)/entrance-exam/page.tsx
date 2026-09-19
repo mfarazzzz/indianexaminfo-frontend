@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { getExamsByPillar } from "@/services/examService";
+import { getExamsByPillar, getTodayIST } from "@/services/examService";
 import { getCategoriesByPillar } from "@/services/categoryService";
 import { ExamCard } from "@/components/exam/ExamCard";
 import { Breadcrumb } from "@/components/layout/Breadcrumb";
@@ -37,9 +37,10 @@ const FALLBACK_CATEGORIES = [
 ];
 
 export default async function EntranceExamPage() {
-  const [exams, cmsCategories] = await Promise.all([
+  const [exams, cmsCategories, todayISO] = await Promise.all([
     getExamsByPillar("entrance-exam"),
     getCategoriesByPillar("entrance-exam"),
+    getTodayIST(),
   ]);
 
   const categories = cmsCategories.length > 0
@@ -84,7 +85,7 @@ export default async function EntranceExamPage() {
             <h2 className="font-heading font-bold text-lg text-gray-900 mb-4">All Entrance Exams {new Date().getFullYear()}</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {exams.map((exam) => (
-                <ExamCard key={exam.id} exam={exam} />
+                <ExamCard key={exam.id} exam={exam} todayISO={todayISO} />
               ))}
             </div>
           </section>

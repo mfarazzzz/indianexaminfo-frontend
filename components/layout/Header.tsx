@@ -242,7 +242,6 @@ function MobileNavItem({
         onClick={onNavigate}
         className="flex items-center gap-2 py-3 text-sm font-medium text-gray-800 hover:text-primary border-b border-border/50"
       >
-        {item.icon && <span className="text-base">{item.icon}</span>}
         {item.label}
       </Link>
     );
@@ -256,7 +255,6 @@ function MobileNavItem({
         aria-expanded={expanded}
       >
         <span className="flex items-center gap-2">
-          {item.icon && <span className="text-base">{item.icon}</span>}
           {item.label}
         </span>
         <ChevronRight className={cn("w-4 h-4 text-gray-400 transition-transform", expanded && "rotate-90")} />
@@ -289,7 +287,6 @@ function MobileNavItem({
                       onClick={onNavigate}
                       className="block py-1.5 text-sm text-gray-600 hover:text-primary"
                     >
-                      {child.icon && <span className="mr-1.5">{child.icon}</span>}
                       {child.label}
                     </Link>
                   ))}
@@ -300,7 +297,6 @@ function MobileNavItem({
                   onClick={onNavigate}
                   className="block py-1.5 text-sm text-gray-600 hover:text-primary"
                 >
-                  {section.icon && <span className="mr-1.5">{section.icon}</span>}
                   {section.label}
                 </Link>
               )}

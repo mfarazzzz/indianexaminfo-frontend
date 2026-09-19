@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { getAllSarkariNaukri, getStateList, getCategoryList } from "@/services/sarkariNaukriService";
+import { sarkariCategoryLabel } from "@/lib/sarkari/categories";
+import type { SarkariNaukriItem } from "@/services/sarkariNaukriService";
+import { getTodayIST } from "@/services/examService";
 import { Breadcrumb } from "@/components/layout/Breadcrumb";
 import { AdSlot } from "@/components/ads/AdSlot";
 import { buildExamMetadata } from "@/lib/seo/metadata";
@@ -11,6 +14,62 @@ import { SarkariNaukriList } from "@/components/sarkari-naukri/SarkariNaukriList
 export const revalidate = 1800;
 
 const YEAR = getCurrentYear();
+
+// ── Sort helpers ───────────────────────────────────────────────────────────
+// Urgency bucket: lower = higher priority on the listing.
+// application-open and admit-card-released are most actionable for the reader.
+const STATUS_PRIORITY: Record<string, number> = {
+  "application-open":    0,
+  "admit-card-released": 1,
+  "exam-scheduled":      2,
+  "notified":            2,
+  "upcoming":            3,
+  "answer-key-released": 4,
+  "interview-scheduled": 4,
+  "merit-list-released": 5,
+  "result-declared":     6,
+  "application-closed":  7,
+  "completed":           8,
+  "cancelled":           9,
+};
+
+function urgencyBucket(item: SarkariNaukriItem): number {
+  return STATUS_PRIORITY[item.status] ?? 5;
+}
+
+/** Sort: featured first, then by urgency bucket, then by nearest future deadline,
+ *  then by updatedAt for items with no upcoming deadline. */
+function sortByUrgency(items: SarkariNaukriItem[]): SarkariNaukriItem[] {
+  const now = Date.now();
+  return [...items].sort((a, b) => {
+    // Featured always first
+    if (a.isFeatured !== b.isFeatured) return a.isFeatured ? -1 : 1;
+
+    const aBucket = urgencyBucket(a);
+    const bBucket = urgencyBucket(b);
+    if (aBucket !== bBucket) return aBucket - bBucket;
+
+    // Within the same bucket, nearest deadline first
+    const aDeadline = a.applicationEndDate ?? a.examDate ?? a.resultDate;
+    const bDeadline = b.applicationEndDate ?? b.examDate ?? b.resultDate;
+    if (aDeadline && bDeadline) {
+      const aT = new Date(aDeadline).getTime();
+      const bT = new Date(bDeadline).getTime();
+      // Future deadlines sort ascending (nearest first);
+      // past dates sort descending (most recent first).
+      const aFuture = aT >= now;
+      const bFuture = bT >= now;
+      if (aFuture && bFuture) return aT - bT;
+      if (!aFuture && !bFuture) return bT - aT;
+      return aFuture ? -1 : 1; // future before past
+    }
+    if (aDeadline) return -1;
+    if (bDeadline) return 1;
+
+    // Fall back to recency
+    return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
+  });
+}
 export const metadata: Metadata = buildExamMetadata({
   pageType: "pillar",
   title: `Sarkari Naukri ${YEAR} — Latest Government Jobs & Bharti India`,
@@ -20,22 +79,23 @@ export const metadata: Metadata = buildExamMetadata({
 });
 
 export default async function SarkariNaukriPage() {
-  const [items, states, categories] = await Promise.all([
+  const [items, states, categories, todayISO] = await Promise.all([
     getAllSarkariNaukri(),
     getStateList(),
     getCategoryList(),
+    getTodayIST(),
   ]);
 
   const examCount = items.filter((i) => i.recruitmentType === "exam").length;
   const directCount = items.filter((i) => i.recruitmentType === "direct").length;
+  const sorted = sortByUrgency(items);
 
   return (
     <div className="container mx-auto px-4 py-4">
       <Breadcrumb items={[{ name: "Sarkari Naukri", href: "/sarkari-naukri" }]} />
 
-      <div className="flex justify-center mb-4">
-        <AdSlot position="category-top" size="728x90" />
-      </div>
+      {/* Ad hidden until a real creative is served */}
+      <AdSlot position="category-top" size="728x90" hideWhenEmpty />
 
       <div className="grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-6">
         <main>
@@ -46,25 +106,25 @@ export default async function SarkariNaukriPage() {
             {items.length} active listings · Last updated {new Date().toLocaleDateString("en-IN")}
           </p>
 
-          {/* Type tabs */}
-          <div className="flex gap-3 mb-5">
+          {/* Type filters — overflow-x scrollable on mobile so the three pills never clip */}
+          <div className="flex gap-2 mb-5 overflow-x-auto pb-1 scrollbar-none">
             <Link
               href="/sarkari-naukri"
-              className="rounded-full px-4 py-1.5 text-sm font-medium bg-primary text-white"
+              className="rounded-full px-3 py-1.5 text-sm font-medium bg-primary text-white whitespace-nowrap shrink-0"
             >
               All ({items.length})
             </Link>
             <Link
               href="/sarkari-naukri/exam"
-              className="rounded-full px-4 py-1.5 text-sm font-medium border border-blue-200 text-blue-700 hover:bg-blue-50"
+              className="rounded-full px-3 py-1.5 text-sm font-medium border border-blue-200 text-blue-700 hover:bg-blue-50 whitespace-nowrap shrink-0"
             >
-              Sarkari Exam ({examCount})
+              Government Exams ({examCount})
             </Link>
             <Link
               href="/sarkari-naukri/bharti"
-              className="rounded-full px-4 py-1.5 text-sm font-medium border border-green-200 text-green-700 hover:bg-green-50"
+              className="rounded-full px-3 py-1.5 text-sm font-medium border border-green-200 text-green-700 hover:bg-green-50 whitespace-nowrap shrink-0"
             >
-              Sarkari Bharti ({directCount})
+              Government Vacancies ({directCount})
             </Link>
           </div>
 
@@ -75,21 +135,22 @@ export default async function SarkariNaukriPage() {
               {categories.slice(0, 12).map((cat) => (
                 <Link
                   key={cat.category}
-                  href={`/sarkari-naukri/exam?category=${cat.category}`}
+                  href={`/sarkari-naukri/${cat.category}`}
                   className="rounded-full border border-border px-3 py-1 text-xs text-gray-700 hover:border-primary hover:text-primary transition-colors"
                 >
-                  {cat.category.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase())} ({cat.count})
+                  {sarkariCategoryLabel(cat.category)} ({cat.count})
                 </Link>
               ))}
             </div>
           </section>
 
-          {/* Listings */}
-          <SarkariNaukriList items={items} />
+          {/* Listings — sorted by urgency, paginated inside the component */}
+          <SarkariNaukriList items={sorted} todayISO={todayISO} />
         </main>
 
         <aside className="flex flex-col gap-4">
-          <AdSlot position="category-sidebar" size="300x250" />
+          {/* Sidebar ad — hidden until a real creative is served */}
+          <AdSlot position="category-sidebar" size="300x250" hideWhenEmpty />
 
           {/* Browse by state */}
           <div className="bg-card border border-border rounded p-4">
@@ -115,8 +176,8 @@ export default async function SarkariNaukriPage() {
           <div className="bg-card border border-border rounded p-4">
             <h2 className="font-heading font-semibold text-sm text-gray-800 mb-3 uppercase tracking-wide">Quick Links</h2>
             <ul className="space-y-1.5 text-sm">
-              <li><Link href="/sarkari-naukri/exam" className="text-gray-700 hover:text-primary hover:underline">Sarkari Exam</Link></li>
-              <li><Link href="/sarkari-naukri/bharti" className="text-gray-700 hover:text-primary hover:underline">Sarkari Bharti</Link></li>
+              <li><Link href="/sarkari-naukri/exam" className="text-gray-700 hover:text-primary hover:underline">Government Exams</Link></li>
+              <li><Link href="/sarkari-naukri/bharti" className="text-gray-700 hover:text-primary hover:underline">Government Vacancies</Link></li>
               <li><Link href="/admit-card" className="text-gray-700 hover:text-primary hover:underline">Admit Card</Link></li>
               <li><Link href="/results" className="text-gray-700 hover:text-primary hover:underline">Results</Link></li>
               <li><Link href="/answer-key" className="text-gray-700 hover:text-primary hover:underline">Answer Key</Link></li>

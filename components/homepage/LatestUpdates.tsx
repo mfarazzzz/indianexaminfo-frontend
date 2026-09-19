@@ -1,20 +1,23 @@
 // Pure server component — NO "use client"
 // Client interactivity lives in LatestUpdatesClient.tsx
-import { getAllExams } from "@/services/examService";
+import { getAllExams, getTodayIST } from "@/services/examService";
 import { getLatestContentPosts } from "@/services/contentPostService";
 import { LatestUpdatesClient, type UpdateItem } from "./LatestUpdatesClient";
+import { isFutureOrToday } from "@/lib/utils";
 
 import type { ContentPost } from "@/types/exam";
 
 type LatestUpdatesProps = {
   exams?: import("@/types/exam").ExamEntity[];
   posts?: ContentPost[];
+  todayISO?: string;
 };
 
-export async function LatestUpdates({ exams: examsProp, posts: postsProp }: LatestUpdatesProps = {}) {
-  const [exams, posts] = await Promise.all([
+export async function LatestUpdates({ exams: examsProp, posts: postsProp, todayISO: todayProp }: LatestUpdatesProps = {}) {
+  const [exams, posts, todayISO] = await Promise.all([
     examsProp ? Promise.resolve(examsProp) : getAllExams(),
     postsProp ? Promise.resolve(postsProp) : getLatestContentPosts(20),
+    todayProp ? Promise.resolve(todayProp) : getTodayIST(),
   ]);
 
   // Posts → update items
@@ -33,7 +36,7 @@ export async function LatestUpdates({ exams: examsProp, posts: postsProp }: Late
   const fromExams: UpdateItem[] = exams
     .flatMap((e) =>
       e.dates
-        .filter((d) => new Date(d.date) >= new Date())
+        .filter((d) => isFutureOrToday(d.date, todayISO))
         .slice(0, 1)
         .map((d) => ({
           id:          `exam-${e.id}-${d.label}`,

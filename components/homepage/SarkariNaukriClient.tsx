@@ -2,9 +2,8 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { ArrowRight } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { ExamCard } from "@/components/exam/ExamCard";
+import { ExamListRow } from "@/components/exam/ExamListRow";
 import type { ExamEntity } from "@/types/exam";
 
 export type CategoryTab = { label: string; slug: string | null };
@@ -18,15 +17,15 @@ export function SarkariNaukriClient({ exams, tabs }: { exams: ExamEntity[]; tabs
   return (
     <section aria-labelledby="govt-jobs-heading" className="py-6 border-b border-gray-100">
       {/* Section header */}
-      <div className="flex items-start justify-between mb-4 pb-3 border-b-2 border-primary">
+      <div className="flex items-start justify-between mb-4 pb-3 border-b border-border">
         <div>
-          <h2 id="govt-jobs-heading" className="font-heading font-black text-base text-gray-900 uppercase tracking-wide">
-            Government Jobs
+          <h2 id="govt-jobs-heading" className="font-heading font-bold text-lg text-gray-900">
+            Government jobs
           </h2>
-          <p className="text-xs text-gray-400 mt-0.5">Latest notifications, admit cards &amp; results</p>
+          <p className="text-xs text-gray-500 mt-0.5">Latest notifications, admit cards and results</p>
         </div>
-        <Link href="/sarkari-naukri" prefetch={false} className="text-xs font-semibold text-primary hover:text-primary-700 flex items-center gap-1 whitespace-nowrap mt-1">
-          View All <ArrowRight className="w-3.5 h-3.5" />
+        <Link href="/sarkari-naukri" prefetch={false} className="text-xs font-semibold text-primary hover:text-primary-700 whitespace-nowrap mt-1">
+          View all
         </Link>
       </div>
 
@@ -47,10 +46,10 @@ export function SarkariNaukriClient({ exams, tabs }: { exams: ExamEntity[]; tabs
         })}
       </div>
 
-      {/* Cards */}
+      {/* Rows — hairline-separated, no per-item box */}
       {shown.length > 0 ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {shown.map((exam) => <ExamCard key={exam.id} exam={exam} />)}
+        <div className="divide-y divide-border border-t border-border">
+          {shown.map((exam) => <ExamListRow key={exam.id} exam={exam} />)}
         </div>
       ) : (
         <p className="text-sm text-gray-400 py-4 text-center">No exams found in this category.</p>

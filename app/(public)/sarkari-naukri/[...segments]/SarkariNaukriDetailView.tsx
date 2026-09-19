@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { SarkariNaukriItem } from "@/services/sarkariNaukriService";
 import { Breadcrumb } from "@/components/layout/Breadcrumb";
+import { sarkariCategoryLabel } from "@/lib/sarkari/categories";
 import { AdSlot } from "@/components/ads/AdSlot";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { buildSarkariJobPostingSchema } from "@/lib/seo/structured-data";
@@ -21,7 +22,7 @@ export function SarkariNaukriDetailView({ item, slug }: Props) {
 
       <Breadcrumb items={[
         { name: "Sarkari Naukri", href: "/sarkari-naukri" },
-        { name: isExam ? "Sarkari Exam" : "Sarkari Bharti", href: isExam ? "/sarkari-naukri/exam" : "/sarkari-naukri/bharti" },
+        { name: isExam ? "Government Exams" : "Government Vacancies", href: isExam ? "/sarkari-naukri/exam" : "/sarkari-naukri/bharti" },
         { name: item.title, href: `/sarkari-naukri/${slug}` },
       ]} />
 
@@ -35,7 +36,7 @@ export function SarkariNaukriDetailView({ item, slug }: Props) {
           <div className="mb-6">
             <div className="flex items-center gap-2 mb-2">
               <span className={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${isExam ? "bg-blue-100 text-blue-700" : "bg-green-100 text-green-700"}`}>
-                {isExam ? "📝 Sarkari Exam" : "📋 Sarkari Bharti"}
+                {isExam ? "📝 Government Exams" : "📋 Government Vacancies"}
               </span>
               <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase ${
                 item.status === "result-declared" ? "bg-emerald-100 text-emerald-700" :
@@ -176,7 +177,7 @@ export function SarkariNaukriDetailView({ item, slug }: Props) {
                 <li><Link href={`/sarkari-naukri/state/${item.state}`} className="text-gray-700 hover:text-primary hover:underline capitalize">More jobs in {item.state.replace(/-/g, " ")}</Link></li>
               )}
               {item.category && (
-                <li><Link href={`/sarkari-naukri/${isExam ? "exam" : "bharti"}?category=${item.category}`} className="text-gray-700 hover:text-primary hover:underline capitalize">More {item.category.replace(/-/g, " ")} jobs</Link></li>
+                <li><Link href={`/sarkari-naukri/${item.category}`} className="text-gray-700 hover:text-primary hover:underline">More {sarkariCategoryLabel(item.category)}</Link></li>
               )}
               <li><Link href="/sarkari-naukri" className="text-gray-700 hover:text-primary hover:underline">All Government Jobs</Link></li>
             </ul>

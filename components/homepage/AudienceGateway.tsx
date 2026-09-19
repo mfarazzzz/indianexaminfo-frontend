@@ -1,165 +1,92 @@
 import Link from "next/link";
-import { Briefcase, ClipboardList, GraduationCap, BookOpen, School } from "lucide-react";
 
 /**
- * Five primary category cards. Counts are fetched ONCE in app/page.tsx and
- * passed in as props — this component performs NO data fetching of its own.
+ * Four primary destination cards. No data fetching — purely presentational.
  *
- * The former single "Sarkari Naukri" card is split into two first-class
- * destinations that keep the existing route semantics:
- *   Government Exams     → /sarkari-naukri/exam    (competitive/recruitment exams)
- *   Government Vacancies → /sarkari-naukri/bharti  (direct recruitment / vacancies)
+ * The Sarkari Naukri card surfaces both pathways (competitive exam and direct
+ * recruitment) as two CTAs inside one card. The reader sees "government job",
+ * not "which selection method". Exam/merit/interview is a filter inside the
+ * section, not a homepage-level split.
  *
- * Zero is rendered as "Coming soon" rather than a fabricated number.
+ * Cards: Sarkari Naukri · Admissions · Board Exams · University Exams.
  */
-type AudienceGatewayProps = {
-  /** government-exam side of sarkari_naukri (recruitment_type = 'exam'). */
-  governmentExamCount: number;
-  /** govt-vacancy side of sarkari_naukri (recruitment_type = 'direct'). */
-  governmentVacancyCount: number;
-  /** Entrance-exam pillar count — public label is "Admissions". */
-  admissionsCount: number;
-  /** Board-exam pillar count. */
-  boardCount: number;
-  /** University-exam pillar count. */
-  universityCount: number;
-};
-
-type Card = {
-  href: string;
-  title: string;
-  subtitle: string;
-  Icon: typeof Briefcase;
-  /** icon tile + count-chip accent */
-  iconWrap: string;
-  iconColor: string;
-  chip: string;
-  cta: string;
-  count: number;
-  countUnit: string;
-  tags: string[];
-};
-
-export function AudienceGateway({
-  governmentExamCount,
-  governmentVacancyCount,
-  admissionsCount,
-  boardCount,
-  universityCount,
-}: AudienceGatewayProps) {
-  const cards: Card[] = [
-    {
-      href: "/sarkari-naukri/exam",
-      title: "Government Exams",
-      subtitle: "Recruitment exams",
-      Icon: Briefcase,
-      iconWrap: "bg-primary/10",
-      iconColor: "text-primary",
-      chip: "bg-blue-50 text-blue-700",
-      cta: "text-primary",
-      count: governmentExamCount,
-      countUnit: "exams",
-      tags: ["SSC", "Banking", "Railway", "UPSC"],
-    },
-    {
-      href: "/sarkari-naukri/bharti",
-      title: "Government Vacancies",
-      subtitle: "Direct recruitment",
-      Icon: ClipboardList,
-      iconWrap: "bg-green-50",
-      iconColor: "text-green-700",
-      chip: "bg-green-50 text-green-700",
-      cta: "text-green-700",
-      count: governmentVacancyCount,
-      countUnit: "vacancies",
-      tags: ["Anganwadi", "Police", "Panchayat", "Health"],
-    },
-    {
-      href: "/entrance-exam",
-      title: "Admissions",
-      subtitle: "Entrance exams",
-      Icon: GraduationCap,
-      iconWrap: "bg-amber-50",
-      iconColor: "text-amber-700",
-      chip: "bg-amber-50 text-amber-700",
-      cta: "text-amber-700",
-      count: admissionsCount,
-      countUnit: "exams",
-      tags: ["NEET", "JEE", "CAT", "CLAT"],
-    },
-    {
-      href: "/board-exam",
-      title: "Board Exams",
-      subtitle: "School boards",
-      Icon: BookOpen,
-      iconWrap: "bg-success/10",
-      iconColor: "text-success",
-      chip: "bg-green-50 text-green-700",
-      cta: "text-success",
-      count: boardCount,
-      countUnit: "boards",
-      tags: ["CBSE", "UP Board", "ICSE"],
-    },
-    {
-      href: "/university-exam",
-      title: "University Exams",
-      subtitle: "Universities",
-      Icon: School,
-      iconWrap: "bg-editorial/10",
-      iconColor: "text-editorial",
-      chip: "bg-purple-50 text-purple-700",
-      cta: "text-editorial",
-      count: universityCount,
-      countUnit: "exams",
-      tags: ["IGNOU", "BHU", "DU"],
-    },
-  ];
-
+export function AudienceGateway() {
   return (
     <div
-      className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-3"
+      className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4"
       role="navigation"
       aria-label="Choose your exam category"
     >
-      {cards.map((card) => {
-        const Icon = card.Icon;
-        return (
-          <Link
-            key={card.href}
-            href={card.href}
-            className="group flex flex-col bg-white border border-border rounded-md p-4 hover:border-gray-300 hover:shadow-sm transition-all focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
-            aria-label={`${card.title} — ${card.subtitle}`}
-          >
-            <div className="flex items-center gap-2.5 mb-2.5">
-              <div className={`w-9 h-9 rounded-md flex items-center justify-center shrink-0 ${card.iconWrap}`}>
-                <Icon className={`w-[18px] h-[18px] ${card.iconColor}`} aria-hidden="true" />
-              </div>
-              <div className="min-w-0">
-                <h3 className="font-heading font-bold text-gray-900 text-sm leading-tight truncate">{card.title}</h3>
-                <p className="text-[11px] text-gray-400 leading-tight">{card.subtitle}</p>
-              </div>
-            </div>
+      {/* ── ① Sarkari Naukri ── */}
+      <div className="flex flex-col bg-white border border-border border-t-2 border-t-primary rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow">
+        <h3 className="font-heading font-bold text-gray-900 text-base leading-tight">Sarkari Naukri</h3>
+        <p className="text-xs text-gray-500 leading-tight mt-0.5 mb-3">Government jobs &amp; recruitment</p>
+        <p className="text-xs text-gray-500 leading-relaxed mb-3">
+          Competitive exams (SSC, Banking, Railway) and direct recruitment across all states.
+        </p>
+        <div className="flex flex-wrap gap-1.5 mb-4">
+          {["SSC", "UPSC", "Railway", "Anganwadi"].map((t) => (
+            <span key={t} className="text-[11px] text-gray-600 bg-gray-50 px-2 py-0.5 rounded">{t}</span>
+          ))}
+        </div>
+        <Link href="/sarkari-naukri" className="text-xs font-semibold text-primary hover:underline transition-colors mt-auto">
+          Explore Sarkari Naukri →
+        </Link>
+      </div>
 
-            <div className="mb-3">
-              <span className={`inline-block text-[11px] px-2 py-0.5 rounded font-semibold ${card.chip}`}>
-                {card.count > 0 ? `${card.count} ${card.countUnit}` : "Coming soon"}
-              </span>
-            </div>
+      {/* ── ② Admissions ── */}
+      <Link
+        href="/entrance-exam"
+        className="flex flex-col bg-white border border-border border-t-2 border-t-amber-500 rounded-lg p-4 shadow-sm hover:shadow-md transition-all focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+        aria-label="Admissions — Entrance exams"
+      >
+        <h3 className="font-heading font-bold text-gray-900 text-base leading-tight">Admissions</h3>
+        <p className="text-xs text-gray-500 leading-relaxed mt-1 mb-3">
+          Engineering, Medical, MBA, Law, Agriculture and more.
+        </p>
+        <div className="flex flex-wrap gap-1.5 mb-4">
+          {["NEET", "JEE", "CAT", "CUET"].map((t) => (
+            <span key={t} className="text-[11px] text-gray-600 bg-gray-50 px-2 py-0.5 rounded">{t}</span>
+          ))}
+        </div>
+        <span className="text-xs font-semibold text-amber-700 mt-auto">Explore Admissions →</span>
+      </Link>
 
-            <div className="flex flex-wrap gap-1 mb-3">
-              {card.tags.map((tag) => (
-                <span key={tag} className="text-[11px] text-gray-500 bg-gray-50 px-1.5 py-0.5 rounded">
-                  {tag}
-                </span>
-              ))}
-            </div>
+      {/* ── ③ Board Exams ── */}
+      <Link
+        href="/board-exam"
+        className="flex flex-col bg-white border border-border border-t-2 border-t-success rounded-lg p-4 shadow-sm hover:shadow-md transition-all focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+        aria-label="Board Exams"
+      >
+        <h3 className="font-heading font-bold text-gray-900 text-base leading-tight">Board Exams</h3>
+        <p className="text-xs text-gray-500 leading-relaxed mt-1 mb-3">
+          Class 10 &amp; 12 boards, date sheets, results and study material.
+        </p>
+        <div className="flex flex-wrap gap-1.5 mb-4">
+          {["CBSE", "UP Board", "Bihar Board"].map((t) => (
+            <span key={t} className="text-[11px] text-gray-600 bg-gray-50 px-2 py-0.5 rounded">{t}</span>
+          ))}
+        </div>
+        <span className="text-xs font-semibold text-success mt-auto">Explore Board Exams →</span>
+      </Link>
 
-            <span className={`mt-auto text-xs font-semibold ${card.cta} group-hover:underline`}>
-              Explore →
-            </span>
-          </Link>
-        );
-      })}
+      {/* ── ④ University Exams ── */}
+      <Link
+        href="/university-exam"
+        className="flex flex-col bg-white border border-border border-t-2 border-t-editorial rounded-lg p-4 shadow-sm hover:shadow-md transition-all focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+        aria-label="University Exams"
+      >
+        <h3 className="font-heading font-bold text-gray-900 text-base leading-tight">University Exams</h3>
+        <p className="text-xs text-gray-500 leading-relaxed mt-1 mb-3">
+          Semester exams, results, admit cards &amp; degree updates.
+        </p>
+        <div className="flex flex-wrap gap-1.5 mb-4">
+          {["IGNOU", "BHU", "DU", "MJPRU"].map((t) => (
+            <span key={t} className="text-[11px] text-gray-600 bg-gray-50 px-2 py-0.5 rounded">{t}</span>
+          ))}
+        </div>
+        <span className="text-xs font-semibold text-editorial mt-auto">Explore University Exams →</span>
+      </Link>
     </div>
   );
 }

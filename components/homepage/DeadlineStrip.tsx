@@ -1,19 +1,19 @@
 // Pure server component — NO "use client".
-// Homepage deadline / status strip as FOUR date-derived bands from the existing
+// Homepage status area: FOUR date-derived cards from the existing
 // exam_derived_status VIEW. Data is fetched ONCE in app/page.tsx via
 // getDeadlineBands() and passed in as props — this component never queries
-// Supabase itself.
+// Supabase itself. Underlying date/query semantics are UNCHANGED.
 //
-// Each band is a distinct fact and carries its own label:
-//   Application Closing Soon → application close date is still in the future
-//   Admit Cards Out          → admit card released, exam not yet held
+//   Application Closing Soon → future application close date (label "Last date")
 //   Results Declared         → result declared in the last 30 days
+//   Admit Cards Out          → admit card released, exam not yet held
 //   Exams Next 30 Days       → exam starts within the next 30 days
-// A band is rendered ONLY when it has items — empty bands disappear entirely.
-// Compact module: bands sit side by side on desktop (each a tight labelled
-// column) and stack on mobile; pills wrap and stay low-height.
+//
+// Presentation: four distinct but compact soft-surface cards in one row on
+// desktop, wrapping on tablet, stacked on mobile. Each card shows a few item
+// rows with a clearly visible date label, and a "View All →" where a real
+// destination route exists. Empty bands are hidden entirely.
 import Link from "next/link";
-import { CalendarClock, IdCard, Trophy, CalendarDays } from "lucide-react";
 import type { DeadlineBands, DeadlineBandItem } from "@/services/examService";
 import { formatDate, getExamEntityHref, cn } from "@/lib/utils";
 
@@ -22,64 +22,60 @@ type Props = { bands: DeadlineBands };
 type BandDef = {
   key: keyof Omit<DeadlineBands, "today">;
   title: string;
-  /** How this band labels its single date. */
+  /** Visible per-row date label (e.g. "Last date"). */
   dateLabel: string;
-  Icon: typeof CalendarClock;
-  accent: string; // border + text accent classes for the band header
-  pill: string; // pill styling
+  /** Status colour retained for the label + card border (Part E). */
+  border: string;
+  title_c: string;
 };
 
+// Order per approved reference: Closing → Results → Admit Cards → Exams.
 const BANDS: BandDef[] = [
   {
     key: "closingSoon",
-    title: "Application Closing Soon",
+    title: "Application closing soon",
     dateLabel: "Last date",
-    Icon: CalendarClock,
-    accent: "text-accent",
-    pill: "hover:bg-accent/5 text-gray-700",
-  },
-  {
-    key: "admitCardOut",
-    title: "Admit Cards Out",
-    dateLabel: "Admit card",
-    Icon: IdCard,
-    accent: "text-primary",
-    pill: "hover:bg-primary/5 text-gray-700",
+    border: "border-red-200",
+    title_c: "text-red-700",
   },
   {
     key: "resultsOut",
-    title: "Results Declared",
+    title: "Results declared",
     dateLabel: "Result",
-    Icon: Trophy,
-    accent: "text-success",
-    pill: "hover:bg-success/5 text-gray-700",
+    border: "border-green-200",
+    title_c: "text-green-700",
+  },
+  {
+    key: "admitCardOut",
+    title: "Admit cards out",
+    dateLabel: "Admit card",
+    border: "border-violet-200",
+    title_c: "text-violet-700",
   },
   {
     key: "examsThisMonth",
-    title: "Exams Next 30 Days",
+    title: "Exams next 7 days",
     dateLabel: "Exam",
-    Icon: CalendarDays,
-    accent: "text-editorial",
-    pill: "hover:bg-editorial/5 text-gray-700",
+    border: "border-orange-200",
+    title_c: "text-orange-700",
   },
 ];
 
-function Row({ item, dateLabel, pill }: { item: DeadlineBandItem; dateLabel: string; pill: string }) {
+function Row({ item, dateLabel }: { item: DeadlineBandItem; dateLabel: string }) {
   const href = getExamEntityHref({ pillar: item.pillar, category: item.category, slug: item.slug });
   return (
     <li>
       <Link
         href={href}
         prefetch={false}
-        className={cn(
-          "flex items-baseline justify-between gap-2 rounded px-1.5 py-1 text-xs transition-colors",
-          pill
-        )}
+        className="flex items-baseline justify-between gap-2 py-1 group"
       >
-        <span className="font-semibold truncate">{item.shortName}</span>
-        <span className="shrink-0 text-[11px] text-gray-400">
-          <span className="sr-only">{dateLabel}: </span>
-          {formatDate(item.date)}
+        <span className="text-[13px] font-semibold text-gray-800 truncate group-hover:text-primary">
+          {item.shortName}
+        </span>
+        <span className="shrink-0 text-[11px] text-gray-500">
+          <span className="text-gray-400">{dateLabel}: </span>
+          <span className="font-medium text-gray-600">{formatDate(item.date)}</span>
         </span>
       </Link>
     </li>
@@ -91,30 +87,27 @@ export function DeadlineStrip({ bands }: Props) {
   if (visible.length === 0) return null;
 
   return (
-    <section
-      className="bg-white border-b border-border"
-      aria-label="Upcoming exam deadlines and status"
-    >
-      {/* Compact status module: bands as tight columns on desktop, stacked on
-          mobile. Divided by thin separators rather than heavy blocks. */}
-      <div className="container mx-auto px-4 py-2.5">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-5 gap-y-3 divide-y sm:divide-y-0 divide-gray-100">
+    <section className="bg-white" aria-label="Exam status this week">
+      <div className="container mx-auto px-4 py-4">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3">
           {visible.map((band) => {
             const items = bands[band.key];
-            const Icon = band.Icon;
             return (
-              <div key={band.key} className="pt-3 sm:pt-0 min-w-0">
-                {/* Band header — one tight line */}
-                <div className="flex items-center gap-1.5 mb-1">
-                  <Icon className={cn("w-3.5 h-3.5 shrink-0", band.accent)} aria-hidden="true" />
-                  <h2 className={cn("text-[11px] font-bold uppercase tracking-wide", band.accent)}>
+              <div
+                key={band.key}
+                className={cn("border border-border bg-white p-3 sm:p-4 flex flex-col", band.border)}
+              >
+                {/* Header — status colour retained on the label (Part E), no
+                    decorative icon or pastel fill (Part B/E). */}
+                <div className="mb-2.5">
+                  <h3 className={cn("text-[13px] font-bold leading-tight", band.title_c)}>
                     {band.title}
-                  </h2>
-                  <span className="text-[10px] text-gray-400 font-medium">{items.length}</span>
+                  </h3>
                 </div>
-                <ul className="divide-y divide-gray-50" role="list">
+
+                <ul className="divide-y divide-black/5">
                   {items.map((item) => (
-                    <Row key={`${band.key}-${item.examId}`} item={item} dateLabel={band.dateLabel} pill={band.pill} />
+                    <Row key={`${band.key}-${item.examId}`} item={item} dateLabel={band.dateLabel} />
                   ))}
                 </ul>
               </div>

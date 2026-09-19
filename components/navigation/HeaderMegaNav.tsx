@@ -93,7 +93,6 @@ export function HeaderMegaNav({ pillars, quickAccessItems }: Props) {
               aria-haspopup="true"
               aria-expanded={activePillar === tree.pillar}
             >
-              {tree.icon && <span className="text-sm">{tree.icon}</span>}
               {tree.label}
               <ChevronDown
                 className={`w-3.5 h-3.5 transition-transform duration-150 ${

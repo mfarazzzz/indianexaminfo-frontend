@@ -31,6 +31,13 @@ type AdSlotProps = {
   creative?: AdCreative | null;
   /** AdSense publisher ID — injected from settings, falls back to env */
   adsensePublisherId?: string;
+  /**
+   * When true, the slot renders NOTHING (reserves no space) until a real direct
+   * creative is resolved — no dev placeholder, no AdSense reservation. Used to
+   * stop empty ad boxes from creating large blank areas on the homepage. The ad
+   * infrastructure/data model is unchanged; this only affects the empty state.
+   */
+  hideWhenEmpty?: boolean;
 };
 
 /**
@@ -42,7 +49,7 @@ type AdSlotProps = {
  *  3. Google AdSense
  *  4. Empty reserved space (dev: shows dashed placeholder)
  */
-export function AdSlot({ position, size, className, creative: initialCreative, adsensePublisherId }: AdSlotProps) {
+export function AdSlot({ position, size, className, creative: initialCreative, adsensePublisherId, hideWhenEmpty }: AdSlotProps) {
   const dim = sizeMap[size] ?? { w: 728, h: 90 };
   const isDev = process.env.NODE_ENV === "development";
   const ref = useRef<HTMLDivElement>(null);
@@ -75,6 +82,18 @@ export function AdSlot({ position, size, className, creative: initialCreative, a
   }, [creative, adsensePublisherId, adSenseLoaded]);
 
   const pubId = adsensePublisherId || process.env.NEXT_PUBLIC_ADSENSE_PUBLISHER_ID || "ca-pub-XXXXXXXXXX";
+
+  // ── Hide-when-empty: reserve no space until a real creative resolves ──
+  // Renders nothing (no dev placeholder, no AdSense reservation) so empty ad
+  // areas collapse instead of leaving large blank boxes. Ad infrastructure is
+  // otherwise untouched — a resolved direct creative still renders below.
+  const hasDirectCreative =
+    (creative?.type === "html" && !!creative.htmlCode) ||
+    (creative?.type === "image" && !!creative.imageUrl) ||
+    creative?.type === "text-link";
+  if (hideWhenEmpty && !hasDirectCreative) {
+    return null;
+  }
 
   // ── Dev mode placeholder ──────────────────────────────────────────────
   if (isDev) {

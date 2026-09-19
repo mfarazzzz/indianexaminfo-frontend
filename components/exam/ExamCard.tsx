@@ -1,13 +1,16 @@
 import Link from "next/link";
-import { formatDate } from "@/lib/utils";
+import { formatDate, isFutureOrToday } from "@/lib/utils";
 import { buildAnchorText, getCurrentYear } from "@/lib/seo/keywords";
 import type { ExamEntity, ContentType } from "@/types/exam";
-import { Calendar } from "lucide-react";
 
 type ExamCardProps = {
   exam: ExamEntity;
   showPillar?: boolean;
   className?: string;
+  /** The single IST "today" anchor (from getTodayIST). Passed by server callers
+   *  so the "next/last milestone" pick agrees with the derived-status VIEW and
+   *  every other past/future decision, never the server UTC clock. */
+  todayISO: string;
 };
 
 function getExamHref(exam: ExamEntity): string {
@@ -43,24 +46,18 @@ function statusBadge(status: string): string {
   return map[status] ?? "bg-gray-100 text-gray-600";
 }
 
-// Category dot color by pillar
-function categoryDot(pillar: string): string {
-  if (pillar === "entrance-exam") return "bg-amber-500";
-  if (pillar === "board-exam") return "bg-success";
-  return "bg-primary";
-}
-
-export function ExamCard({ exam }: ExamCardProps) {
+export function ExamCard({ exam, todayISO }: ExamCardProps) {
   const href     = getExamHref(exam);
-  const now      = new Date();
   // Filter out blank dates (no date value) — they shouldn't appear on frontend
   const validDates = exam.dates.filter((d) => d.date && d.date.trim() !== "");
-  const nextDate = validDates.find((d) => new Date(d.date) > now);
+  // "Future" = today-or-later on the IST anchor (the ONE past/future rule), so a
+  // date that is today in IST but yesterday in UTC is still treated as upcoming.
+  const nextDate = validDates.find((d) => isFutureOrToday(d.date, todayISO));
 
   // For result-declared/completed exams, show the most recent past milestone if no urgent future date
   let displayDate = nextDate;
   if (!nextDate || (exam.status === "result-declared" || exam.status === "completed")) {
-    const pastDates = validDates.filter((d) => new Date(d.date) <= now);
+    const pastDates = validDates.filter((d) => !isFutureOrToday(d.date, todayISO));
     const lastPast = pastDates.length > 0 ? pastDates[pastDates.length - 1] : null;
     // Prefer showing the most recent milestone (e.g. "Result Declared") for declared/completed
     if (lastPast && (exam.status === "result-declared" || exam.status === "completed")) {
@@ -68,13 +65,42 @@ export function ExamCard({ exam }: ExamCardProps) {
     }
   }
 
+  // Content-type links available for this record.
+  const available: Partial<Record<ContentType, { label: string; href: string }>> = {
+    "admit-card":  exam.hasAdmitCard   ? { label: buildAnchorText(exam.shortName, "admit-card", getCurrentYear()), href: `${href}/admit-card` } : undefined,
+    result:        exam.hasResult       ? { label: buildAnchorText(exam.shortName, "result",     getCurrentYear()), href: `${href}/result` } : undefined,
+    syllabus:      exam.hasSyllabus     ? { label: buildAnchorText(exam.shortName, "syllabus",   getCurrentYear()), href: `${href}/syllabus` } : undefined,
+    "answer-key":  exam.hasAnswerKey    ? { label: buildAnchorText(exam.shortName, "answer-key", getCurrentYear()), href: `${href}/answer-key` } : undefined,
+    "date-sheet":  exam.hasDateSheet    ? { label: buildAnchorText(exam.shortName, "date-sheet", getCurrentYear()), href: `${href}/date-sheet` } : undefined,
+    application:   exam.hasApplication  ? { label: `Apply for ${exam.shortName} ${getCurrentYear()}`, href: `${href}/application` } : undefined,
+  };
+
+  // Part D: show at most TWO links, ordered by what the record's CURRENT status
+  // makes most relevant, then filled from a sensible fallback order. The rest
+  // live on the detail page.
+  //   application phase → Apply first; results phase → Result first;
+  //   admit-card phase  → Admit Card first.
+  const priorityByStatus: Record<string, ContentType[]> = {
+    "registration-open":   ["application", "admit-card"],
+    notified:              ["application", "admit-card"],
+    upcoming:              ["application", "syllabus"],
+    "admit-card-out":      ["admit-card", "result"],
+    "result-declared":     ["result", "answer-key"],
+    "result-awaited":      ["result", "answer-key"],
+    "registration-closed": ["admit-card", "application"],
+    completed:             ["result", "answer-key"],
+  };
+  const fallbackOrder: ContentType[] = ["application", "admit-card", "result", "answer-key", "syllabus", "date-sheet"];
+  const ordered: ContentType[] = [...(priorityByStatus[exam.status] ?? []), ...fallbackOrder];
+  const seenCt = new Set<ContentType>();
   const ctLinks: { label: string; href: string; ct: ContentType }[] = [];
-  if (exam.hasAdmitCard)   ctLinks.push({ ct: "admit-card",      label: buildAnchorText(exam.shortName, "admit-card",      getCurrentYear()), href: `${href}/admit-card` });
-  if (exam.hasResult)      ctLinks.push({ ct: "result",          label: buildAnchorText(exam.shortName, "result",          getCurrentYear()), href: `${href}/result` });
-  if (exam.hasSyllabus)    ctLinks.push({ ct: "syllabus",        label: buildAnchorText(exam.shortName, "syllabus",        getCurrentYear()), href: `${href}/syllabus` });
-  if (exam.hasAnswerKey)   ctLinks.push({ ct: "answer-key",      label: buildAnchorText(exam.shortName, "answer-key",      getCurrentYear()), href: `${href}/answer-key` });
-  if (exam.hasDateSheet)   ctLinks.push({ ct: "date-sheet",      label: buildAnchorText(exam.shortName, "date-sheet",      getCurrentYear()), href: `${href}/date-sheet` });
-  if (exam.hasApplication) ctLinks.push({ ct: "application",     label: `Apply for ${exam.shortName} ${getCurrentYear()}`, href: `${href}/application` });
+  for (const ct of ordered) {
+    if (seenCt.has(ct)) continue;
+    seenCt.add(ct);
+    const entry = available[ct];
+    if (entry) ctLinks.push({ ct, label: entry.label, href: entry.href });
+    if (ctLinks.length === 2) break;
+  }
 
   return (
     <article
@@ -85,12 +111,9 @@ export function ExamCard({ exam }: ExamCardProps) {
     >
       {/* Category + status row */}
       <div className="flex items-center justify-between gap-2 px-3 pt-3">
-        <div className="flex items-center gap-1.5 min-w-0">
-          <span className={`w-2 h-2 rounded-full shrink-0 ${categoryDot(exam.pillar)}`} aria-hidden="true" />
-          <span className="text-xs text-gray-400 uppercase tracking-wide font-medium truncate">
-            {exam.category.replace(/-/g, " ")}
-          </span>
-        </div>
+        <span className="text-xs text-gray-500 font-medium truncate min-w-0">
+          {exam.category.replace(/-/g, " ")}
+        </span>
         <span className={`status-badge shrink-0 text-xs font-medium px-2 py-0.5 rounded ${statusBadge(exam.status)}`}>
           {exam.status.replace(/-/g, " ")}
         </span>
@@ -140,7 +163,6 @@ export function ExamCard({ exam }: ExamCardProps) {
       {/* Next important date */}
       {displayDate && (
         <div className="px-3 pb-2 flex items-center gap-1.5 text-xs border-t border-border pt-2 mt-auto">
-          <Calendar className="w-3 h-3 text-gray-400 shrink-0" aria-hidden="true" />
           <span className="text-gray-500">{displayDate.label}:</span>
           <span className={displayDate.isUrgent ? "text-accent font-semibold" : "text-gray-700 font-medium"}>
             {formatDate(displayDate.date)}
@@ -148,23 +170,22 @@ export function ExamCard({ exam }: ExamCardProps) {
         </div>
       )}
 
-      {/* Content type quick links */}
+      {/* Content type quick links — Part D: at most two, plain text, status-driven */}
       {ctLinks.length > 0 && (
-        <div className="px-3 pb-3 flex flex-wrap gap-1 border-t border-border pt-2">
-          {ctLinks.slice(0, 4).map((ct) => (
+        <div className="px-3 pb-3 flex flex-wrap gap-x-4 gap-y-1 border-t border-border pt-2">
+          {ctLinks.map((ct) => (
             <Link
               key={ct.ct}
               href={ct.href}
-              className="text-xs px-2 py-0.5 border border-gray-200 rounded text-gray-600 hover:border-blue-500 hover:text-blue-600 hover:bg-blue-50 transition-colors font-medium"
+              className="text-xs text-primary hover:underline font-medium"
               prefetch={false}
               title={ct.label}
             >
-              {/* Short display label — keeps card compact */}
-              {ct.ct === "admit-card"   ? "Admit Card"  :
+              {ct.ct === "admit-card"   ? "Admit card"  :
                ct.ct === "result"       ? "Result"      :
                ct.ct === "syllabus"     ? "Syllabus"    :
-               ct.ct === "answer-key"   ? "Answer Key"  :
-               ct.ct === "date-sheet"   ? "Date Sheet"  :
+               ct.ct === "answer-key"   ? "Answer key"  :
+               ct.ct === "date-sheet"   ? "Date sheet"  :
                "Apply"}
             </Link>
           ))}

@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { getFeaturedBlogPosts } from "@/services/blogService";
 import { formatDate } from "@/lib/utils";
-import { ArrowRight, Clock } from "lucide-react";
+import { Clock } from "lucide-react";
 
 // Section → color mapping
 const sectionBorder: Record<string, string> = {
@@ -43,20 +43,19 @@ export async function EditorialSpotlight() {
 
   const [featured, ...rest] = posts.slice(0, 4);
   const bgGradient = featuredBg[featured.section] ?? "from-primary to-primary-800";
-  const initials   = featured.title.split(" ").slice(0, 2).map((w) => w[0]).join("").toUpperCase();
 
   return (
     <section aria-labelledby="editorial-spotlight-heading">
       {/* Section header */}
-      <div className="flex items-center justify-between mb-3 pb-2 border-b-2 border-editorial">
+      <div className="flex items-center justify-between mb-3 pb-2 border-b border-border">
         <div>
-          <h2 id="editorial-spotlight-heading" className="font-heading font-bold text-base text-editorial uppercase tracking-wide">
-            Blog &amp; News
+          <h2 id="editorial-spotlight-heading" className="font-heading font-bold text-lg text-gray-900">
+            Blog &amp; news
           </h2>
-          <p className="text-xs text-gray-400 mt-0.5">Expert guides, news &amp; exam preparation</p>
+          <p className="text-xs text-gray-500 mt-0.5">Expert guides, news and exam preparation</p>
         </div>
-        <Link href="/blog" prefetch={false} className="text-xs font-semibold text-editorial hover:underline flex items-center gap-1 whitespace-nowrap">
-          All Articles <ArrowRight className="w-3.5 h-3.5" />
+        <Link href="/blog" prefetch={false} className="text-xs font-semibold text-primary hover:text-primary-700 whitespace-nowrap">
+          All articles
         </Link>
       </div>
 
@@ -64,9 +63,17 @@ export async function EditorialSpotlight() {
 
         {/* Featured large article */}
         <article className="bg-white border border-border shadow-sm overflow-hidden flex flex-col hover:shadow-md transition-shadow">
-          {/* Colored image placeholder */}
+          {/* Cover image — use featuredImage when available, else plain gradient */}
           <div className={`bg-gradient-to-br ${bgGradient} h-44 relative overflow-hidden flex items-center justify-center`}>
-            <span className="text-white/10 text-8xl font-black select-none" aria-hidden="true">{initials}</span>
+            {featured.featuredImage ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={featured.featuredImage}
+                alt={featured.title}
+                className="absolute inset-0 w-full h-full object-cover"
+                loading="lazy"
+              />
+            ) : null}
             {/* Section badge overlay */}
             <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/50 to-transparent p-3">
               <span className="text-xs text-white bg-editorial px-2 py-0.5 rounded uppercase font-bold tracking-wide">

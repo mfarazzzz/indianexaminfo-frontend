@@ -58,14 +58,45 @@ export function formatDateLong(dateStr: string): string {
   });
 }
 
-export function isUrgent(dateStr: string, daysThreshold = 7): boolean {
-  const diff = new Date(dateStr).getTime() - Date.now();
-  return diff > 0 && diff < daysThreshold * 24 * 60 * 60 * 1000;
+// ── Date window helpers ──────────────────────────────────────────────────
+// These take an explicit `todayISO` (yyyy-mm-dd) anchor — the caller passes
+// the single IST "today" from getTodayIST(). They must NOT read Date.now():
+// the whole point of Part A is that exactly ONE place (the exam_derived_status
+// VIEW via getTodayIST) decides what "today" is. Comparison is done on the
+// zero-padded ISO date strings, which sort lexically and are timezone-free.
+
+/** Days from `todayISO` to `dateStr` (positive = future). Both are yyyy-mm-dd. */
+function daysBetweenISO(todayISO: string, dateStr: string): number {
+  const a = new Date(todayISO + "T00:00:00Z").getTime();
+  const b = new Date((dateStr || "").slice(0, 10) + "T00:00:00Z").getTime();
+  if (isNaN(a) || isNaN(b)) return NaN;
+  return Math.round((b - a) / (24 * 60 * 60 * 1000));
 }
 
-export function isClosingSoon(dateStr: string, daysThreshold = 30): boolean {
-  const diff = new Date(dateStr).getTime() - Date.now();
-  return diff > 0 && diff < daysThreshold * 24 * 60 * 60 * 1000;
+/** True when `dateStr` is in the future and within `daysThreshold` of `todayISO`. */
+export function isUrgent(dateStr: string, todayISO: string, daysThreshold = 7): boolean {
+  const d = daysBetweenISO(todayISO, dateStr);
+  return d > 0 && d < daysThreshold;
+}
+
+/** True when `dateStr` is in the future and within `daysThreshold` of `todayISO`. */
+export function isClosingSoon(dateStr: string, todayISO: string, daysThreshold = 30): boolean {
+  const d = daysBetweenISO(todayISO, dateStr);
+  return d > 0 && d < daysThreshold;
+}
+
+/** Is `dateStr` today or later, per the IST anchor? The single future-check. */
+export function isFutureOrToday(dateStr: string, todayISO: string): boolean {
+  return (dateStr || "").slice(0, 10) >= todayISO;
+}
+
+/**
+ * Whole days from the IST anchor `todayISO` to `dateStr` (0 = today, positive =
+ * future, negative = past). NaN when either date is unparseable. Uses the same
+ * IST "today" the VIEW/getTodayIST decides — never the server's UTC clock — so
+ * "days left" style copy agrees with every other past/future decision. */
+export function daysUntil(dateStr: string, todayISO: string): number {
+  return daysBetweenISO(todayISO, dateStr);
 }
 
 export function slugify(text: string): string {

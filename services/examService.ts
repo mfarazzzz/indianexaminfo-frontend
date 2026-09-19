@@ -660,6 +660,35 @@ function addDaysISO(iso: string, days: number): string {
 }
 
 /**
+ * The SINGLE source of "today" for every past/future date decision in the
+ * frontend. Reads today_ist straight from the exam_derived_status VIEW so that
+ * homepage widgets classify dates on the same Asia/Kolkata calendar day the
+ * VIEW (and getDeadlineBands) use — never on the server's UTC clock. If the
+ * VIEW returns no rows, fall back to computing the IST date locally so callers
+ * always get a valid yyyy-mm-dd. Returned string is directly comparable to the
+ * ISO `date` values stored on ExamEntity.dates (lexical compare is correct for
+ * zero-padded ISO dates).
+ */
+export async function getTodayIST(): Promise<string> {
+  return cached(async () => {
+    try {
+      const supabase = createServerClient();
+      const { data } = await supabase
+        .from("exam_derived_status")
+        .select("today_ist")
+        .limit(1)
+        .maybeSingle();
+      const fromView = (data as { today_ist?: string } | null)?.today_ist;
+      if (fromView) return fromView;
+    } catch (err) {
+      console.error("[examService] getTodayIST view read failed, falling back:", err);
+    }
+    // Fallback: compute the current calendar date in Asia/Kolkata (UTC+5:30).
+    return new Date(Date.now() + 5.5 * 60 * 60 * 1000).toISOString().slice(0, 10);
+  }, ["exams", "today-ist"], { revalidate: 1800 });
+}
+
+/**
  * The homepage deadline strip as four date-derived bands. Reuses the
  * exam_derived_status VIEW; a second keyed lookup on `exams` supplies display
  * name + category for labels and href building (the VIEW exposes neither).
@@ -684,8 +713,9 @@ export async function getDeadlineBands(perBand = 8): Promise<DeadlineBands> {
 
       // "Today" per the VIEW (IST). All rows carry the same today_ist.
       const today = (rows[0] as any).today_ist as string;
-      const in30 = addDaysISO(today, 30);
-      const ago30 = addDaysISO(today, -30);
+      const in15 = addDaysISO(today, 15);   // closing-soon window
+      const in7  = addDaysISO(today, 7);    // exams-this-week window
+      const ago7 = addDaysISO(today, -7);   // admit-card / results lookback
 
       // Name + category lookup (single extra query; VIEW is not a real table so
       // a PostgREST embed can't be relied on).
@@ -730,19 +760,19 @@ export async function getDeadlineBands(perBand = 8): Promise<DeadlineBands> {
         const result = r.result_date as string | null;
         const examStart = r.exam_start_date as string | null;
 
-        // closing-soon: application close date is still in the future.
-        if (appClose && appClose >= today) closingSoon.push(item(r, appClose));
+        // closing-soon: application close date within the next 15 days.
+        if (appClose && appClose >= today && appClose < in15) closingSoon.push(item(r, appClose));
 
-        // admit-card-out: admit card released, exam not yet started.
-        if (admit && admit <= today && (!examStart || examStart >= today)) {
+        // admit-card-out: admit card released in last 7 days, exam not yet started.
+        if (admit && admit <= today && admit >= ago7 && (!examStart || examStart >= today)) {
           admitCardOut.push(item(r, admit));
         }
 
-        // results-out: result declared within the last 30 days.
-        if (result && result <= today && result >= ago30) resultsOut.push(item(r, result));
+        // results-out: result declared within the last 7 days.
+        if (result && result <= today && result >= ago7) resultsOut.push(item(r, result));
 
-        // exams-this-month: exam starts within the next 30 days.
-        if (examStart && examStart >= today && examStart < in30) {
+        // exams-this-week: exam starts within the next 7 days.
+        if (examStart && examStart >= today && examStart < in7) {
           examsThisMonth.push(item(r, examStart));
         }
       }
@@ -758,7 +788,7 @@ export async function getDeadlineBands(perBand = 8): Promise<DeadlineBands> {
       console.error("[examService] getDeadlineBands failed:", err);
       return EMPTY_BANDS;
     }
-  }, ["exams", "exams:deadline-bands"], { revalidate: 1800 });
+  }, ["exams", "exams:deadline-bands-15-7-7-7"], { revalidate: 1800 });
 }
 
 // ── Edition-aware functions ─────────────────────────────────────────────

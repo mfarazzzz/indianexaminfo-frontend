@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { getByRecruitmentType, getStateList } from "@/services/sarkariNaukriService";
+import { getTodayIST } from "@/services/examService";
 import { Breadcrumb } from "@/components/layout/Breadcrumb";
 import { AdSlot } from "@/components/ads/AdSlot";
 import { buildExamMetadata } from "@/lib/seo/metadata";
@@ -13,16 +14,17 @@ export const revalidate = 1800;
 const YEAR = getCurrentYear();
 export const metadata: Metadata = buildExamMetadata({
   pageType: "pillar",
-  title: `Sarkari Bharti ${YEAR} — Direct Recruitment, Walk-In, Merit-Based Jobs`,
+  title: `Government Vacancies ${YEAR} — Direct Recruitment, Walk-In, Merit-Based Jobs`,
   description: `Latest Sarkari Bharti ${YEAR}: Anganwadi, Panchayat, Municipal, Hospital, Court, Driver, Group D walk-in and merit-based government jobs. No written exam required — apply directly.`,
   keywords: buildPageKeywords({ pageType: "pillar", pillar: "government-exam" }),
   canonicalUrl: `${siteConfig.url}/sarkari-naukri/bharti`,
 });
 
 export default async function SarkariBhartiPage() {
-  const [items, states] = await Promise.all([
+  const [items, states, todayISO] = await Promise.all([
     getByRecruitmentType("direct"),
     getStateList(),
+    getTodayIST(),
   ]);
 
   return (
@@ -32,27 +34,25 @@ export default async function SarkariBhartiPage() {
         { name: "Sarkari Bharti", href: "/sarkari-naukri/bharti" },
       ]} />
 
-      <div className="flex justify-center mb-4">
-        <AdSlot position="category-top" size="728x90" />
-      </div>
+      <AdSlot position="category-top" size="728x90" hideWhenEmpty />
 
       <div className="grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-6">
         <main>
           <h1 className="font-heading font-bold text-2xl text-gray-900 mb-1">
-            Sarkari Bharti {YEAR} — Direct Recruitment & Walk-In Jobs
+            Government Vacancies {YEAR} — Direct Recruitment &amp; Walk-In Jobs
           </h1>
           <p className="text-sm text-gray-500 mb-4">
             {items.length} direct/merit-based recruitments · No written exam — walk-in, document verification, merit list
           </p>
 
-          {/* Type tabs */}
+          {/* Type filters */}
           <div className="flex gap-3 mb-5">
             <Link href="/sarkari-naukri" className="rounded-full px-4 py-1.5 text-sm font-medium border border-border text-gray-600 hover:bg-gray-50">All</Link>
-            <Link href="/sarkari-naukri/exam" className="rounded-full px-4 py-1.5 text-sm font-medium border border-blue-200 text-blue-700 hover:bg-blue-50">Sarkari Exam</Link>
-            <Link href="/sarkari-naukri/bharti" className="rounded-full px-4 py-1.5 text-sm font-medium bg-green-600 text-white">Sarkari Bharti ({items.length})</Link>
+            <Link href="/sarkari-naukri/exam" className="rounded-full px-4 py-1.5 text-sm font-medium border border-blue-200 text-blue-700 hover:bg-blue-50">Government Exams</Link>
+            <Link href="/sarkari-naukri/bharti" className="rounded-full px-4 py-1.5 text-sm font-medium bg-green-600 text-white">Government Vacancies ({items.length})</Link>
           </div>
 
-          <SarkariNaukriList items={items} />
+          <SarkariNaukriList items={items} todayISO={todayISO} />
         </main>
 
         <aside className="flex flex-col gap-4">

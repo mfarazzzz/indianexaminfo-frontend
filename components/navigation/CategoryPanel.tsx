@@ -40,7 +40,6 @@ export function CategoryPanel({ categories, pillar, activeCategoryId, onCategory
             }`}
           >
             <span className="flex items-center gap-2 min-w-0">
-              {cat.icon && <span className="text-base shrink-0">{cat.icon}</span>}
               <span className="truncate">{cat.name}</span>
             </span>
 

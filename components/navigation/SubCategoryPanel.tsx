@@ -42,7 +42,6 @@ export function SubCategoryPanel({ parentNode, subCategories, pillar }: Props) {
             href={node.customUrl ?? `/${node.path}`}
             className="flex items-center gap-2.5 px-2.5 py-2 rounded-md text-[13px] text-gray-700 hover:bg-gray-50 hover:text-primary transition-colors group"
           >
-            {node.icon && <span className="text-sm shrink-0">{node.icon}</span>}
             <span className="flex-1 truncate">{node.label}</span>
             {node.badge && (
               <span

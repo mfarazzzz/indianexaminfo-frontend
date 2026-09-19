@@ -12,14 +12,16 @@
  */
 import Link from "next/link";
 import type { ExamEntity } from "@/types/exam";
-import { formatDate } from "@/lib/utils";
+import { formatDate, isFutureOrToday } from "@/lib/utils";
 import { Calendar } from "lucide-react";
 
-/** A section summary component receives the exam and returns the section JSX (or null). */
-export type SectionSummary = (exam: ExamEntity) => React.ReactNode;
+/** A section summary component receives the exam and the single IST "today"
+ *  anchor (from getTodayIST) and returns the section JSX (or null). todayISO is
+ *  optional so renderers that don't classify past/future can ignore it. */
+export type SectionSummary = (exam: ExamEntity, todayISO?: string) => React.ReactNode;
 
 // ── Important Dates (column) ──────────────────────────────────────────────────
-const ImportantDatesSummary: SectionSummary = (exam) => (
+const ImportantDatesSummary: SectionSummary = (exam, todayISO) => (
   <section aria-label="Important dates" className="mb-5">
     <h2 className="font-heading font-semibold text-base text-gray-800 mb-3 flex items-center gap-2">
       <Calendar className="w-4 h-4 text-primary" />
@@ -40,7 +42,12 @@ const ImportantDatesSummary: SectionSummary = (exam) => (
             const isCancelled = d.state === "cancelled";
             const isExpected  = d.state === "expected" || d.state === "tba";
             const isPostponed = d.state === "postponed";
-            const isPast = !isCancelled && !isExpected && new Date(d.date) < new Date();
+            // Past/future decided against the single IST anchor (todayISO from getTodayIST),
+            // never the server's UTC clock — so this "Passed/Upcoming" chip agrees with the
+            // status badge, the homepage widgets, and the derived-status VIEW. When todayISO
+            // is absent (renderer called without it), fall back to not-past so nothing is
+            // wrongly marked Passed.
+            const isPast = !isCancelled && !isExpected && !!todayISO && !isFutureOrToday(d.date, todayISO);
 
             return (
               <tr key={`${d.label}-${i}`} className={isCancelled ? "opacity-60" : undefined}>
@@ -648,6 +655,7 @@ export const MODULE_RENDERERS: Record<string, ModuleRenderer> = {
 /** Wrap a ModuleRenderer as a SectionSummary: read the module data by slug from the exam. */
 const fromModule = (slug: string, render: ModuleRenderer): SectionSummary =>
   (exam) => render(moduleData(exam, slug) ?? ({} as Record<string, unknown>));
+// Note: module renderers don't classify past/future, so they don't need todayISO.
 
 /**
  * slug → Summary renderer. The detail page loops the registry (order/placement)

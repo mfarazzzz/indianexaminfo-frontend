@@ -168,7 +168,6 @@ export function MegaMenuMobile({ pillars, quickAccessItems, onClose }: Props) {
                 aria-expanded={expandedPillar === tree.pillar}
               >
                 <span className="flex items-center gap-2">
-                  {tree.icon && <span className="text-base">{tree.icon}</span>}
                   {tree.label}
                 </span>
                 <ChevronRight
@@ -229,7 +228,6 @@ function CategoryAccordion({
         aria-expanded={isExpanded}
       >
         <span className="flex items-center gap-2">
-          {category.icon && <span className="text-sm">{category.icon}</span>}
           {category.label}
           {category.showItemCount && category.itemCount > 0 && (
             <span className="text-[10px] text-gray-400">({category.itemCount})</span>
@@ -251,7 +249,6 @@ function CategoryAccordion({
               onClick={onClose}
               className="block py-2 px-2 text-sm text-gray-600 hover:text-primary rounded hover:bg-gray-50 min-h-[44px] flex items-center"
             >
-              {child.icon && <span className="text-sm mr-2">{child.icon}</span>}
               {child.label}
             </Link>
           ))}

@@ -93,7 +93,6 @@ function Section({
             href={item.customUrl ?? `/${item.path}`}
             className="flex items-center gap-2 px-2 py-1.5 rounded-md text-[12px] text-gray-700 hover:bg-white hover:text-primary hover:shadow-sm transition-all"
           >
-            {item.icon && <span className="text-sm shrink-0">{item.icon}</span>}
             <span className="flex-1 truncate">{item.label}</span>
           </Link>
         ))}

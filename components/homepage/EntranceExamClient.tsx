@@ -2,9 +2,8 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { ArrowRight } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { ExamCard } from "@/components/exam/ExamCard";
+import { ExamListRow } from "@/components/exam/ExamListRow";
 import type { ExamEntity } from "@/types/exam";
 
 export type CategoryTab = { label: string; slug: string | null };
@@ -18,15 +17,15 @@ export function EntranceExamClient({ exams, tabs }: { exams: ExamEntity[]; tabs:
   return (
     <section aria-labelledby="entrance-exam-heading" className="py-6 border-b border-gray-100">
       {/* Section header */}
-      <div className="flex items-start justify-between mb-4 pb-3 border-b-2 border-amber-500">
+      <div className="flex items-start justify-between mb-4 pb-3 border-b border-border">
         <div>
-          <h2 id="entrance-exam-heading" className="font-heading font-black text-base text-gray-900 uppercase tracking-wide">
-            Entrance Exams
+          <h2 id="entrance-exam-heading" className="font-heading font-bold text-lg text-gray-900">
+            Entrance exams
           </h2>
-          <p className="text-xs text-gray-400 mt-0.5">Engineering, Medical, MBA, Law &amp; more</p>
+          <p className="text-xs text-gray-500 mt-0.5">Engineering, medical, MBA, law and more</p>
         </div>
-        <Link href="/entrance-exam" prefetch={false} className="text-xs font-semibold text-amber-700 hover:text-amber-800 flex items-center gap-1 whitespace-nowrap mt-1">
-          View All <ArrowRight className="w-3.5 h-3.5" />
+        <Link href="/entrance-exam" prefetch={false} className="text-xs font-semibold text-primary hover:text-primary-700 whitespace-nowrap mt-1">
+          View all
         </Link>
       </div>
 
@@ -39,7 +38,7 @@ export function EntranceExamClient({ exams, tabs }: { exams: ExamEntity[]; tabs:
             <button key={key} onClick={() => setActive(key)} aria-pressed={active === key}
               className={cn(
                 "shrink-0 px-3 py-1.5 text-xs font-semibold border-r border-border last:border-r-0 transition-colors whitespace-nowrap",
-                active === key ? "bg-amber-600 text-white" : "bg-white text-gray-600 hover:bg-gray-50"
+                active === key ? "bg-primary text-white" : "bg-white text-gray-600 hover:bg-gray-50"
               )}>
               {tab.label}
             </button>
@@ -48,8 +47,8 @@ export function EntranceExamClient({ exams, tabs }: { exams: ExamEntity[]; tabs:
       </div>
 
       {shown.length > 0 ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {shown.map((exam) => <ExamCard key={exam.id} exam={exam} />)}
+        <div className="divide-y divide-border border-t border-border">
+          {shown.map((exam) => <ExamListRow key={exam.id} exam={exam} />)}
         </div>
       ) : (
         <p className="text-sm text-gray-400 py-4 text-center">No exams found in this category.</p>

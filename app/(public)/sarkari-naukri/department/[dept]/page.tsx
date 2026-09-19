@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { getByDepartment } from "@/services/sarkariNaukriService";
+import { getTodayIST } from "@/services/examService";
 import { Breadcrumb } from "@/components/layout/Breadcrumb";
 import { AdSlot } from "@/components/ads/AdSlot";
 import { buildExamMetadata } from "@/lib/seo/metadata";
@@ -30,7 +31,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function DepartmentPage({ params }: Props) {
   const { dept } = await params;
-  const items = await getByDepartment(dept);
+  const [items, todayISO] = await Promise.all([getByDepartment(dept), getTodayIST()]);
   const label = formatDept(dept);
   const year = getCurrentYear();
 
@@ -59,7 +60,7 @@ export default async function DepartmentPage({ params }: Props) {
             <Link href="/sarkari-naukri" className="text-primary hover:underline text-sm">← Browse all jobs</Link>
           </div>
         ) : (
-          <SarkariNaukriList items={items} />
+          <SarkariNaukriList items={items} todayISO={todayISO} />
         )}
       </main>
     </div>

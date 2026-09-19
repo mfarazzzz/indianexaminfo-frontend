@@ -34,7 +34,7 @@ export function NavigationCard({ card, onNavigate }: Props) {
       {/* Header: Icon + Name + Count */}
       <div className="flex items-start justify-between mb-3">
         <div className="flex items-center gap-2.5">
-          {card.icon && <span className="text-xl">{card.icon}</span>}
+
           <div>
             <h3 className="text-sm font-semibold text-gray-900 group-hover:text-primary transition-colors">
               {card.name}

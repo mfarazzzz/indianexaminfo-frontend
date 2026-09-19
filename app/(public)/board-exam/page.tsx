@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { getExamsByPillar } from "@/services/examService";
+import { getExamsByPillar, getTodayIST } from "@/services/examService";
 import { ExamCard } from "@/components/exam/ExamCard";
 import { Breadcrumb } from "@/components/layout/Breadcrumb";
 import { AdSlot } from "@/components/ads/AdSlot";
@@ -20,7 +20,7 @@ export const metadata: Metadata = buildExamMetadata({
 });
 
 export default async function BoardExamPage() {
-  const exams = await getExamsByPillar("board-exam");
+  const [exams, todayISO] = await Promise.all([getExamsByPillar("board-exam"), getTodayIST()]);
 
   const centralBoards = exams.filter((e) => e.category === "cbse" || e.category === "cisce" || e.category === "nios");
   const stateBoards = exams.filter((e) => e.category === "up-board" || e.category === "bihar-board" || e.category === "rbse" || e.category === "mpbse");
@@ -50,7 +50,7 @@ export default async function BoardExamPage() {
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {centralBoards.length ? centralBoards.map((e) => (
-                <ExamCard key={e.id} exam={e} />
+                <ExamCard key={e.id} exam={e} todayISO={todayISO} />
               )) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   {[
@@ -76,7 +76,7 @@ export default async function BoardExamPage() {
               State Boards
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {stateBoards.map((e) => <ExamCard key={e.id} exam={e} />)}
+              {stateBoards.map((e) => <ExamCard key={e.id} exam={e} todayISO={todayISO} />)}
             </div>
           </section>
 
@@ -86,7 +86,7 @@ export default async function BoardExamPage() {
               University Results
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {universities.map((e) => <ExamCard key={e.id} exam={e} />)}
+              {universities.map((e) => <ExamCard key={e.id} exam={e} todayISO={todayISO} />)}
             </div>
           </section>
         </main>

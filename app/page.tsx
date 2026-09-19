@@ -16,10 +16,9 @@ import { DeadlineStrip } from "@/components/homepage/DeadlineStrip";
 import {
   getExamsByPillar,
   getAllExams,
-  getExamCountByPillar,
   getDeadlineBands,
+  getTodayIST,
 } from "@/services/examService";
-import { getSarkariNaukriStats } from "@/services/sarkariNaukriService";
 import { getLatestContentPosts } from "@/services/contentPostService";
 
 export const revalidate = 1800;
@@ -49,22 +48,16 @@ export default async function HomePage() {
     boardExams,
     allExams,
     latestPosts,
-    sarkariStats,
-    admissionsCount,
-    boardCount,
-    universityCount,
     deadlineBands,
+    todayISO,
   ] = await Promise.all([
     getExamsByPillar("government-exam"),
     getExamsByPillar("entrance-exam"),
     getExamsByPillar("board-exam"),
     getAllExams(),
     getLatestContentPosts(20),
-    getSarkariNaukriStats(),
-    getExamCountByPillar("entrance-exam"),
-    getExamCountByPillar("board-exam"),
-    getExamCountByPillar("university-exam"),
-    getDeadlineBands(8),
+    getDeadlineBands(50),
+    getTodayIST(),
   ]);
 
   return (
@@ -73,65 +66,61 @@ export default async function HomePage() {
         {siteConfig.name} — India&apos;s Most Trusted Exam Information Portal
       </h1>
 
-      {/* ── Top leaderboard ad ── */}
-      <div className="bg-white border-b border-border">
-        <div className="container mx-auto px-4 py-2 flex justify-center">
-          <AdSlot position="homepage-top" size="728x90" />
-        </div>
+      {/* ── Top leaderboard ad — hidden until a real creative is served ── */}
+      <div className="flex justify-center empty:hidden [&:has(>*:empty)]:hidden">
+        <AdSlot position="homepage-top" size="728x90" hideWhenEmpty />
       </div>
 
-      {/* ① Deadline / status strip — four date-derived bands (exam_derived_status VIEW) */}
+      {/* ① Status cards — four date-derived cards, above the hero */}
       <DeadlineStrip bands={deadlineBands} />
 
       {/* ② Search Hero */}
       <SearchHero />
 
-      {/* ③ Audience Gateway — counts pre-fetched, passed as props */}
-      <section className="bg-white border-b border-border py-6">
+      {/* ③ Five destination cards — full width, below the hero */}
+      <section className="py-6">
         <div className="container mx-auto px-4">
-          <AudienceGateway
-            governmentExamCount={sarkariStats.exam}
-            governmentVacancyCount={sarkariStats.direct}
-            admissionsCount={admissionsCount}
-            boardCount={boardCount}
-            universityCount={universityCount}
-          />
+          <AudienceGateway />
         </div>
       </section>
 
-      {/* ③ Main two-column layout */}
+      {/* ④ Quick Actions — prominent utility bar, full width */}
+      <section className="pb-2">
+        <div className="container mx-auto px-4">
+          <QuickActions />
+        </div>
+      </section>
+
+      {/* ⑤ Main two-column layout: Latest Updates + sidebar, then sections */}
       <div className="container mx-auto px-4 py-6">
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-6">
 
           {/* Main column */}
           <div className="min-w-0 space-y-8">
 
-            {/* ④ Quick Actions — compact utility bar, above Latest Updates */}
-            <QuickActions />
+            {/* Latest Updates — pre-fetched data passed in */}
+            <LatestUpdates exams={allExams} posts={latestPosts} todayISO={todayISO} />
 
-            {/* ⑤ Latest Updates — pre-fetched data passed in */}
-            <LatestUpdates exams={allExams} posts={latestPosts} />
-
-            {/* Mid-page leaderboard */}
-            <div className="flex justify-center">
-              <AdSlot position="category-top" size="728x90" />
+            {/* Mid-page leaderboard — hidden until a real creative is served */}
+            <div className="flex justify-center empty:hidden">
+              <AdSlot position="category-top" size="728x90" hideWhenEmpty />
             </div>
 
-            {/* ⑥ Government Exams — pre-fetched */}
+            {/* Government Exams — pre-fetched */}
             <SarkariNaukriSection exams={sarkariExams} />
 
-            {/* ⑦ Entrance Exams — pre-fetched */}
+            {/* Entrance Exams — pre-fetched */}
             <EntranceExamSection exams={entranceExams} />
 
-            {/* ⑧ Boards & Universities — pre-fetched */}
+            {/* Boards & Universities — pre-fetched */}
             <BoardUniversitySection exams={boardExams} />
 
-            {/* ⑨ Blog */}
+            {/* Blog */}
             <EditorialSpotlight />
           </div>
 
           {/* Sidebar — pre-fetched allExams */}
-          <HomeSidebar exams={allExams} />
+          <HomeSidebar exams={allExams} todayISO={todayISO} />
         </div>
       </div>
     </>

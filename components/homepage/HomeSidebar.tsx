@@ -1,9 +1,8 @@
 import Link from "next/link";
-import { getAllExams } from "@/services/examService";
-import { formatDate, isUrgent, isClosingSoon, getExamEntityHref } from "@/lib/utils";
+import { getAllExams, getTodayIST } from "@/services/examService";
+import { formatDate, isUrgent, isClosingSoon, isFutureOrToday, getExamEntityHref } from "@/lib/utils";
 import { AdSlot } from "@/components/ads/AdSlot";
 import { cn } from "@/lib/utils";
-import { CalendarDays, TrendingUp, ExternalLink } from "lucide-react";
 import type { ExamEntity } from "@/types/exam";
 
 const trending = [
@@ -19,37 +18,40 @@ const trending = [
   { label: "CAT 2025",                  href: "/entrance-exam/mba/cat" },
 ];
 
-export async function HomeSidebar({ exams: examsProp }: { exams?: ExamEntity[] } = {}) {
-  const exams = examsProp ?? await getAllExams();
+export async function HomeSidebar({ exams: examsProp, todayISO: todayProp }: { exams?: ExamEntity[]; todayISO?: string } = {}) {
+  const [exams, todayISO] = await Promise.all([
+    examsProp ? Promise.resolve(examsProp) : getAllExams(),
+    todayProp ? Promise.resolve(todayProp) : getTodayIST(),
+  ]);
 
-  // Upcoming important dates (next 15, sorted by date ascending)
+  // Upcoming important dates (next 15, sorted by date ascending). Past/future
+  // is decided by the single IST anchor (todayISO), never the server clock.
   const importantDates = exams
     .flatMap((e) =>
       e.dates
-        .filter((d) => new Date(d.date) >= new Date())
+        .filter((d) => isFutureOrToday(d.date, todayISO))
         .map((d) => ({
           examName: e.shortName,
           href:     getExamEntityHref(e),
           event:    d.label,
           date:     d.date,
-          isUrgent: isUrgent(d.date, 7),
-          isClosingSoon: isClosingSoon(d.date, 30),
+          isUrgent: isUrgent(d.date, todayISO, 7),
+          isClosingSoon: isClosingSoon(d.date, todayISO, 30),
         }))
     )
-    .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+    .sort((a, b) => a.date.localeCompare(b.date))
     .slice(0, 12);
 
   return (
     <aside className="flex flex-col gap-5">
-      {/* Sidebar top ad */}
-      <AdSlot position="homepage-sidebar" size="300x250" />
+      {/* Sidebar top ad — hidden until a real creative is served */}
+      <AdSlot position="homepage-sidebar" size="300x250" hideWhenEmpty />
 
       {/* ── Important Dates ── */}
-      <div className="bg-white border border-border shadow-sm">
-        <div className="flex items-center gap-2 px-3 py-2 bg-primary">
-          <CalendarDays className="w-4 h-4 text-white" aria-hidden="true" />
-          <h2 className="font-heading font-bold text-xs text-white uppercase tracking-wide">
-            Important Dates
+      <div className="bg-white border border-border rounded-lg shadow-sm overflow-hidden">
+        <div className="px-3 py-2.5 border-b border-border">
+          <h2 className="font-heading font-bold text-sm text-gray-900">
+            Important dates
           </h2>
         </div>
         <div className="divide-y divide-border">
@@ -83,12 +85,11 @@ export async function HomeSidebar({ exams: examsProp }: { exams?: ExamEntity[] }
         </div>
       </div>
 
-      {/* ── Trending Searches / Quick Navigation ── */}
-      <div className="bg-white border border-border shadow-sm">
-        <div className="flex items-center gap-2 px-3 py-2 bg-gray-700">
-          <TrendingUp className="w-4 h-4 text-white" aria-hidden="true" />
-          <h2 className="font-heading font-bold text-xs text-white uppercase tracking-wide">
-            Popular Right Now
+      {/* ── Popular Right Now ── */}
+      <div className="bg-white border border-border rounded-lg shadow-sm overflow-hidden">
+        <div className="px-3 py-2.5 border-b border-border">
+          <h2 className="font-heading font-bold text-sm text-gray-900">
+            Popular right now
           </h2>
         </div>
         <ul className="divide-y divide-border">
@@ -97,10 +98,10 @@ export async function HomeSidebar({ exams: examsProp }: { exams?: ExamEntity[] }
               <Link
                 href={item.href}
                 prefetch={false}
-                className="flex items-center gap-2 px-3 py-2 hover:bg-gray-50 transition-colors group text-xs"
+                className="flex items-center gap-2.5 px-3 py-2 hover:bg-gray-50 transition-colors group text-xs"
               >
-                <span className="w-4 shrink-0 text-gray-300 font-mono font-medium text-right">
-                  {String(i + 1).padStart(2, "0")}
+                <span className="w-4 shrink-0 text-gray-400 font-semibold text-[11px] text-right">
+                  {i + 1}
                 </span>
                 <span className="flex-1 text-gray-700 group-hover:text-primary">
                   {item.label}
@@ -111,14 +112,14 @@ export async function HomeSidebar({ exams: examsProp }: { exams?: ExamEntity[] }
         </ul>
       </div>
 
-      {/* Second sidebar ad */}
-      <AdSlot position="homepage-sidebar-2" size="300x250" />
+      {/* Second sidebar ad — hidden until a real creative is served */}
+      <AdSlot position="homepage-sidebar-2" size="300x250" hideWhenEmpty />
 
       {/* ── Upcoming Exams ── */}
-      <div className="bg-white border border-border shadow-sm">
-        <div className="px-3 py-2 bg-teal-700">
-          <h2 className="font-heading font-bold text-xs text-white uppercase tracking-wide">
-            Upcoming Exams
+      <div className="bg-white border border-border rounded-lg shadow-sm overflow-hidden">
+        <div className="px-3 py-2.5 border-b border-border">
+          <h2 className="font-heading font-bold text-sm text-gray-900">
+            Upcoming exams
           </h2>
         </div>
         <ul className="divide-y divide-border">
@@ -143,9 +144,6 @@ export async function HomeSidebar({ exams: examsProp }: { exams?: ExamEntity[] }
                     <span className="text-gray-700 group-hover:text-primary flex-1 truncate">
                       {e.shortName}
                     </span>
-                    <span className="shrink-0 text-xs px-1.5 py-0.5 bg-success/10 text-success font-semibold rounded capitalize">
-                      {e.status.replace(/-/g, " ")}
-                    </span>
                   </Link>
                 </li>
               );
@@ -154,10 +152,10 @@ export async function HomeSidebar({ exams: examsProp }: { exams?: ExamEntity[] }
       </div>
 
       {/* ── Quick Navigation ── */}
-      <div className="bg-white border border-border shadow-sm">
-        <div className="px-3 py-2 border-b border-border">
-          <h2 className="font-heading font-bold text-xs text-gray-800 uppercase tracking-wide">
-            Quick Navigation
+      <div className="bg-white border border-border rounded-lg shadow-sm overflow-hidden">
+        <div className="px-3 py-2.5 border-b border-border">
+          <h2 className="font-heading font-bold text-sm text-gray-900">
+            Quick navigation
           </h2>
         </div>
         <div className="grid grid-cols-2 gap-0 divide-x divide-y divide-border">
@@ -175,9 +173,8 @@ export async function HomeSidebar({ exams: examsProp }: { exams?: ExamEntity[] }
               key={l.href}
               href={l.href}
               prefetch={false}
-              className="px-3 py-2 text-xs text-gray-700 hover:text-primary hover:bg-gray-50 transition-colors flex items-center gap-1"
+              className="px-3 py-2 text-xs text-gray-700 hover:text-primary hover:bg-gray-50 transition-colors"
             >
-              <ExternalLink className="w-3 h-3 shrink-0 text-gray-300" aria-hidden="true" />
               {l.label}
             </Link>
           ))}

@@ -38,8 +38,7 @@ export function CmsMegaMenu({ menu, onClose }: MegaMenuProps) {
         {columns.map((col) => (
           <div key={col.heading.id} className="pr-4 last:pr-0">
             {/* Column heading */}
-            <p className="text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-2.5 pb-1.5 border-b border-border flex items-center gap-1.5">
-              {col.heading.icon && <span className="text-sm">{col.heading.icon}</span>}
+            <p className="text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-2.5 pb-1.5 border-b border-border">
               {col.heading.label}
             </p>
             {/* Column items */}
@@ -52,7 +51,6 @@ export function CmsMegaMenu({ menu, onClose }: MegaMenuProps) {
                     role="menuitem"
                     className="group flex items-center gap-2 py-1.5 px-1 -mx-1 rounded text-sm text-gray-600 hover:text-primary hover:bg-primary/5 transition-colors"
                   >
-                    {item.icon && <span className="text-base shrink-0 opacity-70 group-hover:opacity-100">{item.icon}</span>}
                     <span className="flex-1">{item.label}</span>
                     {item.badge && (
                       <span className="shrink-0 rounded-full bg-red-100 px-1.5 py-0.5 text-[9px] font-bold text-red-600">
@@ -94,7 +92,6 @@ export function SimpleDropdown({ menu, onClose }: MegaMenuProps) {
             role="menuitem"
             className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:text-primary hover:bg-gray-50 transition-colors"
           >
-            {item.icon && <span className="text-base">{item.icon}</span>}
             <span>{item.label}</span>
           </Link>
         ))}

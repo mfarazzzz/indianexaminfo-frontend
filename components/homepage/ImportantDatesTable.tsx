@@ -1,34 +1,33 @@
 import Link from "next/link";
-import { formatDate, isUrgent, isClosingSoon } from "@/lib/utils";
-import { getAllExams } from "@/services/examService";
+import { formatDate, isUrgent, isClosingSoon, isFutureOrToday } from "@/lib/utils";
+import { getAllExams, getTodayIST } from "@/services/examService";
 import { cn } from "@/lib/utils";
-import { AlarmClock } from "lucide-react";
 
 export async function ImportantDatesTable() {
-  const exams = await getAllExams();
+  const [exams, todayISO] = await Promise.all([getAllExams(), getTodayIST()]);
 
-  // Flatten all upcoming dates from all exams
+  // Flatten all upcoming dates from all exams. Past/future uses the single IST
+  // anchor (todayISO), never the server clock.
   const rows = exams
     .flatMap((exam) =>
       exam.dates
-        .filter((d) => new Date(d.date) >= new Date())
+        .filter((d) => isFutureOrToday(d.date, todayISO))
         .map((d) => ({
           examName: exam.shortName,
           examHref: `/${exam.pillar}/${exam.category}/${exam.slug}`,
           event: d.label,
           date: d.date,
-          isUrgent: isUrgent(d.date, 7),
-          isClosingSoon: isClosingSoon(d.date, 30),
+          isUrgent: isUrgent(d.date, todayISO, 7),
+          isClosingSoon: isClosingSoon(d.date, todayISO, 30),
         }))
     )
-    .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+    .sort((a, b) => a.date.localeCompare(b.date))
     .slice(0, 15);
 
   return (
     <section aria-label="Important exam dates">
-      <div className="flex items-center gap-2 mb-3">
-        <AlarmClock className="w-5 h-5 text-accent" aria-hidden="true" />
-        <h2 className="font-heading font-bold text-gray-900 text-base">Important Dates</h2>
+      <div className="mb-3">
+        <h2 className="font-heading font-bold text-gray-900 text-base">Important dates</h2>
       </div>
       <div className="overflow-x-auto">
         <table className="w-full text-sm">

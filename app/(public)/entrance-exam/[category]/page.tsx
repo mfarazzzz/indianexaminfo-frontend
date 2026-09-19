@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { getExamsByCategory } from "@/services/examService";
+import { getExamsByCategory, getTodayIST } from "@/services/examService";
 import { ExamCard } from "@/components/exam/ExamCard";
 import { Breadcrumb } from "@/components/layout/Breadcrumb";
 import { buildExamMetadata } from "@/lib/seo/metadata";
@@ -26,7 +26,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function EntranceCategoryPage({ params }: Props) {
   const { category } = await params;
-  const exams = await getExamsByCategory(category);
+  const [exams, todayISO] = await Promise.all([getExamsByCategory(category), getTodayIST()]);
 
   if (!exams.length) notFound();
 
@@ -45,7 +45,7 @@ export default async function EntranceCategoryPage({ params }: Props) {
       </h1>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {exams.map((exam) => (
-          <ExamCard key={exam.id} exam={exam} />
+          <ExamCard key={exam.id} exam={exam} todayISO={todayISO} />
         ))}
       </div>
     </div>

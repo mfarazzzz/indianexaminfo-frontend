@@ -79,7 +79,6 @@ function CategoryItem({
       aria-selected={isSelected}
       role="option"
     >
-      {node.icon && <span className="text-sm shrink-0">{node.icon}</span>}
       <span className="flex-1 truncate">{node.label}</span>
       {node.badge && (
         <span

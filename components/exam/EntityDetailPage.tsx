@@ -1,7 +1,7 @@
 import Link from "next/link";
 import type { ExamEntity, ContentType } from "@/types/exam";
 import { getContentPostsByExam } from "@/services/contentPostService";
-import { getRelatedExams, getExamResources, getExamSyllabus, type ExamResourceRow } from "@/services/examService";
+import { getRelatedExams, getExamResources, getExamSyllabus, getTodayIST, type ExamResourceRow } from "@/services/examService";
 import { ResourceLibrary } from "@/components/exam/ResourceLibrary";
 import { SyllabusSection } from "@/components/exam/SyllabusSection";
 import { Breadcrumb, type BreadcrumbItem } from "@/components/layout/Breadcrumb";
@@ -109,6 +109,7 @@ function renderOrderedSections(
   hasStructuredSyllabusFlag: boolean,
   resources: ExamResourceRow[],
   contentPosts: Awaited<ReturnType<typeof getContentPostsByExam>>,
+  todayISO: string,
 ): React.ReactNode {
   const view = buildHasDataView(exam, hasStructuredSyllabusFlag);
   const orderedSections = mainSectionsForPillar(exam.pillar as Pillar)
@@ -116,7 +117,7 @@ function renderOrderedSections(
     .filter((s) => hasData(view, s.slug))
     .map((s) => {
       const Render = SECTION_SUMMARY_RENDERERS[s.slug];
-      const node = Render ? Render(exam) : null;
+      const node = Render ? Render(exam, todayISO) : null;
       return node ? <div key={s.slug}>{node}</div> : null;
     });
 
@@ -172,6 +173,7 @@ function renderFocusedContentType(
   exam: ExamEntity,
   contentType: ContentType,
   syllabus: Awaited<ReturnType<typeof getExamSyllabus>>,
+  todayISO: string,
 ): React.ReactNode {
   const ctLabel = contentTypeLabel(contentType);
   return (
@@ -192,7 +194,7 @@ function renderFocusedContentType(
         const sectionSlug = CONTENT_TYPE_TO_SECTION[contentType];
         const Render = sectionSlug ? SECTION_SUMMARY_RENDERERS[sectionSlug] : undefined;
         if (Render) {
-          const node = Render(exam);
+          const node = Render(exam, todayISO);
           if (node) return node;
         }
         // Fallback: render the mapped module (or tab-only modules) directly from content_modules.
@@ -328,11 +330,12 @@ function OtherEditionBanner({
 }
 
 export async function EntityDetailPage({ exam, breadcrumbs, contentType, editionContext }: EntityDetailPageProps) {
-  const [contentPosts, relatedExams, resources, syllabus] = await Promise.all([
+  const [contentPosts, relatedExams, resources, syllabus, todayISO] = await Promise.all([
     getContentPostsByExam(exam.id),
     getRelatedExams(exam.id),
     getExamResources(exam.id),
     getExamSyllabus(exam.id, exam.syllabusWeightageType ?? null),
+    getTodayIST(),
   ]);
 
   // Structured syllabus presence (exam_syllabus_subjects) drives the Syllabus TAB — the same
@@ -463,11 +466,11 @@ export async function EntityDetailPage({ exam, breadcrumbs, contentType, edition
               /* FOCUSED content-type view — the CT section + compact shell. Suppresses the full
                  ordered body so a CT URL is NOT a duplicate of the main page. Converges with the
                  bespoke entrance/board/sarkari CT pages (same shape). */
-              renderFocusedContentType(exam, contentType, syllabus)
+              renderFocusedContentType(exam, contentType, syllabus, todayISO)
             ) : (
               <>
                 {/* MAIN PAGE — the one ordered, registry-driven body for all five pillars. */}
-                {renderOrderedSections(exam, hasStructuredSyllabusFlag, resources, contentPosts)}
+                {renderOrderedSections(exam, hasStructuredSyllabusFlag, resources, contentPosts, todayISO)}
 
                 {/* Social Channel CTA — bottom banner */}
                 <SocialChannelBanner variant="bottom" />
@@ -480,7 +483,7 @@ export async function EntityDetailPage({ exam, breadcrumbs, contentType, edition
                     </h2>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       {relatedExams.slice(0, 6).map((e) => (
-                        <ExamCard key={e.id} exam={e} />
+                        <ExamCard key={e.id} exam={e} todayISO={todayISO} />
                       ))}
                     </div>
                   </section>
