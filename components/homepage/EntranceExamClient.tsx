@@ -20,7 +20,7 @@ export function EntranceExamClient({ exams, tabs }: { exams: ExamEntity[]; tabs:
       <div className="flex items-start justify-between mb-4 pb-3 border-b border-border">
         <div>
           <h2 id="entrance-exam-heading" className="font-heading font-bold text-lg text-gray-900">
-            Entrance exams
+            Admissions
           </h2>
           <p className="text-xs text-gray-500 mt-0.5">Engineering, medical, MBA, law and more</p>
         </div>

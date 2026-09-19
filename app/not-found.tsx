@@ -33,7 +33,7 @@ export default function NotFound() {
       <div className="grid grid-cols-2 gap-3 mb-8">
         {[
           { label: "🏛 Sarkari Naukri", href: "/sarkari-naukri" },
-          { label: "🎓 Entrance Exam", href: "/entrance-exam" },
+          { label: "🎓 Admissions", href: "/entrance-exam" },
           { label: "📚 Board Exam", href: "/board-exam" },
           { label: "📰 Blog & News", href: "/blog" },
           { label: "📄 Admit Card", href: "/admit-card" },

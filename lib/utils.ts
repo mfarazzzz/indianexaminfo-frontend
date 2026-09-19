@@ -141,7 +141,7 @@ export function contentTypeLabel(contentType: string): string {
 export function pillarLabel(pillar: string): string {
   const labels: Record<string, string> = {
     "sarkari-naukri": "Sarkari Naukri",
-    "entrance-exam": "Entrance Exam",
+    "entrance-exam": "Admissions",
     "board-exam": "Board & University",
   };
   return labels[pillar] ?? pillar;

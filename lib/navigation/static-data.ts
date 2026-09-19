@@ -458,39 +458,25 @@ const newsCategories: TaxonomyNode[] = [
 
 export const STATIC_NAVIGATION_TREES: NavigationTree[] = [
   {
+    // Government Exams and Government Vacancy are ONE nav item. Selection method
+    // (competitive exam vs direct recruitment) is a filter on the /sarkari-naukri
+    // page, never a separate doorway. Do not split this into two nav items again.
     pillar: "government-exam",
-    label: "Govt Exams",
+    label: "Sarkari Naukri",
     href: "/sarkari-naukri",
     icon: "🏛️",
-    nodes: govtExamCategories,
-    totalItemCount: 60,
-    lastUpdated: "2026-07-31T00:00:00Z",
-  },
-  {
-    pillar: "govt-vacancy",
-    label: "Govt Vacancy",
-    href: "/sarkari-naukri",
-    icon: "💼",
-    nodes: govtJobCategories,
-    totalItemCount: 301,
+    nodes: [...govtExamCategories, ...govtJobCategories],
+    totalItemCount: 361,
     lastUpdated: "2026-07-31T00:00:00Z",
   },
   {
     pillar: "entrance-exam",
-    label: "Entrance Exams",
+    // UI label only — the route stays /entrance-exam and SEO copy stays "Entrance Exam".
+    label: "Admissions",
     href: "/entrance-exam",
     icon: "🎓",
     nodes: entranceExamCategories,
     totalItemCount: 123,
-    lastUpdated: "2026-07-31T00:00:00Z",
-  },
-  {
-    pillar: "university-exam",
-    label: "University",
-    href: "/university-exam",
-    icon: "🏫",
-    nodes: universityCategories,
-    totalItemCount: 45,
     lastUpdated: "2026-07-31T00:00:00Z",
   },
   {
@@ -500,6 +486,15 @@ export const STATIC_NAVIGATION_TREES: NavigationTree[] = [
     icon: "📘",
     nodes: boardExamCategories,
     totalItemCount: 76,
+    lastUpdated: "2026-07-31T00:00:00Z",
+  },
+  {
+    pillar: "university-exam",
+    label: "University",
+    href: "/university-exam",
+    icon: "🏫",
+    nodes: universityCategories,
+    totalItemCount: 45,
     lastUpdated: "2026-07-31T00:00:00Z",
   },
   {

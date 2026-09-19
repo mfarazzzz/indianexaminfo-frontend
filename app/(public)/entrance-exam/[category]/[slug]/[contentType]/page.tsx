@@ -86,7 +86,7 @@ export default async function EntranceContentTypePage({ params }: Props) {
       absoluteBasePath: `${siteConfig.url}${basePath}`,
       servedPillars: SERVED_PILLARS,
       breadcrumbs: (exam, y) => [
-        { name: "Entrance Exam", href: "/entrance-exam" },
+        { name: "Admissions", href: "/entrance-exam" },
         { name: catLabel, href: `/entrance-exam/${category}` },
         { name: exam.shortName, href: basePath },
         { name: String(y), href: `${basePath}/${y}` },
@@ -124,7 +124,7 @@ export default async function EntranceContentTypePage({ params }: Props) {
 
       <div className="container mx-auto px-4 py-4">
         <Breadcrumb items={[
-          { name: "Entrance Exam", href: "/entrance-exam" },
+          { name: "Admissions", href: "/entrance-exam" },
           { name: catLabel,        href: `/entrance-exam/${category}` },
           { name: exam.shortName,  href: `/entrance-exam/${category}/${slug}` },
           { name: ctLabel,         href: `/entrance-exam/${category}/${slug}/${contentType}` },

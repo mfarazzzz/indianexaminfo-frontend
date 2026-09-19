@@ -161,7 +161,7 @@ export async function HomeSidebar({ exams: examsProp, todayISO: todayProp }: { e
         <div className="grid grid-cols-2 gap-0 divide-x divide-y divide-border">
           {[
             { label: "Sarkari Naukri", href: "/sarkari-naukri" },
-            { label: "Entrance Exams", href: "/entrance-exam" },
+            { label: "Admissions", href: "/entrance-exam" },
             { label: "Board Exams",    href: "/board-exam" },
             { label: "Admit Card",     href: "/admit-card" },
             { label: "Results",        href: "/results" },

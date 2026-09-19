@@ -36,12 +36,12 @@ export default async function EntranceCategoryPage({ params }: Props) {
     <div className="container mx-auto px-4 py-4">
       <Breadcrumb
         items={[
-          { name: "Entrance Exam", href: "/entrance-exam" },
+          { name: "Admissions", href: "/entrance-exam" },
           { name: label, href: `/entrance-exam/${category}` },
         ]}
       />
       <h1 className="font-heading font-bold text-2xl text-gray-900 mt-4 mb-5">
-        {label} Entrance Exams {new Date().getFullYear()} — Latest Notifications &amp; Results
+        {label} Admissions {new Date().getFullYear()} — Latest Notifications &amp; Results
       </h1>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {exams.map((exam) => (

@@ -6,7 +6,6 @@
  */
 import Link from "next/link";
 import { HeaderMegaNav } from "@/components/navigation/HeaderMegaNav";
-import { QuickAccessBar } from "@/components/layout/QuickAccessBar";
 import { STATIC_NAVIGATION_TREES, STATIC_QUICK_ACCESS } from "@/lib/navigation/static-data";
 
 export async function HeaderWithMenu() {
@@ -25,14 +24,12 @@ export async function HeaderWithMenu() {
               </span>
             </Link>
 
-            {/* Navigation (client component) */}
+            {/* Navigation (client component). STATIC_QUICK_ACCESS is still passed for the
+                mobile mega-menu's "Quick Links" row inside HeaderMegaNav. */}
             <HeaderMegaNav pillars={STATIC_NAVIGATION_TREES} quickAccessItems={STATIC_QUICK_ACCESS} />
           </div>
         </div>
       </header>
-
-      {/* Quick Access Bar */}
-      <QuickAccessBar items={STATIC_QUICK_ACCESS} />
     </>
   );
 }

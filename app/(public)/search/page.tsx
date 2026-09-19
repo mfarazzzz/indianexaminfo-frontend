@@ -236,7 +236,7 @@ export default async function SearchPage({ searchParams }: Props) {
               <p className="text-gray-400 text-sm mb-6">Try different keywords or browse by category</p>
               <div className="flex justify-center gap-4 flex-wrap">
                 <Link href="/sarkari-naukri" className="text-sm text-primary font-medium hover:underline">Government Jobs</Link>
-                <Link href="/entrance-exam" className="text-sm text-primary font-medium hover:underline">Entrance Exams</Link>
+                <Link href="/entrance-exam" className="text-sm text-primary font-medium hover:underline">Admissions</Link>
                 <Link href="/board-exam" className="text-sm text-primary font-medium hover:underline">Board & University</Link>
                 <Link href="/blog" className="text-sm text-primary font-medium hover:underline">News</Link>
                 <Link href="/resources" className="text-sm text-primary font-medium hover:underline">Resources</Link>
@@ -250,7 +250,7 @@ export default async function SearchPage({ searchParams }: Props) {
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             {[
               { label: "Govt Jobs", href: "/sarkari-naukri", icon: "🏛️" },
-              { label: "Entrance Exams", href: "/entrance-exam", icon: "📝" },
+              { label: "Admissions", href: "/entrance-exam", icon: "📝" },
               { label: "Board Results", href: "/board-exam", icon: "🏫" },
               { label: "News", href: "/blog", icon: "📰" },
             ].map((cat) => (

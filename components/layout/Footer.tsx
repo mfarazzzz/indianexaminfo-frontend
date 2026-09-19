@@ -89,7 +89,7 @@ export async function Footer() {
                 <ul className="space-y-1.5">
                   {[
                     { label: "Government Jobs", href: "/sarkari-naukri" },
-                    { label: "Entrance Exams", href: "/entrance-exam" },
+                    { label: "Admissions", href: "/entrance-exam" },
                     { label: "Board Results", href: "/board-exam" },
                     { label: "Admit Card", href: "/admit-card" },
                     { label: "Results", href: "/results" },

@@ -14,21 +14,34 @@ import type { ExamEntity, Pillar, ContentType } from "@/types/exam";
 
 // ── Derived status lookup ───────────────────────────────────────────────
 // Fetches derived_status from exam_derived_status VIEW for a batch of exam IDs.
-// Returns a map of exam_id → derived_status.
+/** What the derived-status view contributes per exam: the status plus the two
+ *  confirmed-only dates (admit_card_date / result_date). Both dates are null unless
+ *  a CONFIRMED row supplies them — an expected/postponed/cancelled row never does. */
+type DerivedInfo = {
+  status: string | undefined;
+  admitCardDate: string | null;
+  resultDate: string | null;
+};
+
+// Returns a map of exam_id → DerivedInfo (status + derived confirmed dates).
 // Falls back silently — if the view is unavailable, callers use the stored column.
 async function fetchDerivedStatuses(
   supabase: ReturnType<typeof createServerClient>,
   examIds: string[]
-): Promise<Map<string, string>> {
+): Promise<Map<string, DerivedInfo>> {
   if (examIds.length === 0) return new Map();
   try {
     const { data } = await supabase
       .from("exam_derived_status")
-      .select("exam_id, derived_status, strip_eligible, has_confirmed_dates")
+      .select("exam_id, derived_status, strip_eligible, has_confirmed_dates, admit_card_date, result_date")
       .in("exam_id", examIds);
-    const map = new Map<string, string>();
+    const map = new Map<string, DerivedInfo>();
     for (const row of data ?? []) {
-      map.set((row as any).exam_id, (row as any).derived_status);
+      map.set((row as any).exam_id, {
+        status: (row as any).derived_status ?? undefined,
+        admitCardDate: (row as any).admit_card_date ?? null,
+        resultDate: (row as any).result_date ?? null,
+      });
     }
     return map;
   } catch (err) {
@@ -41,7 +54,7 @@ async function fetchDerivedStatuses(
 }
 
 // ── Row mapper: Supabase snake_case → camelCase ExamEntity ─────────────
-function mapRow(row: Record<string, unknown>, derivedStatus?: string): ExamEntity {
+function mapRow(row: Record<string, unknown>, derived?: DerivedInfo): ExamEntity {
   // The current edition is the SINGLE SOURCE OF TRUTH for all cycle-specific data
   // (dates, vacancy, eligibility, fee). The parent `exams.*` copies are migration
   // residue and are NOT read here (they were dual-source: ~67% of has_* rows
@@ -57,6 +70,7 @@ function mapRow(row: Record<string, unknown>, derivedStatus?: string): ExamEntit
     type:        d.type        as string | undefined,
     stage_label: d.stage_label as string | undefined,
     verified:    d.verified    as boolean | undefined,
+    note:        d.note        as string | undefined,
   })) as ExamEntity["dates"];
   const eligibility = (ed?.eligibility as ExamEntity["eligibility"]) ?? undefined;
   const vacancy = (ed?.vacancy as number) ?? undefined;
@@ -104,7 +118,7 @@ function mapRow(row: Record<string, unknown>, derivedStatus?: string): ExamEntit
       if (stored === "cancelled" || stored === "postponed") {
         return stored as ExamEntity["status"];
       }
-      return (derivedStatus as ExamEntity["status"])
+      return (derived?.status as ExamEntity["status"])
           ?? (ed?.status   as ExamEntity["status"])
           ?? "upcoming";
     })(),
@@ -143,6 +157,11 @@ function mapRow(row: Record<string, unknown>, derivedStatus?: string): ExamEntit
     seoDescription: (row.seo_description as string) ?? undefined,
     faqs,
     contentModules,
+    // Derived confirmed dates from exam_derived_status (null unless a CONFIRMED
+    // timeline row supplies them). Exposed so the Admit Card / Result renderers can
+    // read the canonical timeline date instead of the module's own date field.
+    admitCardDate: derived?.admitCardDate ?? null,
+    resultDate: derived?.resultDate ?? null,
   };
 }
 

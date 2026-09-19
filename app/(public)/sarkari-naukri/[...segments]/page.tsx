@@ -32,14 +32,13 @@ import { SarkariNaukriContentTypeView } from "./SarkariNaukriContentTypeView";
 export const revalidate = 600;
 export const dynamicParams = true;
 
-// Legacy category slugs that need redirects
+// Legacy category slugs that need redirects.
+// banking / railways / defence / teaching removed: they used to 307 to
+// /sarkari-naukri/exam?category=… which ignores the param and rendered all exams.
+// They now fall through to the real category listing below (mapped label + breadcrumb).
 const LEGACY_REDIRECTS: Record<string, string> = {
   "central-government-jobs": "/sarkari-naukri/exam",
   "state-government-jobs": "/sarkari-naukri/bharti",
-  banking: "/sarkari-naukri/exam?category=banking",
-  railways: "/sarkari-naukri/exam?category=railway",
-  defence: "/sarkari-naukri/exam?category=defence",
-  teaching: "/sarkari-naukri/exam?category=teaching",
 };
 
 /** Pillars that are served by this route (covers both old and new DB values) */

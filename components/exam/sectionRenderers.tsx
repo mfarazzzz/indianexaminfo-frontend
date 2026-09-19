@@ -56,26 +56,41 @@ const ImportantDatesSummary: SectionSummary = (exam, todayISO) => (
                   {d.label}
                 </td>
 
-                {/* Date cell */}
+                {/* Date cell. A row may legitimately have NO date (state expected/tba/
+                    postponed/cancelled) and carry only a `note` caveat — render the note
+                    instead of an empty cell. The note also shows beside a real date. */}
                 <td className={`font-mono ${
                   isCancelled ? "text-gray-400 line-through"
                   : isExpected ? "text-gray-500"
                   : d.isUrgent ? "text-accent font-semibold"
                   : "text-gray-700"
                 }`}>
-                  {isCancelled ? (
-                    <span>{formatDate(d.date)}</span>
-                  ) : isExpected ? (
-                    <span
-                      title="Tentative date — not yet officially confirmed. Check the official website before acting on this."
-                      className="cursor-help"
-                    >
-                      {formatDate(d.date)}{" "}
-                      <span className="text-[11px] font-normal not-italic">(expected)</span>
-                    </span>
-                  ) : (
-                    formatDate(d.date)
-                  )}
+                  {(() => {
+                    const hasDate = !!d.date && d.date.trim() !== "";
+                    const dateText = isCancelled ? (
+                      <span>{formatDate(d.date)}</span>
+                    ) : isExpected ? (
+                      <span
+                        title="Tentative date — not yet officially confirmed. Check the official website before acting on this."
+                        className="cursor-help"
+                      >
+                        {formatDate(d.date)}{" "}
+                        <span className="text-[11px] font-normal not-italic">(expected)</span>
+                      </span>
+                    ) : (
+                      formatDate(d.date)
+                    );
+                    return (
+                      <>
+                        {hasDate && dateText}
+                        {d.note && (
+                          <span className={`block text-[11px] font-normal not-italic text-gray-500 ${hasDate ? "mt-0.5" : ""}`}>
+                            {d.note}
+                          </span>
+                        )}
+                      </>
+                    );
+                  })()}
                 </td>
 
                 {/* Status chip */}
@@ -531,22 +546,78 @@ const AcademicInfoSummary: SectionSummary = (exam) => {
 // result & admit-card render their `body` HERE so replacing the generic editorial renderer
 // does not lose the body text.
 
-/** Result — fields: declarationDate, checkLink, statistics(HTML), body(HTML). Replaces the
- *  generic editorial renderer, so body is rendered here too. */
-const ResultModule: ModuleRenderer = (d) => {
+/**
+ * 1c — the date shown by AdmitCardModule / ResultModule now comes from the TIMELINE,
+ * never from the module's own releaseDate/declarationDate field.
+ *
+ * Reading order (see task):
+ *   1. confirmedDate  — exam.admitCardDate / exam.resultDate (derived, confirmed-only)
+ *   2. else the matching EXPECTED timeline row of that type:
+ *        - has a note  -> show the note verbatim, tentative marker
+ *        - else a date -> show that date, tentative marker
+ *   3. else nothing.
+ * Never a hardcoded placeholder — only an editor's own words / dates.
+ */
+type DateCtx = {
+  confirmedDate: string | null;   // a confirmed ISO date (plain)
+  expectedNote: string | null;    // an expected row's note (verbatim, tentative)
+  expectedDate: string | null;    // an expected row's ISO date (tentative)
+};
+
+/** Build the date context for a content-type from the exam's derived date + timeline rows. */
+function deriveDateCtx(exam: ExamEntity, dateType: "admit_card" | "result"): DateCtx {
+  const confirmedDate = dateType === "admit_card" ? (exam.admitCardDate ?? null) : (exam.resultDate ?? null);
+  let expectedNote: string | null = null;
+  let expectedDate: string | null = null;
+  if (!confirmedDate) {
+    // The view already excludes non-confirmed rows from the derived date, so a caveat only
+    // survives on the timeline as an expected row. Find the first expected row of this type.
+    const row = (exam.dates ?? []).find(
+      (d) => d.type === dateType && (d.state === "expected" || d.state === "tba"),
+    );
+    if (row) {
+      expectedNote = row.note?.trim() ? row.note.trim() : null;
+      expectedDate = row.date && row.date.trim() !== "" ? row.date : null;
+    }
+  }
+  return { confirmedDate, expectedNote, expectedDate };
+}
+
+/** The single date line shared by both sections. Null when there is nothing to show. */
+function DateLine({ label, ctx }: { label: string; ctx?: DateCtx }) {
+  if (!ctx) return null;
+  if (ctx.confirmedDate) {
+    return (
+      <p className="text-sm text-gray-700 mb-2">
+        <span className="font-medium text-gray-800">{label}:</span> {formatDate(ctx.confirmedDate)}
+      </p>
+    );
+  }
+  // Tentative: note verbatim, else a tentative date. Marker carried separately (no prefix).
+  const tentative = ctx.expectedNote ?? (ctx.expectedDate ? formatDate(ctx.expectedDate) : null);
+  if (!tentative) return null;
+  return (
+    <p className="text-sm text-gray-700 mb-2">
+      <span className="font-medium text-gray-800">{label}:</span> {tentative}{" "}
+      <span className="text-[11px] font-normal not-italic text-gray-500">(expected)</span>
+    </p>
+  );
+}
+
+/** Result — fields: checkLink, statistics(HTML), body(HTML). The date is read from the timeline
+ *  via dateCtx (1c), NOT from d.declarationDate. */
+const ResultModule = (d: Record<string, unknown>, dateCtx?: DateCtx): React.ReactNode => {
   if (!d) return null;
-  const declarationDate = str(d.declarationDate), checkLink = str(d.checkLink);
+  const checkLink = str(d.checkLink);
   const statistics = safeHtml(d.statistics);
   const body = safeHtml(d.body) || safeHtml(d.content) || safeHtml(d.description);
-  if (!declarationDate && !checkLink && !statistics && !body) return null;
+  const dateLine = <DateLine label="Declared" ctx={dateCtx} />;
+  const hasDateLine = !!(dateCtx && (dateCtx.confirmedDate || dateCtx.expectedNote || dateCtx.expectedDate));
+  if (!hasDateLine && !checkLink && !statistics && !body) return null;
   return (
     <section aria-label="Result" className="mb-5">
       <h2 className="font-heading font-semibold text-base text-gray-800 mb-3">Result</h2>
-      {declarationDate && (
-        <p className="text-sm text-gray-700 mb-2">
-          <span className="font-medium text-gray-800">Declared:</span> {formatDate(declarationDate)}
-        </p>
-      )}
+      {dateLine}
       {body && <div className="article-body text-sm" dangerouslySetInnerHTML={{ __html: body }} />}
       {statistics && <div className="article-body text-sm mt-2" dangerouslySetInnerHTML={{ __html: statistics }} />}
       {checkLink && (
@@ -558,22 +629,20 @@ const ResultModule: ModuleRenderer = (d) => {
   );
 };
 
-/** Admit Card — fields: releaseDate, downloadLink, documents(HTML), body(HTML). Replaces the
- *  generic editorial renderer, so body is rendered here too. */
-const AdmitCardModule: ModuleRenderer = (d) => {
+/** Admit Card — fields: downloadLink, documents(HTML), body(HTML). The date is read from the
+ *  timeline via dateCtx (1c), NOT from d.releaseDate. */
+const AdmitCardModule = (d: Record<string, unknown>, dateCtx?: DateCtx): React.ReactNode => {
   if (!d) return null;
-  const releaseDate = str(d.releaseDate), downloadLink = str(d.downloadLink);
+  const downloadLink = str(d.downloadLink);
   const documents = safeHtml(d.documents);
   const body = safeHtml(d.body) || safeHtml(d.content) || safeHtml(d.description);
-  if (!releaseDate && !downloadLink && !documents && !body) return null;
+  const dateLine = <DateLine label="Release Date" ctx={dateCtx} />;
+  const hasDateLine = !!(dateCtx && (dateCtx.confirmedDate || dateCtx.expectedNote || dateCtx.expectedDate));
+  if (!hasDateLine && !downloadLink && !documents && !body) return null;
   return (
     <section aria-label="Admit card" className="mb-5">
       <h2 className="font-heading font-semibold text-base text-gray-800 mb-3">Admit Card</h2>
-      {releaseDate && (
-        <p className="text-sm text-gray-700 mb-2">
-          <span className="font-medium text-gray-800">Release Date:</span> {formatDate(releaseDate)}
-        </p>
-      )}
+      {dateLine}
       {body && <div className="article-body text-sm" dangerouslySetInnerHTML={{ __html: body }} />}
       {documents && (
         <div className="mt-2">
@@ -673,9 +742,10 @@ export const SECTION_SUMMARY_RENDERERS: Record<string, SectionSummary> = {
   salary: makeGenericEditorial("salary", "Salary & Pay Scale"),
   "age-limit": makeGenericEditorial("age-limit", "Age Limit"),
   // Structured renderers REPLACE the generic editorial ones (they render body internally too).
-  // Delegated to MODULE_RENDERERS so ContentModulesBlock renders identically (no divergence).
-  "admit-card": fromModule("admit-card", AdmitCardModule),
-  result: fromModule("result", ResultModule),
+  // 1c: admit-card / result read their DATE from the timeline (deriveDateCtx), never from the
+  // module's own releaseDate/declarationDate — so removing those module fields is invisible here.
+  "admit-card": (exam) => AdmitCardModule(moduleData(exam, "admit-card") ?? {}, deriveDateCtx(exam, "admit_card")),
+  result: (exam) => ResultModule(moduleData(exam, "result") ?? {}, deriveDateCtx(exam, "result")),
   "documents-required": makeGenericEditorial("documents-required", "Documents Required"),
   reservation: makeGenericEditorial("reservation", "Reservation Policy"),
   "academic-info": AcademicInfoSummary,

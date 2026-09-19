@@ -49,14 +49,14 @@ export default async function EntranceExamPage() {
 
   return (
     <div className="container mx-auto px-4 py-4">
-      <Breadcrumb items={[{ name: "Entrance Exam", href: "/entrance-exam" }]} />
+      <Breadcrumb items={[{ name: "Admissions", href: "/entrance-exam" }]} />
 
       <div className="flex justify-center mb-4">
         <AdSlot position="category-top" size="728x90" />
       </div>
 
       <h1 className="font-heading font-bold text-2xl text-gray-900 mb-1">
-        Entrance Exam {new Date().getFullYear()} — Latest Notifications, Admit Card &amp; Result
+        Admissions {new Date().getFullYear()} — Latest Notifications, Admit Card &amp; Result
       </h1>
       <p className="text-sm text-gray-500 mb-5">
         Last Updated: {new Date().toLocaleDateString("en-IN")}
@@ -81,8 +81,8 @@ export default async function EntranceExamPage() {
             </div>
           </section>
 
-          <section aria-label="All entrance exams">
-            <h2 className="font-heading font-bold text-lg text-gray-900 mb-4">All Entrance Exams {new Date().getFullYear()}</h2>
+          <section aria-label="All admissions">
+            <h2 className="font-heading font-bold text-lg text-gray-900 mb-4">All Admissions {new Date().getFullYear()}</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {exams.map((exam) => (
                 <ExamCard key={exam.id} exam={exam} todayISO={todayISO} />

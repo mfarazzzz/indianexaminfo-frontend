@@ -98,6 +98,11 @@ export type ExamEntity = {
     stage_label?: string;
     /** Has a human verified this date against the official source? */
     verified?: boolean;
+    /** Display-only caveat shown beside the date (e.g. "To be announced on the
+     *  UKSSSC portal after the exam"). Never influences derived status. Lets an
+     *  editor with no firm date, or a caveat, say so without writing prose into
+     *  the date field. */
+    note?: string;
   }[];
 
   eligibility?: {
@@ -135,6 +140,12 @@ export type ExamEntity = {
 
   // Content modules from exam_editions.content_modules (overview, eligibility, application-process, etc.)
   contentModules?: Record<string, unknown>;
+
+  // Derived confirmed dates from the exam_derived_status VIEW (admit_card / result).
+  // null unless a CONFIRMED timeline row supplies them. Read-only projection; the
+  // Admit Card / Result renderers will read these instead of the module's own date.
+  admitCardDate?: string | null;
+  resultDate?: string | null;
 };
 
 export type ContentPost = {

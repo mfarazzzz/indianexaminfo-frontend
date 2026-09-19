@@ -12,14 +12,20 @@ export async function BreakingTicker() {
     ...all.filter((p) => !["result", "admit-card", "notification"].includes(p.contentType)),
   ].slice(0, 8);
 
-  if (!sorted.length) return null;
+  // Only keep posts that can produce a visible, well-formed link. A post with a blank
+  // title or no exam-entity name would otherwise render as an empty/broken ticker cell,
+  // which is what produced the empty "LATEST UPDATE" bar on inner pages.
+  const items = sorted
+    .filter((p) => p.title?.trim() && p.examEntityName?.trim() && p.slug?.trim())
+    .map((p) => ({
+      id:          p.id,
+      label:       p.title.trim(),
+      contentType: p.contentType,
+      href:        `/${p.pillar}/${p.examEntityName.toLowerCase().replace(/\s+/g, "-")}/${p.slug}`,
+    }));
 
-  const items = sorted.map((p) => ({
-    id:          p.id,
-    label:       p.title,
-    contentType: p.contentType,
-    href:        `/${p.pillar}/${p.examEntityName.toLowerCase().replace(/\s+/g, "-")}/${p.slug}`,
-  }));
+  // No renderable items → render nothing at all (no empty bar, no placeholder).
+  if (!items.length) return null;
 
   return (
     <div

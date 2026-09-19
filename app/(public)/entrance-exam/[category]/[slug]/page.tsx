@@ -48,7 +48,7 @@ export default async function EntranceExamEntityPage({ params }: Props) {
     <EntityDetailPage
       exam={exam}
       breadcrumbs={[
-        { name: "Entrance Exam", href: "/entrance-exam" },
+        { name: "Admissions", href: "/entrance-exam" },
         { name: categoryLabel, href: `/entrance-exam/${category}` },
         { name: exam.shortName, href: basePath },
       ]}
