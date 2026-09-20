@@ -83,10 +83,13 @@ export function ExamListRow({ exam }: { exam: ExamEntity }) {
   const next = validDates[0];
 
   return (
-    <div className="flex items-center justify-between gap-4 py-3">
+    // Track 3/2: the NAME is what the reader needs. On narrow screens the row stacks —
+    // name + meta first (full width), the two content links drop to their own line — so
+    // the two shrink-0 links can never squeeze the name. Side-by-side returns at sm+.
+    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1.5 sm:gap-4 py-3">
       <div className="min-w-0 flex-1">
         <div className="flex items-center gap-2 flex-wrap">
-          <Link href={href} prefetch={false} className="font-heading font-semibold text-sm text-gray-900 hover:text-primary transition-colors truncate">
+          <Link href={href} prefetch={false} className="font-heading font-semibold text-sm text-gray-900 hover:text-primary transition-colors">
             {exam.name}
           </Link>
           <span className={`text-xs font-medium ${statusText(exam.status)}`}>

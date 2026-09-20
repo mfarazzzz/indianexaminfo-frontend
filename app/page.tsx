@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { SearchHero } from "@/components/homepage/SearchHero";
 import { AudienceGateway } from "@/components/homepage/AudienceGateway";
-import { LatestUpdates } from "@/components/homepage/LatestUpdates";
 import { QuickActions } from "@/components/homepage/QuickActions";
 import { SarkariNaukriSection } from "@/components/homepage/SarkariNaukriSection";
 import { EntranceExamSection } from "@/components/homepage/EntranceExamSection";
@@ -19,7 +18,6 @@ import {
   getDeadlineBands,
   getTodayIST,
 } from "@/services/examService";
-import { getLatestContentPosts } from "@/services/contentPostService";
 
 export const revalidate = 1800;
 
@@ -47,7 +45,6 @@ export default async function HomePage() {
     entranceExams,
     boardExams,
     allExams,
-    latestPosts,
     deadlineBands,
     todayISO,
   ] = await Promise.all([
@@ -55,10 +52,23 @@ export default async function HomePage() {
     getExamsByPillar("entrance-exam"),
     getExamsByPillar("board-exam"),
     getAllExams(),
-    getLatestContentPosts(20),
     getDeadlineBands(50),
     getTodayIST(),
   ]);
+
+  // Exams already shown in the deadline strip (across all four bands). The sidebar
+  // excludes these so the strip answers "what's imminent, by event" and the sidebar
+  // answers "and after that, what's coming" — not the same exams twice.
+  const stripExamIds = Array.from(
+    new Set(
+      [
+        ...deadlineBands.closingSoon,
+        ...deadlineBands.admitCardOut,
+        ...deadlineBands.resultsOut,
+        ...deadlineBands.examsThisMonth,
+      ].map((i) => i.examId),
+    ),
+  );
 
   return (
     <>
@@ -98,8 +108,10 @@ export default async function HomePage() {
           {/* Main column */}
           <div className="min-w-0 space-y-8">
 
-            {/* Latest Updates — pre-fetched data passed in */}
-            <LatestUpdates exams={allExams} posts={latestPosts} todayISO={todayISO} />
+            {/* Track 3: "Latest updates" removed — even fixed (posts-first) it was a
+                full-width blog feed of exam_id-null posts, duplicating the Blog & News
+                section below. The deadline strip (imminent, by event) + sidebar (soonest
+                deadlines) cover the date-list need. */}
 
             {/* Mid-page leaderboard — hidden until a real creative is served */}
             <div className="flex justify-center empty:hidden">
@@ -119,8 +131,8 @@ export default async function HomePage() {
             <EditorialSpotlight />
           </div>
 
-          {/* Sidebar — pre-fetched allExams */}
-          <HomeSidebar exams={allExams} todayISO={todayISO} />
+          {/* Sidebar — pre-fetched allExams; excludes exams already in the strip. */}
+          <HomeSidebar exams={allExams} todayISO={todayISO} stripExamIds={stripExamIds} />
         </div>
       </div>
     </>

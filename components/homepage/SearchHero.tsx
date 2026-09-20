@@ -27,7 +27,7 @@ export function SearchHero() {
             <select
               id="hero-cat"
               name="pillar"
-              className="h-12 sm:h-14 pl-3 pr-6 text-sm font-medium text-gray-700 bg-white border-r border-gray-200 focus:outline-none cursor-pointer shrink-0 min-w-[110px] sm:min-w-[130px]"
+              className="h-12 sm:h-14 pl-2 pr-5 sm:pl-3 sm:pr-6 text-sm font-medium text-gray-700 bg-white border-r border-gray-200 focus:outline-none cursor-pointer shrink-0 min-w-0 max-w-[92px] sm:max-w-none sm:min-w-[130px]"
             >
               <option value="">All Exams</option>
               <option value="sarkari-naukri">Sarkari Naukri</option>
@@ -47,12 +47,15 @@ export function SearchHero() {
               autoComplete="off"
             />
 
+            {/* Item 3: on narrow screens the button is icon-only so the INPUT keeps the
+                room (it used to collapse to "Se"); the "Search" label returns at sm+. */}
             <button
               type="submit"
-              className="h-12 sm:h-14 px-5 sm:px-7 bg-accent hover:bg-accent/90 text-white font-semibold transition-colors shrink-0 flex items-center justify-center gap-2"
+              aria-label="Search"
+              className="h-12 sm:h-14 px-4 sm:px-7 bg-accent hover:bg-accent/90 text-white font-semibold transition-colors shrink-0 flex items-center justify-center gap-2"
             >
               <Search className="w-5 h-5" aria-hidden="true" />
-              <span className="text-sm sm:text-base">Search</span>
+              <span className="hidden sm:inline text-sm sm:text-base">Search</span>
             </button>
           </div>
 

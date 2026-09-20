@@ -65,15 +65,18 @@ function Row({ item, dateLabel }: { item: DeadlineBandItem; dateLabel: string })
   const href = getExamEntityHref({ pillar: item.pillar, category: item.category, slug: item.slug });
   return (
     <li>
+      {/* Item 1: the NAME is what the reader needs, so it gets the full row width and
+          is allowed to wrap; the secondary date drops to its own line beneath it. No
+          font shrinking, no truncating the name to two characters. */}
       <Link
         href={href}
         prefetch={false}
-        className="flex items-baseline justify-between gap-2 py-1 group"
+        className="block py-1 group"
       >
-        <span className="text-[13px] font-semibold text-gray-800 truncate group-hover:text-primary">
+        <span className="block text-[13px] font-semibold text-gray-800 group-hover:text-primary leading-snug">
           {item.shortName}
         </span>
-        <span className="shrink-0 text-[11px] text-gray-500">
+        <span className="block text-[11px] text-gray-500 leading-snug">
           <span className="text-gray-400">{dateLabel}: </span>
           <span className="font-medium text-gray-600">{formatDate(item.date)}</span>
         </span>
@@ -89,7 +92,9 @@ export function DeadlineStrip({ bands }: Props) {
   return (
     <section className="bg-white" aria-label="Exam status this week">
       <div className="container mx-auto px-4 py-4">
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3">
+        {/* Item 2: stack cleanly on mobile (one column) — the old grid-cols-2 left a
+            half-width box + dead space when an odd number of bands was visible. */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3">
           {visible.map((band) => {
             const items = bands[band.key];
             return (

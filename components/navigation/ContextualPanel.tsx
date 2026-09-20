@@ -15,25 +15,24 @@ interface Props {
 }
 
 export function ContextualPanel({ pillar, parentNode }: Props) {
-  // Derive content from parent node's children (first 3 items per section)
+  // The right column shows CURATED slices only — Featured (pinned) and Trending
+  // (badged). The old "Quick Links" section (and its fallback of "first 3 children")
+  // just re-listed the middle column's own items, because the static taxonomy nodes
+  // carry no pins/badges — so every panel mirrored its middle column in the strip
+  // beside it (SSC → CHSL/MTS/GD in both). Those unbacked mirrors are removed; the
+  // column now renders only when it has something genuinely different to show.
   const children = parentNode?.children ?? [];
   const featured = children.filter((c) => c.isPinned).slice(0, 3);
   const trending = children
     .filter((c) => c.badge === "trending" || c.badge === "popular")
     .slice(0, 3);
-  const quickLinks = children
-    .filter((c) => !c.isPinned && c.badge !== "trending" && c.badge !== "popular")
-    .slice(0, 3);
-
-  // Fallback: if no categorized items, just show first 3
-  const fallbackItems = children.slice(0, 3);
-  const hasSections = featured.length > 0 || trending.length > 0 || quickLinks.length > 0;
+  const hasSections = featured.length > 0 || trending.length > 0;
 
   return (
     <div className="w-64 border-l border-gray-100 px-4 py-3 overflow-y-auto max-h-[calc(70vh-56px)] bg-gray-50/50">
       {parentNode ? (
         <>
-          {hasSections ? (
+          {hasSections && (
             <>
               {featured.length > 0 && (
                 <Section title="Featured" items={featured} pillar={pillar} />
@@ -41,13 +40,7 @@ export function ContextualPanel({ pillar, parentNode }: Props) {
               {trending.length > 0 && (
                 <Section title="Trending" items={trending} pillar={pillar} />
               )}
-              {quickLinks.length > 0 && (
-                <Section title="Quick Links" items={quickLinks} pillar={pillar} />
-              )}
             </>
-          ) : (
-            // Fallback: just show first children
-            <Section title="Quick Links" items={fallbackItems} pillar={pillar} />
           )}
 
           {/* Explore pillar link */}

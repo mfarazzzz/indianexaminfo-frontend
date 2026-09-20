@@ -280,24 +280,30 @@ export default async function EntranceContentTypePage({ params }: Props) {
                 </ul>
               </div>
             )}
-            <div className="bg-card border border-border rounded p-4">
-              <h2 className="font-heading font-semibold text-sm text-gray-800 mb-3 pb-2 border-b border-border uppercase tracking-wide">
-                More for {exam.shortName}
-              </h2>
-              <ul className="space-y-1.5 text-sm">
-                {(["admit-card","result","syllabus","answer-key","previous-papers"] as ContentType[])
-                  .filter((ct) => ct !== contentType)
-                  .map((ct) => (
-                    <li key={ct}>
-                      <Link href={`/entrance-exam/${category}/${slug}/${ct}`}
-                            className="text-gray-700 hover:text-primary hover:underline">
-                        {exam.shortName} {contentTypeLabel(ct)}
-                      </Link>
-                    </li>
-                  ))
-                }
-              </ul>
-            </div>
+{(() => {
+              // Track 1: only list content types that resolve (same contentTypeHasData gate
+              // as the tab strip and the route 404). Render no box when nothing else resolves.
+              const moreFor = (["admit-card","result","syllabus","answer-key","previous-papers"] as ContentType[])
+                .filter((ct) => ct !== contentType && contentTypeHasData(exam, ct));
+              if (moreFor.length === 0) return null;
+              return (
+                <div className="bg-card border border-border rounded p-4">
+                  <h2 className="font-heading font-semibold text-sm text-gray-800 mb-3 pb-2 border-b border-border uppercase tracking-wide">
+                    More for {exam.shortName}
+                  </h2>
+                  <ul className="space-y-1.5 text-sm">
+                    {moreFor.map((ct) => (
+                      <li key={ct}>
+                        <Link href={`/entrance-exam/${category}/${slug}/${ct}`}
+                              className="text-gray-700 hover:text-primary hover:underline">
+                          {exam.shortName} {contentTypeLabel(ct)}
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              );
+            })()}
             <AdSlot position="article-sidebar-2" size="300x250" />
           </aside>
         </div>
