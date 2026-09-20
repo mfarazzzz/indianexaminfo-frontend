@@ -3,13 +3,14 @@
 import { useState } from "react";
 import Link from "next/link";
 import type { SarkariNaukriItem } from "@/services/sarkariNaukriService";
-import { daysUntil } from "@/lib/utils";
+import { daysUntil, formatDate } from "@/lib/utils";
 
 const PAGE_SIZE = 20;
 
 // ── Status badge ────────────────────────────────────────────────────────────
-// Actionable / urgent statuses get a larger, more prominent badge.
-// Completed/cancelled get a quiet muted treatment.
+// ONE signal per row — only status. TypeBadge (Govt Exam / Vacancy), the "New"
+// pill and the ★ star are removed: they either duplicate information already
+// in the context or add noise without meaning on a filtered listing page.
 type BadgeWeight = "high" | "normal" | "muted";
 
 const STATUS_CONFIG: Record<string, { label: string; cls: string; weight: BadgeWeight }> = {
@@ -25,16 +26,6 @@ const STATUS_CONFIG: Record<string, { label: string; cls: string; weight: BadgeW
   "merit-list-released": { label: "Merit List",      cls: "bg-teal-100 text-teal-700",          weight: "normal" },
   "completed":           { label: "Completed",       cls: "bg-gray-100 text-gray-400",          weight: "muted" },
   "cancelled":           { label: "Cancelled",       cls: "bg-red-100 text-red-400",            weight: "muted" },
-};
-
-// Left border accent by urgency bucket — scannable without reading the badge.
-const CARD_ACCENT: Record<string, string> = {
-  "application-open":    "border-l-4 border-l-green-500",
-  "admit-card-released": "border-l-4 border-l-purple-500",
-  "result-declared":     "border-l-4 border-l-emerald-500",
-  "exam-scheduled":      "border-l-4 border-l-indigo-300",
-  "notified":            "border-l-4 border-l-blue-300",
-  "upcoming":            "border-l-4 border-l-blue-200",
 };
 
 function StatusBadge({ status }: { status: string }) {
@@ -55,18 +46,6 @@ function StatusBadge({ status }: { status: string }) {
   );
 }
 
-function TypeBadge({ type }: { type: "exam" | "direct" }) {
-  return type === "exam" ? (
-    <span className="inline-block rounded px-1.5 py-0.5 text-[10px] font-medium bg-blue-50 text-blue-600 border border-blue-200">
-      Govt Exam
-    </span>
-  ) : (
-    <span className="inline-block rounded px-1.5 py-0.5 text-[10px] font-medium bg-green-50 text-green-600 border border-green-200">
-      Vacancy
-    </span>
-  );
-}
-
 /**
  * Returns a human deadline string + urgency flag when applicationEndDate is
  * upcoming. Past/future is decided against the single IST anchor `todayISO`
@@ -75,12 +54,49 @@ function TypeBadge({ type }: { type: "exam" | "direct" }) {
 function deadlineInfo(item: SarkariNaukriItem, todayISO: string): { text: string; urgent: boolean } | null {
   if (!item.applicationEndDate) return null;
   const days = daysUntil(item.applicationEndDate, todayISO);
-  if (isNaN(days) || days < 0) return null; // unparseable or past — don't show
+  if (isNaN(days) || days < 0) return null;
   if (days === 0) return { text: "Closes today", urgent: true };
   if (days === 1) return { text: "Closes tomorrow", urgent: true };
   if (days <= 7) return { text: `${days} days left`, urgent: true };
   if (days <= 15) return { text: `${days} days left`, urgent: false };
-  return null; // no urgency strip needed beyond 15 days
+  return null;
+}
+
+/**
+ * The date that matters for this record's current state — shown in the row
+ * beside the status badge instead of showing no date at all. Rules match the
+ * homepage ExamListRow convention: one date, the most actionable one.
+ */
+function relevantDate(item: SarkariNaukriItem): { label: string; date: string } | null {
+  switch (item.status) {
+    case "application-open":
+      if (item.applicationEndDate) return { label: "Last date", date: item.applicationEndDate };
+      if (item.applicationStartDate) return { label: "Opens", date: item.applicationStartDate };
+      break;
+    case "admit-card-released":
+      if (item.admitCardDate) return { label: "Admit card", date: item.admitCardDate };
+      break;
+    case "exam-scheduled":
+      if (item.examDate) return { label: "Exam", date: item.examDate };
+      break;
+    case "result-declared":
+      if (item.resultDate) return { label: "Result", date: item.resultDate };
+      break;
+    case "interview-scheduled":
+    case "merit-list-released":
+    case "answer-key-released":
+      if (item.resultDate) return { label: "Date", date: item.resultDate };
+      break;
+    case "upcoming":
+      if (item.applicationStartDate) return { label: "Opens", date: item.applicationStartDate };
+      if (item.examDate) return { label: "Exam", date: item.examDate };
+      break;
+  }
+  // Fallback: first non-null date in priority order
+  if (item.applicationEndDate) return { label: "Last date", date: item.applicationEndDate };
+  if (item.examDate) return { label: "Exam", date: item.examDate };
+  if (item.resultDate) return { label: "Result", date: item.resultDate };
+  return null;
 }
 
 export function SarkariNaukriList({ items, todayISO }: { items: SarkariNaukriItem[]; todayISO: string }) {
@@ -95,63 +111,57 @@ export function SarkariNaukriList({ items, todayISO }: { items: SarkariNaukriIte
 
   return (
     <div>
-      <div className="space-y-2">
+      <div className="divide-y divide-border border-t border-border">
         {visible.map((item) => {
-          const accent = CARD_ACCENT[item.status] ?? "";
           const dl = deadlineInfo(item, todayISO);
+          const rd = relevantDate(item);
           const muted = item.status === "completed" || item.status === "cancelled" || item.status === "application-closed";
 
           return (
             <Link
               key={item.id}
               href={`/sarkari-naukri/${item.slug}`}
-              className={`block bg-white border border-border rounded ${accent} p-4 hover:border-primary/50 hover:shadow-sm transition-all group ${muted ? "opacity-70" : ""}`}
+              className={`flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1.5 sm:gap-4 py-3 group hover:bg-gray-50/50 transition-colors ${muted ? "opacity-70" : ""}`}
             >
-              <div className="flex items-start justify-between gap-3">
-                <div className="flex-1 min-w-0">
-                  {/* Badge row */}
-                  <div className="flex items-center gap-2 flex-wrap mb-1.5">
-                    <TypeBadge type={item.recruitmentType} />
-                    <StatusBadge status={item.status} />
-                    {item.isNew && (
-                      <span className="rounded-full bg-red-500 px-1.5 py-0.5 text-[9px] font-bold text-white uppercase">New</span>
-                    )}
-                    {item.isFeatured && (
-                      <span className="text-amber-500 text-xs" aria-label="Featured">★</span>
-                    )}
-                  </div>
-
-                  {/* Title */}
-                  <h3 className="font-semibold text-gray-900 group-hover:text-primary transition-colors line-clamp-2 text-sm leading-snug">
+              <div className="min-w-0 flex-1">
+                {/* Status badge + name on same line */}
+                <div className="flex items-center gap-2 flex-wrap">
+                  <StatusBadge status={item.status} />
+                  <h3 className="font-semibold text-gray-900 group-hover:text-primary transition-colors text-sm leading-snug">
                     {item.title}
                   </h3>
-
-                  {/* Meta row */}
-                  <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-1.5 text-xs text-gray-500">
-                    <span>{item.organization}</span>
-                    {item.state && item.state !== "all-india" && (
-                      <span className="capitalize">{item.state.replace(/-/g, " ")}</span>
-                    )}
-                    {item.state === "all-india" && <span>All India</span>}
-                    {item.vacancyCount != null && item.vacancyCount > 0 && (
-                      <span className="font-medium text-primary">{item.vacancyCount.toLocaleString("en-IN")} posts</span>
-                    )}
-                  </div>
                 </div>
-
-                {/* Deadline urgency chip — right side, visually distinct */}
-                {dl && (
-                  <span className={`shrink-0 text-[11px] font-semibold px-2 py-0.5 rounded whitespace-nowrap ${dl.urgent ? "bg-red-50 text-red-700 border border-red-200" : "bg-amber-50 text-amber-700 border border-amber-200"}`}>
-                    {dl.text}
-                  </span>
-                )}
+                {/* Meta: org · state · vacancy · relevant date */}
+                <div className="flex flex-wrap items-center gap-x-3 gap-y-0.5 mt-1 text-xs text-gray-500">
+                  <span>{item.organization}</span>
+                  {item.state && item.state !== "all-india" && (
+                    <span className="capitalize">{item.state.replace(/-/g, " ")}</span>
+                  )}
+                  {item.state === "all-india" && <span>All India</span>}
+                  {item.vacancyCount != null && item.vacancyCount > 0 && (
+                    <span className="font-medium text-primary">{item.vacancyCount.toLocaleString("en-IN")} posts</span>
+                  )}
+                  {rd && (
+                    <span>
+                      <span className="text-gray-400">{rd.label}: </span>
+                      <span className="font-medium text-gray-700">{formatDate(rd.date)}</span>
+                    </span>
+                  )}
+                </div>
               </div>
+
+              {/* Deadline urgency chip when application is closing */}
+              {dl && (
+                <span className={`shrink-0 text-[11px] font-semibold px-2 py-0.5 rounded whitespace-nowrap self-start sm:self-auto ${dl.urgent ? "bg-red-50 text-red-700 border border-red-200" : "bg-amber-50 text-amber-700 border border-amber-200"}`}>
+                  {dl.text}
+                </span>
+              )}
             </Link>
           );
         })}
       </div>
 
-      {/* Load more — reuses already-fetched data, no new request */}
+      {/* Load more */}
       {remaining > 0 && (
         <div className="mt-4 flex items-center gap-3">
           <button

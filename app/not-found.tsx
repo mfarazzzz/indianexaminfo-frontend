@@ -32,12 +32,12 @@ export default function NotFound() {
       {/* Quick nav */}
       <div className="grid grid-cols-2 gap-3 mb-8">
         {[
-          { label: "🏛 Sarkari Naukri", href: "/sarkari-naukri" },
-          { label: "🎓 Admissions", href: "/entrance-exam" },
-          { label: "📚 Board Exam", href: "/board-exam" },
-          { label: "📰 Blog & News", href: "/blog" },
-          { label: "📄 Admit Card", href: "/admit-card" },
-          { label: "📊 Results", href: "/results" },
+          { label: "Sarkari Naukri", href: "/sarkari-naukri" },
+          { label: "Admissions", href: "/entrance-exam" },
+          { label: "Board Exam", href: "/board-exam" },
+          { label: "Blog & News", href: "/blog" },
+          { label: "Admit Card", href: "/admit-card" },
+          { label: "Results", href: "/results" },
         ].map((item) => (
           <Link key={item.href} href={item.href} className="p-3 bg-card border border-border rounded text-sm font-medium text-gray-700 hover:border-primary hover:text-primary transition-colors">
             {item.label}

@@ -26,7 +26,9 @@ export function CategorySidebar({ categories, selectedId, onSelect }: Props) {
   const unpinned = categories.filter((c) => !c.isPinned);
 
   return (
-    <div className="w-56 border-r border-gray-100 overflow-y-auto max-h-[calc(70vh-56px)] py-2" role="listbox" aria-label="Categories">
+    <div className="w-56 border-r border-gray-100 py-2" role="listbox" aria-label="Categories">
+      {/* Item 3(b): overflow-y-auto + max-h removed — the panel's outer max-height
+          governs clipping; no nested scrollbar on the left column. */}
       {/* Pinned items */}
       {pinned.length > 0 && (
         <>

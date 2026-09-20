@@ -11,8 +11,8 @@ import { STATIC_NAVIGATION_TREES, STATIC_QUICK_ACCESS } from "@/lib/navigation/s
 export async function HeaderWithMenu() {
   return (
     <>
-      {/* Main Header */}
-      <header className="sticky top-0 z-50 bg-white border-b border-gray-200/80 shadow-sm">
+      {/* Main Header — z-[60] keeps the logo and nav triggers above the z-50 panel */}
+      <header className="sticky top-0 z-[60] bg-white border-b border-gray-200/80 shadow-sm">
         <div className="max-w-7xl mx-auto px-4">
           <div className="flex items-center h-14 gap-6">
             {/* Logo */}

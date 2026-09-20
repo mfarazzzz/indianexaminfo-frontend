@@ -131,25 +131,31 @@ export default async function EntranceContentTypePage({ params }: Props) {
         ]} />
 
         {/* Persistent content module navigation — always visible */}
-        <nav className="flex flex-wrap gap-2 mt-3 mb-4 pb-3 border-b border-border" aria-label="Available content modules">
-          <Link href={`/entrance-exam/${category}/${slug}`}
-            className="text-xs font-semibold px-2.5 py-1 rounded border border-slate-200 text-slate-600 hover:bg-slate-100 transition-colors">
-            Overview
-          </Link>
-          {(["notification","application","admit-card","answer-key","syllabus","result","cutoff"] as ContentType[])
-            .filter((ct) => contentTypeHasData(exam, ct))
-            .map((ct) => (
-              <Link key={ct} href={`/entrance-exam/${category}/${slug}/${ct}`}
-                className={`text-xs font-semibold px-2.5 py-1 rounded border transition-colors ${
-                  ct === contentType
-                    ? "bg-primary text-white border-primary"
-                    : "border-primary/20 bg-primary/10 text-primary hover:bg-primary hover:text-white"
-                }`}>
-                {contentTypeLabel(ct)}
+        {/* Tab strip — hidden when only one choice; a control offering one option
+            is not a control. Track 4 item 4. */}
+        {(() => {
+          const tabs = (["notification","application","admit-card","answer-key","syllabus","result","cutoff"] as ContentType[])
+            .filter((ct) => contentTypeHasData(exam, ct));
+          if (tabs.length <= 1) return null;
+          return (
+            <nav className="flex flex-wrap gap-2 mt-3 mb-4 pb-3 border-b border-border" aria-label="Available content modules">
+              <Link href={`/entrance-exam/${category}/${slug}`}
+                className="text-xs font-semibold px-2.5 py-1 rounded border border-slate-200 text-slate-600 hover:bg-slate-100 transition-colors">
+                Overview
               </Link>
-            ))
-          }
-        </nav>
+              {tabs.map((ct) => (
+                <Link key={ct} href={`/entrance-exam/${category}/${slug}/${ct}`}
+                  className={`text-xs font-semibold px-2.5 py-1 rounded border transition-colors ${
+                    ct === contentType
+                      ? "bg-primary text-white border-primary"
+                      : "border-primary/20 bg-primary/10 text-primary hover:bg-primary hover:text-white"
+                  }`}>
+                  {contentTypeLabel(ct)}
+                </Link>
+              ))}
+            </nav>
+          );
+        })()}
 
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-6 mt-4">
           <main>

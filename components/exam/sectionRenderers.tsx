@@ -12,7 +12,7 @@
  */
 import Link from "next/link";
 import type { ExamEntity } from "@/types/exam";
-import { formatDate, isFutureOrToday } from "@/lib/utils";
+import { formatDate, isFutureOrToday, isUrgent } from "@/lib/utils";
 import { Calendar } from "lucide-react";
 
 /** A section summary component receives the exam and the single IST "today"
@@ -56,57 +56,60 @@ const ImportantDatesSummary: SectionSummary = (exam, todayISO) => (
                   {d.label}
                 </td>
 
-                {/* Date cell. A row may legitimately have NO date (state expected/tba/
-                    postponed/cancelled) and carry only a `note` caveat — render the note
-                    instead of an empty cell. The note also shows beside a real date. */}
-                <td className={`font-mono ${
-                  isCancelled ? "text-gray-400 line-through"
-                  : isExpected ? "text-gray-500"
-                  : d.isUrgent ? "text-accent font-semibold"
-                  : "text-gray-700"
-                }`}>
-                  {(() => {
-                    const hasDate = !!d.date && d.date.trim() !== "";
-                    const dateText = isCancelled ? (
-                      <span>{formatDate(d.date)}</span>
-                    ) : isExpected ? (
-                      <span
-                        title="Tentative date — not yet officially confirmed. Check the official website before acting on this."
-                        className="cursor-help"
-                      >
-                        {formatDate(d.date)}{" "}
-                        <span className="text-[11px] font-normal not-italic">(expected)</span>
-                      </span>
-                    ) : (
-                      formatDate(d.date)
-                    );
-                    return (
-                      <>
-                        {hasDate && dateText}
-                        {d.note && (
-                          <span className={`block text-[11px] font-normal not-italic text-gray-500 ${hasDate ? "mt-0.5" : ""}`}>
-                            {d.note}
+                {/* Date cell. Item 5: colour is derived from proximity (within 7 days
+                    = accent/red), not from the stored isUrgent flag. The stored flag
+                    reflects event type (exam = urgent, result = not) rather than how
+                    soon the date is — the same date rendered red in one row and black in
+                    another depending on which label it had. One rule now: imminent
+                    (within 7 days) = accent. todayISO comes from the single IST anchor. */}
+                {(() => {
+                  const isImminent = !!todayISO && !!d.date && d.date.trim() !== "" && isUrgent(d.date, todayISO, 7);
+                  return (
+                    <td className={`font-mono ${
+                      isCancelled ? "text-gray-400 line-through"
+                      : isExpected  ? "text-gray-500"
+                      : isImminent  ? "text-accent font-semibold"
+                      : "text-gray-700"
+                    }`}>
+                      {(() => {
+                        const hasDate = !!d.date && d.date.trim() !== "";
+                        const dateText = isCancelled ? (
+                          <span>{formatDate(d.date)}</span>
+                        ) : isExpected ? (
+                          <span title="Tentative date — not yet officially confirmed." className="cursor-help">
+                            {formatDate(d.date)}{" "}
+                            <span className="text-[11px] font-normal not-italic">(expected)</span>
                           </span>
-                        )}
-                      </>
-                    );
-                  })()}
-                </td>
+                        ) : (
+                          formatDate(d.date)
+                        );
+                        return (
+                          <>
+                            {hasDate && dateText}
+                            {d.note && (
+                              <span className={`block text-[11px] font-normal not-italic text-gray-500 ${hasDate ? "mt-0.5" : ""}`}>
+                                {d.note}
+                              </span>
+                            )}
+                          </>
+                        );
+                      })()}
+                    </td>
+                  );
+                })()}
 
                 {/* Status chip */}
                 <td>
                   {isCancelled ? (
-                    <span className="text-xs font-semibold text-red-600 bg-red-50 px-1.5 py-0.5 rounded">
-                      Cancelled
-                    </span>
+                    <span className="text-xs font-semibold text-red-600 bg-red-50 px-1.5 py-0.5 rounded">Cancelled</span>
                   ) : isPostponed ? (
                     <span className="text-xs font-medium text-amber-600">Postponed</span>
                   ) : isExpected ? (
                     <span className="text-xs text-gray-400">Tentative</span>
                   ) : isPast ? (
                     <span className="text-xs text-gray-400">Passed</span>
-                  ) : d.isUrgent ? (
-                    <span className="text-xs text-accent font-semibold">Urgent</span>
+                  ) : (!!todayISO && !!d.date && d.date.trim() !== "" && isUrgent(d.date, todayISO, 7)) ? (
+                    <span className="text-xs text-accent font-semibold">Soon</span>
                   ) : (
                     <span className="text-xs text-success">Upcoming</span>
                   )}

@@ -77,23 +77,30 @@ export async function SarkariNaukriContentTypeView({ exam, category, slug, conte
           { name: ctLabel, href: `/sarkari-naukri/${category}/${slug}/${contentType}` },
         ]} />
 
-        {/* Module Tabs — same as EntityDetailPage */}
-        <nav className="flex flex-wrap gap-2 my-4 overflow-x-auto sm:overflow-visible pb-2 sm:pb-0 -mx-1 px-1" aria-label="Content modules">
-          {CONTENT_TYPE_ORDER.filter((ct) => contentTypeHasData(exam, ct)).map((ct) => (
-            <Link
-              key={ct}
-              href={`/sarkari-naukri/${category}/${slug}/${ct}`}
-              className={`text-sm font-semibold px-3.5 py-2 min-h-[44px] flex items-center rounded border transition-colors whitespace-nowrap ${
-                ct === contentType
-                  ? "bg-primary text-white border-primary"
-                  : "bg-primary/10 text-primary border-primary/20 hover:bg-primary hover:text-white"
-              }`}
-              prefetch={false}
-            >
-              {contentTypeLabel(ct)}
-            </Link>
-          ))}
-        </nav>
+        {/* Module Tabs — hidden when only one choice (a control offering one option is
+            not a control). The threshold is >1 including the current page. */}
+        {(() => {
+          const tabs = CONTENT_TYPE_ORDER.filter((ct) => contentTypeHasData(exam, ct));
+          if (tabs.length <= 1) return null;
+          return (
+            <nav className="flex flex-wrap gap-2 my-4 overflow-x-auto sm:overflow-visible pb-2 sm:pb-0 -mx-1 px-1" aria-label="Content modules">
+              {tabs.map((ct) => (
+                <Link
+                  key={ct}
+                  href={`/sarkari-naukri/${category}/${slug}/${ct}`}
+                  className={`text-sm font-semibold px-3.5 py-2 min-h-[44px] flex items-center rounded border transition-colors whitespace-nowrap ${
+                    ct === contentType
+                      ? "bg-primary text-white border-primary"
+                      : "bg-primary/10 text-primary border-primary/20 hover:bg-primary hover:text-white"
+                  }`}
+                  prefetch={false}
+                >
+                  {contentTypeLabel(ct)}
+                </Link>
+              ))}
+            </nav>
+          );
+        })()}
 
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-6 mt-4">
           <main>
