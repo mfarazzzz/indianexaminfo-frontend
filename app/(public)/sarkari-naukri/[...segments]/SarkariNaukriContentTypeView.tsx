@@ -20,12 +20,14 @@ import { ExternalLink, Download, Clock } from "lucide-react";
 
 /** Map content type slugs to CMS module slugs that belong on that tab */
 const CT_TO_MODULES: Partial<Record<ContentType, string[]>> = {
-  application:    ["application-process"],
-  syllabus:       ["syllabus", "exam-pattern"],
-  "admit-card":   ["admit-card"],
-  result:         ["result"],
-  cutoff:         ["cut-off"],
-  "date-sheet":   ["date-sheet"],
+  application:       ["application-process"],
+  syllabus:          ["syllabus", "exam-pattern"],
+  "admit-card":      ["admit-card"],
+  result:            ["result"],
+  cutoff:            ["cut-off"],
+  "date-sheet":      ["date-sheet"],
+  "previous-papers": ["previous-papers"],
+  "study-material":  ["study-material"],
 };
 
 // Tab order preserved; visibility now comes from the shared registry gate
@@ -264,7 +266,7 @@ export async function SarkariNaukriContentTypeView({ exam, category, slug, conte
               // box hardcoded 5 types and linked unconditionally, so it generated links the
               // route then 404s (previous-papers/answer-key 404 for every exam). Render no
               // box when nothing else resolves.
-              const moreFor = (["admit-card", "result", "syllabus", "answer-key", "previous-papers"] as ContentType[])
+              const moreFor = (["admit-card", "result", "syllabus", "answer-key", "previous-papers", "study-material"] as ContentType[])
                 .filter((ct) => ct !== contentType && contentTypeHasData(exam, ct));
               if (moreFor.length === 0) return null;
               return (

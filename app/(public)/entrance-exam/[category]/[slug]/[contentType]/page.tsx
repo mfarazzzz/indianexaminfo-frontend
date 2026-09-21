@@ -134,7 +134,7 @@ export default async function EntranceContentTypePage({ params }: Props) {
         {/* Tab strip — hidden when only one choice; a control offering one option
             is not a control. Track 4 item 4. */}
         {(() => {
-          const tabs = (["notification","application","admit-card","answer-key","syllabus","result","cutoff"] as ContentType[])
+          const tabs = (["notification","application","admit-card","answer-key","syllabus","result","cutoff","previous-papers","study-material"] as ContentType[])
             .filter((ct) => contentTypeHasData(exam, ct));
           if (tabs.length <= 1) return null;
           return (
@@ -289,7 +289,7 @@ export default async function EntranceContentTypePage({ params }: Props) {
 {(() => {
               // Track 1: only list content types that resolve (same contentTypeHasData gate
               // as the tab strip and the route 404). Render no box when nothing else resolves.
-              const moreFor = (["admit-card","result","syllabus","answer-key","previous-papers"] as ContentType[])
+              const moreFor = (["admit-card","result","syllabus","answer-key","previous-papers","study-material"] as ContentType[])
                 .filter((ct) => ct !== contentType && contentTypeHasData(exam, ct));
               if (moreFor.length === 0) return null;
               return (

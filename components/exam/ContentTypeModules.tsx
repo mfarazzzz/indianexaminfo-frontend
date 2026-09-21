@@ -12,6 +12,8 @@ export const CT_TO_MODULES: Partial<Record<ContentType, string[]>> = {
   "admit-card":    ["admit-card"],
   result:          ["result"],
   cutoff:          ["cut-off"],
+  "previous-papers": ["previous-papers"],
+  "study-material": ["study-material"],
   "date-sheet":    ["date-sheet"],
   notification:    ["overview"],
   // Virtual module-backed tabs

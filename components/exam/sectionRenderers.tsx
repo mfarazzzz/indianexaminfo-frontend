@@ -707,6 +707,76 @@ const ExamPatternModule: ModuleRenderer = (d) => {
   );
 };
 
+/** Previous Papers — fields: papers[{title, year, downloadLink}], notes(HTML).
+ *  Reads content_modules["previous-papers"], the same store its presence gate reads. */
+const PreviousPapersModule: ModuleRenderer = (d) => {
+  if (!d) return null;
+  const papers = rows(d.papers);
+  const notes = safeHtml(d.notes);
+  if (papers.length === 0 && !notes) return null;
+  return (
+    <section aria-label="Previous papers" className="mb-5">
+      <h2 className="font-heading font-semibold text-base text-gray-800 mb-3">Previous Papers</h2>
+      {papers.length > 0 && (
+        <ul className="space-y-1.5 mb-3">
+          {papers.map((p, i) => {
+            const title = str(p.title) ?? "Previous Paper";
+            const year = str(p.year);
+            const url = str(p.downloadLink);
+            const label = year ? `${title} (${year})` : title;
+            return (
+              <li key={i} className="flex items-center gap-2 text-sm">
+                <span className="w-2 h-2 rounded-full bg-primary shrink-0" />
+                {url ? (
+                  <a href={url} target="_blank" rel="noopener noreferrer nofollow" className="text-primary hover:underline">{label}</a>
+                ) : (
+                  <span className="text-gray-700">{label}</span>
+                )}
+              </li>
+            );
+          })}
+        </ul>
+      )}
+      {notes && <div className="article-body text-sm" dangerouslySetInnerHTML={{ __html: notes }} />}
+    </section>
+  );
+};
+
+/** Study Material — fields: materials[{title, type, downloadLink}], notes(HTML).
+ *  Reads content_modules["study-material"], the same store its presence gate reads. */
+const StudyMaterialModule: ModuleRenderer = (d) => {
+  if (!d) return null;
+  const materials = rows(d.materials);
+  const notes = safeHtml(d.notes);
+  if (materials.length === 0 && !notes) return null;
+  return (
+    <section aria-label="Study material" className="mb-5">
+      <h2 className="font-heading font-semibold text-base text-gray-800 mb-3">Study Material</h2>
+      {materials.length > 0 && (
+        <ul className="space-y-1.5 mb-3">
+          {materials.map((m, i) => {
+            const title = str(m.title) ?? "Study Material";
+            const type = str(m.type);
+            const url = str(m.downloadLink);
+            const label = type ? `${title} (${type})` : title;
+            return (
+              <li key={i} className="flex items-center gap-2 text-sm">
+                <span className="w-2 h-2 rounded-full bg-primary shrink-0" />
+                {url ? (
+                  <a href={url} target="_blank" rel="noopener noreferrer nofollow" className="text-primary hover:underline">{label}</a>
+                ) : (
+                  <span className="text-gray-700">{label}</span>
+                )}
+              </li>
+            );
+          })}
+        </ul>
+      )}
+      {notes && <div className="article-body text-sm" dangerouslySetInnerHTML={{ __html: notes }} />}
+    </section>
+  );
+};
+
 /**
  * slug → module renderer, keyed by content_modules slug. THE single home for each structured
  * module's markup. Both render paths delegate here (see ModuleRenderer doc above), so the main
@@ -722,6 +792,8 @@ export const MODULE_RENDERERS: Record<string, ModuleRenderer> = {
   result: ResultModule,
   "admit-card": AdmitCardModule,
   "exam-pattern": ExamPatternModule,
+  "previous-papers": PreviousPapersModule,
+  "study-material": StudyMaterialModule,
 };
 
 /** Wrap a ModuleRenderer as a SectionSummary: read the module data by slug from the exam. */
