@@ -5,7 +5,7 @@ import { getRelatedExams, getExamResources, getExamSyllabus, getTodayIST, type E
 import { ResourceLibrary } from "@/components/exam/ResourceLibrary";
 import { SyllabusSection } from "@/components/exam/SyllabusSection";
 import { Breadcrumb, type BreadcrumbItem } from "@/components/layout/Breadcrumb";
-import { ExamCard } from "@/components/exam/ExamCard";
+import { ExamListRow } from "@/components/exam/ExamListRow";
 import { AdSlot } from "@/components/ads/AdSlot";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { SocialChannelBanner } from "@/components/layout/SocialChannelBanner";
@@ -440,7 +440,7 @@ export async function EntityDetailPage({ exam, breadcrumbs, contentType, edition
 
             {/* Content Type Navigation — the tab row. Shown on both main and CT pages; on a CT
                 page the active tab is highlighted. */}
-            {availableContentTypes.length > 0 && (
+            {availableContentTypes.length > 1 && (
               <nav className="flex flex-wrap gap-2 mb-5 overflow-x-auto sm:overflow-visible pb-2 sm:pb-0 -mx-1 px-1" aria-label="Available content modules">
                 {availableContentTypes.map((ct) => (
                   <Link
@@ -481,9 +481,9 @@ export async function EntityDetailPage({ exam, breadcrumbs, contentType, edition
                     <h2 className="font-heading font-semibold text-base text-gray-800 mb-3">
                       Related Exams
                     </h2>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div className="divide-y divide-border border-t border-border">
                       {relatedExams.slice(0, 6).map((e) => (
-                        <ExamCard key={e.id} exam={e} todayISO={todayISO} />
+                        <ExamListRow key={e.id} exam={e} />
                       ))}
                     </div>
                   </section>

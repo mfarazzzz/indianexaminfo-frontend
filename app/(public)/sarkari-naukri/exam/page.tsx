@@ -7,6 +7,7 @@ import { AdSlot } from "@/components/ads/AdSlot";
 import { buildExamMetadata } from "@/lib/seo/metadata";
 import { buildPageKeywords, getCurrentYear } from "@/lib/seo/keywords";
 import { siteConfig } from "@/config/site";
+import { SARKARI_LABELS } from "@/lib/sarkari/labels";
 import { SarkariNaukriList } from "@/components/sarkari-naukri/SarkariNaukriList";
 
 export const revalidate = 1800;
@@ -30,8 +31,8 @@ export default async function SarkariExamPage() {
   return (
     <div className="container mx-auto px-4 py-4">
       <Breadcrumb items={[
-        { name: "Sarkari Naukri", href: "/sarkari-naukri" },
-        { name: "Government Exams", href: "/sarkari-naukri/exam" },
+        { name: SARKARI_LABELS.root, href: "/sarkari-naukri" },
+        { name: SARKARI_LABELS.exams, href: "/sarkari-naukri/exam" },
       ]} />
 
       <AdSlot position="category-top" size="728x90" hideWhenEmpty />
@@ -48,8 +49,8 @@ export default async function SarkariExamPage() {
           {/* Type filters */}
           <div className="flex gap-3 mb-5">
             <Link href="/sarkari-naukri" className="rounded-full px-4 py-1.5 text-sm font-medium border border-border text-gray-600 hover:bg-gray-50">All</Link>
-            <Link href="/sarkari-naukri/exam" className="rounded-full px-4 py-1.5 text-sm font-medium bg-blue-600 text-white">Government Exams ({items.length})</Link>
-            <Link href="/sarkari-naukri/bharti" className="rounded-full px-4 py-1.5 text-sm font-medium border border-green-200 text-green-700 hover:bg-green-50">Government Vacancies ({stats.direct})</Link>
+            <Link href="/sarkari-naukri/exam" className="rounded-full px-4 py-1.5 text-sm font-medium bg-blue-600 text-white">{SARKARI_LABELS.exams} ({items.length})</Link>
+            <Link href="/sarkari-naukri/bharti" className="rounded-full px-4 py-1.5 text-sm font-medium border border-green-200 text-green-700 hover:bg-green-50">{SARKARI_LABELS.vacancies} ({stats.direct})</Link>
           </div>
 
           <SarkariNaukriList items={items} todayISO={todayISO} />

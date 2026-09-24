@@ -14,6 +14,7 @@ import { safeHtml } from "@/lib/sanitize";
 import { ContentTypeDataRenderer } from "@/components/exam/ContentTypeDataRenderer";
 import { ContentModulesBlock } from "@/components/exam/EntityDetailPage";
 import { SocialChannelBanner } from "@/components/layout/SocialChannelBanner";
+import { SARKARI_LABELS } from "@/lib/sarkari/labels";
 import { contentTypeHasData } from "@/lib/sectionRegistry";
 import type { ExamEntity, ContentType } from "@/types/exam";
 import { ExternalLink, Download, Clock } from "lucide-react";
@@ -73,7 +74,7 @@ export async function SarkariNaukriContentTypeView({ exam, category, slug, conte
 
       <div className="container mx-auto px-4 py-4">
         <Breadcrumb items={[
-          { name: "Sarkari Naukri", href: "/sarkari-naukri" },
+          { name: SARKARI_LABELS.root, href: "/sarkari-naukri" },
           { name: catLabel, href: `/sarkari-naukri/${category}` },
           { name: exam.shortName, href: `/sarkari-naukri/${category}/${slug}` },
           { name: ctLabel, href: `/sarkari-naukri/${category}/${slug}/${contentType}` },

@@ -13,6 +13,8 @@ import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
 import Link from "next/link";
 import { getSarkariNaukriBySlug, generateStaticSarkariNaukriParams, getByCategory as getSarkariByCategory } from "@/services/sarkariNaukriService";
+import { SARKARI_LABELS } from "@/lib/sarkari/labels";
+import { getTodayIST } from "@/services/examService";
 import { getExamBySlug, getExamsByCategory, getExamEditionsForSwitcher } from "@/services/examService";
 import { sarkariCategoryLabel } from "@/lib/sarkari/categories";
 import { Breadcrumb } from "@/components/layout/Breadcrumb";
@@ -20,6 +22,9 @@ import { isEditionYear, buildEditionContext } from "@/lib/exam/editions";
 import { buildEditionMetadata, renderEditionPage } from "@/lib/exam/editionDispatch";
 import { getContentPostsByExam, getLatestByContentType } from "@/services/contentPostService";
 import { EntityDetailPage } from "@/components/exam/EntityDetailPage";
+import { ExamListRow } from "@/components/exam/ExamListRow";
+import { SarkariNaukriList } from "@/components/sarkari-naukri/SarkariNaukriList";
+import { sortRecruitmentsOpenFirst } from "@/lib/sarkari/listing";
 import { buildExamMetadata } from "@/lib/seo/metadata";
 import { buildPageKeywords, buildSEOTitle, buildMetaDescription, buildLastModifiedSignal, getCurrentYear } from "@/lib/seo/keywords";
 import { siteConfig } from "@/config/site";
@@ -186,7 +191,7 @@ export default async function SarkariNaukriCatchAll({ params }: Props) {
           exam={exam}
           editionContext={editionContext ?? undefined}
           breadcrumbs={[
-            { name: "Sarkari Naukri", href: "/sarkari-naukri" },
+            { name: SARKARI_LABELS.root, href: "/sarkari-naukri" },
             { name: exam.shortName, href: basePath },
           ]}
         />
@@ -196,9 +201,10 @@ export default async function SarkariNaukriCatchAll({ params }: Props) {
     // Fallback: try as a CATEGORY listing. Govt-vacancy content lives in two tables —
     // exams (CMS Exam Manager) and sarkari_naukri (direct jobs) — so a category can be
     // backed by either. Query both; render if either has published records.
-    const [categoryExams, categoryJobs] = await Promise.all([
+    const [categoryExams, categoryJobs, todayISO] = await Promise.all([
       getExamsByCategory(slug),
       getSarkariByCategory(slug),
+      getTodayIST(),
     ]);
 
     // Real 404 when the category matches NEITHER table — no soft-empty 200 shell.
@@ -209,26 +215,22 @@ export default async function SarkariNaukriCatchAll({ params }: Props) {
     const categoryLabel = sarkariCategoryLabel(slug);
     return (
       <div className="container mx-auto px-4 py-4">
-        <Breadcrumb items={[{ name: "Sarkari Naukri", href: "/sarkari-naukri" }, { name: categoryLabel, href: `/sarkari-naukri/${slug}` }]} />
+        <Breadcrumb items={[{ name: SARKARI_LABELS.root, href: "/sarkari-naukri" }, { name: categoryLabel, href: `/sarkari-naukri/${slug}` }]} />
         <h1 className="font-heading font-bold text-2xl text-gray-900 mb-4 mt-3">{categoryLabel}</h1>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {/* exams-table entities first (they carry a category path) */}
-          {categoryExams.map((e) => (
-            <Link key={e.id} href={`/sarkari-naukri/${e.category || slug}/${e.slug}`}
-              className="block p-4 bg-white border border-gray-200 rounded-lg hover:border-primary hover:shadow-sm transition-all">
-              <h2 className="font-heading font-semibold text-sm text-gray-900">{e.name}</h2>
-              <p className="text-xs text-gray-500 mt-1">{e.conductingBody}</p>
-            </Link>
-          ))}
-          {/* sarkari_naukri direct-job rows (single-segment slug URL) */}
-          {categoryJobs.map((j) => (
-            <Link key={j.id} href={`/sarkari-naukri/${j.slug}`}
-              className="block p-4 bg-white border border-gray-200 rounded-lg hover:border-primary hover:shadow-sm transition-all">
-              <h2 className="font-heading font-semibold text-sm text-gray-900">{j.title}</h2>
-              <p className="text-xs text-gray-500 mt-1">{j.organization}</p>
-            </Link>
-          ))}
-        </div>
+        {categoryExams.length > 0 && (
+          <section aria-label="Government exams" className="mb-5">
+            <h2 className="font-heading font-semibold text-base text-gray-800 mb-3">{SARKARI_LABELS.exams}</h2>
+            <div className="divide-y divide-border border-t border-border">
+              {categoryExams.map((e) => <ExamListRow key={e.id} exam={e} />)}
+            </div>
+          </section>
+        )}
+        {categoryJobs.length > 0 && (
+          <section aria-label="Government vacancies">
+            <h2 className="font-heading font-semibold text-base text-gray-800 mb-3">{SARKARI_LABELS.vacancies}</h2>
+            <SarkariNaukriList items={sortRecruitmentsOpenFirst(categoryJobs)} todayISO={todayISO} />
+          </section>
+        )}
       </div>
     );
   }
@@ -248,14 +250,8 @@ export default async function SarkariNaukriCatchAll({ params }: Props) {
           <div className="container mx-auto px-4 py-4">
             <h1 className="font-heading font-bold text-2xl text-gray-900 mb-4">{subLabel}</h1>
             <p className="text-sm text-gray-500 mb-4">Under {categoryLabel}</p>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {subCategoryExams.map((e) => (
-                <Link key={e.id} href={`/sarkari-naukri/${e.category || category}/${e.slug}`}
-                  className="block p-4 bg-white border border-gray-200 rounded-lg hover:border-primary hover:shadow-sm transition-all">
-                  <h2 className="font-heading font-semibold text-sm text-gray-900">{e.name}</h2>
-                  <p className="text-xs text-gray-500 mt-1">{e.conductingBody}</p>
-                </Link>
-              ))}
+            <div className="divide-y divide-border border-t border-border">
+              {subCategoryExams.map((e) => <ExamListRow key={e.id} exam={e} />)}
             </div>
           </div>
         );
@@ -278,7 +274,7 @@ export default async function SarkariNaukriCatchAll({ params }: Props) {
       <EntityDetailPage
         exam={exam}
         breadcrumbs={[
-          { name: "Sarkari Naukri", href: "/sarkari-naukri" },
+          { name: SARKARI_LABELS.root, href: "/sarkari-naukri" },
           { name: categoryLabel, href: `/sarkari-naukri/${category}` },
           { name: exam.shortName, href: basePath },
         ]}
@@ -304,7 +300,7 @@ export default async function SarkariNaukriCatchAll({ params }: Props) {
         absoluteBasePath: `${siteConfig.url}${basePath}`,
         servedPillars: SERVED_PILLARS,
         breadcrumbs: (exam, y) => [
-          { name: "Sarkari Naukri", href: "/sarkari-naukri" },
+          { name: SARKARI_LABELS.root, href: "/sarkari-naukri" },
           { name: categoryLabel, href: `/sarkari-naukri/${category}` },
           { name: exam.shortName, href: basePath },
           { name: String(y), href: `${basePath}/${y}` },

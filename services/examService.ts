@@ -53,6 +53,33 @@ async function fetchDerivedStatuses(
   }
 }
 
+// ── Structured-syllabus presence (batch) ───────────────────────────────
+// The /syllabus route gates on exam_syllabus_subjects having >=1 row (via
+// contentTypeAvailable → hasStructuredSyllabus), NOT on the edition has_syllabus
+// flag. Listing components need the SAME signal to decide the Syllabus action
+// link, or they 404. This batches it in one `in` query (only ~13 exams have rows)
+// and sets exam.hasStructuredSyllabus so the shared getActionLinks stays sync.
+async function applyStructuredSyllabusFlags(
+  supabase: ReturnType<typeof createServerClient>,
+  exams: ExamEntity[]
+): Promise<ExamEntity[]> {
+  if (exams.length === 0) return exams;
+  try {
+    const { data } = await supabase
+      .from("exam_syllabus_subjects")
+      .select("exam_id")
+      .in("exam_id", exams.map((e) => e.id));
+    const withSyllabus = new Set<string>((data ?? []).map((r: any) => r.exam_id as string));
+    for (const e of exams) e.hasStructuredSyllabus = withSyllabus.has(e.id);
+    return exams;
+  } catch (err) {
+    // Non-fatal: leave the flag undefined (getActionLinks then withholds the
+    // syllabus link rather than risk a 404).
+    console.error("[examService] applyStructuredSyllabusFlags failed:", err);
+    return exams;
+  }
+}
+
 // ── Row mapper: Supabase snake_case → camelCase ExamEntity ─────────────
 function mapRow(row: Record<string, unknown>, derived?: DerivedInfo): ExamEntity {
   // The current edition is the SINGLE SOURCE OF TRUTH for all cycle-specific data
@@ -217,7 +244,8 @@ export async function getAllExams(): Promise<ExamEntity[]> {
       if (error) throw error;
       const rows = data ?? [];
       const derivedMap = await fetchDerivedStatuses(supabase, rows.map((r: any) => r.id));
-      return rows.map((r: any) => mapRow(r, derivedMap.get(r.id)));
+      const exams = rows.map((r: any) => mapRow(r, derivedMap.get(r.id)));
+      return applyStructuredSyllabusFlags(supabase, exams);
     } catch (err) {
       console.error("[examService] getAllExams failed:", err);
       return [];
@@ -319,7 +347,8 @@ export async function getExamsByPillar(pillar: Pillar): Promise<ExamEntity[]> {
       if (error) throw error;
       const rows = data ?? [];
       const derivedMap = await fetchDerivedStatuses(supabase, rows.map((r: any) => r.id));
-      return rows.map((r: any) => mapRow(r, derivedMap.get(r.id)));
+      const exams = rows.map((r: any) => mapRow(r, derivedMap.get(r.id)));
+      return applyStructuredSyllabusFlags(supabase, exams);
     } catch (err) {
       console.error("[examService] getExamsByPillar failed:", err);
       return [];
@@ -348,7 +377,8 @@ export async function getExamsByCategory(category: string): Promise<ExamEntity[]
       if (error) throw error;
       const rows = data ?? [];
       const derivedMap = await fetchDerivedStatuses(supabase, rows.map((r: any) => r.id));
-      return rows.map((r: any) => mapRow(r, derivedMap.get(r.id)));
+      const exams = rows.map((r: any) => mapRow(r, derivedMap.get(r.id)));
+      return applyStructuredSyllabusFlags(supabase, exams);
     } catch (err) {
       console.error("[examService] getExamsByCategory failed:", err);
       return [];
@@ -367,7 +397,8 @@ export async function getFeaturedExams(): Promise<ExamEntity[]> {
     if (error) throw error;
     const rows = data ?? [];
     const derivedMap = await fetchDerivedStatuses(supabase, rows.map((r: any) => r.id));
-    return rows.map((r: any) => mapRow(r, derivedMap.get(r.id)));
+    const exams = rows.map((r: any) => mapRow(r, derivedMap.get(r.id)));
+    return applyStructuredSyllabusFlags(supabase, exams);
   } catch (err) {
     console.error("[examService] getFeaturedExams failed:", err);
     return [];
@@ -396,7 +427,8 @@ export async function getRelatedExams(examId: string): Promise<ExamEntity[]> {
     if (error) throw error;
     const rows = data ?? [];
     const derivedMap = await fetchDerivedStatuses(supabase, rows.map((r: any) => r.id));
-    return rows.map((r: any) => mapRow(r, derivedMap.get(r.id)));
+    const exams = rows.map((r: any) => mapRow(r, derivedMap.get(r.id)));
+    return applyStructuredSyllabusFlags(supabase, exams);
   } catch (err) {
     console.error("[examService] getRelatedExams failed:", err);
     return [];
@@ -417,7 +449,8 @@ export async function searchExams(query: string): Promise<ExamEntity[]> {
     if (error) throw error;
     const rows = data ?? [];
     const derivedMap = await fetchDerivedStatuses(supabase, rows.map((r: any) => r.id));
-    return rows.map((r: any) => mapRow(r, derivedMap.get(r.id)));
+    const exams = rows.map((r: any) => mapRow(r, derivedMap.get(r.id)));
+    return applyStructuredSyllabusFlags(supabase, exams);
   } catch (err) {
     console.error("[examService] searchExams failed:", err);
     return [];

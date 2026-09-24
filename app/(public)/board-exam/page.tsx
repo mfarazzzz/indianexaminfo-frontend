@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { getExamsByPillar, getTodayIST } from "@/services/examService";
-import { ExamCard } from "@/components/exam/ExamCard";
+import { getExamsByPillar } from "@/services/examService";
+import { ExamListRow } from "@/components/exam/ExamListRow";
 import { Breadcrumb } from "@/components/layout/Breadcrumb";
 import { AdSlot } from "@/components/ads/AdSlot";
 import { buildExamMetadata } from "@/lib/seo/metadata";
@@ -20,7 +20,7 @@ export const metadata: Metadata = buildExamMetadata({
 });
 
 export default async function BoardExamPage() {
-  const [exams, todayISO] = await Promise.all([getExamsByPillar("board-exam"), getTodayIST()]);
+  const exams = await getExamsByPillar("board-exam");
 
   const centralBoards = exams.filter((e) => e.category === "cbse" || e.category === "cisce" || e.category === "nios");
   const stateBoards = exams.filter((e) => e.category === "up-board" || e.category === "bihar-board" || e.category === "rbse" || e.category === "mpbse");
@@ -48,9 +48,9 @@ export default async function BoardExamPage() {
             <h2 id="central-boards-heading" className="font-heading font-bold text-lg text-gray-900 mb-4">
               Central Boards
             </h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="divide-y divide-border border-t border-border">
               {centralBoards.length ? centralBoards.map((e) => (
-                <ExamCard key={e.id} exam={e} todayISO={todayISO} />
+                <ExamListRow key={e.id} exam={e} />
               )) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   {[
@@ -75,8 +75,8 @@ export default async function BoardExamPage() {
             <h2 id="state-boards-heading" className="font-heading font-bold text-lg text-gray-900 mb-4">
               State Boards
             </h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {stateBoards.map((e) => <ExamCard key={e.id} exam={e} todayISO={todayISO} />)}
+            <div className="divide-y divide-border border-t border-border">
+              {stateBoards.map((e) => <ExamListRow key={e.id} exam={e} />)}
             </div>
           </section>
 
@@ -85,8 +85,8 @@ export default async function BoardExamPage() {
             <h2 id="universities-heading" className="font-heading font-bold text-lg text-gray-900 mb-4">
               University Results
             </h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {universities.map((e) => <ExamCard key={e.id} exam={e} todayISO={todayISO} />)}
+            <div className="divide-y divide-border border-t border-border">
+              {universities.map((e) => <ExamListRow key={e.id} exam={e} />)}
             </div>
           </section>
         </main>

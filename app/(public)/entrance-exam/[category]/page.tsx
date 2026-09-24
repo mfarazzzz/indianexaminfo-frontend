@@ -1,13 +1,12 @@
-import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { getExamsByCategory, getTodayIST } from "@/services/examService";
-import { ExamCard } from "@/components/exam/ExamCard";
+import { getExamsByCategory } from "@/services/examService";
+import { ExamListRow } from "@/components/exam/ExamListRow";
 import { Breadcrumb } from "@/components/layout/Breadcrumb";
 import { buildExamMetadata } from "@/lib/seo/metadata";
 import { buildPageKeywords, getCurrentYear } from "@/lib/seo/keywords";
 import { siteConfig } from "@/config/site";
 
-export const revalidate = 600; // 10 min
+export const revalidate = 600;
 
 type Props = { params: Promise<{ category: string }> };
 
@@ -26,7 +25,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function EntranceCategoryPage({ params }: Props) {
   const { category } = await params;
-  const [exams, todayISO] = await Promise.all([getExamsByCategory(category), getTodayIST()]);
+  const exams = await getExamsByCategory(category);
 
   if (!exams.length) notFound();
 
@@ -41,12 +40,10 @@ export default async function EntranceCategoryPage({ params }: Props) {
         ]}
       />
       <h1 className="font-heading font-bold text-2xl text-gray-900 mt-4 mb-5">
-        {label} Admissions {new Date().getFullYear()} — Latest Notifications &amp; Results
+        {label} Admissions {getCurrentYear()} — Latest Notifications &amp; Results
       </h1>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        {exams.map((exam) => (
-          <ExamCard key={exam.id} exam={exam} todayISO={todayISO} />
-        ))}
+      <div className="divide-y divide-border border-t border-border">
+        {exams.map((exam) => <ExamListRow key={exam.id} exam={exam} />)}
       </div>
     </div>
   );

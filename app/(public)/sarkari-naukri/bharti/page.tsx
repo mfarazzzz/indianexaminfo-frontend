@@ -8,6 +8,8 @@ import { buildExamMetadata } from "@/lib/seo/metadata";
 import { buildPageKeywords, getCurrentYear } from "@/lib/seo/keywords";
 import { siteConfig } from "@/config/site";
 import { SarkariNaukriList } from "@/components/sarkari-naukri/SarkariNaukriList";
+import { sortRecruitmentsOpenFirst } from "@/lib/sarkari/listing";
+import { SARKARI_LABELS } from "@/lib/sarkari/labels";
 
 export const revalidate = 1800;
 
@@ -27,11 +29,13 @@ export default async function SarkariBhartiPage() {
     getTodayIST(),
   ]);
 
+  const sortedItems = sortRecruitmentsOpenFirst(items);
+
   return (
     <div className="container mx-auto px-4 py-4">
       <Breadcrumb items={[
-        { name: "Sarkari Naukri", href: "/sarkari-naukri" },
-        { name: "Sarkari Bharti", href: "/sarkari-naukri/bharti" },
+        { name: SARKARI_LABELS.root, href: "/sarkari-naukri" },
+        { name: SARKARI_LABELS.vacancies, href: "/sarkari-naukri/bharti" },
       ]} />
 
       <AdSlot position="category-top" size="728x90" hideWhenEmpty />
@@ -48,19 +52,19 @@ export default async function SarkariBhartiPage() {
           {/* Type filters */}
           <div className="flex gap-3 mb-5">
             <Link href="/sarkari-naukri" className="rounded-full px-4 py-1.5 text-sm font-medium border border-border text-gray-600 hover:bg-gray-50">All</Link>
-            <Link href="/sarkari-naukri/exam" className="rounded-full px-4 py-1.5 text-sm font-medium border border-blue-200 text-blue-700 hover:bg-blue-50">Government Exams</Link>
-            <Link href="/sarkari-naukri/bharti" className="rounded-full px-4 py-1.5 text-sm font-medium bg-green-600 text-white">Government Vacancies ({items.length})</Link>
+            <Link href="/sarkari-naukri/exam" className="rounded-full px-4 py-1.5 text-sm font-medium border border-blue-200 text-blue-700 hover:bg-blue-50">{SARKARI_LABELS.exams}</Link>
+            <Link href="/sarkari-naukri/bharti" className="rounded-full px-4 py-1.5 text-sm font-medium bg-green-600 text-white">{SARKARI_LABELS.vacancies} ({items.length})</Link>
           </div>
 
-          <SarkariNaukriList items={items} todayISO={todayISO} />
+          <SarkariNaukriList items={sortedItems} todayISO={todayISO} />
         </main>
 
         <aside className="flex flex-col gap-4">
           <AdSlot position="category-sidebar" size="300x250" />
           <div className="bg-card border border-border rounded p-4">
             <h2 className="font-heading font-semibold text-sm text-gray-800 mb-3 uppercase tracking-wide">By State</h2>
-            <ul className="space-y-1.5 text-sm max-h-64 overflow-y-auto">
-              {states.filter(s => s.state !== "all-india").map((s) => (
+            <ul className="space-y-1.5 text-sm">
+              {states.filter(s => s.state !== "all-india").slice(0, 10).map((s) => (
                 <li key={s.state}>
                   <Link href={`/sarkari-naukri/state/${s.state}`} className="flex justify-between text-gray-700 hover:text-primary hover:underline">
                     <span className="capitalize">{s.state.replace(/-/g, " ")}</span>
@@ -69,6 +73,9 @@ export default async function SarkariBhartiPage() {
                 </li>
               ))}
             </ul>
+            <Link href="/sarkari-naukri/state" className="mt-3 inline-block text-xs font-semibold text-primary hover:underline">
+              All states →
+            </Link>
           </div>
         </aside>
       </div>

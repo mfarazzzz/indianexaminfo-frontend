@@ -26,23 +26,11 @@ const sectionText: Record<string, string> = {
   "opinion":         "text-gray-500",
 };
 
-const featuredBg: Record<string, string> = {
-  "education-news":  "from-blue-700 to-blue-900",
-  "exam-prep":       "from-green-700 to-green-900",
-  "career-guidance": "from-orange-600 to-orange-900",
-  "scholarship":     "from-purple-700 to-purple-900",
-  "study-abroad":    "from-teal-600 to-teal-900",
-  "edtech":          "from-pink-600 to-pink-900",
-  "student-life":    "from-yellow-600 to-yellow-800",
-  "opinion":         "from-gray-600 to-gray-900",
-};
-
 export async function EditorialSpotlight() {
   const posts = await getFeaturedBlogPosts();
   if (!posts.length) return null;
 
   const [featured, ...rest] = posts.slice(0, 4);
-  const bgGradient = featuredBg[featured.section] ?? "from-primary to-primary-800";
 
   return (
     <section aria-labelledby="editorial-spotlight-heading">
@@ -63,26 +51,10 @@ export async function EditorialSpotlight() {
 
         {/* Featured large article */}
         <article className="bg-white border border-border shadow-sm overflow-hidden flex flex-col hover:shadow-md transition-shadow">
-          {/* Cover image — use featuredImage when available, else plain gradient */}
-          <div className={`bg-gradient-to-br ${bgGradient} h-44 relative overflow-hidden flex items-center justify-center`}>
-            {featured.featuredImage ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={featured.featuredImage}
-                alt={featured.title}
-                className="absolute inset-0 w-full h-full object-cover"
-                loading="lazy"
-              />
-            ) : null}
-            {/* Section badge overlay */}
-            <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/50 to-transparent p-3">
-              <span className="text-xs text-white bg-editorial px-2 py-0.5 rounded uppercase font-bold tracking-wide">
-                {featured.section.replace(/-/g, " ")}
-              </span>
-            </div>
-          </div>
-
           <div className="p-4 flex flex-col gap-2 flex-1">
+            <span className="self-start text-xs text-editorial uppercase font-bold tracking-wide">
+              {featured.section.replace(/-/g, " ")}
+            </span>
             <h3 className="font-heading font-bold text-sm text-gray-900 leading-snug">
               <Link href={`/blog/${featured.section}/${featured.slug}`} prefetch={false} className="hover:text-primary transition-colors">
                 {featured.title}

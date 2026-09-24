@@ -175,31 +175,12 @@ export function getReadingTimeText(minutes: number): string {
 }
 
 /**
- * Generate the canonical URL path for an exam entity.
- * Handles all pillars: sarkari-naukri, entrance-exam, board-university.
- * Falls back to flat slug URL if category is missing.
+ * Canonical URL builders for exam entities live in lib/exam/actionLinks so there
+ * is ONE implementation that also canonicalises the dead-root pillars
+ * (government-exam / govt-vacancy → sarkari-naukri). Re-exported here for the
+ * existing import sites; do not add a second copy.
  */
-export function getExamEntityHref(exam: { pillar: string; category: string; slug: string; entityType?: string }): string {
-  if (exam.pillar === "board-exam") {
-    return exam.entityType === "university"
-      ? `/board-exam/university/${exam.slug}`
-      : `/board-exam/state/${exam.category}/${exam.slug}`;
-  }
-  if (!exam.category) {
-    return `/${exam.pillar}/${exam.slug}`;
-  }
-  return `/${exam.pillar}/${exam.category}/${exam.slug}`;
-}
-
-/**
- * Generate the URL path for a content-type page of an exam entity.
- */
-export function getExamContentTypeHref(
-  exam: { pillar: string; category: string; slug: string; entityType?: string },
-  contentType: string
-): string {
-  return `${getExamEntityHref(exam)}/${contentType}`;
-}
+export { getExamEntityHref, getExamContentTypeHref } from "@/lib/exam/actionLinks";
 
 /**
  * Escape special characters in user input before using in PostgREST .ilike() filters.

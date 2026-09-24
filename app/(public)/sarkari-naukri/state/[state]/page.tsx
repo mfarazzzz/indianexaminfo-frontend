@@ -8,6 +8,8 @@ import { buildExamMetadata } from "@/lib/seo/metadata";
 import { getCurrentYear } from "@/lib/seo/keywords";
 import { siteConfig } from "@/config/site";
 import { SarkariNaukriList } from "@/components/sarkari-naukri/SarkariNaukriList";
+import { sortRecruitmentsOpenFirst } from "@/lib/sarkari/listing";
+import { SARKARI_LABELS } from "@/lib/sarkari/labels";
 
 export const revalidate = 1800;
 
@@ -38,10 +40,12 @@ export default async function StatePage({ params }: Props) {
   const examCount = items.filter((i) => i.recruitmentType === "exam").length;
   const directCount = items.filter((i) => i.recruitmentType === "direct").length;
 
+  const sortedItems = sortRecruitmentsOpenFirst(items);
+
   return (
     <div className="container mx-auto px-4 py-4">
       <Breadcrumb items={[
-        { name: "Sarkari Naukri", href: "/sarkari-naukri" },
+        { name: SARKARI_LABELS.root, href: "/sarkari-naukri" },
         { name: label, href: `/sarkari-naukri/state/${state}` },
       ]} />
 
@@ -59,8 +63,8 @@ export default async function StatePage({ params }: Props) {
 
         <div className="flex gap-3 mb-5">
           <Link href={`/sarkari-naukri/state/${state}`} className="rounded-full px-4 py-1.5 text-sm font-medium bg-primary text-white">All ({items.length})</Link>
-          {examCount > 0 && <span className="rounded-full px-3 py-1.5 text-xs border border-blue-200 text-blue-600">Exam: {examCount}</span>}
-          {directCount > 0 && <span className="rounded-full px-3 py-1.5 text-xs border border-green-200 text-green-600">Bharti: {directCount}</span>}
+          {examCount > 0 && <span className="rounded-full px-3 py-1.5 text-xs border border-blue-200 text-blue-600">{SARKARI_LABELS.exams}: {examCount}</span>}
+          {directCount > 0 && <span className="rounded-full px-3 py-1.5 text-xs border border-green-200 text-green-600">{SARKARI_LABELS.vacancies}: {directCount}</span>}
         </div>
 
         {items.length === 0 ? (
@@ -69,7 +73,7 @@ export default async function StatePage({ params }: Props) {
             <Link href="/sarkari-naukri" className="text-primary hover:underline text-sm">← Browse all jobs</Link>
           </div>
         ) : (
-          <SarkariNaukriList items={items} todayISO={todayISO} />
+          <SarkariNaukriList items={sortedItems} todayISO={todayISO} />
         )}
       </main>
     </div>

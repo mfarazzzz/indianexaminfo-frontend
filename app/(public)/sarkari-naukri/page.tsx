@@ -9,6 +9,7 @@ import { AdSlot } from "@/components/ads/AdSlot";
 import { buildExamMetadata } from "@/lib/seo/metadata";
 import { buildPageKeywords, getCurrentYear } from "@/lib/seo/keywords";
 import { siteConfig } from "@/config/site";
+import { SARKARI_LABELS } from "@/lib/sarkari/labels";
 import { SarkariNaukriList } from "@/components/sarkari-naukri/SarkariNaukriList";
 
 export const revalidate = 1800;
@@ -92,7 +93,7 @@ export default async function SarkariNaukriPage() {
 
   return (
     <div className="container mx-auto px-4 py-4">
-      <Breadcrumb items={[{ name: "Sarkari Naukri", href: "/sarkari-naukri" }]} />
+      <Breadcrumb items={[{ name: SARKARI_LABELS.root, href: "/sarkari-naukri" }]} />
 
       {/* Ad hidden until a real creative is served */}
       <AdSlot position="category-top" size="728x90" hideWhenEmpty />
@@ -118,13 +119,13 @@ export default async function SarkariNaukriPage() {
               href="/sarkari-naukri/exam"
               className="rounded-full px-3 py-1.5 text-sm font-medium border border-blue-200 text-blue-700 hover:bg-blue-50 whitespace-nowrap shrink-0"
             >
-              Government Exams ({examCount})
+              {SARKARI_LABELS.exams} ({examCount})
             </Link>
             <Link
               href="/sarkari-naukri/bharti"
               className="rounded-full px-3 py-1.5 text-sm font-medium border border-green-200 text-green-700 hover:bg-green-50 whitespace-nowrap shrink-0"
             >
-              Government Vacancies ({directCount})
+              {SARKARI_LABELS.vacancies} ({directCount})
             </Link>
           </div>
 
@@ -157,8 +158,8 @@ export default async function SarkariNaukriPage() {
             <h2 className="font-heading font-semibold text-sm text-gray-800 mb-3 uppercase tracking-wide">
               Browse by State
             </h2>
-            <ul className="space-y-1.5 text-sm max-h-64 overflow-y-auto">
-              {states.map((s) => (
+            <ul className="space-y-1.5 text-sm">
+              {states.filter((s) => s.state !== "all-india").slice(0, 10).map((s) => (
                 <li key={s.state}>
                   <Link
                     href={`/sarkari-naukri/state/${s.state}`}
@@ -170,14 +171,16 @@ export default async function SarkariNaukriPage() {
                 </li>
               ))}
             </ul>
+            <Link href="/sarkari-naukri/state" className="mt-3 inline-block text-xs font-semibold text-primary hover:underline">
+              All states →
+            </Link>
           </div>
 
-          {/* Quick links */}
           <div className="bg-card border border-border rounded p-4">
             <h2 className="font-heading font-semibold text-sm text-gray-800 mb-3 uppercase tracking-wide">Quick Links</h2>
             <ul className="space-y-1.5 text-sm">
-              <li><Link href="/sarkari-naukri/exam" className="text-gray-700 hover:text-primary hover:underline">Government Exams</Link></li>
-              <li><Link href="/sarkari-naukri/bharti" className="text-gray-700 hover:text-primary hover:underline">Government Vacancies</Link></li>
+              <li><Link href="/sarkari-naukri/exam" className="text-gray-700 hover:text-primary hover:underline">{SARKARI_LABELS.exams}</Link></li>
+              <li><Link href="/sarkari-naukri/bharti" className="text-gray-700 hover:text-primary hover:underline">{SARKARI_LABELS.vacancies}</Link></li>
               <li><Link href="/admit-card" className="text-gray-700 hover:text-primary hover:underline">Admit Card</Link></li>
               <li><Link href="/results" className="text-gray-700 hover:text-primary hover:underline">Results</Link></li>
               <li><Link href="/answer-key" className="text-gray-700 hover:text-primary hover:underline">Answer Key</Link></li>

@@ -1,15 +1,14 @@
-import type { Metadata } from "next";
 import Link from "next/link";
-import { getExamsByPillar, getTodayIST } from "@/services/examService";
+import { getExamsByPillar } from "@/services/examService";
 import { getCategoriesByPillar } from "@/services/categoryService";
-import { ExamCard } from "@/components/exam/ExamCard";
+import { ExamListRow } from "@/components/exam/ExamListRow";
 import { Breadcrumb } from "@/components/layout/Breadcrumb";
 import { AdSlot } from "@/components/ads/AdSlot";
 import { buildExamMetadata } from "@/lib/seo/metadata";
 import { buildPageKeywords, getCurrentYear } from "@/lib/seo/keywords";
 import { siteConfig } from "@/config/site";
 
-export const revalidate = 600; // 10 min — ensures new exams appear quickly
+export const revalidate = 600;
 
 const YEAR = getCurrentYear();
 export const metadata: Metadata = buildExamMetadata({
@@ -20,31 +19,29 @@ export const metadata: Metadata = buildExamMetadata({
   canonicalUrl: `${siteConfig.url}/entrance-exam`,
 });
 
-// Hardcoded fallback
 const FALLBACK_CATEGORIES = [
-  { slug: "engineering", label: "Engineering", count: 12, icon: "⚙️" },
-  { slug: "medical", label: "Medical", count: 8, icon: "🏥" },
-  { slug: "law", label: "Law", count: 6, icon: "⚖️" },
-  { slug: "mba", label: "MBA / Management", count: 8, icon: "📊" },
-  { slug: "design", label: "Design & Architecture", count: 5, icon: "🎨" },
-  { slug: "science-pg", label: "Science PG", count: 7, icon: "🔬" },
-  { slug: "teaching", label: "Teacher Education", count: 5, icon: "📚" },
-  { slug: "agriculture", label: "Agriculture", count: 4, icon: "🌾" },
-  { slug: "hotel-management", label: "Hotel Management", count: 3, icon: "🏨" },
-  { slug: "media", label: "Media & Journalism", count: 3, icon: "📰" },
-  { slug: "pharmacy", label: "Pharmacy", count: 4, icon: "💊" },
-  { slug: "liberal-arts", label: "Liberal Arts", count: 4, icon: "🎭" },
+  { slug: "engineering", label: "Engineering", count: 12 },
+  { slug: "medical", label: "Medical", count: 8 },
+  { slug: "law", label: "Law", count: 6 },
+  { slug: "mba", label: "MBA / Management", count: 8 },
+  { slug: "design", label: "Design & Architecture", count: 5 },
+  { slug: "science-pg", label: "Science PG", count: 7 },
+  { slug: "teaching", label: "Teacher Education", count: 5 },
+  { slug: "agriculture", label: "Agriculture", count: 4 },
+  { slug: "hotel-management", label: "Hotel Management", count: 3 },
+  { slug: "media", label: "Media & Journalism", count: 3 },
+  { slug: "pharmacy", label: "Pharmacy", count: 4 },
+  { slug: "liberal-arts", label: "Liberal Arts", count: 4 },
 ];
 
 export default async function EntranceExamPage() {
-  const [exams, cmsCategories, todayISO] = await Promise.all([
+  const [exams, cmsCategories] = await Promise.all([
     getExamsByPillar("entrance-exam"),
     getCategoriesByPillar("entrance-exam"),
-    getTodayIST(),
   ]);
 
   const categories = cmsCategories.length > 0
-    ? cmsCategories.map((c) => ({ slug: c.slug, label: c.name, count: c.examCount, icon: c.icon ?? "📝" }))
+    ? cmsCategories.map((c) => ({ slug: c.slug, label: c.name, count: c.examCount }))
     : FALLBACK_CATEGORIES;
 
   return (
@@ -56,7 +53,7 @@ export default async function EntranceExamPage() {
       </div>
 
       <h1 className="font-heading font-bold text-2xl text-gray-900 mb-1">
-        Admissions {new Date().getFullYear()} — Latest Notifications, Admit Card &amp; Result
+        Admissions {YEAR} — Latest Notifications, Admit Card &amp; Result
       </h1>
       <p className="text-sm text-gray-500 mb-5">
         Last Updated: {new Date().toLocaleDateString("en-IN")}
@@ -73,7 +70,6 @@ export default async function EntranceExamPage() {
                   href={`/entrance-exam/${cat.slug}`}
                   className="bg-card border border-border rounded p-3 text-sm hover:border-primary hover:bg-primary/5 transition-colors group"
                 >
-                  <div className="text-xl mb-1">{cat.icon}</div>
                   <div className="font-semibold text-gray-800 group-hover:text-primary text-sm">{cat.label}</div>
                   <div className="text-xs text-gray-500">{cat.count} exams</div>
                 </Link>
@@ -82,11 +78,9 @@ export default async function EntranceExamPage() {
           </section>
 
           <section aria-label="All admissions">
-            <h2 className="font-heading font-bold text-lg text-gray-900 mb-4">All Admissions {new Date().getFullYear()}</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {exams.map((exam) => (
-                <ExamCard key={exam.id} exam={exam} todayISO={todayISO} />
-              ))}
+            <h2 className="font-heading font-bold text-lg text-gray-900 mb-4">All Admissions {YEAR}</h2>
+            <div className="divide-y divide-border border-t border-border">
+              {exams.map((exam) => <ExamListRow key={exam.id} exam={exam} />)}
             </div>
           </section>
         </main>

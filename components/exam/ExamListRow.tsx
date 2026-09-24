@@ -1,23 +1,17 @@
 import Link from "next/link";
 import { formatDate } from "@/lib/utils";
-import { buildAnchorText, getCurrentYear } from "@/lib/seo/keywords";
-import type { ExamEntity, ContentType } from "@/types/exam";
+import { getActionLinks, getExamEntityHref, pickDisplayDate } from "@/lib/exam/actionLinks";
+import type { ExamEntity } from "@/types/exam";
 
 // Full-width list row used by the dense homepage listing sections (Government
 // Jobs, Entrance Exams, Boards & Universities). Part C: these sections are
 // bordered list rows separated by a hairline rule — no rounded corners, no
 // per-item border box, no card padding. The bordered-card treatment (ExamCard)
 // is reserved for category doorways and sidebar blocks.
-
-function getExamHref(exam: ExamEntity): string {
-  if (exam.pillar === "board-exam") {
-    return exam.entityType === "university"
-      ? `/board-exam/university/${exam.slug}`
-      : `/board-exam/state/${exam.category}/${exam.slug}`;
-  }
-  if (!exam.category) return `/${exam.pillar}/${exam.slug}`;
-  return `/${exam.pillar}/${exam.category}/${exam.slug}`;
-}
+//
+// Link selection, href building, and the date-for-state pick all live in the
+// shared lib/exam/actionLinks module — this component renders what it returns and
+// adds NO link logic of its own (that duplication is exactly what 404'd the site).
 
 // Status text colour — status colours are retained (Part E keeps status colour,
 // drops decorative tint). Plain coloured text, no pastel pill background.
@@ -34,53 +28,10 @@ function statusText(status: string): string {
   return map[status] ?? "text-gray-500";
 }
 
-/** Pick at most two content links, ordered by the record's current status. */
-function pickLinks(exam: ExamEntity, href: string): { label: string; ct: ContentType; href: string }[] {
-  const available: Partial<Record<ContentType, string>> = {
-    "admit-card":  exam.hasAdmitCard   ? `${href}/admit-card` : undefined,
-    result:        exam.hasResult       ? `${href}/result` : undefined,
-    syllabus:      exam.hasSyllabus     ? `${href}/syllabus` : undefined,
-    "answer-key":  exam.hasAnswerKey    ? `${href}/answer-key` : undefined,
-    "date-sheet":  exam.hasDateSheet    ? `${href}/date-sheet` : undefined,
-    application:   exam.hasApplication  ? `${href}/application` : undefined,
-  };
-  const priorityByStatus: Record<string, ContentType[]> = {
-    "registration-open": ["application", "admit-card"],
-    notified: ["application", "admit-card"],
-    upcoming: ["application", "syllabus"],
-    "admit-card-out": ["admit-card", "result"],
-    "result-declared": ["result", "answer-key"],
-    "result-awaited": ["result", "answer-key"],
-    "registration-closed": ["admit-card", "application"],
-    completed: ["result", "answer-key"],
-  };
-  const fallback: ContentType[] = ["application", "admit-card", "result", "answer-key", "syllabus", "date-sheet"];
-  const ordered = [...(priorityByStatus[exam.status] ?? []), ...fallback];
-  const seen = new Set<ContentType>();
-  const out: { label: string; ct: ContentType; href: string }[] = [];
-  for (const ct of ordered) {
-    if (seen.has(ct)) continue;
-    seen.add(ct);
-    const url = available[ct];
-    if (url) {
-      const label =
-        ct === "admit-card" ? "Admit card" :
-        ct === "result" ? "Result" :
-        ct === "syllabus" ? "Syllabus" :
-        ct === "answer-key" ? "Answer key" :
-        ct === "date-sheet" ? "Date sheet" : "Apply";
-      out.push({ label, ct, href: url });
-    }
-    if (out.length === 2) break;
-  }
-  return out;
-}
-
 export function ExamListRow({ exam }: { exam: ExamEntity }) {
-  const href = getExamHref(exam);
-  const links = pickLinks(exam, href);
-  const validDates = exam.dates.filter((d) => d.date && d.date.trim() !== "");
-  const next = validDates[0];
+  const href = getExamEntityHref(exam);
+  const links = getActionLinks(exam);
+  const next = pickDisplayDate(exam);
 
   return (
     // Track 3/2: the NAME is what the reader needs. On narrow screens the row stacks —

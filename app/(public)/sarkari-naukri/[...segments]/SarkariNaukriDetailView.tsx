@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { SARKARI_LABELS } from "@/lib/sarkari/labels";
 import type { SarkariNaukriItem } from "@/services/sarkariNaukriService";
 import { Breadcrumb } from "@/components/layout/Breadcrumb";
 import { sarkariCategoryLabel } from "@/lib/sarkari/categories";
@@ -21,8 +22,8 @@ export function SarkariNaukriDetailView({ item, slug }: Props) {
       <JsonLd data={buildSarkariJobPostingSchema(item, pageUrl)} />
 
       <Breadcrumb items={[
-        { name: "Sarkari Naukri", href: "/sarkari-naukri" },
-        { name: isExam ? "Government Exams" : "Government Vacancies", href: isExam ? "/sarkari-naukri/exam" : "/sarkari-naukri/bharti" },
+        { name: SARKARI_LABELS.root, href: "/sarkari-naukri" },
+        { name: isExam ? SARKARI_LABELS.exams : SARKARI_LABELS.vacancies, href: isExam ? "/sarkari-naukri/exam" : "/sarkari-naukri/bharti" },
         { name: item.title, href: `/sarkari-naukri/${slug}` },
       ]} />
 
@@ -36,7 +37,7 @@ export function SarkariNaukriDetailView({ item, slug }: Props) {
           <div className="mb-6">
             <div className="flex items-center gap-2 mb-2">
               <span className={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${isExam ? "bg-blue-100 text-blue-700" : "bg-green-100 text-green-700"}`}>
-                {isExam ? "📝 Government Exams" : "📋 Government Vacancies"}
+                {isExam ? `📝 ${SARKARI_LABELS.exams}` : `📋 ${SARKARI_LABELS.vacancies}`}
               </span>
               <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase ${
                 item.status === "result-declared" ? "bg-emerald-100 text-emerald-700" :

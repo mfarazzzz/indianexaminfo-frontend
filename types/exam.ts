@@ -79,6 +79,13 @@ export type ExamEntity = {
   hasNotification: boolean;
   hasCutoff: boolean;
 
+  /** True when exam_syllabus_subjects has >=1 row for this exam — the SAME signal the
+   *  /syllabus route gate (contentTypeAvailable → hasStructuredSyllabus) uses. Populated
+   *  by the list mappers via a batch query so listing components can gate the syllabus
+   *  action link on real page existence without a per-row async read. Undefined when a
+   *  caller didn't batch it (treated as "unknown" → syllabus link withheld, never a 404). */
+  hasStructuredSyllabus?: boolean;
+
   dates: {
     label: string;
     date: string;

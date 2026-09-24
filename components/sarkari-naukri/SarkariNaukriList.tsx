@@ -24,7 +24,7 @@ const STATUS_CONFIG: Record<string, { label: string; cls: string; weight: BadgeW
   "answer-key-released": { label: "Answer Key Out",  cls: "bg-yellow-100 text-yellow-700",      weight: "normal" },
   "interview-scheduled": { label: "Interview",       cls: "bg-orange-100 text-orange-700",      weight: "normal" },
   "merit-list-released": { label: "Merit List",      cls: "bg-teal-100 text-teal-700",          weight: "normal" },
-  "completed":           { label: "Completed",       cls: "bg-gray-100 text-gray-400",          weight: "muted" },
+  "completed":           { label: "Completed",       cls: "bg-gray-200 text-gray-700 border border-gray-300", weight: "muted" },
   "cancelled":           { label: "Cancelled",       cls: "bg-red-100 text-red-400",            weight: "muted" },
 };
 
@@ -37,7 +37,7 @@ function StatusBadge({ status }: { status: string }) {
   const sizeCls = cfg.weight === "high"
     ? "px-2.5 py-0.5 text-xs font-bold rounded"
     : cfg.weight === "muted"
-    ? "px-2 py-0.5 text-[10px] font-medium rounded-full opacity-70"
+    ? "px-2 py-0.5 text-[10px] font-semibold rounded-full"
     : "px-2 py-0.5 text-[10px] font-semibold rounded-full";
   return (
     <span className={`inline-block uppercase ${sizeCls} ${cfg.cls}`}>
@@ -115,7 +115,7 @@ export function SarkariNaukriList({ items, todayISO }: { items: SarkariNaukriIte
         {visible.map((item) => {
           const dl = deadlineInfo(item, todayISO);
           const rd = relevantDate(item);
-          const muted = item.status === "completed" || item.status === "cancelled" || item.status === "application-closed";
+          const muted = item.status === "cancelled" || item.status === "application-closed";
 
           return (
             <Link

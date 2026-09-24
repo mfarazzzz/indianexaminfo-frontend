@@ -1,30 +1,23 @@
 import Link from "next/link";
-import { formatDate, isFutureOrToday } from "@/lib/utils";
-import { buildAnchorText, getCurrentYear } from "@/lib/seo/keywords";
-import type { ExamEntity, ContentType } from "@/types/exam";
+import { formatDate } from "@/lib/utils";
+import { getActionLinks, getExamEntityHref, pickDisplayDate } from "@/lib/exam/actionLinks";
+import type { ExamEntity } from "@/types/exam";
 
 type ExamCardProps = {
   exam: ExamEntity;
   showPillar?: boolean;
   className?: string;
-  /** The single IST "today" anchor (from getTodayIST). Passed by server callers
-   *  so the "next/last milestone" pick agrees with the derived-status VIEW and
-   *  every other past/future decision, never the server UTC clock. */
+  /** The single IST "today" anchor (from getTodayIST). Kept in the props for
+   *  call-site compatibility; the date shown is now the state-relevant one picked
+   *  by the shared module, so this is no longer read here. */
   todayISO: string;
 };
 
-function getExamHref(exam: ExamEntity): string {
-  if (exam.pillar === "board-exam") {
-    return exam.entityType === "university"
-      ? `/board-exam/university/${exam.slug}`
-      : `/board-exam/state/${exam.category}/${exam.slug}`;
-  }
-  // If category is missing, fall back to flat slug URL (works for sarkari-naukri [slug] route)
-  if (!exam.category) {
-    return `/${exam.pillar}/${exam.slug}`;
-  }
-  return `/${exam.pillar}/${exam.category}/${exam.slug}`;
-}
+// Card used by category doorways and pillar hubs (/entrance-exam, /board-exam,
+// related-exam grids). Link selection, href building, and the date-for-state pick
+// all live in the shared lib/exam/actionLinks module — this component renders what
+// it returns and adds NO link logic of its own. Before, its own copy of the logic
+// linked off the has_* flags and 404'd like ExamListRow did.
 
 // Standardized status badge colors
 function statusBadge(status: string): string {
@@ -46,61 +39,10 @@ function statusBadge(status: string): string {
   return map[status] ?? "bg-gray-100 text-gray-600";
 }
 
-export function ExamCard({ exam, todayISO }: ExamCardProps) {
-  const href     = getExamHref(exam);
-  // Filter out blank dates (no date value) — they shouldn't appear on frontend
-  const validDates = exam.dates.filter((d) => d.date && d.date.trim() !== "");
-  // "Future" = today-or-later on the IST anchor (the ONE past/future rule), so a
-  // date that is today in IST but yesterday in UTC is still treated as upcoming.
-  const nextDate = validDates.find((d) => isFutureOrToday(d.date, todayISO));
-
-  // For result-declared/completed exams, show the most recent past milestone if no urgent future date
-  let displayDate = nextDate;
-  if (!nextDate || (exam.status === "result-declared" || exam.status === "completed")) {
-    const pastDates = validDates.filter((d) => !isFutureOrToday(d.date, todayISO));
-    const lastPast = pastDates.length > 0 ? pastDates[pastDates.length - 1] : null;
-    // Prefer showing the most recent milestone (e.g. "Result Declared") for declared/completed
-    if (lastPast && (exam.status === "result-declared" || exam.status === "completed")) {
-      displayDate = nextDate?.isUrgent ? nextDate : lastPast;
-    }
-  }
-
-  // Content-type links available for this record.
-  const available: Partial<Record<ContentType, { label: string; href: string }>> = {
-    "admit-card":  exam.hasAdmitCard   ? { label: buildAnchorText(exam.shortName, "admit-card", getCurrentYear()), href: `${href}/admit-card` } : undefined,
-    result:        exam.hasResult       ? { label: buildAnchorText(exam.shortName, "result",     getCurrentYear()), href: `${href}/result` } : undefined,
-    syllabus:      exam.hasSyllabus     ? { label: buildAnchorText(exam.shortName, "syllabus",   getCurrentYear()), href: `${href}/syllabus` } : undefined,
-    "answer-key":  exam.hasAnswerKey    ? { label: buildAnchorText(exam.shortName, "answer-key", getCurrentYear()), href: `${href}/answer-key` } : undefined,
-    "date-sheet":  exam.hasDateSheet    ? { label: buildAnchorText(exam.shortName, "date-sheet", getCurrentYear()), href: `${href}/date-sheet` } : undefined,
-    application:   exam.hasApplication  ? { label: `Apply for ${exam.shortName} ${getCurrentYear()}`, href: `${href}/application` } : undefined,
-  };
-
-  // Part D: show at most TWO links, ordered by what the record's CURRENT status
-  // makes most relevant, then filled from a sensible fallback order. The rest
-  // live on the detail page.
-  //   application phase → Apply first; results phase → Result first;
-  //   admit-card phase  → Admit Card first.
-  const priorityByStatus: Record<string, ContentType[]> = {
-    "registration-open":   ["application", "admit-card"],
-    notified:              ["application", "admit-card"],
-    upcoming:              ["application", "syllabus"],
-    "admit-card-out":      ["admit-card", "result"],
-    "result-declared":     ["result", "answer-key"],
-    "result-awaited":      ["result", "answer-key"],
-    "registration-closed": ["admit-card", "application"],
-    completed:             ["result", "answer-key"],
-  };
-  const fallbackOrder: ContentType[] = ["application", "admit-card", "result", "answer-key", "syllabus", "date-sheet"];
-  const ordered: ContentType[] = [...(priorityByStatus[exam.status] ?? []), ...fallbackOrder];
-  const seenCt = new Set<ContentType>();
-  const ctLinks: { label: string; href: string; ct: ContentType }[] = [];
-  for (const ct of ordered) {
-    if (seenCt.has(ct)) continue;
-    seenCt.add(ct);
-    const entry = available[ct];
-    if (entry) ctLinks.push({ ct, label: entry.label, href: entry.href });
-    if (ctLinks.length === 2) break;
-  }
+export function ExamCard({ exam }: ExamCardProps) {
+  const href = getExamEntityHref(exam);
+  const displayDate = pickDisplayDate(exam);
+  const ctLinks = getActionLinks(exam);
 
   return (
     <article
@@ -160,17 +102,17 @@ export function ExamCard({ exam, todayISO }: ExamCardProps) {
         </div>
       )}
 
-      {/* Next important date */}
+      {/* Next important date — the one that matters for the record's current state */}
       {displayDate && (
         <div className="px-3 pb-2 flex items-center gap-1.5 text-xs border-t border-border pt-2 mt-auto">
           <span className="text-gray-500">{displayDate.label}:</span>
-          <span className={displayDate.isUrgent ? "text-accent font-semibold" : "text-gray-700 font-medium"}>
+          <span className="text-gray-700 font-medium">
             {formatDate(displayDate.date)}
           </span>
         </div>
       )}
 
-      {/* Content type quick links — Part D: at most two, plain text, status-driven */}
+      {/* Content type quick links — at most two, gated on page-existence AND state */}
       {ctLinks.length > 0 && (
         <div className="px-3 pb-3 flex flex-wrap gap-x-4 gap-y-1 border-t border-border pt-2">
           {ctLinks.map((ct) => (
@@ -181,12 +123,7 @@ export function ExamCard({ exam, todayISO }: ExamCardProps) {
               prefetch={false}
               title={ct.label}
             >
-              {ct.ct === "admit-card"   ? "Admit card"  :
-               ct.ct === "result"       ? "Result"      :
-               ct.ct === "syllabus"     ? "Syllabus"    :
-               ct.ct === "answer-key"   ? "Answer key"  :
-               ct.ct === "date-sheet"   ? "Date sheet"  :
-               "Apply"}
+              {ct.label}
             </Link>
           ))}
         </div>

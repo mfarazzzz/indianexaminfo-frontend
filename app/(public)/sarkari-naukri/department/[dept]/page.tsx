@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { SARKARI_LABELS } from "@/lib/sarkari/labels";
 import { getByDepartment } from "@/services/sarkariNaukriService";
 import { getTodayIST } from "@/services/examService";
 import { Breadcrumb } from "@/components/layout/Breadcrumb";
@@ -38,7 +39,7 @@ export default async function DepartmentPage({ params }: Props) {
   return (
     <div className="container mx-auto px-4 py-4">
       <Breadcrumb items={[
-        { name: "Sarkari Naukri", href: "/sarkari-naukri" },
+        { name: SARKARI_LABELS.root, href: "/sarkari-naukri" },
         { name: label, href: `/sarkari-naukri/department/${dept}` },
       ]} />
 

@@ -47,7 +47,7 @@ const govtExamCategories: TaxonomyNode[] = [
   node({
     slug: "ssc", label: "SSC", pillar: "government-exam",
     path: "sarkari-naukri/ssc", depth: 1, icon: "🏛️", isPinned: true,
-    itemCount: 12, showItemCount: true,
+    
     children: [
       node({ slug: "ssc-cgl", label: "SSC CGL", pillar: "government-exam", path: "sarkari-naukri/ssc/ssc-cgl", depth: 2, badge: "popular" }),
       node({ slug: "ssc-chsl", label: "SSC CHSL", pillar: "government-exam", path: "sarkari-naukri/ssc/ssc-chsl", depth: 2 }),
@@ -60,7 +60,7 @@ const govtExamCategories: TaxonomyNode[] = [
   node({
     slug: "upsc", label: "UPSC", pillar: "government-exam",
     path: "sarkari-naukri/upsc", depth: 1, icon: "⭐", isPinned: true,
-    itemCount: 8, showItemCount: true,
+    
     children: [
       node({ slug: "upsc-cse", label: "UPSC CSE (IAS)", pillar: "government-exam", path: "sarkari-naukri/upsc/upsc-cse", depth: 2, badge: "popular" }),
       node({ slug: "upsc-nda", label: "UPSC NDA", pillar: "government-exam", path: "sarkari-naukri/upsc/upsc-nda", depth: 2 }),
@@ -72,7 +72,7 @@ const govtExamCategories: TaxonomyNode[] = [
   node({
     slug: "banking", label: "Banking", pillar: "government-exam",
     path: "sarkari-naukri/banking", depth: 1, icon: "🏦",
-    itemCount: 10, showItemCount: true,
+    
     children: [
       node({ slug: "ibps-po", label: "IBPS PO", pillar: "government-exam", path: "sarkari-naukri/banking/ibps-po", depth: 2, badge: "popular" }),
       node({ slug: "ibps-clerk", label: "IBPS Clerk", pillar: "government-exam", path: "sarkari-naukri/banking/ibps-clerk", depth: 2 }),
@@ -85,7 +85,7 @@ const govtExamCategories: TaxonomyNode[] = [
   node({
     slug: "railway", label: "Railway", pillar: "government-exam",
     path: "sarkari-naukri/railways", depth: 1, icon: "🚂",
-    itemCount: 6, showItemCount: true,
+    
     children: [
       node({ slug: "rrb-ntpc", label: "RRB NTPC", pillar: "government-exam", path: "sarkari-naukri/railways/rrb-ntpc", depth: 2, badge: "trending" }),
       node({ slug: "rrb-group-d", label: "RRB Group D", pillar: "government-exam", path: "sarkari-naukri/railways/rrb-group-d", depth: 2 }),
@@ -96,7 +96,7 @@ const govtExamCategories: TaxonomyNode[] = [
   node({
     slug: "defence", label: "Defence", pillar: "government-exam",
     path: "sarkari-naukri/defence", depth: 1, icon: "🎖️",
-    itemCount: 5, showItemCount: true,
+    
     children: [
       node({ slug: "indian-navy-agniveer", label: "Indian Navy Agniveer", pillar: "government-exam", path: "sarkari-naukri/defence/indian-navy-agniveer", depth: 2 }),
     ],
@@ -104,7 +104,7 @@ const govtExamCategories: TaxonomyNode[] = [
   node({
     slug: "teaching", label: "Teaching", pillar: "government-exam",
     path: "sarkari-naukri/teaching", depth: 1, icon: "📚",
-    itemCount: 4, showItemCount: true,
+    
     children: [
       node({ slug: "ctet", label: "CTET", pillar: "government-exam", path: "sarkari-naukri/teaching/ctet", depth: 2 }),
       node({ slug: "super-tet", label: "Super TET", pillar: "government-exam", path: "sarkari-naukri/teaching/super-tet", depth: 2 }),
@@ -115,7 +115,7 @@ const govtExamCategories: TaxonomyNode[] = [
   node({
     slug: "state-psc", label: "State PSC", pillar: "government-exam",
     path: "sarkari-naukri/state-government-jobs", depth: 1, icon: "🗺️",
-    itemCount: 6, showItemCount: true,
+    
     children: [
       node({ slug: "uppsc-pcs", label: "UPPSC", pillar: "government-exam", path: "sarkari-naukri/state-government-jobs/uppsc-pcs", depth: 2 }),
       node({ slug: "bpsc", label: "BPSC", pillar: "government-exam", path: "sarkari-naukri/state-government-jobs/bpsc", depth: 2 }),
@@ -134,7 +134,7 @@ const govtJobCategories: TaxonomyNode[] = [
   node({
     slug: "central-govt", label: "Central Government", pillar: "govt-vacancy",
     path: "govt-vacancy/central-govt", depth: 1, icon: "🏛️", isPinned: true,
-    itemCount: 15, showItemCount: true,
+    
     children: [
       node({ slug: "ssc-jobs", label: "SSC Jobs", pillar: "govt-vacancy", path: "govt-vacancy/central-govt/ssc-jobs", depth: 2, badge: "popular" }),
       node({ slug: "railway-jobs", label: "Railway Jobs", pillar: "govt-vacancy", path: "govt-vacancy/central-govt/railway-jobs", depth: 2 }),
@@ -146,7 +146,7 @@ const govtJobCategories: TaxonomyNode[] = [
   node({
     slug: "state-govt", label: "State Government", pillar: "govt-vacancy",
     path: "govt-vacancy/state-govt", depth: 1, icon: "🗺️",
-    itemCount: 20, showItemCount: true,
+    
     children: [
       node({ slug: "up-govt-jobs", label: "UP Govt Jobs", pillar: "govt-vacancy", path: "govt-vacancy/state-govt/up-govt-jobs", depth: 2 }),
       node({ slug: "bihar-govt-jobs", label: "Bihar Govt Jobs", pillar: "govt-vacancy", path: "govt-vacancy/state-govt/bihar-govt-jobs", depth: 2 }),
@@ -158,7 +158,7 @@ const govtJobCategories: TaxonomyNode[] = [
   node({
     slug: "psu-jobs", label: "PSU Jobs", pillar: "govt-vacancy",
     path: "govt-vacancy/psu-jobs", depth: 1, icon: "🏭",
-    itemCount: 8, showItemCount: true,
+    
     children: [
       node({ slug: "ongc", label: "ONGC", pillar: "govt-vacancy", path: "govt-vacancy/psu-jobs/ongc", depth: 2 }),
       node({ slug: "bhel", label: "BHEL", pillar: "govt-vacancy", path: "govt-vacancy/psu-jobs/bhel", depth: 2 }),
@@ -169,7 +169,7 @@ const govtJobCategories: TaxonomyNode[] = [
   node({
     slug: "qualification-wise", label: "Qualification Wise", pillar: "govt-vacancy",
     path: "govt-vacancy/qualification-wise", depth: 1, icon: "🎓",
-    itemCount: 5, showItemCount: true,
+    
     children: [
       node({ slug: "10th-pass", label: "10th Pass Jobs", pillar: "govt-vacancy", path: "govt-vacancy/qualification-wise/10th-pass", depth: 2 }),
       node({ slug: "12th-pass", label: "12th Pass Jobs", pillar: "govt-vacancy", path: "govt-vacancy/qualification-wise/12th-pass", depth: 2 }),
@@ -181,7 +181,7 @@ const govtJobCategories: TaxonomyNode[] = [
   node({
     slug: "latest-bharti", label: "Latest Bharti", pillar: "govt-vacancy",
     path: "govt-vacancy/latest-bharti", depth: 1, icon: "🆕", badge: "new",
-    itemCount: 10, showItemCount: true,
+    
     children: [
       node({ slug: "anganwadi-bharti", label: "Anganwadi Bharti", pillar: "govt-vacancy", path: "govt-vacancy/latest-bharti/anganwadi-bharti", depth: 2 }),
       node({ slug: "panchayat-bharti", label: "Panchayat Bharti", pillar: "govt-vacancy", path: "govt-vacancy/latest-bharti/panchayat-bharti", depth: 2 }),
@@ -198,7 +198,7 @@ const entranceExamCategories: TaxonomyNode[] = [
   node({
     slug: "engineering", label: "Engineering", pillar: "entrance-exam",
     path: "entrance-exam/engineering", depth: 1, icon: "⚙️", isPinned: true,
-    itemCount: 8, showItemCount: true,
+    
     children: [
       node({ slug: "jee-main", label: "JEE Main", pillar: "entrance-exam", path: "entrance-exam/engineering/jee-main", depth: 2, badge: "popular" }),
       node({ slug: "jee-advanced", label: "JEE Advanced", pillar: "entrance-exam", path: "entrance-exam/engineering/jee-advanced", depth: 2 }),
@@ -210,7 +210,7 @@ const entranceExamCategories: TaxonomyNode[] = [
   node({
     slug: "medical", label: "Medical", pillar: "entrance-exam",
     path: "entrance-exam/medical", depth: 1, icon: "🏥", isPinned: true,
-    itemCount: 5, showItemCount: true,
+    
     children: [
       node({ slug: "neet-ug", label: "NEET UG", pillar: "entrance-exam", path: "entrance-exam/medical/neet-ug", depth: 2, badge: "popular" }),
       node({ slug: "neet-pg", label: "NEET PG", pillar: "entrance-exam", path: "entrance-exam/medical/neet-pg", depth: 2 }),
@@ -221,7 +221,7 @@ const entranceExamCategories: TaxonomyNode[] = [
   node({
     slug: "mba", label: "MBA", pillar: "entrance-exam",
     path: "entrance-exam/mba", depth: 1, icon: "💼",
-    itemCount: 6, showItemCount: true,
+    
     children: [
       node({ slug: "cat", label: "CAT", pillar: "entrance-exam", path: "entrance-exam/mba/cat", depth: 2, badge: "popular" }),
       node({ slug: "mat", label: "MAT", pillar: "entrance-exam", path: "entrance-exam/mba/mat", depth: 2 }),
@@ -232,7 +232,7 @@ const entranceExamCategories: TaxonomyNode[] = [
   node({
     slug: "law", label: "Law", pillar: "entrance-exam",
     path: "entrance-exam/law", depth: 1, icon: "⚖️",
-    itemCount: 4, showItemCount: true,
+    
     children: [
       node({ slug: "clat", label: "CLAT", pillar: "entrance-exam", path: "entrance-exam/law/clat", depth: 2, badge: "popular" }),
       node({ slug: "ailet", label: "AILET", pillar: "entrance-exam", path: "entrance-exam/law/ailet", depth: 2 }),
@@ -242,7 +242,7 @@ const entranceExamCategories: TaxonomyNode[] = [
   node({
     slug: "agriculture", label: "Agriculture", pillar: "entrance-exam",
     path: "entrance-exam/agriculture", depth: 1, icon: "🌾",
-    itemCount: 3, showItemCount: true,
+    
     children: [
       node({ slug: "icar-aieea", label: "ICAR AIEEA", pillar: "entrance-exam", path: "entrance-exam/agriculture/icar-aieea", depth: 2 }),
       node({ slug: "bhu-uet", label: "BHU UET", pillar: "entrance-exam", path: "entrance-exam/agriculture/bhu-uet", depth: 2 }),
@@ -251,7 +251,7 @@ const entranceExamCategories: TaxonomyNode[] = [
   node({
     slug: "design", label: "Design", pillar: "entrance-exam",
     path: "entrance-exam/design", depth: 1, icon: "🎨",
-    itemCount: 3, showItemCount: true,
+    
     children: [
       node({ slug: "nid-dat", label: "NID DAT", pillar: "entrance-exam", path: "entrance-exam/design/nid-dat", depth: 2 }),
       node({ slug: "uceed", label: "UCEED", pillar: "entrance-exam", path: "entrance-exam/design/uceed", depth: 2 }),
@@ -261,7 +261,7 @@ const entranceExamCategories: TaxonomyNode[] = [
   node({
     slug: "defence-entrance", label: "Defence Entrance", pillar: "entrance-exam",
     path: "entrance-exam/defence-entrance", depth: 1, icon: "🎖️",
-    itemCount: 3, showItemCount: true,
+    
     children: [
       node({ slug: "cds", label: "CDS", pillar: "entrance-exam", path: "entrance-exam/defence-entrance/cds", depth: 2 }),
       node({ slug: "afcat", label: "AFCAT", pillar: "entrance-exam", path: "entrance-exam/defence-entrance/afcat", depth: 2 }),
@@ -278,7 +278,7 @@ const universityCategories: TaxonomyNode[] = [
   node({
     slug: "ignou", label: "IGNOU", pillar: "university-exam",
     path: "university-exam/open-university/ignou-exam", depth: 1, icon: "🏫", isPinned: true,
-    itemCount: 8, showItemCount: true,
+    
     children: [
       node({ slug: "ignou-result", label: "IGNOU Result", pillar: "university-exam", path: "university-exam/open-university/ignou-exam/result", depth: 2, badge: "trending" }),
       node({ slug: "ignou-admission", label: "IGNOU Admission", pillar: "university-exam", path: "university-exam/open-university/ignou-exam/application", depth: 2 }),
@@ -288,7 +288,7 @@ const universityCategories: TaxonomyNode[] = [
   node({
     slug: "du", label: "Delhi University", pillar: "university-exam",
     path: "university-exam/central-university", depth: 1, icon: "🎓",
-    itemCount: 5, showItemCount: true,
+    
     children: [
       node({ slug: "du-admission", label: "DU Admission", pillar: "university-exam", path: "university-exam/central-university", depth: 2 }),
       node({ slug: "du-result", label: "DU Result", pillar: "university-exam", path: "university-exam/central-university", depth: 2 }),
@@ -297,7 +297,7 @@ const universityCategories: TaxonomyNode[] = [
   node({
     slug: "bhu", label: "BHU", pillar: "university-exam",
     path: "university-exam/central-university", depth: 1, icon: "🕉️",
-    itemCount: 4, showItemCount: true,
+    
     children: [
       node({ slug: "bhu-admission", label: "BHU Admission", pillar: "university-exam", path: "university-exam/central-university", depth: 2 }),
       node({ slug: "bhu-result", label: "BHU Result", pillar: "university-exam", path: "university-exam/central-university", depth: 2 }),
@@ -306,7 +306,7 @@ const universityCategories: TaxonomyNode[] = [
   node({
     slug: "mjpru", label: "MJPRU", pillar: "university-exam",
     path: "university-exam/state-university", depth: 1, icon: "📖",
-    itemCount: 4, showItemCount: true,
+    
     children: [
       node({ slug: "mjpru-result", label: "MJPRU Result", pillar: "university-exam", path: "university-exam/state-university", depth: 2 }),
       node({ slug: "mjpru-date-sheet", label: "MJPRU Date Sheet", pillar: "university-exam", path: "university-exam/state-university", depth: 2 }),
@@ -315,7 +315,7 @@ const universityCategories: TaxonomyNode[] = [
   node({
     slug: "other-universities", label: "Other Universities", pillar: "university-exam",
     path: "university-exam/state-university", depth: 1, icon: "🏛️",
-    itemCount: 6, showItemCount: true,
+    
     children: [
       node({ slug: "amu", label: "AMU", pillar: "university-exam", path: "university-exam/central-university", depth: 2 }),
       node({ slug: "jnu", label: "JNU", pillar: "university-exam", path: "university-exam/central-university", depth: 2 }),
@@ -332,7 +332,7 @@ const boardExamCategories: TaxonomyNode[] = [
   node({
     slug: "cbse", label: "CBSE", pillar: "board-exam",
     path: "board-exam/cbse", depth: 1, icon: "📘", isPinned: true,
-    itemCount: 6, showItemCount: true,
+    
     children: [
       node({ slug: "cbse-class-10", label: "CBSE Class 10", pillar: "board-exam", path: "board-exam/cbse/cbse-class-10", depth: 2, badge: "popular" }),
       node({ slug: "cbse-class-12", label: "CBSE Class 12", pillar: "board-exam", path: "board-exam/cbse/cbse-class-12", depth: 2, badge: "popular" }),
@@ -344,7 +344,7 @@ const boardExamCategories: TaxonomyNode[] = [
   node({
     slug: "up-board", label: "UP Board", pillar: "board-exam",
     path: "board-exam/up-board", depth: 1, icon: "📗", isPinned: true,
-    itemCount: 5, showItemCount: true,
+    
     children: [
       node({ slug: "up-board-class-10", label: "UP Board Class 10", pillar: "board-exam", path: "board-exam/up-board", depth: 2 }),
       node({ slug: "up-board-class-12", label: "UP Board Class 12", pillar: "board-exam", path: "board-exam/up-board", depth: 2 }),
@@ -354,7 +354,7 @@ const boardExamCategories: TaxonomyNode[] = [
   node({
     slug: "bihar-board", label: "Bihar Board", pillar: "board-exam",
     path: "board-exam/bihar-board", depth: 1, icon: "📕",
-    itemCount: 4, showItemCount: true,
+    
     children: [
       node({ slug: "bseb-10th", label: "BSEB 10th", pillar: "board-exam", path: "board-exam/bihar-board", depth: 2 }),
       node({ slug: "bseb-12th", label: "BSEB 12th", pillar: "board-exam", path: "board-exam/bihar-board", depth: 2 }),
@@ -363,7 +363,7 @@ const boardExamCategories: TaxonomyNode[] = [
   node({
     slug: "mp-board", label: "MP Board", pillar: "board-exam",
     path: "board-exam/mp-board", depth: 1, icon: "📙",
-    itemCount: 3, showItemCount: true,
+    
     children: [
       node({ slug: "mp-board-result", label: "MP Board Result", pillar: "board-exam", path: "board-exam/mp-board", depth: 2 }),
     ],
@@ -371,7 +371,7 @@ const boardExamCategories: TaxonomyNode[] = [
   node({
     slug: "haryana-board", label: "Haryana Board (BSEH)", pillar: "board-exam",
     path: "board-exam/haryana-board", depth: 1, icon: "📒",
-    itemCount: 3, showItemCount: true,
+    
     children: [
       node({ slug: "bseh-result", label: "BSEH Result", pillar: "board-exam", path: "board-exam/haryana-board", depth: 2 }),
     ],
@@ -379,7 +379,7 @@ const boardExamCategories: TaxonomyNode[] = [
   node({
     slug: "rajasthan-board", label: "Rajasthan Board (RBSE)", pillar: "board-exam",
     path: "board-exam/rajasthan-board", depth: 1, icon: "📓",
-    itemCount: 3, showItemCount: true,
+    
     children: [
       node({ slug: "rbse-result", label: "RBSE Result", pillar: "board-exam", path: "board-exam/rajasthan-board", depth: 2 }),
     ],
@@ -394,7 +394,7 @@ const newsCategories: TaxonomyNode[] = [
   node({
     slug: "blog", label: "Blog", pillar: "news",
     path: "news/blog", depth: 1, icon: "✍️", isPinned: true,
-    itemCount: 20, showItemCount: true,
+    
     children: [
       node({ slug: "exam-prep", label: "Exam Preparation", pillar: "news", path: "news/exam-prep", depth: 2, badge: "popular" }),
       node({ slug: "career-guidance", label: "Career Guidance", pillar: "news", path: "news/career-guidance", depth: 2 }),
@@ -405,7 +405,7 @@ const newsCategories: TaxonomyNode[] = [
   node({
     slug: "article", label: "Articles", pillar: "news",
     path: "news/article", depth: 1, icon: "📝", isPinned: true,
-    itemCount: 15, showItemCount: true,
+    
     children: [
       node({ slug: "education-news-articles", label: "Education News", pillar: "news", path: "news/education-news", depth: 2, badge: "trending" }),
       node({ slug: "edtech-articles", label: "EdTech", pillar: "news", path: "news/edtech", depth: 2 }),
@@ -415,7 +415,7 @@ const newsCategories: TaxonomyNode[] = [
   node({
     slug: "scholarship", label: "Scholarship", pillar: "news",
     path: "news/scholarship", depth: 1, icon: "🎓", isPinned: true, badge: "new",
-    itemCount: 10, showItemCount: true,
+    
     children: [
       node({ slug: "govt-scholarship", label: "Government Scholarships", pillar: "news", path: "news/scholarship", depth: 2 }),
       node({ slug: "private-scholarship", label: "Private Scholarships", pillar: "news", path: "news/scholarship", depth: 2 }),
@@ -425,7 +425,7 @@ const newsCategories: TaxonomyNode[] = [
   node({
     slug: "education-news", label: "Education News", pillar: "news",
     path: "news/education-news", depth: 1, icon: "📰",
-    itemCount: 10, showItemCount: true,
+    
     children: [
       node({ slug: "policy-updates", label: "Policy Updates", pillar: "news", path: "news/education-news", depth: 2 }),
       node({ slug: "exam-schedule", label: "Exam Schedule", pillar: "news", path: "news/education-news", depth: 2 }),
@@ -435,7 +435,7 @@ const newsCategories: TaxonomyNode[] = [
   node({
     slug: "sarkari-result", label: "Sarkari Result", pillar: "news",
     path: "news/education-news", depth: 1, icon: "📋", badge: "trending",
-    itemCount: 10, showItemCount: true,
+    
     children: [
       node({ slug: "latest-results", label: "Latest Results", pillar: "news", path: "news/education-news", depth: 2 }),
       node({ slug: "merit-list", label: "Merit List", pillar: "news", path: "news/education-news", depth: 2 }),
@@ -445,7 +445,7 @@ const newsCategories: TaxonomyNode[] = [
   node({
     slug: "admit-card", label: "Admit Card", pillar: "news",
     path: "news/education-news", depth: 1, icon: "🎫",
-    itemCount: 8, showItemCount: true,
+    
     children: [
       node({ slug: "latest-admit-cards", label: "Latest Admit Cards", pillar: "news", path: "news/education-news", depth: 2 }),
     ],
