@@ -127,6 +127,7 @@ function mapRow(row: Record<string, unknown>, derived?: DerivedInfo): ExamEntity
     name: row.name as string,
     shortName: (row.short_name as string) ?? "",
     pillar,
+    region: (row.region as string) ?? null,
     category: (row.category_slug as string) ?? (row as any).cat?.slug ?? "",
     subcategory: (row.subcategory_slug as string) ?? (row as any).subcat?.slug ?? "",
     entityType: (row.entity_type as ExamEntity["entityType"]) ?? "exam",
@@ -214,7 +215,7 @@ const CT_TO_FLAG: Partial<Record<ContentType, keyof ExamEntity>> = {
 // current edition (and status from the exam_derived_status VIEW). updated_at is
 // the real last-write timestamp.
 const LIST_SELECT = `
-  id, slug, name, short_name, pillar, entity_type, is_featured,
+  id, slug, name, short_name, pillar, region, entity_type, is_featured,
   updated_at, tags, search_keywords,
   cat:categories!category_id(slug), subcat:categories!subcategory_id(slug),
   current_ed:exam_editions!current_edition_id(
@@ -354,6 +355,73 @@ export async function getExamsByPillar(pillar: Pillar): Promise<ExamEntity[]> {
       return [];
     }
   }, ["exams", `pillar:${pillar}`], { revalidate: 1800 });
+}
+
+/**
+ * University records for the mega-menu, with category slug + region label.
+ * Published university-exam pillar rows only. Shaped for buildUniversityGroupNodes:
+ * { slug, shortName, category, region, regionLabel }.
+ */
+export interface UniversityNavRecord {
+  slug: string;
+  shortName: string;
+  category: string;
+  region: string;
+  regionLabel: string;
+}
+export async function getUniversityNavRecords(): Promise<UniversityNavRecord[]> {
+  return cached(async () => {
+    try {
+      const supabase = createServerClient();
+      const { data, error } = await supabase
+        .from("exams")
+        .select("slug, short_name, name, region, cat:categories!category_id(slug), reg:regions!exams_region_fkey(label)")
+        .eq("pillar", "university-exam")
+        .eq("workflow_status", "published");
+      if (error) throw error;
+      return ((data ?? []) as any[])
+        .map((r) => ({
+          slug: r.slug as string,
+          shortName: (r.short_name as string) || (r.name as string) || (r.slug as string),
+          category: (r.cat?.slug as string) ?? "",
+          region: (r.region as string) ?? "all-india",
+          regionLabel: (r.reg?.label as string) ?? "",
+        }))
+        // Skip any row without a real category (can't build a valid /university-exam/{cat}/{slug} link).
+        .filter((r) => r.category);
+    } catch (err) {
+      console.error("[examService] getUniversityNavRecords failed:", err);
+      return [];
+    }
+  }, ["exams", "regions", "university-nav-records"], { revalidate: 1800 });
+}
+
+/**
+ * Exams whose region matches (state pages). Published only, featured-first.
+ * region is the state-page routing key (regions.slug); all-india is national and
+ * is intentionally NOT surfaced on a state page (callers pass a state/UT slug).
+ */
+export async function getExamsByRegion(region: string): Promise<ExamEntity[]> {
+  return cached(async () => {
+    try {
+      const supabase = createServerClient();
+      const { data, error } = await supabase
+        .from("exams")
+        .select(LIST_SELECT)
+        .eq("region", region)
+        .eq("workflow_status", "published")
+        .order("is_featured", { ascending: false })
+        .order("updated_at", { ascending: false });
+      if (error) throw error;
+      const rows = data ?? [];
+      const derivedMap = await fetchDerivedStatuses(supabase, rows.map((r: any) => r.id));
+      const exams = rows.map((r: any) => mapRow(r, derivedMap.get(r.id)));
+      return applyStructuredSyllabusFlags(supabase, exams);
+    } catch (err) {
+      console.error("[examService] getExamsByRegion failed:", err);
+      return [];
+    }
+  }, ["exams", `region:${region}`], { revalidate: 1800 });
 }
 
 export async function getExamsByCategory(category: string): Promise<ExamEntity[]> {

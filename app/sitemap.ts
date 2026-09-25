@@ -5,8 +5,8 @@ import { getAllBlogPosts } from "@/services/blogService";
 import { getAllPublishedPages } from "@/services/pageService";
 import {
   getSarkariNaukriSitemapEntries,
-  getStateList,
 } from "@/services/sarkariNaukriService";
+import { getRegionsWithRecords } from "@/services/regionService";
 import { HIGH_PRIORITY_SLUGS } from "@/lib/seo/keywords";
 import { contentTypeHasData, type HasDataView } from "@/lib/sectionRegistry";
 import type { ContentType } from "@/types/exam";
@@ -90,12 +90,12 @@ const CT_FLAGS: { ct: ContentType; flag: string }[] = [
 ];
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const [exams, blogPosts, cmsPages, sarkariEntries, states, editionEntries] = await Promise.all([
+  const [exams, blogPosts, cmsPages, sarkariEntries, regionsWithRecords, editionEntries] = await Promise.all([
     getAllExams(),
     getAllBlogPosts(),
     getAllPublishedPages(),
     getSarkariNaukriSitemapEntries(),
-    getStateList(),
+    getRegionsWithRecords(),
     getEditionSitemapEntries(),
   ]);
   const now = new Date();
@@ -216,14 +216,20 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${BASE}/resources`,             lastModified: now, changeFrequency: "monthly" as const, priority: 0.4 },
   ];
 
-  const sarkariStatePages: MetadataRoute.Sitemap = states
-    .filter((s) => s.state && s.count > 0)
-    .map((s) => ({
-      url: `${BASE}/sarkari-naukri/state/${s.state}`,
-      lastModified: now,
-      changeFrequency: "daily" as const,
-      priority: 0.7,
-    }));
+  // State/UT pages: only regions that actually have records (exams by region OR
+  // vacancies by state). getRegionsWithRecords already excludes all-india and
+  // empty regions, so no empty state page is ever submitted.
+  const sarkariStatePages: MetadataRoute.Sitemap = regionsWithRecords.map((r) => ({
+    url: `${BASE}/sarkari-naukri/state/${r.slug}`,
+    lastModified: now,
+    changeFrequency: "daily" as const,
+    priority: 0.7,
+  }));
+
+  // Plus the all-states index itself.
+  const stateIndexPage: MetadataRoute.Sitemap = [
+    { url: `${BASE}/sarkari-naukri/state`, lastModified: now, changeFrequency: "daily" as const, priority: 0.6 },
+  ];
 
   // ── Blog tag pages ───────────────────────────────
   // Mirrors the noIndex rule in blog/tag/[tag]/page.tsx (needs 3+ posts).
@@ -259,6 +265,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...examPages,
     ...editionPages,
     ...sarkariPages,
+    ...stateIndexPage,
     ...sarkariStatePages,
     ...blogSectionPages,
     ...blogPostPages,

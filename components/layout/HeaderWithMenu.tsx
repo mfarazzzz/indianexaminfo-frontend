@@ -8,14 +8,18 @@ import Link from "next/link";
 import { HeaderMegaNav } from "@/components/navigation/HeaderMegaNav";
 import { buildNavigationTrees, STATIC_QUICK_ACCESS } from "@/lib/navigation/static-data";
 import { getCategoryList } from "@/services/sarkariNaukriService";
+import { getUniversityNavRecords } from "@/services/examService";
 
 export async function HeaderWithMenu() {
-  // Real sarkari_naukri categories (count desc), injected into the "Sarkari
-  // Naukri" pillar in place of the old invented govt-vacancy taxonomy. Cached
-  // (revalidate 1h) inside getCategoryList; falls back to competitive-exam
-  // categories only if the fetch fails/returns empty.
-  const realCategories = await getCategoryList();
-  const navigationTrees = buildNavigationTrees(realCategories);
+  // Real DB-backed nav data, injected server-side:
+  //  - sarkari_naukri categories (count desc) → "Sarkari Naukri" pillar
+  //  - published university records → "University" pillar (Central group + per-region)
+  // Both fall back to the static tree for their pillar if the fetch is empty.
+  const [realCategories, universityRecords] = await Promise.all([
+    getCategoryList(),
+    getUniversityNavRecords(),
+  ]);
+  const navigationTrees = buildNavigationTrees(realCategories, universityRecords);
 
   return (
     <>

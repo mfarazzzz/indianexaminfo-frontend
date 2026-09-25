@@ -542,15 +542,165 @@ export function buildGovtJobCategoryNodes(
  * we fall back to just the competitive-exam categories rather than the dead
  * invented ones.
  */
+// ═══════════════════════════════════════════════════════════════════
+// REAL UNIVERSITY RECORDS (server-injected)
+// ═══════════════════════════════════════════════════════════════════
+//
+// The old hand-built universityCategories (IGNOU/DU/BHU/MJPRU/Other Universities)
+// pointed leaves at generic /university-exam/central-university landings and
+// omitted most real records (Jamia, Anna, Osmania, …). They are replaced by the
+// REAL published university-exam records, grouped:
+//   - "Central Universities" — every record whose category = central-university,
+//     PLUS IGNOU (created by Act of Parliament; a central university even though
+//     its category is open-university).
+//   - then one group PER REGION (state/UT), largest group first, holding every
+//     other university in that region regardless of category (state, deemed,
+//     professional, open) — a reader browsing Rajasthan expects BITS there.
+// Each leaf links to its real /university-exam/{category}/{slug} record.
+
+/** One published university-exam record, as HeaderWithMenu fetches it. */
+export interface UniversityNavRecord {
+  slug: string;
+  shortName: string;
+  category: string;         // central-university | state-university | deemed-university | ...
+  region: string;           // regions.slug (all-india for central)
+  regionLabel: string;      // regions.label
+}
+
+/** IGNOU is central by charter though its category is open-university. */
+const CENTRAL_BY_CHARTER = new Set(["ignou-exam"]);
+
+function uniLeaf(rec: UniversityNavRecord, order: number): TaxonomyNode {
+  return {
+    id: `uni-${rec.slug}`,
+    slug: rec.slug,
+    label: rec.shortName || rec.slug,
+    pillar: "university-exam" as const,
+    parentId: null,
+    path: `university-exam/${rec.category}/${rec.slug}`,
+    depth: 2,
+    displayOrder: order,
+    isActive: true,
+    isPinned: false,
+    icon: null,
+    badge: null,
+    description: null,
+    itemCount: 0,
+    seoTitle: null,
+    seoDescription: null,
+    ogImage: null,
+    categoryId: null,
+    examId: null,
+    maxItems: 15,
+    showItemCount: false,
+    featuredItemIds: [],
+    customUrl: `/university-exam/${rec.category}/${rec.slug}`,
+    metadata: {},
+    createdAt: "2026-01-01T00:00:00Z",
+    updatedAt: "2026-01-01T00:00:00Z",
+    children: [],
+  };
+}
+
+function uniGroup(
+  slug: string,
+  label: string,
+  children: TaxonomyNode[],
+  order: number,
+  isPinned = false
+): TaxonomyNode {
+  return {
+    id: `uni-group-${slug}`,
+    slug,
+    label,
+    pillar: "university-exam" as const,
+    parentId: null,
+    // Group has no page of its own; the group's "View All" falls back to the pillar.
+    path: "university-exam",
+    depth: 1,
+    displayOrder: order,
+    isActive: true,
+    isPinned,
+    icon: null,
+    badge: null,
+    description: null,
+    itemCount: children.length,
+    seoTitle: null,
+    seoDescription: null,
+    ogImage: null,
+    categoryId: null,
+    examId: null,
+    maxItems: 30,
+    showItemCount: true,
+    featuredItemIds: [],
+    customUrl: "/university-exam",
+    metadata: {},
+    createdAt: "2026-01-01T00:00:00Z",
+    updatedAt: "2026-01-01T00:00:00Z",
+    children,
+  };
+}
+
+/**
+ * Build the university-exam pillar's depth-1 groups from real records:
+ * Central Universities first, then each region (largest first). Returns [] if
+ * no records (caller then keeps the static fallback).
+ */
+export function buildUniversityGroupNodes(records: UniversityNavRecord[]): TaxonomyNode[] {
+  if (records.length === 0) return [];
+
+  const isCentral = (r: UniversityNavRecord) =>
+    r.category === "central-university" || CENTRAL_BY_CHARTER.has(r.slug);
+
+  const central = records.filter(isCentral).sort((a, b) => a.shortName.localeCompare(b.shortName));
+
+  // Non-central grouped by region.
+  const byRegion = new Map<string, { label: string; recs: UniversityNavRecord[] }>();
+  for (const r of records) {
+    if (isCentral(r)) continue;
+    if (!byRegion.has(r.region)) byRegion.set(r.region, { label: r.regionLabel, recs: [] });
+    byRegion.get(r.region)!.recs.push(r);
+  }
+
+  const regionGroups = [...byRegion.entries()]
+    .map(([slug, g]) => ({ slug, label: g.label, recs: g.recs }))
+    // Largest group first, then alphabetical by label for stable ties.
+    .sort((a, b) => b.recs.length - a.recs.length || a.label.localeCompare(b.label));
+
+  const groups: TaxonomyNode[] = [];
+  let order = 0;
+  if (central.length > 0) {
+    groups.push(
+      uniGroup(
+        "central-universities",
+        "Central Universities",
+        central.map((r, i) => uniLeaf(r, i)),
+        order++,
+        true // pinned — the marquee group opens the panel
+      )
+    );
+  }
+  for (const g of regionGroups) {
+    const sorted = [...g.recs].sort((a, b) => a.shortName.localeCompare(b.shortName));
+    groups.push(uniGroup(`region-${g.slug}`, g.label, sorted.map((r, i) => uniLeaf(r, i)), order++));
+  }
+  return groups;
+}
+
 export function buildNavigationTrees(
-  realCategories: { category: string; count: number }[]
+  realCategories: { category: string; count: number }[],
+  universityRecords: UniversityNavRecord[] = []
 ): NavigationTree[] {
   const realJobNodes = buildGovtJobCategoryNodes(realCategories);
+  const universityGroups = buildUniversityGroupNodes(universityRecords);
   return STATIC_NAVIGATION_TREES.map((tree) => {
-    if (tree.pillar !== "government-exam") return tree;
-    return {
-      ...tree,
-      nodes: [...govtExamCategories, ...realJobNodes],
-    };
+    if (tree.pillar === "government-exam") {
+      return { ...tree, nodes: [...govtExamCategories, ...realJobNodes] };
+    }
+    if (tree.pillar === "university-exam" && universityGroups.length > 0) {
+      // Replace the hand-built universityCategories with the real, grouped records.
+      return { ...tree, nodes: universityGroups };
+    }
+    return tree;
   });
 }

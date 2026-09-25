@@ -113,6 +113,13 @@ const nextConfig: NextConfig = {
       // Legacy redirects
       { source: "/exam/:slug",  destination: "/sarkari-naukri/:slug", permanent: true },
       { source: "/result",      destination: "/results",              permanent: true },
+
+      // Deleted MJPRU stub → the real MJPRU record. The stub row (slug `mjpru`
+      // in the stray `university-exams` category) was removed from the DB
+      // (migration 022); its indexed URL 301s here so it never 404s. The real
+      // record is mjpru-exam under state-university.
+      { source: "/university-exam/university-exams/mjpru", destination: "/university-exam/state-university/mjpru-exam", permanent: true },
+      { source: "/university-exam/mjpru",                  destination: "/university-exam/state-university/mjpru-exam", permanent: true },
       
       // Fix old hardcoded nav links that pointed to non-existent category slugs
       { source: "/entrance-exam/science-pg/:slug",       destination: "/entrance-exam/engineering/:slug",          permanent: true },

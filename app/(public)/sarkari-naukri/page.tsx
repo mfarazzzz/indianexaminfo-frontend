@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { getAllSarkariNaukri, getStateList, getCategoryList } from "@/services/sarkariNaukriService";
+import { getAllSarkariNaukri, getCategoryList } from "@/services/sarkariNaukriService";
 import { sarkariCategoryLabel } from "@/lib/sarkari/categories";
 import type { SarkariNaukriItem } from "@/services/sarkariNaukriService";
 import { getTodayIST } from "@/services/examService";
+import { getRegionsWithRecords } from "@/services/regionService";
 import { Breadcrumb } from "@/components/layout/Breadcrumb";
 import { AdSlot } from "@/components/ads/AdSlot";
 import { buildExamMetadata } from "@/lib/seo/metadata";
@@ -80,9 +81,12 @@ export const metadata: Metadata = buildExamMetadata({
 });
 
 export default async function SarkariNaukriPage() {
-  const [items, states, categories, todayISO] = await Promise.all([
+  const [items, regions, categories, todayISO] = await Promise.all([
     getAllSarkariNaukri(),
-    getStateList(),
+    // This page covers government EXAMS and vacancies, so its Browse by State
+    // list uses regions-with-records (exams by region OR vacancies by state) —
+    // so exam-only states like Delhi, Chandigarh and J&K appear here too.
+    getRegionsWithRecords(),
     getCategoryList(),
     getTodayIST(),
   ]);
@@ -159,14 +163,14 @@ export default async function SarkariNaukriPage() {
               Browse by State
             </h2>
             <ul className="space-y-1.5 text-sm">
-              {states.filter((s) => s.state !== "all-india").slice(0, 10).map((s) => (
-                <li key={s.state}>
+              {regions.slice(0, 10).map((r) => (
+                <li key={r.slug}>
                   <Link
-                    href={`/sarkari-naukri/state/${s.state}`}
+                    href={`/sarkari-naukri/state/${r.slug}`}
                     className="flex justify-between text-gray-700 hover:text-primary hover:underline"
                   >
-                    <span className="capitalize">{s.state.replace(/-/g, " ")}</span>
-                    <span className="text-gray-400 text-xs">{s.count}</span>
+                    <span>{r.label}</span>
+                    <span className="text-gray-400 text-xs">{r.examCount + r.vacancyCount}</span>
                   </Link>
                 </li>
               ))}

@@ -53,6 +53,7 @@ export type ExamEntity = {
   name: string;
   shortName: string;
   pillar: Pillar;
+  region: string | null;  // state-page routing key → regions.slug (all-india = national)
   category: string;
   subcategory: string;
   entityType: "exam" | "board" | "university" | "recruitment";
