@@ -23,13 +23,12 @@ export default function ContactPage() {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
         {[
-          { label: "Editorial Corrections", desc: "Report incorrect exam information or dates", icon: "✏️" },
-          { label: "Advertise With Us", desc: "Ad placement and sponsorship opportunities", icon: "📢" },
-          { label: "Content Partnership", desc: "Colleges, coaching institutes, publishers", icon: "🤝" },
-          { label: "General Feedback", desc: "Suggestions to improve IndianExamInfo", icon: "💬" },
+          { label: "Editorial Corrections", desc: "Report incorrect exam information or dates" },
+          { label: "Advertise With Us", desc: "Ad placement and sponsorship opportunities" },
+          { label: "Content Partnership", desc: "Colleges, coaching institutes, publishers" },
+          { label: "General Feedback", desc: "Suggestions to improve IndianExamInfo" },
         ].map((item) => (
           <div key={item.label} className="bg-card border border-border rounded p-4">
-            <div className="text-2xl mb-2">{item.icon}</div>
             <p className="font-semibold text-gray-800 text-sm">{item.label}</p>
             <p className="text-xs text-gray-500 mt-1">{item.desc}</p>
           </div>

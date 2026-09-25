@@ -26,9 +26,9 @@ export function CategorySidebar({ categories, selectedId, onSelect }: Props) {
   const unpinned = categories.filter((c) => !c.isPinned);
 
   return (
-    <div className="w-56 border-r border-gray-100 py-2" role="listbox" aria-label="Categories">
-      {/* Item 3(b): overflow-y-auto + max-h removed — the panel's outer max-height
-          governs clipping; no nested scrollbar on the left column. */}
+    <div className="w-56 border-r border-gray-100 py-2 overflow-y-auto max-h-[calc(70vh-44px)]" role="listbox" aria-label="Categories">
+      {/* Scrolls independently: the "Sarkari Naukri" pillar now carries the full
+          set of real DB categories (30+), which can exceed the panel height. */}
       {/* Pinned items */}
       {pinned.length > 0 && (
         <>

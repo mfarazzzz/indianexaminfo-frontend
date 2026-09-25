@@ -518,7 +518,7 @@ function BooksData({ d }: { d: Record<string, unknown> }) {
         <ul className="space-y-2">
           {books.map((b, i) => (
             <li key={i} className="flex items-start gap-2 text-sm">
-              <span className="text-lg">📖</span>
+              <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-gray-300 shrink-0" aria-hidden="true" />
               {b.url ? (
                 <a href={b.url} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline flex items-center gap-1">
                   {b.name} <ExternalLink className="w-3 h-3" />

@@ -4,6 +4,7 @@ import { getContentPostsByExam } from "@/services/contentPostService";
 import { getRelatedExams, getExamResources, getExamSyllabus, getTodayIST, type ExamResourceRow } from "@/services/examService";
 import { ResourceLibrary } from "@/components/exam/ResourceLibrary";
 import { SyllabusSection } from "@/components/exam/SyllabusSection";
+import { StickyContextBar } from "@/components/exam/StickyContextBar";
 import { Breadcrumb, type BreadcrumbItem } from "@/components/layout/Breadcrumb";
 import { ExamListRow } from "@/components/exam/ExamListRow";
 import { AdSlot } from "@/components/ads/AdSlot";
@@ -424,6 +425,10 @@ export async function EntityDetailPage({ exam, breadcrumbs, contentType, edition
       {schemas.map((s, i) => (
         <JsonLd key={i} data={s} />
       ))}
+
+      {/* Collapsed detail-page header — replaces the global header on scroll,
+          carrying back + short name + status. Client component; scroll-driven. */}
+      <StickyContextBar shortName={exam.shortName} status={exam.status} />
 
       <div className="container mx-auto px-4 py-4">
         <Breadcrumb items={breadcrumbs} />

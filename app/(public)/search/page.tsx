@@ -249,18 +249,17 @@ export default async function SearchPage({ searchParams }: Props) {
           <p className="text-gray-400 mb-6">Type at least 2 characters to search</p>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             {[
-              { label: "Govt Jobs", href: "/sarkari-naukri", icon: "🏛️" },
-              { label: "Admissions", href: "/entrance-exam", icon: "📝" },
-              { label: "Board Results", href: "/board-exam", icon: "🏫" },
-              { label: "News", href: "/blog", icon: "📰" },
+              { label: "Govt Jobs", href: "/sarkari-naukri" },
+              { label: "Admissions", href: "/entrance-exam" },
+              { label: "Board Results", href: "/board-exam" },
+              { label: "News", href: "/blog" },
             ].map((cat) => (
               <Link
                 key={cat.href}
                 href={cat.href}
-                className="flex flex-col items-center gap-1 p-4 bg-card border border-border rounded-lg hover:border-primary/50 hover:shadow-sm transition-all"
+                className="flex items-center justify-center p-4 bg-card border border-border rounded-lg hover:border-primary/50 hover:shadow-sm transition-all"
               >
-                <span className="text-2xl">{cat.icon}</span>
-                <span className="text-xs font-medium text-gray-700">{cat.label}</span>
+                <span className="text-sm font-medium text-gray-700">{cat.label}</span>
               </Link>
             ))}
           </div>

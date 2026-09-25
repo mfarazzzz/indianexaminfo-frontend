@@ -23,9 +23,9 @@ export function SocialChannelBanner({ variant = "top" }: Props) {
     }`}>
       <p className="text-sm text-gray-700 flex-1">
         {isAwaiting ? (
-          <><span className="font-semibold">🔔 Date not announced yet</span> — Join our channel and we&apos;ll alert you the moment it&apos;s out</>
+          <><span className="font-semibold">Date not announced yet</span> — Join our channel and we&apos;ll alert you the moment it&apos;s out</>
         ) : (
-          <><span className="font-semibold">🔔 Get instant alerts</span> — Join our channel for results, admit cards &amp; exam updates</>
+          <><span className="font-semibold">Get instant alerts</span> — Join our channel for results, admit cards &amp; exam updates</>
         )}
       </p>
       <div className="flex items-center gap-2 shrink-0">

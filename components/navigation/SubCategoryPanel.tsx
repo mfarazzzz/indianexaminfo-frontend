@@ -60,7 +60,14 @@ export function SubCategoryPanel({ parentNode, subCategories, pillar }: Props) {
       </div>
 
       {subCategories.length === 0 && (
-        <p className="text-xs text-gray-400 py-4 text-center">No sub-categories</p>
+        // Leaf-listing category (e.g. the real sarkari-naukri categories carry
+        // no sub-tree): the category IS the destination, so prompt straight to
+        // its listing rather than reporting an empty sub-level.
+        <p className="text-xs text-gray-500 py-3">
+          {parentNode.itemCount > 0
+            ? `${parentNode.itemCount} ${parentNode.itemCount === 1 ? "opening" : "openings"} in ${parentNode.label}.`
+            : `Browse ${parentNode.label}.`}
+        </p>
       )}
 
       {/* View All link */}

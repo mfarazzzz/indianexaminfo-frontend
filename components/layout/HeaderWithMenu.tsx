@@ -6,9 +6,17 @@
  */
 import Link from "next/link";
 import { HeaderMegaNav } from "@/components/navigation/HeaderMegaNav";
-import { STATIC_NAVIGATION_TREES, STATIC_QUICK_ACCESS } from "@/lib/navigation/static-data";
+import { buildNavigationTrees, STATIC_QUICK_ACCESS } from "@/lib/navigation/static-data";
+import { getCategoryList } from "@/services/sarkariNaukriService";
 
 export async function HeaderWithMenu() {
+  // Real sarkari_naukri categories (count desc), injected into the "Sarkari
+  // Naukri" pillar in place of the old invented govt-vacancy taxonomy. Cached
+  // (revalidate 1h) inside getCategoryList; falls back to competitive-exam
+  // categories only if the fetch fails/returns empty.
+  const realCategories = await getCategoryList();
+  const navigationTrees = buildNavigationTrees(realCategories);
+
   return (
     <>
       {/* Main Header — z-[60] keeps the logo and nav triggers above the z-50 panel */}
@@ -26,7 +34,7 @@ export async function HeaderWithMenu() {
 
             {/* Navigation (client component). STATIC_QUICK_ACCESS is still passed for the
                 mobile mega-menu's "Quick Links" row inside HeaderMegaNav. */}
-            <HeaderMegaNav pillars={STATIC_NAVIGATION_TREES} quickAccessItems={STATIC_QUICK_ACCESS} />
+            <HeaderMegaNav pillars={navigationTrees} quickAccessItems={STATIC_QUICK_ACCESS} />
           </div>
         </div>
       </header>

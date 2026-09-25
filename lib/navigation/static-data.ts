@@ -3,6 +3,7 @@
  * Eliminates dependency on Supabase taxonomy_nodes table.
  */
 import type { NavigationTree, TaxonomyNode, QuickAccessItem } from "@/types/navigation";
+import { sarkariCategoryLabel } from "@/lib/sarkari/categories";
 
 // ═══════════════════════════════════════════════════════════════════
 // HELPER: Create a taxonomy node with sensible defaults
@@ -127,68 +128,12 @@ const govtExamCategories: TaxonomyNode[] = [
 ];
 
 // ═══════════════════════════════════════════════════════════════════
-// GOVERNMENT JOBS
+// GOVERNMENT JOBS — removed.
+// The invented job taxonomy (Central/State Government, PSU Jobs,
+// Qualification Wise, Latest Bharti) that linked to dead /govt-vacancy/…
+// paths has been deleted. Real job categories are now injected server-side
+// from the DB via buildNavigationTrees() (see bottom of this file).
 // ═══════════════════════════════════════════════════════════════════
-
-const govtJobCategories: TaxonomyNode[] = [
-  node({
-    slug: "central-govt", label: "Central Government", pillar: "govt-vacancy",
-    path: "govt-vacancy/central-govt", depth: 1, icon: "🏛️", isPinned: true,
-    
-    children: [
-      node({ slug: "ssc-jobs", label: "SSC Jobs", pillar: "govt-vacancy", path: "govt-vacancy/central-govt/ssc-jobs", depth: 2, badge: "popular" }),
-      node({ slug: "railway-jobs", label: "Railway Jobs", pillar: "govt-vacancy", path: "govt-vacancy/central-govt/railway-jobs", depth: 2 }),
-      node({ slug: "banking-jobs", label: "Banking Jobs", pillar: "govt-vacancy", path: "govt-vacancy/central-govt/banking-jobs", depth: 2 }),
-      node({ slug: "defence-jobs", label: "Defence Jobs", pillar: "govt-vacancy", path: "govt-vacancy/central-govt/defence-jobs", depth: 2 }),
-      node({ slug: "police-jobs", label: "Police Jobs", pillar: "govt-vacancy", path: "govt-vacancy/central-govt/police-jobs", depth: 2 }),
-    ],
-  }),
-  node({
-    slug: "state-govt", label: "State Government", pillar: "govt-vacancy",
-    path: "govt-vacancy/state-govt", depth: 1, icon: "🗺️",
-    
-    children: [
-      node({ slug: "up-govt-jobs", label: "UP Govt Jobs", pillar: "govt-vacancy", path: "govt-vacancy/state-govt/up-govt-jobs", depth: 2 }),
-      node({ slug: "bihar-govt-jobs", label: "Bihar Govt Jobs", pillar: "govt-vacancy", path: "govt-vacancy/state-govt/bihar-govt-jobs", depth: 2 }),
-      node({ slug: "mp-govt-jobs", label: "MP Govt Jobs", pillar: "govt-vacancy", path: "govt-vacancy/state-govt/mp-govt-jobs", depth: 2 }),
-      node({ slug: "rajasthan-govt-jobs", label: "Rajasthan Govt Jobs", pillar: "govt-vacancy", path: "govt-vacancy/state-govt/rajasthan-govt-jobs", depth: 2 }),
-      node({ slug: "maharashtra-govt-jobs", label: "Maharashtra Govt Jobs", pillar: "govt-vacancy", path: "govt-vacancy/state-govt/maharashtra-govt-jobs", depth: 2 }),
-    ],
-  }),
-  node({
-    slug: "psu-jobs", label: "PSU Jobs", pillar: "govt-vacancy",
-    path: "govt-vacancy/psu-jobs", depth: 1, icon: "🏭",
-    
-    children: [
-      node({ slug: "ongc", label: "ONGC", pillar: "govt-vacancy", path: "govt-vacancy/psu-jobs/ongc", depth: 2 }),
-      node({ slug: "bhel", label: "BHEL", pillar: "govt-vacancy", path: "govt-vacancy/psu-jobs/bhel", depth: 2 }),
-      node({ slug: "ntpc", label: "NTPC", pillar: "govt-vacancy", path: "govt-vacancy/psu-jobs/ntpc", depth: 2 }),
-      node({ slug: "iocl", label: "IOCL", pillar: "govt-vacancy", path: "govt-vacancy/psu-jobs/iocl", depth: 2 }),
-    ],
-  }),
-  node({
-    slug: "qualification-wise", label: "Qualification Wise", pillar: "govt-vacancy",
-    path: "govt-vacancy/qualification-wise", depth: 1, icon: "🎓",
-    
-    children: [
-      node({ slug: "10th-pass", label: "10th Pass Jobs", pillar: "govt-vacancy", path: "govt-vacancy/qualification-wise/10th-pass", depth: 2 }),
-      node({ slug: "12th-pass", label: "12th Pass Jobs", pillar: "govt-vacancy", path: "govt-vacancy/qualification-wise/12th-pass", depth: 2 }),
-      node({ slug: "graduate-jobs", label: "Graduate Jobs", pillar: "govt-vacancy", path: "govt-vacancy/qualification-wise/graduate-jobs", depth: 2 }),
-      node({ slug: "post-graduate-jobs", label: "Post Graduate Jobs", pillar: "govt-vacancy", path: "govt-vacancy/qualification-wise/post-graduate-jobs", depth: 2 }),
-      node({ slug: "engineering-jobs", label: "Engineering Jobs", pillar: "govt-vacancy", path: "govt-vacancy/qualification-wise/engineering-jobs", depth: 2 }),
-    ],
-  }),
-  node({
-    slug: "latest-bharti", label: "Latest Bharti", pillar: "govt-vacancy",
-    path: "govt-vacancy/latest-bharti", depth: 1, icon: "🆕", badge: "new",
-    
-    children: [
-      node({ slug: "anganwadi-bharti", label: "Anganwadi Bharti", pillar: "govt-vacancy", path: "govt-vacancy/latest-bharti/anganwadi-bharti", depth: 2 }),
-      node({ slug: "panchayat-bharti", label: "Panchayat Bharti", pillar: "govt-vacancy", path: "govt-vacancy/latest-bharti/panchayat-bharti", depth: 2 }),
-      node({ slug: "hospital-bharti", label: "Hospital Bharti", pillar: "govt-vacancy", path: "govt-vacancy/latest-bharti/hospital-bharti", depth: 2 }),
-    ],
-  }),
-];
 
 // ═══════════════════════════════════════════════════════════════════
 // ENTRANCE EXAMS
@@ -465,7 +410,11 @@ export const STATIC_NAVIGATION_TREES: NavigationTree[] = [
     label: "Sarkari Naukri",
     href: "/sarkari-naukri",
     icon: "🏛️",
-    nodes: [...govtExamCategories, ...govtJobCategories],
+    // Base nodes are the curated competitive-exam groupings only. The real
+    // job categories are injected server-side by buildNavigationTrees() from
+    // getCategoryList(); this static list is the no-DB fallback. The old
+    // invented govt-vacancy taxonomy (→ /govt-vacancy/… 404s) was removed.
+    nodes: [...govtExamCategories],
     totalItemCount: 361,
     lastUpdated: "2026-07-31T00:00:00Z",
   },
@@ -522,3 +471,86 @@ export const STATIC_QUICK_ACCESS: QuickAccessItem[] = [
   { id: "qa-7", label: "UP Board Result", href: "/board-exam/up-board/up-board-12th-result", icon: "📗" },
   { id: "qa-8", label: "CBSE Date Sheet", href: "/board-exam/cbse/cbse-date-sheet", icon: "📘" },
 ];
+
+// ═══════════════════════════════════════════════════════════════════
+// REAL SARKARI-NAUKRI CATEGORIES (server-injected)
+// ═══════════════════════════════════════════════════════════════════
+//
+// The old `govtJobCategories` above (Central Government / State Government /
+// PSU Jobs / Qualification Wise / Latest Bharti) were an INVENTED taxonomy:
+// their leaves linked to `/govt-vacancy/…` paths that map to no route and 404.
+// They are no longer part of the assembled tree.
+//
+// Instead, HeaderWithMenu (a server component) fetches the REAL distinct
+// `sarkari_naukri.category` values with their published counts via
+// getCategoryList(), and calls buildGovtJobCategoryNodes() to turn them into
+// depth-1 nodes — grouped by count, highest first — each linking to the real
+// working listing route `/sarkari-naukri/{category}`.
+//
+// sarkariCategoryLabel() (lib/sarkari/categories.ts) is the ONE source of
+// display names, shared with the listing route itself, so the menu label and
+// the page H1 always agree.
+
+/**
+ * Build depth-1 category nodes for the "Sarkari Naukri" pillar from the real
+ * distinct `sarkari_naukri.category` values. Input is expected pre-sorted by
+ * count desc (as getCategoryList returns it); we preserve that order and also
+ * carry the count so the sidebar can show it. Each node links to the real
+ * `/sarkari-naukri/{category}` listing route (customUrl), which filters by
+ * category and 404s when empty — never the unfiltered page.
+ */
+export function buildGovtJobCategoryNodes(
+  categories: { category: string; count: number }[]
+): TaxonomyNode[] {
+  return categories.map((c, i) => ({
+    id: `sarkari-cat-${c.category}`,
+    slug: c.category,
+    label: sarkariCategoryLabel(c.category),
+    pillar: "government-exam" as const,
+    parentId: null,
+    path: `sarkari-naukri/${c.category}`,
+    depth: 1,
+    displayOrder: i,
+    isActive: true,
+    isPinned: false,
+    icon: null,
+    badge: null,
+    description: null,
+    itemCount: c.count,
+    seoTitle: null,
+    seoDescription: null,
+    ogImage: null,
+    categoryId: null,
+    examId: null,
+    maxItems: 15,
+    showItemCount: true,
+    featuredItemIds: [],
+    customUrl: `/sarkari-naukri/${c.category}`,
+    metadata: {},
+    createdAt: "2026-01-01T00:00:00Z",
+    updatedAt: "2026-01-01T00:00:00Z",
+    children: [],
+  }));
+}
+
+/**
+ * Assemble the full navigation trees with the REAL sarkari-naukri categories
+ * injected into the government-exam pillar. Called server-side by
+ * HeaderWithMenu. The competitive-exam groupings (SSC, UPSC, Banking, …) stay
+ * as curated static nodes; the invented job taxonomy is replaced by the real,
+ * count-ordered categories. If the fetch returns nothing (DB error / empty),
+ * we fall back to just the competitive-exam categories rather than the dead
+ * invented ones.
+ */
+export function buildNavigationTrees(
+  realCategories: { category: string; count: number }[]
+): NavigationTree[] {
+  const realJobNodes = buildGovtJobCategoryNodes(realCategories);
+  return STATIC_NAVIGATION_TREES.map((tree) => {
+    if (tree.pillar !== "government-exam") return tree;
+    return {
+      ...tree,
+      nodes: [...govtExamCategories, ...realJobNodes],
+    };
+  });
+}

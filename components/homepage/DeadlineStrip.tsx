@@ -15,7 +15,7 @@
 // destination route exists. Empty bands are hidden entirely.
 import Link from "next/link";
 import type { DeadlineBands, DeadlineBandItem } from "@/services/examService";
-import { formatDate, getExamEntityHref, cn } from "@/lib/utils";
+import { formatDate, getExamEntityHref, daysUntil, cn } from "@/lib/utils";
 
 type Props = { bands: DeadlineBands };
 
@@ -91,16 +91,38 @@ export function DeadlineStrip({ bands }: Props) {
   // gets no space and no taps.
   if (visible.length === 0) return null;
 
-  // Item 7: a REAL summary line, not the word "Deadlines". Names the counts the reader
-  // would act on, e.g. "Today: 2 admit cards, 1 result, 3 closing". Only non-empty bands
-  // appear in the sentence, in the same Closing → Results → Admit → Exams order.
-  const SUMMARY_NOUN: Record<BandDef["key"], (n: number) => string> = {
-    closingSoon: (n) => `${n} closing`,
-    resultsOut: (n) => `${n} result${n === 1 ? "" : "s"}`,
-    admitCardOut: (n) => `${n} admit card${n === 1 ? "" : "s"}`,
-    examsThisMonth: (n) => `${n} exam${n === 1 ? "" : "s"} soon`,
-  };
-  const summary = visible.map((b) => SUMMARY_NOUN[b.key](bands[b.key].length)).join(", ");
+  // Item 1: the collapsed line shows the SINGLE most-urgent item (not a bag of counts),
+  // with the rest as an overflow count. Urgency order across ALL bands:
+  //   closing > exam this week > admit card released > result declared.
+  // Within that, the soonest date wins. "days left" is computed against the IST anchor
+  // (bands.today) so no arithmetic is asked of the reader; today/tomorrow are spelled out.
+  const URGENCY: BandDef["key"][] = ["closingSoon", "examsThisMonth", "admitCardOut", "resultsOut"];
+  // bands.today is the IST anchor from the VIEW. It is non-null whenever bands exist (they do
+  // here — visible.length > 0), but the type allows null; fall back to the IST calendar date so
+  // daysUntil always receives a string. Same UTC+5:30 fallback getTodayIST uses.
+  const today: string = bands.today ?? new Date(Date.now() + 5.5 * 3600_000).toISOString().slice(0, 10);
+
+  type Lead = { band: BandDef; item: DeadlineBandItem; days: number };
+  let lead: Lead | null = null;
+  let totalItems = 0;
+  for (const key of URGENCY) {
+    const band = BANDS.find((b) => b.key === key)!;
+    const items = bands[key];
+    totalItems += items.length;
+    if (!lead && items.length > 0) {
+      // soonest date within this (highest-priority non-empty) band
+      const sorted = [...items].sort((a, b) => Math.abs(daysUntil(a.date, today)) - Math.abs(daysUntil(b.date, today)));
+      lead = { band, item: sorted[0], days: daysUntil(sorted[0].date, today) };
+    }
+  }
+  const overflow = lead ? totalItems - 1 : 0;
+  // "in N days" → today / tomorrow / N days left. Past (admit/result already out) reads plainly.
+  const daysPhrase = (n: number): string =>
+    n <= 0 ? (n === 0 ? "today" : `${Math.abs(n)} day${Math.abs(n) === 1 ? "" : "s"} ago`)
+    : n === 1 ? "tomorrow"
+    : `${n} days left`;
+  // Left-border tint reuses the band's existing colour (closing = red, exams = orange, …).
+  const leadBorder = lead?.band.border ?? "border-border";
 
   const Grid = (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3">
@@ -130,18 +152,33 @@ export function DeadlineStrip({ bands }: Props) {
   return (
     <section className="bg-white" aria-label="Exam status this week">
       <div className="container mx-auto px-4 py-4">
-        {/* MOBILE: collapsed summary line, expands on tap. The summary carries real counts.
-            `sm:hidden` so it never shows on desktop. */}
-        <details className="sm:hidden group border border-border rounded-lg">
-          <summary className="flex items-center justify-between gap-2 px-3 py-2.5 cursor-pointer list-none">
-            <span className="text-[13px] text-gray-700">
-              <span className="font-semibold text-gray-900">Today:</span> {summary}
-            </span>
-            <span className="text-xs text-primary font-medium shrink-0 group-open:hidden">Show</span>
-            <span className="text-xs text-gray-400 font-medium shrink-0 hidden group-open:inline">Hide</span>
-          </summary>
-          <div className="px-3 pb-3">{Grid}</div>
-        </details>
+        {/* MOBILE: the single most-urgent item, tinted by its band via a left border rule.
+            The WHOLE block taps to expand the full set. `sm:hidden` so it never shows on
+            desktop. lead is always set here (visible.length > 0 guarantees an item). */}
+        {lead && (
+          <details className={cn("sm:hidden group rounded-lg border border-border border-l-4", leadBorder)}>
+            <summary className="flex items-start justify-between gap-3 px-3 py-2.5 cursor-pointer list-none">
+              <div className="min-w-0">
+                <div className="flex items-center gap-2">
+                  <span className={cn("text-[11px] font-bold uppercase tracking-wide", lead.band.title_c)}>
+                    {lead.band.title}
+                  </span>
+                  {overflow > 0 && (
+                    <span className="text-[11px] text-gray-500">+{overflow} more this week</span>
+                  )}
+                </div>
+                <span className="block text-sm font-semibold text-gray-900 leading-snug mt-0.5 truncate">
+                  {lead.item.shortName}
+                </span>
+                <span className="block text-[12px] text-gray-500">
+                  {lead.band.dateLabel} {formatDate(lead.item.date)} · <span className="font-medium text-gray-700">{daysPhrase(lead.days)}</span>
+                </span>
+              </div>
+              <span className="text-gray-400 shrink-0 mt-0.5 transition-transform group-open:rotate-180" aria-hidden="true">⌄</span>
+            </summary>
+            <div className="px-3 pb-3 pt-1">{Grid}</div>
+          </details>
+        )}
 
         {/* DESKTOP: the full grid, always visible (original behaviour). */}
         <div className="hidden sm:block">{Grid}</div>

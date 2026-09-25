@@ -37,7 +37,7 @@ export function SarkariNaukriDetailView({ item, slug }: Props) {
           <div className="mb-6">
             <div className="flex items-center gap-2 mb-2">
               <span className={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${isExam ? "bg-blue-100 text-blue-700" : "bg-green-100 text-green-700"}`}>
-                {isExam ? `📝 ${SARKARI_LABELS.exams}` : `📋 ${SARKARI_LABELS.vacancies}`}
+                {isExam ? SARKARI_LABELS.exams : SARKARI_LABELS.vacancies}
               </span>
               <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase ${
                 item.status === "result-declared" ? "bg-emerald-100 text-emerald-700" :
@@ -51,12 +51,12 @@ export function SarkariNaukriDetailView({ item, slug }: Props) {
             </div>
             <h1 className="font-heading font-bold text-2xl text-gray-900 mb-2">{item.title}</h1>
             {item.titleHindi && <p className="text-base text-gray-600 mb-2">{item.titleHindi}</p>}
-            <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-gray-500">
-              <span>🏢 {item.organization}</span>
-              {item.state && item.state !== "all-india" && <span className="capitalize">📍 {item.state.replace(/-/g, " ")}</span>}
-              {item.state === "all-india" && <span>🇮🇳 All India</span>}
-              {item.vacancyCount && <span>👥 {item.vacancyCount.toLocaleString("en-IN")} vacancies</span>}
-              {item.category && <span className="capitalize">🏷️ {item.category.replace(/-/g, " ")}</span>}
+            <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-gray-500 [&>span:not(:first-child)]:before:content-['·'] [&>span:not(:first-child)]:before:mr-2 [&>span:not(:first-child)]:before:text-gray-300">
+              <span>{item.organization}</span>
+              {item.state && item.state !== "all-india" && <span className="capitalize">{item.state.replace(/-/g, " ")}</span>}
+              {item.state === "all-india" && <span>All India</span>}
+              {item.vacancyCount && <span>{item.vacancyCount.toLocaleString("en-IN")} vacancies</span>}
+              {item.category && <span className="capitalize">{item.category.replace(/-/g, " ")}</span>}
             </div>
           </div>
 

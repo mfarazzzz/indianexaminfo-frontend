@@ -10,8 +10,7 @@ import { CategorySidebar } from "./CategorySidebar";
 import { SubCategoryPanel } from "./SubCategoryPanel";
 import { ContextualPanel } from "./ContextualPanel";
 import { PanelSearchInput } from "./PanelSearchInput";
-import { searchNavigationStatic } from "@/services/taxonomyService";
-import type { NavigationTree, TaxonomyNode, NavigationSearchResult } from "@/types/navigation";
+import type { NavigationTree, TaxonomyNode } from "@/types/navigation";
 
 interface Props {
   tree: NavigationTree;
@@ -22,7 +21,6 @@ interface Props {
 
 export function NavigationPanel({ tree, onClose, onPanelMouseEnter, onPanelMouseLeave }: Props) {
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
-  const [searchResults, setSearchResults] = useState<NavigationSearchResult[]>([]);
 
   // Top-level categories (depth 1 nodes)
   const categories = useMemo(() => tree.nodes, [tree.nodes]);
@@ -51,19 +49,6 @@ export function NavigationPanel({ tree, onClose, onPanelMouseEnter, onPanelMouse
     setSelectedCategoryId(node.id);
   }, []);
 
-  // Handle search
-  const handleSearch = useCallback(
-    (query: string) => {
-      if (!query || query.length < 2) {
-        setSearchResults([]);
-        return;
-      }
-      const results = searchNavigationStatic([tree], query, tree.pillar, 15);
-      setSearchResults(results);
-    },
-    [tree]
-  );
-
   // Close on Escape
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
@@ -87,13 +72,8 @@ export function NavigationPanel({ tree, onClose, onPanelMouseEnter, onPanelMouse
         {`${tree.label} navigation panel opened`}
       </div>
 
-      {/* Search bar spanning full width */}
-      <PanelSearchInput
-        pillarLabel={tree.label}
-        onSearch={handleSearch}
-        results={searchResults}
-        onClose={onClose}
-      />
+      {/* Search bar spanning full width — site-wide real-record search. */}
+      <PanelSearchInput onClose={onClose} />
 
       {/* 3-column layout */}
       <div className="flex max-w-7xl mx-auto" style={{ maxHeight: "calc(70vh - 44px)" }}>
