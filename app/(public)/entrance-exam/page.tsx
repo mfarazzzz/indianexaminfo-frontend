@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { getExamsByPillar } from "@/services/examService";
 import { getCategoriesByPillar } from "@/services/categoryService";

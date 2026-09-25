@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getExamsByCategory } from "@/services/examService";
 import { ExamListRow } from "@/components/exam/ExamListRow";
