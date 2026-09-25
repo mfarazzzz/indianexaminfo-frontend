@@ -6,18 +6,27 @@
 import { siteConfig } from "@/config/site";
 
 interface Props {
-  variant?: "top" | "bottom";
+  variant?: "top" | "bottom" | "awaiting-date";
 }
 
 export function SocialChannelBanner({ variant = "top" }: Props) {
+  // "awaiting-date" is the contextual placement: shown right after a date that has not been
+  // announced, offering to tell the reader when it lands. Its copy names that need directly.
+  const isAwaiting = variant === "awaiting-date";
   return (
     <div className={`flex flex-col sm:flex-row items-start sm:items-center gap-3 rounded-lg border px-4 py-3 mb-5 ${
-      variant === "top"
+      isAwaiting
+        ? "bg-blue-50 border-blue-200"
+        : variant === "top"
         ? "bg-blue-50 border-blue-200"
         : "bg-gray-50 border-border"
     }`}>
       <p className="text-sm text-gray-700 flex-1">
-        <span className="font-semibold">🔔 Get instant alerts</span> — Join our channel for results, admit cards &amp; exam updates
+        {isAwaiting ? (
+          <><span className="font-semibold">🔔 Date not announced yet</span> — Join our channel and we&apos;ll alert you the moment it&apos;s out</>
+        ) : (
+          <><span className="font-semibold">🔔 Get instant alerts</span> — Join our channel for results, admit cards &amp; exam updates</>
+        )}
       </p>
       <div className="flex items-center gap-2 shrink-0">
         <a

@@ -12,7 +12,7 @@
  */
 import Link from "next/link";
 import type { ExamEntity } from "@/types/exam";
-import { formatDate, isFutureOrToday, isUrgent } from "@/lib/utils";
+import { formatDate, isUrgent } from "@/lib/utils";
 import { Calendar } from "lucide-react";
 
 /** A section summary component receives the exam and the single IST "today"
@@ -27,99 +27,69 @@ const ImportantDatesSummary: SectionSummary = (exam, todayISO) => (
       <Calendar className="w-4 h-4 text-primary" />
       Important Dates
     </h2>
-    <div className="overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0">
-      <table className="min-w-[420px]">
-        <caption className="sr-only">Important dates for {exam.name}</caption>
-        <thead>
-          <tr>
-            <th scope="col">Event</th>
-            <th scope="col">Date</th>
-            <th scope="col">Status</th>
-          </tr>
-        </thead>
-        <tbody>
-          {exam.dates.map((d, i) => {
-            const isCancelled = d.state === "cancelled";
-            const isExpected  = d.state === "expected" || d.state === "tba";
-            const isPostponed = d.state === "postponed";
-            // Past/future decided against the single IST anchor (todayISO from getTodayIST),
-            // never the server's UTC clock — so this "Passed/Upcoming" chip agrees with the
-            // status badge, the homepage widgets, and the derived-status VIEW. When todayISO
-            // is absent (renderer called without it), fall back to not-past so nothing is
-            // wrongly marked Passed.
-            const isPast = !isCancelled && !isExpected && !!todayISO && !isFutureOrToday(d.date, todayISO);
+    {/* Item 4 (mobile): rows, not a 3-column table. Event on the left, date on the right.
+        The old Event/Date/Status grid needed a 420px min-width and scrolled horizontally at
+        400px. Status is no longer its own column — the imminent row is marked by a tint and a
+        small inline chip only where it adds meaning (Cancelled / Postponed / Soon). Rows whose
+        date is not announced are KEPT, showing "(expected)" or the note, so the page never
+        looks like dates are missing. */}
+    <ul className="divide-y divide-border border-y border-border">
+      {exam.dates.map((d, i) => {
+        const isCancelled = d.state === "cancelled";
+        const isExpected  = d.state === "expected" || d.state === "tba";
+        const isPostponed = d.state === "postponed";
+        const hasDate     = !!d.date && d.date.trim() !== "";
+        // Imminent = within 7 days on the single IST anchor (todayISO). Same rule as the
+        // homepage widgets and the derived-status VIEW — never the server UTC clock.
+        const isImminent  = !isCancelled && !isExpected && hasDate && !!todayISO && isUrgent(d.date, todayISO, 7);
+        return (
+          <li
+            key={`${d.label}-${i}`}
+            className={`flex items-start justify-between gap-3 py-2.5 ${
+              isImminent ? "bg-accent/5 -mx-2 px-2 rounded" : ""
+            } ${isCancelled ? "opacity-60" : ""}`}
+          >
+            {/* Event label (left) */}
+            <div className="min-w-0 flex-1">
+              <span className={`text-sm font-medium ${isCancelled ? "text-gray-400 line-through" : "text-gray-800"}`}>
+                {d.label}
+              </span>
+              {(isCancelled || isPostponed) && (
+                <span className={`ml-2 align-middle text-[11px] font-semibold ${
+                  isCancelled ? "text-red-600" : "text-amber-600"
+                }`}>
+                  {isCancelled ? "Cancelled" : "Postponed"}
+                </span>
+              )}
+              {d.note && (
+                <span className="block text-[11px] text-gray-500 mt-0.5">{d.note}</span>
+              )}
+            </div>
 
-            return (
-              <tr key={`${d.label}-${i}`} className={isCancelled ? "opacity-60" : undefined}>
-                {/* Event label — struck through when cancelled */}
-                <td className={`font-medium ${isCancelled ? "text-gray-400 line-through" : "text-gray-800"}`}>
-                  {d.label}
-                </td>
-
-                {/* Date cell. Item 5: colour is derived from proximity (within 7 days
-                    = accent/red), not from the stored isUrgent flag. The stored flag
-                    reflects event type (exam = urgent, result = not) rather than how
-                    soon the date is — the same date rendered red in one row and black in
-                    another depending on which label it had. One rule now: imminent
-                    (within 7 days) = accent. todayISO comes from the single IST anchor. */}
-                {(() => {
-                  const isImminent = !!todayISO && !!d.date && d.date.trim() !== "" && isUrgent(d.date, todayISO, 7);
-                  return (
-                    <td className={`font-mono ${
-                      isCancelled ? "text-gray-400 line-through"
-                      : isExpected  ? "text-gray-500"
-                      : isImminent  ? "text-accent font-semibold"
-                      : "text-gray-700"
-                    }`}>
-                      {(() => {
-                        const hasDate = !!d.date && d.date.trim() !== "";
-                        const dateText = isCancelled ? (
-                          <span>{formatDate(d.date)}</span>
-                        ) : isExpected ? (
-                          <span title="Tentative date — not yet officially confirmed." className="cursor-help">
-                            {formatDate(d.date)}{" "}
-                            <span className="text-[11px] font-normal not-italic">(expected)</span>
-                          </span>
-                        ) : (
-                          formatDate(d.date)
-                        );
-                        return (
-                          <>
-                            {hasDate && dateText}
-                            {d.note && (
-                              <span className={`block text-[11px] font-normal not-italic text-gray-500 ${hasDate ? "mt-0.5" : ""}`}>
-                                {d.note}
-                              </span>
-                            )}
-                          </>
-                        );
-                      })()}
-                    </td>
-                  );
-                })()}
-
-                {/* Status chip */}
-                <td>
-                  {isCancelled ? (
-                    <span className="text-xs font-semibold text-red-600 bg-red-50 px-1.5 py-0.5 rounded">Cancelled</span>
-                  ) : isPostponed ? (
-                    <span className="text-xs font-medium text-amber-600">Postponed</span>
-                  ) : isExpected ? (
-                    <span className="text-xs text-gray-400">Tentative</span>
-                  ) : isPast ? (
-                    <span className="text-xs text-gray-400">Passed</span>
-                  ) : (!!todayISO && !!d.date && d.date.trim() !== "" && isUrgent(d.date, todayISO, 7)) ? (
-                    <span className="text-xs text-accent font-semibold">Soon</span>
-                  ) : (
-                    <span className="text-xs text-success">Upcoming</span>
-                  )}
-                </td>
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
-    </div>
+            {/* Date (right) */}
+            <div className={`shrink-0 text-right text-sm font-mono ${
+              isCancelled ? "text-gray-400 line-through"
+              : isExpected ? "text-gray-500"
+              : isImminent ? "text-accent font-semibold"
+              : "text-gray-700"
+            }`}>
+              {hasDate ? (
+                isExpected ? (
+                  <span title="Tentative date — not yet officially confirmed." className="cursor-help">
+                    {formatDate(d.date)}{" "}
+                    <span className="text-[11px] font-normal not-italic">(expected)</span>
+                  </span>
+                ) : (
+                  formatDate(d.date)
+                )
+              ) : (
+                <span className="text-[11px] font-normal not-italic text-gray-400">To be announced</span>
+              )}
+            </div>
+          </li>
+        );
+      })}
+    </ul>
   </section>
 );
 

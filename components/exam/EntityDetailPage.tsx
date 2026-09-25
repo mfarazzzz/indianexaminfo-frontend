@@ -21,6 +21,7 @@ import {
   contentTypeLabel,
 } from "@/lib/utils";
 import { contentTypeHasData, hasData, mainSectionsForPillar, CONTENT_TYPE_TO_SECTION, type HasDataView, type Pillar } from "@/lib/sectionRegistry";
+import { getLeadBlock, type LeadBlock as LeadBlockData } from "@/lib/exam/actionLinks";
 import { SECTION_SUMMARY_RENDERERS, MODULE_RENDERERS } from "@/components/exam/sectionRenderers";
 import { nameWithYear } from "@/lib/seo/keywords";
 import { ExternalLink, Share2, ArrowRight } from "lucide-react";
@@ -112,13 +113,32 @@ function renderOrderedSections(
   todayISO: string,
 ): React.ReactNode {
   const view = buildHasDataView(exam, hasStructuredSyllabusFlag);
+
+  // Item 5: does this record have a date the reader would want to be alerted about — one that
+  // is not yet announced (expected/tba) or has no date value? If so, the subscribe box is placed
+  // right after Important Dates with "we'll tell you when it lands". If not, it falls to the
+  // bottom as a generic CTA. Either way it appears exactly ONCE.
+  const hasAwaitingDate = exam.dates.some(
+    (d) => d.state === "expected" || d.state === "tba" || !d.date || d.date.trim() === "",
+  );
+
   const orderedSections = mainSectionsForPillar(exam.pillar as Pillar)
     .filter((s) => (s.slug === "key-highlights" ? SHOW_KEY_HIGHLIGHTS : true))
     .filter((s) => hasData(view, s.slug))
     .map((s) => {
       const Render = SECTION_SUMMARY_RENDERERS[s.slug];
       const node = Render ? Render(exam, todayISO) : null;
-      return node ? <div key={s.slug}>{node}</div> : null;
+      if (!node) return null;
+      // Attach the contextual subscribe box immediately after Important Dates.
+      if (s.slug === "important-dates" && hasAwaitingDate) {
+        return (
+          <div key={s.slug}>
+            {node}
+            <SocialChannelBanner variant="awaiting-date" />
+          </div>
+        );
+      }
+      return <div key={s.slug}>{node}</div>;
     });
 
   return (
@@ -329,6 +349,40 @@ function OtherEditionBanner({
   );
 }
 
+/** Lead block — renders the derived LeadBlock descriptor. Formatting only; every value comes
+ *  from getLeadBlock (status headline, shared pickDisplayDate, shared top gated action). When
+ *  there is no action the date stands alone; when there is no date the headline stands alone. */
+function LeadBlock({ lead }: { lead: LeadBlockData }) {
+  const { headline, date, daysRemaining, action } = lead;
+  return (
+    <div className="mb-5 rounded-lg border border-border bg-card p-4">
+      <div className={`text-xs font-bold uppercase tracking-wide mb-1 ${statusColor(lead.status).split(" ")[0]}`}>
+        {headline}
+      </div>
+      {date ? (
+        <p className="text-sm text-gray-800">
+          <span className="text-gray-500">{date.label}: </span>
+          <span className="font-semibold">{formatDate(date.date)}</span>
+          {daysRemaining != null && (
+            <span className="text-accent font-medium"> · in {daysRemaining} day{daysRemaining === 1 ? "" : "s"}</span>
+          )}
+        </p>
+      ) : (
+        <p className="text-sm text-gray-500">Date not announced yet.</p>
+      )}
+      {action && (
+        <Link
+          href={action.href}
+          prefetch={false}
+          className="mt-3 inline-flex items-center gap-1.5 rounded bg-primary px-4 py-2 text-sm font-semibold text-white hover:bg-primary-700 transition-colors focus:ring-2 focus:ring-primary/50 focus:outline-none"
+        >
+          {action.label} <ArrowRight className="w-3.5 h-3.5" />
+        </Link>
+      )}
+    </div>
+  );
+}
+
 export async function EntityDetailPage({ exam, breadcrumbs, contentType, editionContext }: EntityDetailPageProps) {
   const [contentPosts, relatedExams, resources, syllabus, todayISO] = await Promise.all([
     getContentPostsByExam(exam.id),
@@ -343,6 +397,13 @@ export async function EntityDetailPage({ exam, breadcrumbs, contentType, edition
   // so the tab can't show while the page 404s.
   const hasStructuredSyllabusFlag = syllabus.subjects.length > 0;
   const hasDataView = buildHasDataView(exam, hasStructuredSyllabusFlag);
+
+  // Item 5: the subscribe box appears ONCE. When a date is not yet announced it sits inside
+  // the body after Important Dates (see renderOrderedSections); otherwise the single bottom
+  // banner covers it. This flag keeps the two mutually exclusive.
+  const hasAwaitingDate = exam.dates.some(
+    (d) => d.state === "expected" || d.state === "tba" || !d.date || d.date.trim() === "",
+  );
 
   // Step 2: tabs gated by the ONE registry hasData rule (presence of content is
   // the only switch). Replaces the old has_*/enabledModules logic that showed
@@ -405,6 +466,12 @@ export async function EntityDetailPage({ exam, breadcrumbs, contentType, edition
               </h1>
             )}
 
+            {/* Lead block — the answer first. MAIN PAGE ONLY (a CT sub-page is already the
+                answer to one question; repeating the card there is duplication). Reads derived
+                status + shared pickDisplayDate + shared getActionLinks — nothing invented, no
+                button where no page exists, date stands alone when there is no action. */}
+            {!contentType && <LeadBlock lead={getLeadBlock(exam, todayISO)} />}
+
             {/* Cycle switcher (year pills) — main page and edition pages, when >1 cycle exists. */}
             {editionContext && (
               <EditionSwitcher
@@ -459,9 +526,11 @@ export async function EntityDetailPage({ exam, breadcrumbs, contentType, edition
               </nav>
             )}
 
-            {/* Social Channel CTA — top banner */}
-            <SocialChannelBanner variant="top" />
-
+            {/* Item 5: the subscribe box was here (top) AND at the bottom — twice per page,
+                above the content the reader came for. Removed from the top. It now renders
+                ONCE, inside the ordered body, right after Important Dates when a date is not
+                yet announced (see renderOrderedSections) — where the reader actually feels the
+                need to be told when it lands. */}
             {contentType ? (
               /* FOCUSED content-type view — the CT section + compact shell. Suppresses the full
                  ordered body so a CT URL is NOT a duplicate of the main page. Converges with the
@@ -472,8 +541,9 @@ export async function EntityDetailPage({ exam, breadcrumbs, contentType, edition
                 {/* MAIN PAGE — the one ordered, registry-driven body for all five pillars. */}
                 {renderOrderedSections(exam, hasStructuredSyllabusFlag, resources, contentPosts, todayISO)}
 
-                {/* Social Channel CTA — bottom banner */}
-                <SocialChannelBanner variant="bottom" />
+                {/* Bottom banner ONLY when the contextual (awaiting-date) one did not render,
+                    so the subscribe box is shown exactly once per page. */}
+                {!hasAwaitingDate && <SocialChannelBanner variant="bottom" />}
 
                 {/* Related Exams — main page only. */}
                 {relatedExams.length > 0 && (

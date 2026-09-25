@@ -8,30 +8,46 @@ import type { ExamEntity } from "@/types/exam";
 
 export type CategoryTab = { label: string; slug: string | null };
 
-export function BoardUniversityClient({ exams, tabs }: { exams: ExamEntity[]; tabs: CategoryTab[] }) {
+export function BoardUniversityClient({
+  heading,
+  blurb,
+  viewAllHref,
+  exams,
+  tabs,
+  emptyLabel,
+}: {
+  heading: string;
+  blurb: string;
+  viewAllHref: string;
+  exams: ExamEntity[];
+  tabs: CategoryTab[];
+  emptyLabel: string;
+}) {
   const [active, setActive] = useState<string>("all");
   const activeSlug = tabs.find((t) => (active === "all" && t.slug === null) || t.slug === active)?.slug ?? null;
   const filtered = activeSlug ? exams.filter((e) => e.category === activeSlug) : exams;
-  const shown    = filtered.slice(0, 6);
+  const shown = filtered.slice(0, 6);
+
+  const headingId = `${heading.toLowerCase().replace(/\s+/g, "-")}-heading`;
 
   return (
-    <section aria-labelledby="board-university-heading" className="py-6 border-b border-gray-100">
+    <section aria-labelledby={headingId} className="py-6 border-b border-gray-100">
       {/* Section header */}
       <div className="flex items-start justify-between mb-4 pb-3 border-b border-border">
         <div>
-          <h2 id="board-university-heading" className="font-heading font-bold text-lg text-gray-900">
-            Boards &amp; universities
+          <h2 id={headingId} className="font-heading font-bold text-lg text-gray-900">
+            {heading}
           </h2>
-          <p className="text-xs text-gray-500 mt-0.5">Class 10 and 12 results, date sheets, university exams and admit cards</p>
+          <p className="text-xs text-gray-500 mt-0.5">{blurb}</p>
         </div>
-        <Link href="/board-exam" prefetch={false} className="text-xs font-semibold text-primary hover:text-primary-700 whitespace-nowrap mt-1">
+        <Link href={viewAllHref} prefetch={false} className="text-xs font-semibold text-primary hover:text-primary-700 whitespace-nowrap mt-1">
           View all
         </Link>
       </div>
 
       {/* Filter tabs */}
       <div className="flex items-center gap-0 mb-4 border border-border rounded overflow-hidden w-fit max-w-full overflow-x-auto"
-           role="group" aria-label="Filter board and university categories">
+           role="group" aria-label={`Filter ${heading} categories`}>
         {tabs.map((tab) => {
           const key = tab.slug ?? "all";
           return (
@@ -51,7 +67,7 @@ export function BoardUniversityClient({ exams, tabs }: { exams: ExamEntity[]; ta
           {shown.map((exam) => <ExamListRow key={exam.id} exam={exam} />)}
         </div>
       ) : (
-        <p className="text-sm text-gray-400 py-4 text-center">No exams found in this category.</p>
+        <p className="text-sm text-gray-400 py-4 text-center">{emptyLabel}</p>
       )}
     </section>
   );

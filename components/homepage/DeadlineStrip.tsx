@@ -87,38 +87,64 @@ function Row({ item, dateLabel }: { item: DeadlineBandItem; dateLabel: string })
 
 export function DeadlineStrip({ bands }: Props) {
   const visible = BANDS.filter((b) => bands[b.key].length > 0);
+  // Item 7: if every band is empty, render nothing — a strip carrying no information
+  // gets no space and no taps.
   if (visible.length === 0) return null;
+
+  // Item 7: a REAL summary line, not the word "Deadlines". Names the counts the reader
+  // would act on, e.g. "Today: 2 admit cards, 1 result, 3 closing". Only non-empty bands
+  // appear in the sentence, in the same Closing → Results → Admit → Exams order.
+  const SUMMARY_NOUN: Record<BandDef["key"], (n: number) => string> = {
+    closingSoon: (n) => `${n} closing`,
+    resultsOut: (n) => `${n} result${n === 1 ? "" : "s"}`,
+    admitCardOut: (n) => `${n} admit card${n === 1 ? "" : "s"}`,
+    examsThisMonth: (n) => `${n} exam${n === 1 ? "" : "s"} soon`,
+  };
+  const summary = visible.map((b) => SUMMARY_NOUN[b.key](bands[b.key].length)).join(", ");
+
+  const Grid = (
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3">
+      {visible.map((band) => {
+        const items = bands[band.key];
+        return (
+          <div
+            key={band.key}
+            className={cn("border border-border bg-white p-3 sm:p-4 flex flex-col", band.border)}
+          >
+            <div className="mb-2.5">
+              <h3 className={cn("text-[13px] font-bold leading-tight", band.title_c)}>
+                {band.title}
+              </h3>
+            </div>
+            <ul className="divide-y divide-black/5">
+              {items.map((item) => (
+                <Row key={`${band.key}-${item.examId}`} item={item} dateLabel={band.dateLabel} />
+              ))}
+            </ul>
+          </div>
+        );
+      })}
+    </div>
+  );
 
   return (
     <section className="bg-white" aria-label="Exam status this week">
       <div className="container mx-auto px-4 py-4">
-        {/* Item 2: stack cleanly on mobile (one column) — the old grid-cols-2 left a
-            half-width box + dead space when an odd number of bands was visible. */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3">
-          {visible.map((band) => {
-            const items = bands[band.key];
-            return (
-              <div
-                key={band.key}
-                className={cn("border border-border bg-white p-3 sm:p-4 flex flex-col", band.border)}
-              >
-                {/* Header — status colour retained on the label (Part E), no
-                    decorative icon or pastel fill (Part B/E). */}
-                <div className="mb-2.5">
-                  <h3 className={cn("text-[13px] font-bold leading-tight", band.title_c)}>
-                    {band.title}
-                  </h3>
-                </div>
+        {/* MOBILE: collapsed summary line, expands on tap. The summary carries real counts.
+            `sm:hidden` so it never shows on desktop. */}
+        <details className="sm:hidden group border border-border rounded-lg">
+          <summary className="flex items-center justify-between gap-2 px-3 py-2.5 cursor-pointer list-none">
+            <span className="text-[13px] text-gray-700">
+              <span className="font-semibold text-gray-900">Today:</span> {summary}
+            </span>
+            <span className="text-xs text-primary font-medium shrink-0 group-open:hidden">Show</span>
+            <span className="text-xs text-gray-400 font-medium shrink-0 hidden group-open:inline">Hide</span>
+          </summary>
+          <div className="px-3 pb-3">{Grid}</div>
+        </details>
 
-                <ul className="divide-y divide-black/5">
-                  {items.map((item) => (
-                    <Row key={`${band.key}-${item.examId}`} item={item} dateLabel={band.dateLabel} />
-                  ))}
-                </ul>
-              </div>
-            );
-          })}
-        </div>
+        {/* DESKTOP: the full grid, always visible (original behaviour). */}
+        <div className="hidden sm:block">{Grid}</div>
       </div>
     </section>
   );

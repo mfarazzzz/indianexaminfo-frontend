@@ -81,11 +81,18 @@ export default async function HomePage() {
         <AdSlot position="homepage-top" size="728x90" hideWhenEmpty />
       </div>
 
-      {/* ① Status cards — four date-derived cards, above the hero */}
-      <DeadlineStrip bands={deadlineBands} />
-
-      {/* ② Search Hero */}
-      <SearchHero />
+      {/* Item 7: on MOBILE the reader reaches for search first, so it renders first;
+          the deadline strip follows as a collapsed one-line summary (it expands on tap and
+          carries real counts, or does not render at all when every band is empty). On DESKTOP
+          (sm+) the original order is restored via flex `order`: strip above the hero, full grid. */}
+      <div className="flex flex-col">
+        <div className="order-1 sm:order-none">
+          <SearchHero />
+        </div>
+        <div className="order-none sm:order-first">
+          <DeadlineStrip bands={deadlineBands} />
+        </div>
+      </div>
 
       {/* ③ Five destination cards — full width, below the hero */}
       <section className="py-6">

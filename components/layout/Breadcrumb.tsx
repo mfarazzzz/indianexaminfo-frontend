@@ -21,8 +21,14 @@ export function Breadcrumb({ items }: BreadcrumbProps) {
     url: `${siteConfig.url}${item.href}`,
   }));
 
-  // On mobile: show only last 2 segments
-  const mobileItems = allItems.slice(-2);
+  // On mobile: keep the FIRST (Home) and the CURRENT crumb so the reader can always
+  // climb back to the top, with an ellipsis standing in for the middle when it exists.
+  // Showing only the last two (the old rule) dropped Home and the pillar, leaving no
+  // way back up from a deep detail page.
+  const mobileItems: (BreadcrumbItem | { ellipsis: true })[] =
+    allItems.length <= 2
+      ? allItems
+      : [allItems[0], { ellipsis: true }, allItems[allItems.length - 1]];
 
   return (
     <>
@@ -64,24 +70,29 @@ export function Breadcrumb({ items }: BreadcrumbProps) {
           ))}
         </ol>
 
-        {/* Mobile: last 2 only */}
+        {/* Mobile: first (Home) + current, with an ellipsis for any dropped middle. */}
         <ol className="flex sm:hidden items-center text-sm">
-          {mobileItems.map((item, index) => (
-            <li key={item.href} className="flex items-center">
-              {index > 0 && (
-                <ChevronRight className="w-3.5 h-3.5 text-gray-400 mx-1" aria-hidden="true" />
-              )}
-              {index === mobileItems.length - 1 ? (
-                <span className="text-gray-500 truncate max-w-[200px]" aria-current="page">
-                  {item.name}
-                </span>
-              ) : (
-                <Link href={item.href} className="text-gray-600 hover:text-primary" prefetch={false}>
-                  {item.name}
-                </Link>
-              )}
-            </li>
-          ))}
+          {mobileItems.map((item, index) => {
+            const isEllipsis = "ellipsis" in item;
+            return (
+              <li key={isEllipsis ? "ellipsis" : item.href} className="flex items-center">
+                {index > 0 && (
+                  <ChevronRight className="w-3.5 h-3.5 text-gray-400 mx-1 shrink-0" aria-hidden="true" />
+                )}
+                {isEllipsis ? (
+                  <span className="text-gray-400" aria-hidden="true">…</span>
+                ) : index === mobileItems.length - 1 ? (
+                  <span className="text-gray-500 truncate max-w-[180px]" aria-current="page">
+                    {item.name}
+                  </span>
+                ) : (
+                  <Link href={item.href} className="text-gray-600 hover:text-primary shrink-0" prefetch={false}>
+                    {item.name}
+                  </Link>
+                )}
+              </li>
+            );
+          })}
         </ol>
       </nav>
     </>

@@ -193,3 +193,77 @@ export function pickDisplayDate(exam: ExamEntity): DatePick {
   // No typed match for the state — show the first valid date rather than nothing.
   return { label: valid[0].label, date: valid[0].date };
 }
+
+// ── Lead block: the answer, first ────────────────────────────────────────────
+// THE state→answer descriptor for the top of a detail page. It reads ONLY the
+// derived status, the shared pickDisplayDate, and the shared getActionLinks.
+// Nothing is invented: the headline is a fixed phrase per status, the date is the
+// same one every surface shows, and the action is the top gated link (which is
+// absent when no page exists / the state forbids it — then the date stands alone).
+//
+// Every ExamStatus is covered below, so there is no state that yields an empty or
+// misleading card:
+//   registration-open   → "Applications open"        + close date  + Apply (if page)
+//   notified            → "Notification released"     + start/notif date + Apply (if page)
+//   upcoming            → "Upcoming"                  + next date   + Apply (if page)
+//   admit-card-out      → "Admit card out"            + exam date   + Admit card (if page)
+//   ongoing             → "Exam in progress"          + exam date   + Admit card (if page)
+//   result-awaited      → "Result awaited"            + result date + (usually none)
+//   result-declared     → "Result declared"           + result date + Result (if page)
+//   completed           → "Completed"                 + result date + Result (if page)
+//   registration-closed → "Applications closed"        + exam/admit date + (Admit card if page)
+//   dates-awaited       → "Dates awaited"             + (no date)   + none
+//   postponed           → "Postponed"                 + (date if any) + none
+//   cancelled           → "Cancelled"                 + (date if any) + none
+//   active              → "Open now"                  + next date   + Apply (if page)
+const HEADLINE_BY_STATUS: Record<ExamStatus, string> = {
+  "registration-open": "Applications open",
+  notified: "Notification released",
+  upcoming: "Upcoming",
+  "admit-card-out": "Admit card out",
+  ongoing: "Exam in progress",
+  "result-awaited": "Result awaited",
+  "result-declared": "Result declared",
+  completed: "Completed",
+  "registration-closed": "Applications closed",
+  "dates-awaited": "Dates awaited",
+  postponed: "Postponed",
+  cancelled: "Cancelled",
+  active: "Open now",
+};
+
+export type LeadBlock = {
+  status: ExamStatus;
+  headline: string;
+  date: DatePick;          // the state-relevant date, or null (then the card shows headline only)
+  daysRemaining: number | null; // whole days to a FUTURE confirmed date; null otherwise
+  action: ActionLink | null;    // the single top gated action, or null (date/headline stand alone)
+};
+
+/** Whole days from todayISO (yyyy-mm-dd) to dateStr; null if past/today/unparseable.
+ *  Inlined (not imported from utils) to avoid a utils↔actionLinks import cycle. */
+function daysAhead(dateStr: string, todayISO: string): number | null {
+  const a = new Date(todayISO + "T00:00:00Z").getTime();
+  const b = new Date((dateStr || "").slice(0, 10) + "T00:00:00Z").getTime();
+  if (isNaN(a) || isNaN(b)) return null;
+  const d = Math.round((b - a) / 86_400_000);
+  return d > 0 ? d : null;
+}
+
+/** The lead-block descriptor. Pure derivation; the renderer only formats it. */
+export function getLeadBlock(exam: ExamEntity, todayISO: string): LeadBlock {
+  const date = pickDisplayDate(exam);
+  const action = getActionLinks(exam, 1)[0] ?? null;
+  // Days remaining only for a CONFIRMED future date (never for expected/tba/past).
+  const dateRow = date
+    ? exam.dates.find((d) => d.date === date.date && (d.state ?? "confirmed") === "confirmed")
+    : undefined;
+  const daysRemaining = dateRow ? daysAhead(dateRow.date, todayISO) : null;
+  return {
+    status: exam.status,
+    headline: HEADLINE_BY_STATUS[exam.status] ?? exam.status.replace(/-/g, " "),
+    date,
+    daysRemaining,
+    action,
+  };
+}
