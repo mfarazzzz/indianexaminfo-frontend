@@ -68,7 +68,7 @@ export async function POST(request: NextRequest) {
       "/sarkari-naukri",
       "/sarkari-naukri/exam",
       "/sarkari-naukri/bharti",
-      "/entrance-exam",
+      "/admission",
       "/board-exam",
       "/admit-card",
       "/results",

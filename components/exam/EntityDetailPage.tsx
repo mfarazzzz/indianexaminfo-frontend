@@ -23,6 +23,7 @@ import {
 } from "@/lib/utils";
 import { contentTypeHasData, hasData, mainSectionsForPillar, CONTENT_TYPE_TO_SECTION, type HasDataView, type Pillar } from "@/lib/sectionRegistry";
 import { getLeadBlock, type LeadBlock as LeadBlockData } from "@/lib/exam/actionLinks";
+import { pillarToUrlSegment } from "@/lib/exam/pillarUrl";
 import { SECTION_SUMMARY_RENDERERS, MODULE_RENDERERS } from "@/components/exam/sectionRenderers";
 import { nameWithYear } from "@/lib/seo/keywords";
 import { ExternalLink, Share2, ArrowRight } from "lucide-react";
@@ -263,18 +264,9 @@ function renderFocusedContentType(
 }
 
 function getContentTypeHref(exam: ExamEntity, ct: ContentType): string {
-  // Map DB pillar values to frontend route
-  const pillarRouteMap: Record<string, string> = {
-    "government-exam": "sarkari-naukri",
-    "govt-vacancy": "sarkari-naukri",
-    "sarkari-naukri": "sarkari-naukri",
-    "sarkari-bharti": "sarkari-naukri",
-    "board-exam": "board-exam",
-    "board-university": "board-exam",
-    "entrance-exam": "entrance-exam",
-    "university-exam": "university-exam",
-  };
-  const routePillar = pillarRouteMap[exam.pillar] ?? exam.pillar;
+  // Pillar → public URL segment via the single authority (entrance-exam → admission,
+  // government-exam/govt-vacancy → sarkari-naukri, legacy aliases folded in).
+  const routePillar = pillarToUrlSegment(exam.pillar);
 
   return `/${routePillar}/${exam.category}/${exam.slug}/${ct}`;
 }

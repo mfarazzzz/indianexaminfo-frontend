@@ -21,21 +21,20 @@
 // ─────────────────────────────────────────────────────────────────────────────
 
 import { contentTypeHasData, type HasDataView } from "@/lib/sectionRegistry";
+import { pillarToUrlSegment } from "@/lib/exam/pillarUrl";
 import type { ExamEntity, ContentType, ExamStatus } from "@/types/exam";
 
 // ── Canonical URL builder ────────────────────────────────────────────────────
-// The ONE place that turns an exam into a path. government-exam and govt-vacancy
-// are canonicalised to sarkari-naukri here so no caller emits the dead root.
+// The ONE place that turns an exam into a path. The pillar→segment mapping lives
+// in pillarToUrlSegment (government-exam/govt-vacancy → sarkari-naukri,
+// entrance-exam → admission), so no caller emits a dead or stale root.
 export function getExamEntityHref(exam: {
   pillar: string;
   category: string;
   slug: string;
   entityType?: string;
 }): string {
-  const routePillar =
-    exam.pillar === "government-exam" || exam.pillar === "govt-vacancy"
-      ? "sarkari-naukri"
-      : exam.pillar;
+  const routePillar = pillarToUrlSegment(exam.pillar);
 
   if (routePillar === "board-exam") {
     // Board exams are always state boards → /board-exam/state/{category}/{slug}.

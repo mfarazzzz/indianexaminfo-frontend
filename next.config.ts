@@ -122,34 +122,53 @@ const nextConfig: NextConfig = {
       { source: "/university-exam/mjpru",                  destination: "/university-exam/state-university/mjpru-exam", permanent: true },
 
       // Admission records that were mispillared under University Exams and have
-      // been moved/merged into Admissions (entrance-exam pillar). Their old
-      // /university-exam/… URLs are indexed → 301 to the Admissions record.
+      // been moved/merged into Admissions (entrance-exam pillar, public root
+      // /admission). Their old /university-exam/… URLs are indexed → 308 straight
+      // to the FINAL /admission URL (no chain through /entrance-exam).
       // Six merged into an existing entrance twin; four moved keeping their slug.
-      { source: "/university-exam/deemed-university/bits-pilani-exam", destination: "/entrance-exam/engineering/bitsat",              permanent: true },
-      { source: "/university-exam/deemed-university/vit-viteee",       destination: "/entrance-exam/engineering/viteee",              permanent: true },
-      { source: "/university-exam/deemed-university/srm-entrance",     destination: "/entrance-exam/engineering/srmjeee",             permanent: true },
-      { source: "/university-exam/deemed-university/manipal-entrance", destination: "/entrance-exam/university-entrance/met-manipal", permanent: true },
-      { source: "/university-exam/deemed-university/amity-entrance",   destination: "/entrance-exam/university-entrance/amity-entrance", permanent: true },
-      { source: "/university-exam/central-university/amu-admission",   destination: "/entrance-exam/university-entrance/amu-entrance",   permanent: true },
-      { source: "/university-exam/central-university/jamia-admission", destination: "/entrance-exam/university-entrance/jmi-entrance",    permanent: true },
-      { source: "/university-exam/central-university/du-admission",    destination: "/entrance-exam/university-entrance/du-admission",    permanent: true },
-      { source: "/university-exam/central-university/jnu-admission",   destination: "/entrance-exam/university-entrance/jnu-admission",   permanent: true },
-      { source: "/university-exam/central-university/bhu-uet",         destination: "/entrance-exam/university-entrance/bhu-uet",         permanent: true },
-      
-      // Fix old hardcoded nav links that pointed to non-existent category slugs
-      { source: "/entrance-exam/science-pg/:slug",       destination: "/entrance-exam/engineering/:slug",          permanent: true },
-      { source: "/entrance-exam/mba/:slug",              destination: "/entrance-exam/management/:slug",           permanent: true },
-      { source: "/entrance-exam/liberal-arts/:slug",     destination: "/entrance-exam/university-entrance/:slug",  permanent: true },
-      { source: "/entrance-exam/hotel-management/:slug", destination: "/entrance-exam/university-entrance/:slug",  permanent: true },
-      { source: "/entrance-exam/media/:slug",            destination: "/entrance-exam/university-entrance/:slug",  permanent: true },
+      { source: "/university-exam/deemed-university/bits-pilani-exam", destination: "/admission/engineering/bitsat",              permanent: true },
+      { source: "/university-exam/deemed-university/vit-viteee",       destination: "/admission/engineering/viteee",              permanent: true },
+      { source: "/university-exam/deemed-university/srm-entrance",     destination: "/admission/engineering/srmjeee",             permanent: true },
+      { source: "/university-exam/deemed-university/manipal-entrance", destination: "/admission/university-entrance/met-manipal", permanent: true },
+      { source: "/university-exam/deemed-university/amity-entrance",   destination: "/admission/university-entrance/amity-entrance", permanent: true },
+      { source: "/university-exam/central-university/amu-admission",   destination: "/admission/university-entrance/amu-entrance",   permanent: true },
+      { source: "/university-exam/central-university/jamia-admission", destination: "/admission/university-entrance/jmi-entrance",    permanent: true },
+      { source: "/university-exam/central-university/du-admission",    destination: "/admission/university-entrance/du-admission",    permanent: true },
+      { source: "/university-exam/central-university/jnu-admission",   destination: "/admission/university-entrance/jnu-admission",   permanent: true },
+      { source: "/university-exam/central-university/bhu-uet",         destination: "/admission/university-entrance/bhu-uet",         permanent: true },
 
-      // Redirect old year-specific slugs to canonical year-agnostic URLs
-      { source: "/entrance-exam/:category/mba-cat-2026",         destination: "/entrance-exam/management/cat",           permanent: true },
-      { source: "/entrance-exam/:category/cat-2026",             destination: "/entrance-exam/management/cat",           permanent: true },
-      { source: "/entrance-exam/:category/cat%202026",           destination: "/entrance-exam/management/cat",           permanent: true },
-      { source: "/entrance-exam/:category/:slug-2026",           destination: "/entrance-exam/:category/:slug",          permanent: false },
-      { source: "/entrance-exam/:category/:slug-2025",           destination: "/entrance-exam/:category/:slug",          permanent: false },
-      
+      // ── Entrance-exam → Admission (public root rename) ───────────────────────
+      // The DB pillar value stays "entrance-exam"; only the public URL segment is
+      // /admission now. These SPECIFIC rewrites (old bad category slugs, old
+      // year-suffixed slugs) MUST come BEFORE the catch-all below, and each points
+      // at the FINAL /admission URL so no redirect chains into another redirect.
+      // permanent: true → HTTP 308 (search engines treat as permanent).
+      { source: "/entrance-exam/science-pg/:slug",       destination: "/admission/engineering/:slug",          permanent: true },
+      { source: "/entrance-exam/mba/:slug",              destination: "/admission/management/:slug",           permanent: true },
+      { source: "/entrance-exam/liberal-arts/:slug",     destination: "/admission/university-entrance/:slug",  permanent: true },
+      { source: "/entrance-exam/hotel-management/:slug", destination: "/admission/university-entrance/:slug",  permanent: true },
+      { source: "/entrance-exam/media/:slug",            destination: "/admission/university-entrance/:slug",  permanent: true },
+
+      // Old year-specific slugs → canonical year-agnostic /admission URLs
+      { source: "/entrance-exam/:category/mba-cat-2026",         destination: "/admission/management/cat",           permanent: true },
+      { source: "/entrance-exam/:category/cat-2026",             destination: "/admission/management/cat",           permanent: true },
+      { source: "/entrance-exam/:category/cat%202026",           destination: "/admission/management/cat",           permanent: true },
+      { source: "/entrance-exam/:category/:slug-2026",           destination: "/admission/:category/:slug",          permanent: false },
+      { source: "/entrance-exam/:category/:slug-2025",           destination: "/admission/:category/:slug",          permanent: false },
+
+      // Also handle the year-suffix cleanup on the NEW /admission root (records live
+      // here now, so an /admission/...-2026 URL must normalise too).
+      { source: "/admission/:category/mba-cat-2026",             destination: "/admission/management/cat",           permanent: true },
+      { source: "/admission/:category/cat-2026",                 destination: "/admission/management/cat",           permanent: true },
+      { source: "/admission/:category/cat%202026",               destination: "/admission/management/cat",           permanent: true },
+      { source: "/admission/:category/:slug-2026",               destination: "/admission/:category/:slug",          permanent: false },
+      { source: "/admission/:category/:slug-2025",               destination: "/admission/:category/:slug",          permanent: false },
+
+      // CATCH-ALL (must be LAST of the entrance-exam group): every remaining depth
+      // — landing, category, detail, content-type, year/archived — 308s to /admission.
+      { source: "/entrance-exam",                destination: "/admission",           permanent: true },
+      { source: "/entrance-exam/:path*",         destination: "/admission/:path*",    permanent: true },
+
       // Old sarkari-naukri category-only URLs are now handled in [category]/page.tsx with internal redirects.
       
       // Note: /sarkari-naukri/[category]/[slug] is now a valid route (exam entity detail page).

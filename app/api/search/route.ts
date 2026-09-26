@@ -20,6 +20,7 @@ import { searchBlogPosts } from "@/services/blogService";
 import { searchContentPosts } from "@/services/contentPostService";
 import { searchSarkariNaukri } from "@/services/sarkariNaukriService";
 import { searchEducationNews } from "@/services/educationNewsService";
+import { pillarToUrlSegment } from "@/lib/exam/pillarUrl";
 
 export const dynamic = "force-dynamic";
 
@@ -61,7 +62,7 @@ export async function GET(request: NextRequest) {
     ...exams.slice(0, 8).map((exam) => ({
       id: exam.id,
       title: exam.name,
-      url: `/${exam.pillar}/${exam.category}/${exam.slug}`,
+      url: `/${pillarToUrlSegment(exam.pillar)}/${exam.category}/${exam.slug}`,
       category: exam.pillar === "entrance-exam" ? "Entrance Exams" : exam.pillar === "board-exam" ? "Board & University" : "Exams",
       subcategory: exam.conductingBody,
       meta: exam.status.replace(/-/g, " "),

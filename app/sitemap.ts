@@ -9,6 +9,7 @@ import {
 import { getRegionsWithRecords } from "@/services/regionService";
 import { HIGH_PRIORITY_SLUGS } from "@/lib/seo/keywords";
 import { contentTypeHasData, type HasDataView } from "@/lib/sectionRegistry";
+import { pillarToUrlSegment } from "@/lib/exam/pillarUrl";
 import type { ContentType } from "@/types/exam";
 
 const BASE = siteConfig.url;
@@ -60,7 +61,9 @@ function examUrl(exam: SitemapExam): string {
     // pillar with their own canonical URL and never appear under board-exam.)
     return `${BASE}/board-exam/state/${exam.category}/${exam.slug}`;
   }
-  return `${BASE}/${exam.pillar}/${exam.category}/${exam.slug}`;
+  // Pillar → public segment via the single authority (entrance-exam → admission,
+  // government-exam/govt-vacancy → sarkari-naukri).
+  return `${BASE}/${pillarToUrlSegment(exam.pillar)}/${exam.category}/${exam.slug}`;
 }
 
 /** Content type URL */
@@ -68,7 +71,7 @@ function ctUrl(exam: SitemapExam, ct: ContentType): string {
   if (exam.pillar === "board-exam") {
     return `${BASE}/board-exam/state/${exam.category}/${exam.slug}/${ct}`;
   }
-  return `${BASE}/${exam.pillar}/${exam.category}/${exam.slug}/${ct}`;
+  return `${BASE}/${pillarToUrlSegment(exam.pillar)}/${exam.category}/${exam.slug}/${ct}`;
 }
 
 /** All applicable content-type flags on exam */
@@ -101,7 +104,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const staticPages: MetadataRoute.Sitemap = [
     { url: BASE,                        lastModified: now, changeFrequency: "daily",   priority: 1.0 },
     { url: `${BASE}/sarkari-naukri`,    lastModified: now, changeFrequency: "daily",   priority: 0.9 },
-    { url: `${BASE}/entrance-exam`,     lastModified: now, changeFrequency: "daily",   priority: 0.9 },
+    { url: `${BASE}/admission`,         lastModified: now, changeFrequency: "daily",   priority: 0.9 },
   // ── Board & University section ──────────────────────────────
   // Pillar has 0 rows currently. Suppress its pages from the
   // sitemap until we actually populate it. The hub page itself
