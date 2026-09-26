@@ -187,8 +187,8 @@ interface RouteDeclaration {
 // ── The actual declarations (verified against route files 2026-09-11) ────────
 const ROUTE_DECLARATIONS: RouteDeclaration[] = [
   {
-    route: "entrance-exam/[category]/[slug]/[contentType]/page.tsx",
-    sourceFile: "app/(public)/entrance-exam/[category]/[slug]/[contentType]/page.tsx",
+    route: "admission/[category]/[slug]/[contentType]/page.tsx",
+    sourceFile: "app/(public)/admission/[category]/[slug]/[contentType]/page.tsx",
     pillars: ["entrance-exam"],
     contentTypes: "*",
     renderMethod: "direct",

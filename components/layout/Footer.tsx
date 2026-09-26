@@ -2,6 +2,7 @@ import Link from "next/link";
 import { siteConfig } from "@/config/site";
 import { getMenuBySlug, buildColumns } from "@/services/menuService";
 import type { MenuItem } from "@/services/menuService";
+import { pillarToUrlSegment } from "@/lib/exam/pillarUrl";
 
 /**
  * CMS-driven footer. Reads from `footer-nav` menu.
@@ -89,7 +90,7 @@ export async function Footer() {
                 <ul className="space-y-1.5">
                   {[
                     { label: "Government Jobs", href: "/sarkari-naukri" },
-                    { label: "Admissions", href: "/entrance-exam" },
+                    { label: "Admissions", href: `/${pillarToUrlSegment("entrance-exam")}` },
                     { label: "Board Results", href: "/board-exam" },
                     { label: "Admit Card", href: "/admit-card" },
                     { label: "Results", href: "/results" },

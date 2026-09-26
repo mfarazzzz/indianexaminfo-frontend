@@ -2,6 +2,7 @@
  * navigation.ts — Shared types for the 6-domain navigation system.
  * Used by both the frontend mega menu and the CMS menu manager.
  */
+import { pillarToUrlSegment } from "@/lib/exam/pillarUrl";
 
 // ═══════════════════════════════════════════════════════════════════
 // CORE TYPES
@@ -224,12 +225,14 @@ export interface StaticNavigationData {
 // PILLAR METADATA (for header rendering)
 // ═══════════════════════════════════════════════════════════════════
 
+// hrefs carry the pillars' PUBLIC URL segments, resolved from the one authority
+// (lib/exam/pillarUrl) so they can never drift from the routes.
 export const PILLAR_CONFIGS: PillarConfig[] = [
-  { pillar: "government-exam", label: "Govt Exams", href: "/government-exam", icon: "🏛️", isEnabled: true },
-  { pillar: "govt-vacancy", label: "Govt Vacancy", href: "/govt-vacancy", icon: "💼", isEnabled: true },
-  { pillar: "entrance-exam", label: "Entrance Exams", href: "/entrance-exam", icon: "🎓", isEnabled: true },
-  { pillar: "university-exam", label: "University", href: "/university-exam", icon: "🏫", isEnabled: true },
-  { pillar: "board-exam", label: "Board Exams", href: "/board-exam", icon: "📘", isEnabled: true },
+  { pillar: "government-exam", label: "Govt Exams", href: `/${pillarToUrlSegment("government-exam")}`, icon: "🏛️", isEnabled: true },
+  { pillar: "govt-vacancy", label: "Govt Vacancy", href: `/${pillarToUrlSegment("govt-vacancy")}`, icon: "💼", isEnabled: true },
+  { pillar: "entrance-exam", label: "Entrance Exams", href: `/${pillarToUrlSegment("entrance-exam")}`, icon: "🎓", isEnabled: true },
+  { pillar: "university-exam", label: "University", href: `/${pillarToUrlSegment("university-exam")}`, icon: "🏫", isEnabled: true },
+  { pillar: "board-exam", label: "Board Exams", href: `/${pillarToUrlSegment("board-exam")}`, icon: "📘", isEnabled: true },
   { pillar: "news", label: "News", href: "/news", icon: "📰", isEnabled: true },
 ];
 

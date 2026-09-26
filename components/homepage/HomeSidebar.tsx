@@ -3,19 +3,20 @@ import { getAllExams, getTodayIST } from "@/services/examService";
 import { formatDate, isUrgent, isClosingSoon, isFutureOrToday, getExamEntityHref } from "@/lib/utils";
 import { AdSlot } from "@/components/ads/AdSlot";
 import { cn } from "@/lib/utils";
+import { pillarToUrlSegment } from "@/lib/exam/pillarUrl";
 import type { ExamEntity } from "@/types/exam";
 
 const trending = [
   { label: "UPSC Civil Services 2025", href: "/sarkari-naukri/upsc/civil-services" },
   { label: "IBPS PO 2025",              href: "/sarkari-naukri/banking/ibps-po" },
   { label: "SSC CGL 2025",              href: "/sarkari-naukri/ssc/ssc-cgl" },
-  { label: "NEET UG 2025 Result",       href: "/entrance-exam/medical/neet-ug" },
-  { label: "JEE Main 2026",             href: "/entrance-exam/engineering/jee-main" },
+  { label: "NEET UG 2025 Result",       href: `/${pillarToUrlSegment("entrance-exam")}/medical/neet-ug` },
+  { label: "JEE Main 2026",             href: `/${pillarToUrlSegment("entrance-exam")}/engineering/jee-main` },
   { label: "CBSE Class 12 Result",      href: "/board-exam/cbse/class-12" },
   { label: "UP Board Result 2025",      href: "/board-exam/state/up-board/intermediate" },
   { label: "MJPRU Result 2025",         href: "/board-exam/university/mjpru" },
   { label: "Agniveer Army 2025",        href: "/sarkari-naukri/defence/agniveer-army" },
-  { label: "CAT 2025",                  href: "/entrance-exam/mba/cat" },
+  { label: "CAT 2025",                  href: `/${pillarToUrlSegment("entrance-exam")}/mba/cat` },
 ];
 
 export async function HomeSidebar({

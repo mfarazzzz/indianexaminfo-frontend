@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { pillarToUrlSegment } from "@/lib/exam/pillarUrl";
 
 /**
  * Four primary destination cards. No data fetching — purely presentational.
@@ -36,7 +37,7 @@ export function AudienceGateway() {
 
       {/* ── ② Admissions ── */}
       <Link
-        href="/entrance-exam"
+        href={`/${pillarToUrlSegment("entrance-exam")}`}
         className="flex flex-col bg-white border border-border border-t-2 border-t-amber-500 rounded-lg p-4 shadow-sm hover:shadow-md transition-all focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
         aria-label="Admissions — Entrance exams"
       >

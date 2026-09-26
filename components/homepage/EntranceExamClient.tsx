@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
+import { pillarToUrlSegment } from "@/lib/exam/pillarUrl";
 import { ExamListRow } from "@/components/exam/ExamListRow";
 import type { ExamEntity } from "@/types/exam";
 
@@ -24,7 +25,7 @@ export function EntranceExamClient({ exams, tabs }: { exams: ExamEntity[]; tabs:
           </h2>
           <p className="text-xs text-gray-500 mt-0.5">Engineering, medical, MBA, law and more</p>
         </div>
-        <Link href="/entrance-exam" prefetch={false} className="text-xs font-semibold text-primary hover:text-primary-700 whitespace-nowrap mt-1">
+        <Link href={`/${pillarToUrlSegment("entrance-exam")}`} prefetch={false} className="text-xs font-semibold text-primary hover:text-primary-700 whitespace-nowrap mt-1">
           View all
         </Link>
       </div>

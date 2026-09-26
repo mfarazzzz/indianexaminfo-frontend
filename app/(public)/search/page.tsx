@@ -8,6 +8,7 @@ import { searchEducationNews } from "@/services/educationNewsService";
 import { Breadcrumb } from "@/components/layout/Breadcrumb";
 import { AdSlot } from "@/components/ads/AdSlot";
 import { getExamEntityHref } from "@/lib/utils";
+import { pillarToUrlSegment } from "@/lib/exam/pillarUrl";
 import { GLOBAL_SHORT_TAIL } from "@/lib/seo/keywords";
 import { Search, Briefcase, GraduationCap, Newspaper, FileText } from "lucide-react";
 
@@ -236,7 +237,7 @@ export default async function SearchPage({ searchParams }: Props) {
               <p className="text-gray-400 text-sm mb-6">Try different keywords or browse by category</p>
               <div className="flex justify-center gap-4 flex-wrap">
                 <Link href="/sarkari-naukri" className="text-sm text-primary font-medium hover:underline">Government Jobs</Link>
-                <Link href="/entrance-exam" className="text-sm text-primary font-medium hover:underline">Admissions</Link>
+                <Link href={`/${pillarToUrlSegment("entrance-exam")}`} className="text-sm text-primary font-medium hover:underline">Admissions</Link>
                 <Link href="/board-exam" className="text-sm text-primary font-medium hover:underline">Board & University</Link>
                 <Link href="/blog" className="text-sm text-primary font-medium hover:underline">News</Link>
                 <Link href="/resources" className="text-sm text-primary font-medium hover:underline">Resources</Link>
@@ -250,7 +251,7 @@ export default async function SearchPage({ searchParams }: Props) {
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             {[
               { label: "Govt Jobs", href: "/sarkari-naukri" },
-              { label: "Admissions", href: "/entrance-exam" },
+              { label: "Admissions", href: `/${pillarToUrlSegment("entrance-exam")}` },
               { label: "Board Results", href: "/board-exam" },
               { label: "News", href: "/blog" },
             ].map((cat) => (

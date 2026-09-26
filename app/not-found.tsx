@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { pillarToUrlSegment } from "@/lib/exam/pillarUrl";
 
 export const metadata: Metadata = {
   title: "Page Not Found — IndianExamInfo",
@@ -33,7 +34,7 @@ export default function NotFound() {
       <div className="grid grid-cols-2 gap-3 mb-8">
         {[
           { label: "Sarkari Naukri", href: "/sarkari-naukri" },
-          { label: "Admissions", href: "/entrance-exam" },
+          { label: "Admissions", href: `/${pillarToUrlSegment("entrance-exam")}` },
           { label: "Board Exam", href: "/board-exam" },
           { label: "Blog & News", href: "/blog" },
           { label: "Admit Card", href: "/admit-card" },

@@ -4,6 +4,7 @@
  */
 import type { NavigationTree, TaxonomyNode, QuickAccessItem } from "@/types/navigation";
 import { sarkariCategoryLabel } from "@/lib/sarkari/categories";
+import { pillarToUrlSegment } from "@/lib/exam/pillarUrl";
 
 // ═══════════════════════════════════════════════════════════════════
 // HELPER: Create a taxonomy node with sensible defaults
@@ -139,78 +140,84 @@ const govtExamCategories: TaxonomyNode[] = [
 // ENTRANCE EXAMS
 // ═══════════════════════════════════════════════════════════════════
 
+// Node paths below carry the pillar's PUBLIC URL segment, not the DB pillar
+// value (the pillar: "entrance-exam" fields are values and stay as they are).
+// Resolved once from the one authority (lib/exam/pillarUrl) so these nav links
+// can never drift from the routes.
+const ENTRANCE_EXAM_SEGMENT = pillarToUrlSegment("entrance-exam");
+
 const entranceExamCategories: TaxonomyNode[] = [
   node({
     slug: "engineering", label: "Engineering", pillar: "entrance-exam",
-    path: "entrance-exam/engineering", depth: 1, icon: "⚙️", isPinned: true,
+    path: `${ENTRANCE_EXAM_SEGMENT}/engineering`, depth: 1, icon: "⚙️", isPinned: true,
     
     children: [
-      node({ slug: "jee-main", label: "JEE Main", pillar: "entrance-exam", path: "entrance-exam/engineering/jee-main", depth: 2, badge: "popular" }),
-      node({ slug: "jee-advanced", label: "JEE Advanced", pillar: "entrance-exam", path: "entrance-exam/engineering/jee-advanced", depth: 2 }),
-      node({ slug: "bitsat", label: "BITSAT", pillar: "entrance-exam", path: "entrance-exam/engineering/bitsat", depth: 2 }),
-      node({ slug: "viteee", label: "VITEEE", pillar: "entrance-exam", path: "entrance-exam/engineering/viteee", depth: 2 }),
-      node({ slug: "wbjee", label: "WBJEE", pillar: "entrance-exam", path: "entrance-exam/engineering/wbjee", depth: 2 }),
+      node({ slug: "jee-main", label: "JEE Main", pillar: "entrance-exam", path: `${ENTRANCE_EXAM_SEGMENT}/engineering/jee-main`, depth: 2, badge: "popular" }),
+      node({ slug: "jee-advanced", label: "JEE Advanced", pillar: "entrance-exam", path: `${ENTRANCE_EXAM_SEGMENT}/engineering/jee-advanced`, depth: 2 }),
+      node({ slug: "bitsat", label: "BITSAT", pillar: "entrance-exam", path: `${ENTRANCE_EXAM_SEGMENT}/engineering/bitsat`, depth: 2 }),
+      node({ slug: "viteee", label: "VITEEE", pillar: "entrance-exam", path: `${ENTRANCE_EXAM_SEGMENT}/engineering/viteee`, depth: 2 }),
+      node({ slug: "wbjee", label: "WBJEE", pillar: "entrance-exam", path: `${ENTRANCE_EXAM_SEGMENT}/engineering/wbjee`, depth: 2 }),
     ],
   }),
   node({
     slug: "medical", label: "Medical", pillar: "entrance-exam",
-    path: "entrance-exam/medical", depth: 1, icon: "🏥", isPinned: true,
+    path: `${ENTRANCE_EXAM_SEGMENT}/medical`, depth: 1, icon: "🏥", isPinned: true,
     
     children: [
-      node({ slug: "neet-ug", label: "NEET UG", pillar: "entrance-exam", path: "entrance-exam/medical/neet-ug", depth: 2, badge: "popular" }),
-      node({ slug: "neet-pg", label: "NEET PG", pillar: "entrance-exam", path: "entrance-exam/medical/neet-pg", depth: 2 }),
-      node({ slug: "aiims", label: "AIIMS", pillar: "entrance-exam", path: "entrance-exam/medical/aiims", depth: 2 }),
-      node({ slug: "jipmer", label: "JIPMER", pillar: "entrance-exam", path: "entrance-exam/medical/jipmer", depth: 2 }),
+      node({ slug: "neet-ug", label: "NEET UG", pillar: "entrance-exam", path: `${ENTRANCE_EXAM_SEGMENT}/medical/neet-ug`, depth: 2, badge: "popular" }),
+      node({ slug: "neet-pg", label: "NEET PG", pillar: "entrance-exam", path: `${ENTRANCE_EXAM_SEGMENT}/medical/neet-pg`, depth: 2 }),
+      node({ slug: "aiims", label: "AIIMS", pillar: "entrance-exam", path: `${ENTRANCE_EXAM_SEGMENT}/medical/aiims`, depth: 2 }),
+      node({ slug: "jipmer", label: "JIPMER", pillar: "entrance-exam", path: `${ENTRANCE_EXAM_SEGMENT}/medical/jipmer`, depth: 2 }),
     ],
   }),
   node({
     slug: "mba", label: "MBA", pillar: "entrance-exam",
-    path: "entrance-exam/mba", depth: 1, icon: "💼",
+    path: `${ENTRANCE_EXAM_SEGMENT}/mba`, depth: 1, icon: "💼",
     
     children: [
-      node({ slug: "cat", label: "CAT", pillar: "entrance-exam", path: "entrance-exam/mba/cat", depth: 2, badge: "popular" }),
-      node({ slug: "mat", label: "MAT", pillar: "entrance-exam", path: "entrance-exam/mba/mat", depth: 2 }),
-      node({ slug: "xat", label: "XAT", pillar: "entrance-exam", path: "entrance-exam/mba/xat", depth: 2 }),
-      node({ slug: "cmat", label: "CMAT", pillar: "entrance-exam", path: "entrance-exam/mba/cmat", depth: 2 }),
+      node({ slug: "cat", label: "CAT", pillar: "entrance-exam", path: `${ENTRANCE_EXAM_SEGMENT}/mba/cat`, depth: 2, badge: "popular" }),
+      node({ slug: "mat", label: "MAT", pillar: "entrance-exam", path: `${ENTRANCE_EXAM_SEGMENT}/mba/mat`, depth: 2 }),
+      node({ slug: "xat", label: "XAT", pillar: "entrance-exam", path: `${ENTRANCE_EXAM_SEGMENT}/mba/xat`, depth: 2 }),
+      node({ slug: "cmat", label: "CMAT", pillar: "entrance-exam", path: `${ENTRANCE_EXAM_SEGMENT}/mba/cmat`, depth: 2 }),
     ],
   }),
   node({
     slug: "law", label: "Law", pillar: "entrance-exam",
-    path: "entrance-exam/law", depth: 1, icon: "⚖️",
+    path: `${ENTRANCE_EXAM_SEGMENT}/law`, depth: 1, icon: "⚖️",
     
     children: [
-      node({ slug: "clat", label: "CLAT", pillar: "entrance-exam", path: "entrance-exam/law/clat", depth: 2, badge: "popular" }),
-      node({ slug: "ailet", label: "AILET", pillar: "entrance-exam", path: "entrance-exam/law/ailet", depth: 2 }),
-      node({ slug: "lsat", label: "LSAT India", pillar: "entrance-exam", path: "entrance-exam/law/lsat", depth: 2 }),
+      node({ slug: "clat", label: "CLAT", pillar: "entrance-exam", path: `${ENTRANCE_EXAM_SEGMENT}/law/clat`, depth: 2, badge: "popular" }),
+      node({ slug: "ailet", label: "AILET", pillar: "entrance-exam", path: `${ENTRANCE_EXAM_SEGMENT}/law/ailet`, depth: 2 }),
+      node({ slug: "lsat", label: "LSAT India", pillar: "entrance-exam", path: `${ENTRANCE_EXAM_SEGMENT}/law/lsat`, depth: 2 }),
     ],
   }),
   node({
     slug: "agriculture", label: "Agriculture", pillar: "entrance-exam",
-    path: "entrance-exam/agriculture", depth: 1, icon: "🌾",
+    path: `${ENTRANCE_EXAM_SEGMENT}/agriculture`, depth: 1, icon: "🌾",
     
     children: [
-      node({ slug: "icar-aieea", label: "ICAR AIEEA", pillar: "entrance-exam", path: "entrance-exam/agriculture/icar-aieea", depth: 2 }),
-      node({ slug: "bhu-uet", label: "BHU UET", pillar: "entrance-exam", path: "entrance-exam/agriculture/bhu-uet", depth: 2 }),
+      node({ slug: "icar-aieea", label: "ICAR AIEEA", pillar: "entrance-exam", path: `${ENTRANCE_EXAM_SEGMENT}/agriculture/icar-aieea`, depth: 2 }),
+      node({ slug: "bhu-uet", label: "BHU UET", pillar: "entrance-exam", path: `${ENTRANCE_EXAM_SEGMENT}/agriculture/bhu-uet`, depth: 2 }),
     ],
   }),
   node({
     slug: "design", label: "Design", pillar: "entrance-exam",
-    path: "entrance-exam/design", depth: 1, icon: "🎨",
+    path: `${ENTRANCE_EXAM_SEGMENT}/design`, depth: 1, icon: "🎨",
     
     children: [
-      node({ slug: "nid-dat", label: "NID DAT", pillar: "entrance-exam", path: "entrance-exam/design/nid-dat", depth: 2 }),
-      node({ slug: "uceed", label: "UCEED", pillar: "entrance-exam", path: "entrance-exam/design/uceed", depth: 2 }),
-      node({ slug: "nift", label: "NIFT", pillar: "entrance-exam", path: "entrance-exam/design/nift", depth: 2 }),
+      node({ slug: "nid-dat", label: "NID DAT", pillar: "entrance-exam", path: `${ENTRANCE_EXAM_SEGMENT}/design/nid-dat`, depth: 2 }),
+      node({ slug: "uceed", label: "UCEED", pillar: "entrance-exam", path: `${ENTRANCE_EXAM_SEGMENT}/design/uceed`, depth: 2 }),
+      node({ slug: "nift", label: "NIFT", pillar: "entrance-exam", path: `${ENTRANCE_EXAM_SEGMENT}/design/nift`, depth: 2 }),
     ],
   }),
   node({
     slug: "defence-entrance", label: "Defence Entrance", pillar: "entrance-exam",
-    path: "entrance-exam/defence-entrance", depth: 1, icon: "🎖️",
+    path: `${ENTRANCE_EXAM_SEGMENT}/defence-entrance`, depth: 1, icon: "🎖️",
     
     children: [
-      node({ slug: "cds", label: "CDS", pillar: "entrance-exam", path: "entrance-exam/defence-entrance/cds", depth: 2 }),
-      node({ slug: "afcat", label: "AFCAT", pillar: "entrance-exam", path: "entrance-exam/defence-entrance/afcat", depth: 2 }),
-      node({ slug: "nda", label: "NDA", pillar: "entrance-exam", path: "entrance-exam/defence-entrance/nda", depth: 2 }),
+      node({ slug: "cds", label: "CDS", pillar: "entrance-exam", path: `${ENTRANCE_EXAM_SEGMENT}/defence-entrance/cds`, depth: 2 }),
+      node({ slug: "afcat", label: "AFCAT", pillar: "entrance-exam", path: `${ENTRANCE_EXAM_SEGMENT}/defence-entrance/afcat`, depth: 2 }),
+      node({ slug: "nda", label: "NDA", pillar: "entrance-exam", path: `${ENTRANCE_EXAM_SEGMENT}/defence-entrance/nda`, depth: 2 }),
     ],
   }),
 ];
@@ -420,9 +427,10 @@ export const STATIC_NAVIGATION_TREES: NavigationTree[] = [
   },
   {
     pillar: "entrance-exam",
-    // UI label only — the route stays /entrance-exam and SEO copy stays "Entrance Exam".
+    // The DB pillar VALUE stays "entrance-exam" and SEO copy keeps "Entrance Exam";
+    // the public route is the pillar's URL segment — /admission (ENTRANCE_EXAM_SEGMENT).
     label: "Admissions",
-    href: "/entrance-exam",
+    href: `/${ENTRANCE_EXAM_SEGMENT}`,
     icon: "🎓",
     nodes: entranceExamCategories,
     totalItemCount: 123,
@@ -462,12 +470,12 @@ export const STATIC_NAVIGATION_TREES: NavigationTree[] = [
 // ═══════════════════════════════════════════════════════════════════
 
 export const STATIC_QUICK_ACCESS: QuickAccessItem[] = [
-  { id: "qa-1", label: "NEET UG", href: "/entrance-exam/medical/neet-ug", icon: "🏥" },
-  { id: "qa-2", label: "JEE Main", href: "/entrance-exam/engineering/jee-main", icon: "⚙️" },
+  { id: "qa-1", label: "NEET UG", href: `/${ENTRANCE_EXAM_SEGMENT}/medical/neet-ug`, icon: "🏥" },
+  { id: "qa-2", label: "JEE Main", href: `/${ENTRANCE_EXAM_SEGMENT}/engineering/jee-main`, icon: "⚙️" },
   { id: "qa-3", label: "SSC CGL", href: "/sarkari-naukri/ssc/ssc-cgl", icon: "🏛️" },
   { id: "qa-4", label: "UPSC", href: "/sarkari-naukri/upsc/upsc-cse", icon: "⭐" },
   { id: "qa-5", label: "IBPS PO", href: "/sarkari-naukri/banking/ibps-po", icon: "🏦" },
-  { id: "qa-6", label: "CAT", href: "/entrance-exam/mba/cat", icon: "💼" },
+  { id: "qa-6", label: "CAT", href: `/${ENTRANCE_EXAM_SEGMENT}/mba/cat`, icon: "💼" },
   { id: "qa-7", label: "UP Board Result", href: "/board-exam/up-board/up-board-12th-result", icon: "📗" },
   { id: "qa-8", label: "CBSE Date Sheet", href: "/board-exam/cbse/cbse-date-sheet", icon: "📘" },
 ];

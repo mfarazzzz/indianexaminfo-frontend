@@ -13,7 +13,7 @@ Government job recruitment notifications for UPSC, SSC, Banking (IBPS/SBI/RBI), 
 Defence (Agniveer), Police, State PSC, Teaching (CTET), Technical PSUs and more.
 Covers: notification, application, admit card, result, answer key, syllabus, cutoff, previous papers.
 
-### Entrance Exam (/entrance-exam)
+### Entrance Exam (/admission)
 College admission entrance exam updates for Engineering (JEE Main/Advanced), Medical (NEET UG/PG),
 Law (CLAT), Management (CAT/XAT), Design (NIFT/NATA), Agriculture (ICAR), Teaching (BEd) and more.
 

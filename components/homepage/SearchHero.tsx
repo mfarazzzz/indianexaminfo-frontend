@@ -1,14 +1,15 @@
 import { Search } from "lucide-react";
+import { pillarToUrlSegment } from "@/lib/exam/pillarUrl";
 
 // Search-first hero. No marketing copy, no illustrations, no fabricated stats.
 // The search bar is the sole visual focus; trending chips provide quick navigation.
 const trending = [
-  { label: "NEET UG",          href: "/entrance-exam/medical/neet-ug" },
-  { label: "JEE Main",         href: "/entrance-exam/engineering/jee-main" },
+  { label: "NEET UG",          href: `/${pillarToUrlSegment("entrance-exam")}/medical/neet-ug` },
+  { label: "JEE Main",         href: `/${pillarToUrlSegment("entrance-exam")}/engineering/jee-main` },
   { label: "SSC CGL",          href: "/sarkari-naukri/ssc/ssc-cgl" },
   { label: "UPSC",             href: "/sarkari-naukri/upsc/civil-services" },
   { label: "IBPS PO",          href: "/sarkari-naukri/banking/ibps-po" },
-  { label: "CAT",              href: "/entrance-exam/mba/cat" },
+  { label: "CAT",              href: `/${pillarToUrlSegment("entrance-exam")}/mba/cat` },
   { label: "UP Board Result",  href: "/board-exam/state/up-board/intermediate" },
   { label: "CBSE Date Sheet",  href: "/board-exam/cbse/class-12" },
 ];
