@@ -20,7 +20,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     title: `${label} Entrance Exams ${year} — Notification, Admit Card, Result`,
     description: `Latest ${label} entrance exam notifications, admit card, result and cutoff. Complete information for all ${label} entrance exams ${year}.`,
     keywords: buildPageKeywords({ pageType: "category", pillar: "entrance-exam", examSlug: category }),
-    canonicalUrl: `${siteConfig.url}/entrance-exam/${category}`,
+    canonicalUrl: `${siteConfig.url}/admission/${category}`,
   });
 }
 
@@ -36,8 +36,8 @@ export default async function EntranceCategoryPage({ params }: Props) {
     <div className="container mx-auto px-4 py-4">
       <Breadcrumb
         items={[
-          { name: "Admissions", href: "/entrance-exam" },
-          { name: label, href: `/entrance-exam/${category}` },
+          { name: "Admissions", href: "/admission" },
+          { name: label, href: `/admission/${category}` },
         ]}
       />
       <h1 className="font-heading font-bold text-2xl text-gray-900 mt-4 mb-5">

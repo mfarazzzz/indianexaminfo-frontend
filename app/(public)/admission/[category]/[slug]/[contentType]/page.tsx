@@ -18,6 +18,7 @@ import { ContentTypeModules } from "@/components/exam/ContentTypeModules";
 import { contentTypeHasData } from "@/lib/sectionRegistry";
 import { isEditionYear } from "@/lib/exam/editions";
 import { buildEditionMetadata, renderEditionPage } from "@/lib/exam/editionDispatch";
+import { pillarToUrlSegment } from "@/lib/exam/pillarUrl";
 import type { ContentType } from "@/types/exam";
 import { ExternalLink, Download, Clock } from "lucide-react";
 import Link from "next/link";
@@ -49,7 +50,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     return buildEditionMetadata({
       slug,
       year: Number(contentType),
-      absoluteBasePath: `${siteConfig.url}/entrance-exam/${category}/${slug}`,
+      absoluteBasePath: `${siteConfig.url}/admission/${category}/${slug}`,
       servedPillars: SERVED_PILLARS,
     });
   }
@@ -63,7 +64,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     title: buildSEOTitle(exam.shortName, contentType, year),
     description: buildMetaDescription(exam.name, ct, "", year),
     keywords: buildPageKeywords({ pageType: "content-type", pillar: exam.pillar, examSlug: slug, contentType: ct }),
-    canonicalUrl: `${siteConfig.url}/entrance-exam/${category}/${slug}/${contentType}`,
+    canonicalUrl: `${siteConfig.url}/admission/${category}/${slug}/${contentType}`,
     updatedAt: exam.lastUpdated,
   });
 }
@@ -77,7 +78,7 @@ export default async function EntranceContentTypePage({ params }: Props) {
   // current-year redirect → thin-404 → render.
   if (isEditionYear(contentType)) {
     const year = Number(contentType);
-    const basePath = `/entrance-exam/${category}/${slug}`;
+    const basePath = `/admission/${category}/${slug}`;
     const catLabel = category.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
     return renderEditionPage({
       slug,
@@ -86,8 +87,8 @@ export default async function EntranceContentTypePage({ params }: Props) {
       absoluteBasePath: `${siteConfig.url}${basePath}`,
       servedPillars: SERVED_PILLARS,
       breadcrumbs: (exam, y) => [
-        { name: "Admissions", href: "/entrance-exam" },
-        { name: catLabel, href: `/entrance-exam/${category}` },
+        { name: "Admissions", href: "/admission" },
+        { name: catLabel, href: `/admission/${category}` },
         { name: exam.shortName, href: basePath },
         { name: String(y), href: `${basePath}/${y}` },
       ],
@@ -124,10 +125,10 @@ export default async function EntranceContentTypePage({ params }: Props) {
 
       <div className="container mx-auto px-4 py-4">
         <Breadcrumb items={[
-          { name: "Admissions", href: "/entrance-exam" },
-          { name: catLabel,        href: `/entrance-exam/${category}` },
-          { name: exam.shortName,  href: `/entrance-exam/${category}/${slug}` },
-          { name: ctLabel,         href: `/entrance-exam/${category}/${slug}/${contentType}` },
+          { name: "Admissions", href: "/admission" },
+          { name: catLabel,        href: `/admission/${category}` },
+          { name: exam.shortName,  href: `/admission/${category}/${slug}` },
+          { name: ctLabel,         href: `/admission/${category}/${slug}/${contentType}` },
         ]} />
 
         {/* Persistent content module navigation — always visible */}
@@ -139,12 +140,12 @@ export default async function EntranceContentTypePage({ params }: Props) {
           if (tabs.length <= 1) return null;
           return (
             <nav className="flex flex-wrap gap-2 mt-3 mb-4 pb-3 border-b border-border" aria-label="Available content modules">
-              <Link href={`/entrance-exam/${category}/${slug}`}
+              <Link href={`/admission/${category}/${slug}`}
                 className="text-xs font-semibold px-2.5 py-1 rounded border border-slate-200 text-slate-600 hover:bg-slate-100 transition-colors">
                 Overview
               </Link>
               {tabs.map((ct) => (
-                <Link key={ct} href={`/entrance-exam/${category}/${slug}/${ct}`}
+                <Link key={ct} href={`/admission/${category}/${slug}/${ct}`}
                   className={`text-xs font-semibold px-2.5 py-1 rounded border transition-colors ${
                     ct === contentType
                       ? "bg-primary text-white border-primary"
@@ -277,7 +278,7 @@ export default async function EntranceContentTypePage({ params }: Props) {
                 <ul className="space-y-2 text-sm">
                   {relatedPosts.filter((p) => p.examEntityId !== exam.id).slice(0, 5).map((p) => (
                     <li key={p.id}>
-                      <Link href={`/${p.pillar}/${p.examEntityName.toLowerCase().replace(/\s+/g, "-")}/${p.slug}`}
+                      <Link href={`/${pillarToUrlSegment(p.pillar)}/${p.examEntityName.toLowerCase().replace(/\s+/g, "-")}/${p.slug}`}
                             className="text-gray-700 hover:text-primary hover:underline">
                         {p.examEntityName} {ctLabel} {new Date().getFullYear()}
                       </Link>
@@ -300,7 +301,7 @@ export default async function EntranceContentTypePage({ params }: Props) {
                   <ul className="space-y-1.5 text-sm">
                     {moreFor.map((ct) => (
                       <li key={ct}>
-                        <Link href={`/entrance-exam/${category}/${slug}/${ct}`}
+                        <Link href={`/admission/${category}/${slug}/${ct}`}
                               className="text-gray-700 hover:text-primary hover:underline">
                           {exam.shortName} {contentTypeLabel(ct)}
                         </Link>

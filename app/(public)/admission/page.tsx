@@ -17,7 +17,7 @@ export const metadata: Metadata = buildExamMetadata({
   title: `Entrance Exam ${YEAR} — Latest Notifications, Admit Card, Result`,
   description: `Latest entrance exam notifications ${YEAR} for Engineering, Medical, Law, MBA, Design. JEE Main, NEET UG, CAT, CLAT, GATE admit card, result and counselling updates.`,
   keywords: buildPageKeywords({ pageType: "pillar", pillar: "entrance-exam" }),
-  canonicalUrl: `${siteConfig.url}/entrance-exam`,
+  canonicalUrl: `${siteConfig.url}/admission`,
 });
 
 const FALLBACK_CATEGORIES = [
@@ -47,7 +47,7 @@ export default async function EntranceExamPage() {
 
   return (
     <div className="container mx-auto px-4 py-4">
-      <Breadcrumb items={[{ name: "Admissions", href: "/entrance-exam" }]} />
+      <Breadcrumb items={[{ name: "Admissions", href: "/admission" }]} />
 
       <div className="flex justify-center mb-4">
         <AdSlot position="category-top" size="728x90" />
@@ -68,7 +68,7 @@ export default async function EntranceExamPage() {
               {categories.map((cat) => (
                 <Link
                   key={cat.slug}
-                  href={`/entrance-exam/${cat.slug}`}
+                  href={`/admission/${cat.slug}`}
                   className="bg-card border border-border rounded p-3 text-sm hover:border-primary hover:bg-primary/5 transition-colors group"
                 >
                   <div className="font-semibold text-gray-800 group-hover:text-primary text-sm">{cat.label}</div>

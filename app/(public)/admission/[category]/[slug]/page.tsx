@@ -22,7 +22,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     title: exam.seoTitle ?? `${exam.name} ${year} — Notification, Eligibility & Apply`,
     description: exam.seoDescription ?? buildMetaDescription(exam.name, "notification", "", year),
     keywords: buildPageKeywords({ pageType: "exam-entity", pillar: exam.pillar, examSlug: slug }),
-    canonicalUrl: `${siteConfig.url}/entrance-exam/${category}/${slug}`,
+    canonicalUrl: `${siteConfig.url}/admission/${category}/${slug}`,
     tags: exam.tags,
     updatedAt: exam.lastUpdated,
   });
@@ -35,7 +35,7 @@ export default async function EntranceExamEntityPage({ params }: Props) {
   if (!exam || exam.pillar !== "entrance-exam") notFound();
 
   const categoryLabel = category.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
-  const basePath = `/entrance-exam/${category}/${slug}`;
+  const basePath = `/admission/${category}/${slug}`;
 
   // Other-editions switcher on the MAIN page when >1 pillable edition exists. viewingYear =
   // the CURRENT edition's year (from is_current, NOT year order). buildEditionContext returns
@@ -48,8 +48,8 @@ export default async function EntranceExamEntityPage({ params }: Props) {
     <EntityDetailPage
       exam={exam}
       breadcrumbs={[
-        { name: "Admissions", href: "/entrance-exam" },
-        { name: categoryLabel, href: `/entrance-exam/${category}` },
+        { name: "Admissions", href: "/admission" },
+        { name: categoryLabel, href: `/admission/${category}` },
         { name: exam.shortName, href: basePath },
       ]}
       editionContext={editionContext ?? undefined}
