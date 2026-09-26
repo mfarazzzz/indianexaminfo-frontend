@@ -120,6 +120,21 @@ const nextConfig: NextConfig = {
       // record is mjpru-exam under state-university.
       { source: "/university-exam/university-exams/mjpru", destination: "/university-exam/state-university/mjpru-exam", permanent: true },
       { source: "/university-exam/mjpru",                  destination: "/university-exam/state-university/mjpru-exam", permanent: true },
+
+      // Admission records that were mispillared under University Exams and have
+      // been moved/merged into Admissions (entrance-exam pillar). Their old
+      // /university-exam/… URLs are indexed → 301 to the Admissions record.
+      // Six merged into an existing entrance twin; four moved keeping their slug.
+      { source: "/university-exam/deemed-university/bits-pilani-exam", destination: "/entrance-exam/engineering/bitsat",              permanent: true },
+      { source: "/university-exam/deemed-university/vit-viteee",       destination: "/entrance-exam/engineering/viteee",              permanent: true },
+      { source: "/university-exam/deemed-university/srm-entrance",     destination: "/entrance-exam/engineering/srmjeee",             permanent: true },
+      { source: "/university-exam/deemed-university/manipal-entrance", destination: "/entrance-exam/university-entrance/met-manipal", permanent: true },
+      { source: "/university-exam/deemed-university/amity-entrance",   destination: "/entrance-exam/university-entrance/amity-entrance", permanent: true },
+      { source: "/university-exam/central-university/amu-admission",   destination: "/entrance-exam/university-entrance/amu-entrance",   permanent: true },
+      { source: "/university-exam/central-university/jamia-admission", destination: "/entrance-exam/university-entrance/jmi-entrance",    permanent: true },
+      { source: "/university-exam/central-university/du-admission",    destination: "/entrance-exam/university-entrance/du-admission",    permanent: true },
+      { source: "/university-exam/central-university/jnu-admission",   destination: "/entrance-exam/university-entrance/jnu-admission",   permanent: true },
+      { source: "/university-exam/central-university/bhu-uet",         destination: "/entrance-exam/university-entrance/bhu-uet",         permanent: true },
       
       // Fix old hardcoded nav links that pointed to non-existent category slugs
       { source: "/entrance-exam/science-pg/:slug",       destination: "/entrance-exam/engineering/:slug",          permanent: true },

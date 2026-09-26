@@ -26,7 +26,7 @@ function ctPriority(slug: string, isHighValue: boolean): number {
   return isHighValue ? 0.95 : 0.85;
 }
 
-type SitemapExam = { pillar: string; entityType: string; category: string; slug: string };
+type SitemapExam = { pillar: string; category: string; slug: string };
 
 /**
  * Category slugs that are handled by LEGACY_REDIRECTS in the sarkari catch-all.
@@ -48,7 +48,6 @@ const LEGACY_CATEGORY_SLUGS = new Set([
  */
 function isSitemapEligible(exam: SitemapExam): boolean {
   if (!exam.slug) return false;
-  if (exam.pillar === "board-exam" && exam.entityType === "university") return true;
   if (!exam.category) return false;
   if (exam.pillar === "government-exam" && LEGACY_CATEGORY_SLUGS.has(exam.category)) return false;
   return true;
@@ -57,9 +56,9 @@ function isSitemapEligible(exam: SitemapExam): boolean {
 /** Map exam entity to its canonical URL. Callers must gate on isSitemapEligible(). */
 function examUrl(exam: SitemapExam): string {
   if (exam.pillar === "board-exam") {
-    return exam.entityType === "university"
-      ? `${BASE}/board-exam/university/${exam.slug}`
-      : `${BASE}/board-exam/state/${exam.category}/${exam.slug}`;
+    // Board exams are always state boards. (Universities are the university-exam
+    // pillar with their own canonical URL and never appear under board-exam.)
+    return `${BASE}/board-exam/state/${exam.category}/${exam.slug}`;
   }
   return `${BASE}/${exam.pillar}/${exam.category}/${exam.slug}`;
 }
@@ -67,9 +66,7 @@ function examUrl(exam: SitemapExam): string {
 /** Content type URL */
 function ctUrl(exam: SitemapExam, ct: ContentType): string {
   if (exam.pillar === "board-exam") {
-    return exam.entityType === "university"
-      ? `${BASE}/board-exam/university/${exam.slug}/${ct}`
-      : `${BASE}/board-exam/state/${exam.category}/${exam.slug}/${ct}`;
+    return `${BASE}/board-exam/state/${exam.category}/${exam.slug}/${ct}`;
   }
   return `${BASE}/${exam.pillar}/${exam.category}/${exam.slug}/${ct}`;
 }

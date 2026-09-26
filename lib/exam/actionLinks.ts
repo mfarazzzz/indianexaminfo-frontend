@@ -38,9 +38,9 @@ export function getExamEntityHref(exam: {
       : exam.pillar;
 
   if (routePillar === "board-exam") {
-    return exam.entityType === "university"
-      ? `/board-exam/university/${exam.slug}`
-      : `/board-exam/state/${exam.category}/${exam.slug}`;
+    // Board exams are always state boards → /board-exam/state/{category}/{slug}.
+    // (Universities are their own pillar, university-exam, and never route here.)
+    return `/board-exam/state/${exam.category}/${exam.slug}`;
   }
   // No category → flat slug URL (works for the sarkari-naukri [slug] route).
   if (!exam.category) return `/${routePillar}/${exam.slug}`;

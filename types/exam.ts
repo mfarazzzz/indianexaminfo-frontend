@@ -56,7 +56,7 @@ export type ExamEntity = {
   region: string | null;  // state-page routing key → regions.slug (all-india = national)
   category: string;
   subcategory: string;
-  entityType: "exam" | "board" | "university" | "recruitment";
+  entityType: "exam" | "board" | "university-admission" | "recruitment" | "university-exam";
   conductingBody: string;
   officialWebsite: string;
   status: ExamStatus;

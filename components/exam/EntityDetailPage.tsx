@@ -276,9 +276,6 @@ function getContentTypeHref(exam: ExamEntity, ct: ContentType): string {
   };
   const routePillar = pillarRouteMap[exam.pillar] ?? exam.pillar;
 
-  if (routePillar === "board-exam" && exam.entityType === "university") {
-    return `/university-exam/${exam.category}/${exam.slug}/${ct}`;
-  }
   return `/${routePillar}/${exam.category}/${exam.slug}/${ct}`;
 }
 

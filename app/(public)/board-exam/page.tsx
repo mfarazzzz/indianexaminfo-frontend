@@ -14,7 +14,7 @@ const YEAR = getCurrentYear();
 export const metadata: Metadata = buildExamMetadata({
   pageType: "pillar",
   title: `Board Exam ${YEAR} — CBSE, UP Board, Bihar Board Result & Date Sheet`,
-  description: `Latest board exam updates ${YEAR}. CBSE Class 10 & 12, UP Board, Bihar Board, RBSE result, date sheet, admit card. University result for BHU, MJPRU, IGNOU and more.`,
+  description: `Latest board exam updates ${YEAR}. CBSE Class 10 & 12, UP Board, Bihar Board, RBSE result, date sheet, admit card, and all state boards.`,
   keywords: buildPageKeywords({ pageType: "pillar", pillar: "board-exam" }),
   canonicalUrl: `${siteConfig.url}/board-exam`,
 });
@@ -24,7 +24,6 @@ export default async function BoardExamPage() {
 
   const centralBoards = exams.filter((e) => e.category === "cbse" || e.category === "cisce" || e.category === "nios");
   const stateBoards = exams.filter((e) => e.category === "up-board" || e.category === "bihar-board" || e.category === "rbse" || e.category === "mpbse");
-  const universities = exams.filter((e) => e.entityType === "university");
 
   return (
     <div className="container mx-auto px-4 py-4">
@@ -35,7 +34,7 @@ export default async function BoardExamPage() {
       </div>
 
       <h1 className="font-heading font-bold text-2xl text-gray-900 mb-1">
-        Board &amp; University Exam {new Date().getFullYear()} — Results, Date Sheet &amp; Admit Card
+        Board Exam {new Date().getFullYear()} — Results, Date Sheet &amp; Admit Card
       </h1>
       <p className="text-sm text-gray-500 mb-5">
         Last Updated: {new Date().toLocaleDateString("en-IN")}
@@ -77,16 +76,6 @@ export default async function BoardExamPage() {
             </h2>
             <div className="divide-y divide-border border-t border-border">
               {stateBoards.map((e) => <ExamListRow key={e.id} exam={e} />)}
-            </div>
-          </section>
-
-          {/* Universities */}
-          <section aria-labelledby="universities-heading">
-            <h2 id="universities-heading" className="font-heading font-bold text-lg text-gray-900 mb-4">
-              University Results
-            </h2>
-            <div className="divide-y divide-border border-t border-border">
-              {universities.map((e) => <ExamListRow key={e.id} exam={e} />)}
             </div>
           </section>
         </main>
