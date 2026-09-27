@@ -1,5 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { getExamBySlug } from "@/services/examService";
+import { getSarkariNaukriBySlug } from "@/services/sarkariNaukriService";
 import { getExamEntityHref } from "@/lib/exam/actionLinks";
 import { siteConfig } from "@/config/site";
 
@@ -20,27 +21,37 @@ export const dynamic = "force-dynamic";
  * streamed 200 + <meta refresh> (which a page redirect degrades to under a
  * loading.tsx / Suspense boundary). exams.slug is UNIQUE (exams_slug_key), so a
  * slug resolves to exactly one record across all pillars.
+ *
+ * Resolution order: exams first, then `sarkari_naukri` (the vacancy rows the
+ * public site serves at /sarkari-naukri/{slug}). 404 if neither table has it.
  */
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ slug: string }> }
 ) {
   const { slug } = await params;
-  const exam = await getExamBySlug(slug);
 
-  if (!exam) {
-    return new NextResponse(null, { status: 404 });
+  const exam = await getExamBySlug(slug);
+  if (exam) {
+    // Base the absolute URL on siteConfig.url — the origin the canonicals and
+    // sitemap already use. request.url is NOT trustworthy in production: the
+    // Hostinger proxy does not forward Host, so it produced
+    // Location: https://0.0.0.0:3000/... on the live site.
+    const dest = new URL(getExamEntityHref({
+      pillar: exam.pillar,
+      category: exam.category,
+      slug: exam.slug,
+      entityType: exam.entityType,
+    }), siteConfig.url);
+    return NextResponse.redirect(dest, 308);
   }
 
-  // Base the absolute URL on siteConfig.url — the origin the canonicals and
-  // sitemap already use. request.url is NOT trustworthy in production: the
-  // Hostinger proxy does not forward Host, so it produced
-  // Location: https://0.0.0.0:3000/... on the live site.
-  const dest = new URL(getExamEntityHref({
-    pillar: exam.pillar,
-    category: exam.category,
-    slug: exam.slug,
-    entityType: exam.entityType,
-  }), siteConfig.url);
-  return NextResponse.redirect(dest, 308);
+  // Fallback: a sarkari_naukri vacancy row. Its public canonical is the
+  // single-segment /sarkari-naukri/{slug} (see the catch-all page's canonicalUrl).
+  const job = await getSarkariNaukriBySlug(slug);
+  if (job) {
+    return NextResponse.redirect(new URL(`/sarkari-naukri/${job.slug}`, siteConfig.url), 308);
+  }
+
+  return new NextResponse(null, { status: 404 });
 }
