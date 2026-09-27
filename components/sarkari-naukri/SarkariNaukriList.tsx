@@ -79,23 +79,17 @@ function relevantDate(item: SarkariNaukriItem): { label: string; date: string } 
     case "exam-scheduled":
       if (item.examDate) return { label: "Exam", date: item.examDate };
       break;
-    case "result-declared":
-      if (item.resultDate) return { label: "Result", date: item.resultDate };
-      break;
-    case "interview-scheduled":
-    case "merit-list-released":
-    case "answer-key-released":
-      if (item.resultDate) return { label: "Date", date: item.resultDate };
-      break;
+    // G2: result-declared / answer-key / interview / merit rows would only have
+    // shown result_date (seed data on sarkari_naukri) — not displayed. The badge
+    // still communicates the state; the unverified date does not.
     case "upcoming":
       if (item.applicationStartDate) return { label: "Opens", date: item.applicationStartDate };
       if (item.examDate) return { label: "Exam", date: item.examDate };
       break;
   }
-  // Fallback: first non-null date in priority order
+  // Fallback: first non-null date in priority order (never result_date — seed data).
   if (item.applicationEndDate) return { label: "Last date", date: item.applicationEndDate };
   if (item.examDate) return { label: "Exam", date: item.examDate };
-  if (item.resultDate) return { label: "Result", date: item.resultDate };
   return null;
 }
 

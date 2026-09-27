@@ -20,10 +20,9 @@ function relevantDate(item: SarkariNaukriItem): string | null {
   if (item.status === "application-open" && item.applicationEndDate) return item.applicationEndDate;
   if (item.status === "admit-card-released" && item.admitCardDate) return item.admitCardDate;
   if (item.status === "exam-scheduled" && item.examDate) return item.examDate;
-  if (["result-declared", "answer-key-released", "merit-list-released"].includes(item.status) && item.resultDate) {
-    return item.resultDate;
-  }
-  return item.applicationEndDate ?? item.examDate ?? item.resultDate;
+  // G2: result_date is seed data on sarkari_naukri (unverified) — excluded from
+  // ordering so a fabricated date cannot drive reader-facing list sequence.
+  return item.applicationEndDate ?? item.examDate;
 }
 
 export function sortRecruitmentsOpenFirst(items: SarkariNaukriItem[]): SarkariNaukriItem[] {

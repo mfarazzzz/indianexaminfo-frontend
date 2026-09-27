@@ -51,9 +51,10 @@ function sortByUrgency(items: SarkariNaukriItem[]): SarkariNaukriItem[] {
     const bBucket = urgencyBucket(b);
     if (aBucket !== bBucket) return aBucket - bBucket;
 
-    // Within the same bucket, nearest deadline first
-    const aDeadline = a.applicationEndDate ?? a.examDate ?? a.resultDate;
-    const bDeadline = b.applicationEndDate ?? b.examDate ?? b.resultDate;
+    // Within the same bucket, nearest deadline first. G2: result_date is seed
+    // data (unverified) — not used for ordering.
+    const aDeadline = a.applicationEndDate ?? a.examDate;
+    const bDeadline = b.applicationEndDate ?? b.examDate;
     if (aDeadline && bDeadline) {
       const aT = new Date(aDeadline).getTime();
       const bT = new Date(bDeadline).getTime();
