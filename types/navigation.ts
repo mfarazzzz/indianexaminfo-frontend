@@ -2,7 +2,6 @@
  * navigation.ts — Shared types for the 6-domain navigation system.
  * Used by both the frontend mega menu and the CMS menu manager.
  */
-import { pillarToUrlSegment } from "@/lib/exam/pillarUrl";
 
 // ═══════════════════════════════════════════════════════════════════
 // CORE TYPES
@@ -188,58 +187,3 @@ export interface BreadcrumbItem {
   href: string;
   isCurrentPage?: boolean;
 }
-
-// ═══════════════════════════════════════════════════════════════════
-// CONFIGURATION
-// ═══════════════════════════════════════════════════════════════════
-
-export type NavigationMode = "static" | "dynamic";
-
-export interface NavigationConfig {
-  mode: NavigationMode;
-  revalidateInterval: number; // seconds
-  staticDataPath: string;
-  pillars: PillarConfig[];
-}
-
-export interface PillarConfig {
-  pillar: NavigationPillar;
-  label: string;
-  href: string;
-  icon: string;
-  isEnabled: boolean;
-}
-
-// ═══════════════════════════════════════════════════════════════════
-// STATIC DATA SHAPE (for navigation.json)
-// ═══════════════════════════════════════════════════════════════════
-
-export interface StaticNavigationData {
-  version: string;
-  generatedAt: string;
-  pillars: Record<NavigationPillar, NavigationTree>;
-  quickAccess: QuickAccessItem[];
-}
-
-// ═══════════════════════════════════════════════════════════════════
-// PILLAR METADATA (for header rendering)
-// ═══════════════════════════════════════════════════════════════════
-
-// hrefs carry the pillars' PUBLIC URL segments, resolved from the one authority
-// (lib/exam/pillarUrl) so they can never drift from the routes.
-export const PILLAR_CONFIGS: PillarConfig[] = [
-  { pillar: "government-exam", label: "Govt Exams", href: `/${pillarToUrlSegment("government-exam")}`, icon: "🏛️", isEnabled: true },
-  { pillar: "govt-vacancy", label: "Govt Vacancy", href: `/${pillarToUrlSegment("govt-vacancy")}`, icon: "💼", isEnabled: true },
-  { pillar: "entrance-exam", label: "Entrance Exams", href: `/${pillarToUrlSegment("entrance-exam")}`, icon: "🎓", isEnabled: true },
-  { pillar: "university-exam", label: "University", href: `/${pillarToUrlSegment("university-exam")}`, icon: "🏫", isEnabled: true },
-  { pillar: "board-exam", label: "Board Exams", href: `/${pillarToUrlSegment("board-exam")}`, icon: "📘", isEnabled: true },
-  { pillar: "news", label: "News", href: "/news", icon: "📰", isEnabled: true },
-];
-
-/** Map legacy pillar slugs to new ones (backward compat) */
-export const LEGACY_PILLAR_MAP: Record<string, NavigationPillar> = {
-  "sarkari-naukri": "government-exam",
-  "sarkari-bharti": "govt-vacancy",
-  "government-jobs": "govt-vacancy",
-  "board-exam": "board-exam",
-};
