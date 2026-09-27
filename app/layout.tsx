@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Merriweather, Inter, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { TopBar } from "@/components/layout/TopBar";
+import { TopProgressBar } from "@/components/layout/TopProgressBar";
 import { HeaderWithMenu } from "@/components/layout/HeaderWithMenu";
 import { Footer } from "@/components/layout/Footer";
 import { BreakingTicker } from "@/components/layout/BreakingTicker";
@@ -109,6 +110,11 @@ export default function RootLayout({
         <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
       </head>
       <body className="min-h-screen flex flex-col">
+
+        {/* G6: thin top progress bar for slow-network nav feedback. Fixed to
+            the viewport and NOT wrapped in any Suspense/loading boundary, so it
+            cannot degrade notFound()/redirect() (see E1/E2). */}
+        <TopProgressBar />
 
         {/* A11Y-01: Skip navigation link for keyboard users */}
         <a
