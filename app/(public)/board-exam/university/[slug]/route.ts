@@ -1,8 +1,11 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { getExamBySlug } from "@/services/examService";
+import { siteConfig } from "@/config/site";
 
-export const revalidate = 3600;
-export const dynamicParams = true; // serve new exams added after build without rebuilding
+// Dynamic, not ISR-cached: these legacy URLs are indexed by Google and a cached
+// redirect would keep serving a stale Location (old category) for `revalidate`
+// seconds after a record changes. Low traffic — freshness costs nothing.
+export const dynamic = "force-dynamic";
 
 /**
  * LEGACY/DUPLICATE ROUTE — permanently 301/308-redirected to the canonical university-exam form.
@@ -36,6 +39,9 @@ export async function GET(
     return new NextResponse(null, { status: 404 });
   }
 
-  const dest = new URL(`/university-exam/${exam.category}/${slug}`, request.url);
+  // Base the absolute URL on siteConfig.url — the origin the canonicals and sitemap
+  // already use. request.url is NOT trustworthy in production: the Hostinger proxy
+  // does not forward Host, so it produced Location: https://0.0.0.0:3000/... live.
+  const dest = new URL(`/university-exam/${exam.category}/${slug}`, siteConfig.url);
   return NextResponse.redirect(dest, 308);
 }

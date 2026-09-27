@@ -1,9 +1,12 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { getExamBySlug } from "@/services/examService";
 import { getExamEntityHref } from "@/lib/exam/actionLinks";
+import { siteConfig } from "@/config/site";
 
-export const revalidate = 3600;
-export const dynamicParams = true;
+// Dynamic, not ISR-cached: a cached redirect would keep pointing at an old URL
+// for `revalidate` seconds after an exam's category/pillar changes. /go is a
+// CMS-only link with little traffic — freshness costs nothing.
+export const dynamic = "force-dynamic";
 
 /**
  * /go/{slug} — canonical-URL resolver for the CMS "View on site" button.
@@ -29,11 +32,15 @@ export async function GET(
     return new NextResponse(null, { status: 404 });
   }
 
+  // Base the absolute URL on siteConfig.url — the origin the canonicals and
+  // sitemap already use. request.url is NOT trustworthy in production: the
+  // Hostinger proxy does not forward Host, so it produced
+  // Location: https://0.0.0.0:3000/... on the live site.
   const dest = new URL(getExamEntityHref({
     pillar: exam.pillar,
     category: exam.category,
     slug: exam.slug,
     entityType: exam.entityType,
-  }), request.url);
+  }), siteConfig.url);
   return NextResponse.redirect(dest, 308);
 }

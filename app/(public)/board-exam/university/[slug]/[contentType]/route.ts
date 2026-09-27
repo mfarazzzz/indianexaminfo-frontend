@@ -1,8 +1,10 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { getExamBySlug } from "@/services/examService";
+import { siteConfig } from "@/config/site";
 
-export const revalidate = 900;
-export const dynamicParams = true;
+// Dynamic, not ISR-cached: mirrors the parent [slug] handler — indexed legacy
+// URLs must never serve a stale cached Location after a record changes.
+export const dynamic = "force-dynamic";
 
 /**
  * LEGACY/DUPLICATE ROUTE — permanent 308 to the canonical university-exam form.
@@ -31,6 +33,8 @@ export async function GET(
     return new NextResponse(null, { status: 404 });
   }
 
-  const dest = new URL(`/university-exam/${exam.category}/${slug}/${contentType}`, request.url);
+  // siteConfig.url — NOT request.url. The production proxy does not forward Host,
+  // so request.url-based Locations came out as https://0.0.0.0:3000/... live.
+  const dest = new URL(`/university-exam/${exam.category}/${slug}/${contentType}`, siteConfig.url);
   return NextResponse.redirect(dest, 308);
 }
