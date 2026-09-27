@@ -30,8 +30,11 @@ function ctPriority(slug: string, isHighValue: boolean): number {
 type SitemapExam = { pillar: string; category: string; slug: string };
 
 /**
- * Category slugs that are handled by LEGACY_REDIRECTS in the sarkari catch-all.
- * URLs built on these 307-redirect, so they must never enter the sitemap.
+ * Category slugs whose URLs must never enter the sitemap.
+ * central/state-government-jobs: hub URLs 308 to /sarkari-naukri/exam|bharti via
+ * next.config redirects. banking/railways/defence/teaching render real category
+ * listings now (formerly legacy redirects) — kept excluded as a conservative
+ * pre-existing choice.
  */
 const LEGACY_CATEGORY_SLUGS = new Set([
   "central-government-jobs",

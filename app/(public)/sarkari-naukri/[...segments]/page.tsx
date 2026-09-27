@@ -37,15 +37,6 @@ import { SarkariNaukriContentTypeView } from "./SarkariNaukriContentTypeView";
 export const revalidate = 600;
 export const dynamicParams = true;
 
-// Legacy category slugs that need redirects.
-// banking / railways / defence / teaching removed: they used to 307 to
-// /sarkari-naukri/exam?category=… which ignores the param and rendered all exams.
-// They now fall through to the real category listing below (mapped label + breadcrumb).
-const LEGACY_REDIRECTS: Record<string, string> = {
-  "central-government-jobs": "/sarkari-naukri/exam",
-  "state-government-jobs": "/sarkari-naukri/bharti",
-};
-
 /** Pillars that are served by this route (covers both old and new DB values) */
 const SERVED_PILLARS = new Set(["sarkari-naukri", "government-exam", "govt-vacancy"]);
 
@@ -60,10 +51,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { segments } = await params;
 
   if (segments.length === 1) {
-    // Single slug — sarkari_naukri item or exams fallback
+    // Single slug — sarkari_naukri item or exams fallback.
+    // (Legacy hub slugs central/state-government-jobs never reach here —
+    // they 308 via next.config before routing.)
     const slug = segments[0];
-    if (LEGACY_REDIRECTS[slug]) return {};
-
     const item = await getSarkariNaukriBySlug(slug);
     if (item) {
       return buildExamMetadata({
@@ -161,13 +152,10 @@ export default async function SarkariNaukriCatchAll({ params }: Props) {
   const { segments } = await params;
 
   // ─── Pattern 1: Single slug ─────────────────────────────────────────
+  // (Legacy hub slugs central/state-government-jobs 308 via next.config
+  // before routing — they never reach this handler.)
   if (segments.length === 1) {
     const slug = segments[0];
-
-    // Handle legacy redirects
-    if (LEGACY_REDIRECTS[slug]) {
-      redirect(LEGACY_REDIRECTS[slug]);
-    }
 
     // Try sarkari_naukri table first (direct bharti/exam jobs)
     const item = await getSarkariNaukriBySlug(slug);

@@ -114,6 +114,12 @@ const nextConfig: NextConfig = {
       { source: "/exam/:slug",  destination: "/sarkari-naukri/:slug", permanent: true },
       { source: "/result",      destination: "/results",              permanent: true },
 
+      // sarkari-naukri legacy category hubs — formerly page-level redirect() calls in the
+      // catch-all, which degraded to a streamed 200 + <meta refresh> under the root
+      // loading.tsx boundary. next.config rules are true 308s evaluated before rendering.
+      { source: "/sarkari-naukri/central-government-jobs", destination: "/sarkari-naukri/exam",   permanent: true },
+      { source: "/sarkari-naukri/state-government-jobs",   destination: "/sarkari-naukri/bharti", permanent: true },
+
       // Deleted MJPRU stub → the real MJPRU record. The stub row (slug `mjpru`
       // in the stray `university-exams` category) was removed from the DB
       // (migration 022); its indexed URL 301s here so it never 404s. The real
