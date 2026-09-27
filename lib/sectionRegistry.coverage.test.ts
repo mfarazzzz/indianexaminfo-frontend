@@ -29,8 +29,9 @@ const RENDERS_ELSEWHERE: Record<string, string> = {
 // Explicitly RETIRED sections — removed from the registry, must stay gone. Recorded with a
 // supersession reason so a re-add is a conscious act. (Kept for documentation + reverse check.)
 const RETIRED: Record<string, string> = {
-  "previous-papers": "Superseded by the exam_resources library (year-tagged, shared across editions)",
-  "study-material": "Superseded by the exam_resources library",
+  // previous-papers and study-material were consciously re-added to SECTION_REGISTRY
+  // as editorial content types (see its ~line 104-111 comments) — removed from here
+  // so the retirement list matches reality.
   "syllabus-highlights": "Superseded by structured exam_syllabus_subjects (the flat column was dropped)",
 };
 
@@ -219,14 +220,6 @@ const ROUTE_DECLARATIONS: RouteDeclaration[] = [
     gate: "contentTypeAvailable",
   },
   {
-    route: "board-exam/university/[slug]/[contentType]/page.tsx",
-    sourceFile: "app/(public)/board-exam/university/[slug]/[contentType]/page.tsx",
-    pillars: ["board-exam"],
-    contentTypes: "*",
-    renderMethod: "direct",
-    gate: "contentTypeAvailable",
-  },
-  {
     route: "sarkari-naukri/[...segments] → SarkariNaukriContentTypeView.tsx",
     sourceFile: "app/(public)/sarkari-naukri/[...segments]/SarkariNaukriContentTypeView.tsx",
     pillars: ["government-exam", "govt-vacancy"],
@@ -251,8 +244,10 @@ const ROUTE_EXCEPTIONS: RouteException[] = [
   // It's handled by direct rendering in ContentModulesBlock, not via the registry CT-to-section bridge.
   // No exception needed because it's not a registered content type.
 
-  // board-exam has two specific routes (state, university) plus a catch-all — a URL can be served
-  // by different files depending on the first segment. This is documented as convergence-backlog.
+  // board-exam has a specific route (state) plus a catch-all — a URL can be served
+  // by different files depending on the first segment. This is documented as
+  // convergence-backlog. (Its former university page is now a redirect-only
+  // route handler to the university-exam pillar, not a board-exam page.)
 ];
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
