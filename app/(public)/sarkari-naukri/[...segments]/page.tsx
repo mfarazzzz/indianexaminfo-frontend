@@ -10,7 +10,7 @@
  * and take precedence over this catch-all.
  */
 import type { Metadata } from "next";
-import { notFound, redirect } from "next/navigation";
+import { notFound, permanentRedirect } from "next/navigation";
 import Link from "next/link";
 import { getSarkariNaukriBySlug, generateStaticSarkariNaukriParams, getByCategory as getSarkariByCategory } from "@/services/sarkariNaukriService";
 import { SARKARI_LABELS } from "@/lib/sarkari/labels";
@@ -168,7 +168,7 @@ export default async function SarkariNaukriCatchAll({ params }: Props) {
     const exam = await getExamBySlug(slug);
     if (exam && SERVED_PILLARS.has(exam.pillar)) {
       if (exam.category) {
-        redirect(`/sarkari-naukri/${exam.category}/${exam.slug}`);
+        permanentRedirect(`/sarkari-naukri/${exam.category}/${exam.slug}`);
       }
       // No category — render EntityDetailPage directly (with switcher, same rule as every route)
       const basePath = `/sarkari-naukri/${exam.slug}`;
