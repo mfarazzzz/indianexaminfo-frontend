@@ -127,6 +127,13 @@ const nextConfig: NextConfig = {
       { source: "/sarkari-naukri/up-swasthya-vibhag-ambulance-divider-2026", destination: "/sarkari-naukri/up-swasthya-vibhag-ambulance-driver-2026", permanent: true },
       { source: "/sarkari-naukri/upsc/upsc-cds", destination: "/sarkari-naukri/defence/cds-exam", permanent: true },
       { source: "/sarkari-naukri/upsc-cds",      destination: "/sarkari-naukri/defence/cds-exam", permanent: true },
+      // "salai"/"salary" are crawler typos of "safai" (UP Nagar Nigam Safai Karmi).
+      // Both Kanpur typo variants and the Lucknow one map to real, live records
+      // (verified 200 self-canonical). The city-less "salary-2026" has no single
+      // real page and is left to a true 404.
+      { source: "/sarkari-naukri/up-nagar-nigam-salai-karmi-2026-kanpur",   destination: "/sarkari-naukri/up-nagar-nigam-safai-karmi-2026-kanpur",   permanent: true },
+      { source: "/sarkari-naukri/up-nagar-nigam-salary-karmi-2026-kanpur",  destination: "/sarkari-naukri/up-nagar-nigam-safai-karmi-2026-kanpur",   permanent: true },
+      { source: "/sarkari-naukri/up-nagar-nigam-salai-karmi-2026-lucknow",  destination: "/sarkari-naukri/up-nagar-nigam-safai-karmi-2026-lucknow",  permanent: true },
 
       // Deleted MJPRU stub → the real MJPRU record. The stub row (slug `mjpru`
       // in the stray `university-exams` category) was removed from the DB
