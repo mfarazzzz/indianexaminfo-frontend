@@ -11,15 +11,18 @@ import { siteConfig } from "@/config/site";
 type Props = {
   item: SarkariNaukriItem;
   slug: string;
+  /** Single IST "today" (getTodayIST) — gates the JobPosting to an open window. */
+  todayISO: string;
 };
 
-export function SarkariNaukriDetailView({ item, slug }: Props) {
+export function SarkariNaukriDetailView({ item, slug, todayISO }: Props) {
   const isExam = item.recruitmentType === "exam";
   const pageUrl = `${siteConfig.url}/sarkari-naukri/${slug}`;
+  const jobPosting = buildSarkariJobPostingSchema(item, pageUrl, todayISO);
 
   return (
     <div className="container mx-auto px-4 py-4">
-      <JsonLd data={buildSarkariJobPostingSchema(item, pageUrl)} />
+      {jobPosting && <JsonLd data={jobPosting} />}
 
       <Breadcrumb items={[
         { name: SARKARI_LABELS.root, href: "/sarkari-naukri" },

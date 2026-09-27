@@ -160,7 +160,8 @@ export default async function SarkariNaukriCatchAll({ params }: Props) {
     // Try sarkari_naukri table first (direct bharti/exam jobs)
     const item = await getSarkariNaukriBySlug(slug);
     if (item) {
-      return <SarkariNaukriDetailView item={item} slug={slug} />;
+      const todayISO = await getTodayIST();
+      return <SarkariNaukriDetailView item={item} slug={slug} todayISO={todayISO} />;
     }
 
     // Fallback: try exams table — if found with category, redirect to canonical URL

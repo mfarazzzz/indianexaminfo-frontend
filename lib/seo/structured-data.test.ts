@@ -1,6 +1,11 @@
 import { describe, it, expect } from "vitest";
-import { buildJobPostingSchema, buildEventSchema } from "@/lib/seo/structured-data";
+import {
+  buildJobPostingSchema,
+  buildEventSchema,
+  buildSarkariJobPostingSchema,
+} from "@/lib/seo/structured-data";
 import type { ExamEntity, ExamStatus } from "@/types/exam";
+import type { SarkariNaukriItem } from "@/services/sarkariNaukriService";
 
 /**
  * buildJobPostingSchema and buildEventSchema are pure functions, so the OPEN
@@ -167,6 +172,172 @@ describe("buildEventSchema", () => {
 
   it("returns null when no usable exam date exists", () => {
     const schema = buildEventSchema(exam({ dates: [] }), today);
+    expect(schema).toBeNull();
+  });
+});
+
+/**
+ * buildSarkariJobPostingSchema gates on the application WINDOW, not the
+ * untrusted sarkari_naukri.status column (which marks ~98.6% of rows
+ * "completed"). datePosted is required; validThrough is the window close.
+ */
+function vacancy(overrides: Partial<SarkariNaukriItem> = {}): SarkariNaukriItem {
+  return {
+    id: "v1",
+    slug: "ssc-je",
+    recruitmentType: "exam",
+    title: "SSC Junior Engineer",
+    titleHindi: null,
+    organization: "Staff Selection Commission",
+    organizationHindi: null,
+    department: null,
+    state: "all-india",
+    district: null,
+    category: "engineering",
+    vacancyCount: 10666,
+    eligibility: null,
+    ageLimit: null,
+    payScale: null,
+    applicationFee: null,
+    description: null,
+    descriptionHindi: null,
+    notificationDate: null,
+    applicationStartDate: null,
+    applicationEndDate: null,
+    applicationUrl: null,
+    officialNotificationUrl: null,
+    examDate: null,
+    admitCardDate: null,
+    admitCardUrl: null,
+    answerKeyDate: null,
+    answerKeyUrl: null,
+    examMode: null,
+    resultDate: null,
+    resultUrl: null,
+    cutoffMarks: null,
+    totalCandidates: null,
+    passPercentage: null,
+    interviewDate: null,
+    documentVerificationDate: null,
+    meritListDate: null,
+    meritListUrl: null,
+    joiningDetails: null,
+    walkInDate: null,
+    walkInVenue: null,
+    status: "application-open",
+    isNew: false,
+    isFeatured: false,
+    isUrgent: false,
+    tags: [],
+    searchKeywords: [],
+    seoTitle: null,
+    seoDescription: null,
+    alternateLinks: null,
+    publishedAt: null,
+    createdAt: "2026-01-01",
+    updatedAt: "2026-01-01",
+    ...overrides,
+  } as SarkariNaukriItem;
+}
+
+describe("buildSarkariJobPostingSchema", () => {
+  const url = "https://www.indianexaminfo.com/sarkari-naukri/ssc-je";
+  const today = "2026-09-27";
+
+  it("emits a complete JobPosting when today falls inside the window with a notification date", () => {
+    const schema = buildSarkariJobPostingSchema(
+      vacancy({
+        notificationDate: "2026-09-01",
+        applicationStartDate: "2026-09-05",
+        applicationEndDate: "2026-10-31",
+      }),
+      url,
+      today,
+    );
+
+    expect(schema).not.toBeNull();
+    expect(schema!["@type"]).toBe("JobPosting");
+    expect(schema!.datePosted).toBe("2026-09-01");
+    expect(schema!.validThrough).toBe("2026-10-31");
+    expect(schema!.title).toBe("SSC Junior Engineer");
+    expect(schema!.hiringOrganization.name).toBe("Staff Selection Commission");
+    expect(schema!.jobLocation.address.addressCountry).toBe("IN");
+    expect(schema!.mainEntityOfPage["@id"]).toBe(url);
+  });
+
+  it("returns null when the window is open but no notification date resolves", () => {
+    const schema = buildSarkariJobPostingSchema(
+      vacancy({
+        notificationDate: null,
+        applicationStartDate: "2026-09-05",
+        applicationEndDate: "2026-10-31",
+      }),
+      url,
+      today,
+    );
+    expect(schema).toBeNull();
+  });
+
+  it("returns null when the window has already closed (today after end)", () => {
+    const schema = buildSarkariJobPostingSchema(
+      vacancy({
+        notificationDate: "2026-01-01",
+        applicationStartDate: "2026-01-05",
+        applicationEndDate: "2026-02-28",
+      }),
+      url,
+      today,
+    );
+    expect(schema).toBeNull();
+  });
+
+  it("returns null when the window has not opened yet (today before start)", () => {
+    const schema = buildSarkariJobPostingSchema(
+      vacancy({
+        notificationDate: "2026-09-20",
+        applicationStartDate: "2026-11-01",
+        applicationEndDate: "2026-12-01",
+      }),
+      url,
+      today,
+    );
+    expect(schema).toBeNull();
+  });
+
+  it("emits when the window is open even if the status column says completed (status ignored)", () => {
+    const schema = buildSarkariJobPostingSchema(
+      vacancy({
+        status: "completed",
+        notificationDate: "2026-09-01",
+        applicationStartDate: "2026-09-05",
+        applicationEndDate: "2026-10-31",
+      }),
+      url,
+      today,
+    );
+    expect(schema).not.toBeNull();
+  });
+
+  it("returns null when status says application-open but the window is closed (status ignored)", () => {
+    const schema = buildSarkariJobPostingSchema(
+      vacancy({
+        status: "application-open",
+        notificationDate: "2026-01-01",
+        applicationStartDate: "2026-01-05",
+        applicationEndDate: "2026-02-28",
+      }),
+      url,
+      today,
+    );
+    expect(schema).toBeNull();
+  });
+
+  it("returns null when the window bounds are missing entirely", () => {
+    const schema = buildSarkariJobPostingSchema(
+      vacancy({ notificationDate: "2026-09-01", applicationStartDate: null, applicationEndDate: null }),
+      url,
+      today,
+    );
     expect(schema).toBeNull();
   });
 });

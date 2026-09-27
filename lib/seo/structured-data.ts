@@ -284,12 +284,36 @@ export function buildNewsArticleSchema(
  *
  * Distinct from buildJobPostingSchema(), which maps an ExamEntity. These are
  * the actual job-detail pages (/sarkari-naukri/{slug}) and are the pages
- * Google Jobs cares about.
+ * Google Jobs cares about — this builder carries most of the site's job traffic.
+ *
+ * Same gate as the exam JobPosting, decided from the DATA rather than a status
+ * label: emit nothing unless the recruitment is open for applications RIGHT NOW
+ * (IST) and the required `datePosted` resolves — an incomplete or stale
+ * JobPosting is worse than none (Google's stale-job manual action).
+ *   - Open now = todayISO falls inside [applicationStartDate, applicationEndDate].
+ *     We deliberately DO NOT read item.status: the sarkari_naukri status column
+ *     marks ~98.6% of rows "completed" and is not a trustworthy signal.
+ *   - datePosted (REQUIRED) = notificationDate; no markup if it is absent.
+ *   - validThrough = applicationEndDate, so an open posting later expires.
+ * `todayISO` is the single IST anchor (getTodayIST), never Date.now(). All three
+ * source columns are Postgres `date` → the service yields clean `YYYY-MM-DD`, so
+ * the ISO slice + lexical compare is timezone-free and matches every other
+ * past/future decision on the site.
  */
 export function buildSarkariJobPostingSchema(
   item: SarkariNaukriItem,
-  url: string
+  url: string,
+  todayISO: string
 ) {
+  const datePosted = item.notificationDate?.slice(0, 10);
+  const windowStart = item.applicationStartDate?.slice(0, 10);
+  const validThrough = item.applicationEndDate?.slice(0, 10);
+
+  // datePosted is REQUIRED; the window needs both bounds to be decidable.
+  if (!datePosted || !windowStart || !validThrough) return null;
+  // Open for applications today (inclusive)?
+  if (!(windowStart <= todayISO && todayISO <= validThrough)) return null;
+
   const isAllIndia = !item.state || item.state === "all-india";
   const stateName = item.state
     ? item.state.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase())
@@ -319,8 +343,8 @@ export function buildSarkariJobPostingSchema(
       },
     },
     employmentType: "FULL_TIME",
-    ...(item.notificationDate && { datePosted: item.notificationDate }),
-    ...(item.applicationEndDate && { validThrough: item.applicationEndDate }),
+    datePosted,
+    validThrough,
     ...(item.vacancyCount && { totalJobOpenings: item.vacancyCount }),
     ...(item.payScale && {
       baseSalary: {
