@@ -182,52 +182,6 @@ export function buildJobPostingSchema(exam: ExamEntity) {
   };
 }
 
-/**
- * Event schema for an exam's sitting date. Returns null (emit NO markup) when:
- *   - no usable start date exists (schema.org requires `startDate`; emitting one
- *     without it is an invalid-item warning), OR
- *   - the date is in the PAST. An `EventScheduled` with a startDate already behind
- *     us describes a finished event as upcoming — the same stale-content problem as
- *     an expired JobPosting. Only a today-or-future sitting is announced.
- * The date is resolved by machine `type` (exam_written/practical/physical) through
- * the shared findDateByType — the old loose `label.includes("exam"||"date")` matched
- * unrelated rows like "Last Date to Apply" and used one as the event start.
- * `todayISO` is the single IST anchor (getTodayIST), never Date.now().
- */
-export function buildEventSchema(exam: ExamEntity, todayISO: string) {
-  const examDateRow =
-    findDateByType(exam.dates, ["exam_written", "exam_practical", "exam_physical"]) ??
-    // Fall back to a labelled exam row only when nothing is typed as an exam sitting.
-    exam.dates.find(
-      (d) =>
-        d.date &&
-        d.date.trim() !== "" &&
-        d.label.toLowerCase().includes("exam")
-    );
-  const examDate = examDateRow?.date;
-
-  if (!examDate) return null;
-  // Past event → no markup. Compare the ISO date part against the IST anchor.
-  if (examDate.slice(0, 10) < todayISO) return null;
-
-  return {
-    "@context": "https://schema.org",
-    "@type": "Event",
-    name: `${exam.name} ${new Date().getFullYear()}`,
-    startDate: examDate,
-    location: {
-      "@type": "VirtualLocation",
-      url: exam.officialWebsite,
-    },
-    organizer: {
-      "@type": "Organization",
-      name: exam.conductingBody,
-    },
-    eventStatus: "EventScheduled",
-    eventAttendanceMode: "MixedEventAttendanceMode",
-  };
-}
-
 export function buildDatasetSchema(
   exam: ExamEntity,
   dates: { label: string; date: string }[]

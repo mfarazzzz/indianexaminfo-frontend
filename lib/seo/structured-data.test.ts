@@ -1,14 +1,13 @@
 import { describe, it, expect } from "vitest";
 import {
   buildJobPostingSchema,
-  buildEventSchema,
   buildSarkariJobPostingSchema,
 } from "@/lib/seo/structured-data";
 import type { ExamEntity, ExamStatus } from "@/types/exam";
 import type { SarkariNaukriItem } from "@/services/sarkariNaukriService";
 
 /**
- * buildJobPostingSchema and buildEventSchema are pure functions, so the OPEN
+ * buildJobPostingSchema and buildSarkariJobPostingSchema are pure functions, so the OPEN
  * JobPosting case is proven here with fixtures rather than by flipping any
  * edition's dates — there is no staging database, the one Supabase project is
  * production. The live check happens when a recruitment window next opens.
@@ -146,34 +145,6 @@ describe("buildJobPostingSchema", () => {
       expect(schema).toBeNull();
     },
   );
-});
-
-describe("buildEventSchema", () => {
-  const today = "2026-09-27";
-
-  it("returns null when the exam sitting date is in the past", () => {
-    const schema = buildEventSchema(
-      exam({ dates: [dateRow("Exam Date", "2026-05-01", "exam_written")] }),
-      today,
-    );
-    expect(schema).toBeNull();
-  });
-
-  it("emits an Event when the exam sitting date is today or in the future", () => {
-    const schema = buildEventSchema(
-      exam({ dates: [dateRow("Exam Date", "2026-12-15", "exam_written")] }),
-      today,
-    );
-    expect(schema).not.toBeNull();
-    expect(schema!["@type"]).toBe("Event");
-    expect(schema!.startDate).toBe("2026-12-15");
-    expect(schema!.eventStatus).toBe("EventScheduled");
-  });
-
-  it("returns null when no usable exam date exists", () => {
-    const schema = buildEventSchema(exam({ dates: [] }), today);
-    expect(schema).toBeNull();
-  });
 });
 
 /**
