@@ -59,6 +59,7 @@ export interface SarkariNaukriItem {
   joiningDetails: string | null;
   walkInDate: string | null;
   walkInVenue: string | null;
+  verifiedAt: string | null;
   status: SarkariStatus;
   isNew: boolean;
   isFeatured: boolean;
@@ -118,6 +119,7 @@ function mapRow(r: Record<string, unknown>): SarkariNaukriItem {
     joiningDetails: r.joining_details as string | null,
     walkInDate: r.walk_in_date as string | null,
     walkInVenue: r.walk_in_venue as string | null,
+    verifiedAt: (r.verified_at as string) ?? null,
     status: (r.status as SarkariStatus) ?? "upcoming",
     isNew: (r.is_new as boolean) ?? false,
     isFeatured: (r.is_featured as boolean) ?? false,

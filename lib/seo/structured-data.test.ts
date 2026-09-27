@@ -195,6 +195,7 @@ function vacancy(overrides: Partial<SarkariNaukriItem> = {}): SarkariNaukriItem 
     joiningDetails: null,
     walkInDate: null,
     walkInVenue: null,
+    verifiedAt: null,
     status: "application-open",
     isNew: false,
     isFeatured: false,
@@ -221,6 +222,8 @@ describe("buildSarkariJobPostingSchema", () => {
         notificationDate: "2026-09-01",
         applicationStartDate: "2026-09-05",
         applicationEndDate: "2026-10-31",
+        verifiedAt: "2026-09-02T00:00:00Z",
+        officialNotificationUrl: "https://ssc.nic.in/je-2026.pdf",
       }),
       url,
       today,
@@ -282,11 +285,43 @@ describe("buildSarkariJobPostingSchema", () => {
         notificationDate: "2026-09-01",
         applicationStartDate: "2026-09-05",
         applicationEndDate: "2026-10-31",
+        verifiedAt: "2026-09-02T00:00:00Z",
+        officialNotificationUrl: "https://ssc.nic.in/je-2026.pdf",
       }),
       url,
       today,
     );
     expect(schema).not.toBeNull();
+  });
+
+  it("returns null when verifiedAt is null even with an open window", () => {
+    const schema = buildSarkariJobPostingSchema(
+      vacancy({
+        notificationDate: "2026-09-01",
+        applicationStartDate: "2026-09-05",
+        applicationEndDate: "2026-10-31",
+        verifiedAt: null,
+        officialNotificationUrl: "https://ssc.nic.in/je-2026.pdf",
+      }),
+      url,
+      today,
+    );
+    expect(schema).toBeNull();
+  });
+
+  it("returns null when officialNotificationUrl is absent even when verified", () => {
+    const schema = buildSarkariJobPostingSchema(
+      vacancy({
+        notificationDate: "2026-09-01",
+        applicationStartDate: "2026-09-05",
+        applicationEndDate: "2026-10-31",
+        verifiedAt: "2026-09-02T00:00:00Z",
+        officialNotificationUrl: null,
+      }),
+      url,
+      today,
+    );
+    expect(schema).toBeNull();
   });
 
   it("returns null when status says application-open but the window is closed (status ignored)", () => {

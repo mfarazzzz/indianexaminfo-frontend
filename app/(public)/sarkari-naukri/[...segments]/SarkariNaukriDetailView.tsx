@@ -6,6 +6,7 @@ import { sarkariCategoryLabel } from "@/lib/sarkari/categories";
 import { AdSlot } from "@/components/ads/AdSlot";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { buildSarkariJobPostingSchema } from "@/lib/seo/structured-data";
+import { deriveVacancyStatus, vacancyStatusLabel, vacancyStatusColor } from "@/lib/sarkari/deriveStatus";
 import { siteConfig } from "@/config/site";
 
 type Props = {
@@ -17,6 +18,7 @@ type Props = {
 
 export function SarkariNaukriDetailView({ item, slug, todayISO }: Props) {
   const isExam = item.recruitmentType === "exam";
+  const derivedStatus = deriveVacancyStatus(item, todayISO);
   const pageUrl = `${siteConfig.url}/sarkari-naukri/${slug}`;
   const jobPosting = buildSarkariJobPostingSchema(item, pageUrl, todayISO);
 
@@ -42,13 +44,8 @@ export function SarkariNaukriDetailView({ item, slug, todayISO }: Props) {
               <span className={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${isExam ? "bg-blue-100 text-blue-700" : "bg-green-100 text-green-700"}`}>
                 {isExam ? SARKARI_LABELS.exams : SARKARI_LABELS.vacancies}
               </span>
-              <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase ${
-                item.status === "result-declared" ? "bg-emerald-100 text-emerald-700" :
-                item.status === "application-open" ? "bg-green-100 text-green-700" :
-                item.status === "completed" ? "bg-gray-100 text-gray-600" :
-                "bg-blue-100 text-blue-700"
-              }`}>
-                {item.status.replace(/-/g, " ")}
+              <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase ${vacancyStatusColor(derivedStatus)}`}>
+                {vacancyStatusLabel(derivedStatus)}
               </span>
               {item.isNew && <span className="rounded-full bg-red-500 px-1.5 py-0.5 text-[9px] font-bold text-white">NEW</span>}
             </div>

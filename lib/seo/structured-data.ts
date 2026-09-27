@@ -3,6 +3,7 @@ import { findDateByType } from "@/lib/exam/actionLinks";
 import type { ExamEntity, ExamStatus, ContentPost } from "@/types/exam";
 import type { BlogPost } from "@/types/blog";
 import type { SarkariNaukriItem } from "@/services/sarkariNaukriService";
+import { deriveVacancyStatus } from "@/lib/sarkari/deriveStatus";
 
 const SITE_URL = siteConfig.url;
 const LOGO_URL = `${SITE_URL}/icons/logo.png`;
@@ -182,91 +183,40 @@ export function buildJobPostingSchema(exam: ExamEntity) {
   };
 }
 
-export function buildDatasetSchema(
-  exam: ExamEntity,
-  dates: { label: string; date: string }[]
-) {
-  const year = new Date().getFullYear();
-  return {
-    "@context": "https://schema.org",
-    "@type": "Dataset",
-    name: `${exam.name} Important Dates ${year}`,
-    description: `Official important dates for ${exam.name} ${year}`,
-    creator: {
-      "@type": "Organization",
-      name: siteConfig.name,
-    },
-    dateModified: exam.lastUpdated,
-    variableMeasured: dates.map((d) => d.label),
-  };
-}
-
-/**
- * NewsArticle schema for time-sensitive content (results, admit cards, notifications).
- * Required for Google News inclusion and Google Discover eligibility.
- */
-export function buildNewsArticleSchema(
-  post: { title: string; excerpt?: string | null; publishedAt?: string | null; updatedAt: string; featuredImage?: string | null; author?: string | null },
-  url: string
-) {
-  return {
-    "@context": "https://schema.org",
-    "@type": "NewsArticle",
-    headline: post.title,
-    description: post.excerpt ?? post.title,
-    image: post.featuredImage ? [post.featuredImage] : [`${SITE_URL}/api/og?title=${encodeURIComponent(post.title)}&type=news`],
-    datePublished: post.publishedAt ?? post.updatedAt,
-    dateModified: post.updatedAt,
-    author: {
-      "@type": "Person",
-      name: post.author ?? "IndianExamInfo Team",
-      url: `${SITE_URL}/about`,
-    },
-    publisher: {
-      "@type": "Organization",
-      name: siteConfig.name,
-      logo: { "@type": "ImageObject", url: LOGO_URL },
-    },
-    mainEntityOfPage: { "@type": "WebPage", "@id": url },
-    inLanguage: "en-IN",
-    isAccessibleForFree: true,
-  };
-}
-
 /**
  * JobPosting schema for rows from the `sarkari_naukri` table.
  *
- * Distinct from buildJobPostingSchema(), which maps an ExamEntity. These are
- * the actual job-detail pages (/sarkari-naukri/{slug}) and are the pages
- * Google Jobs cares about — this builder carries most of the site's job traffic.
+ * DISTINCT from buildJobPostingSchema(), which maps an ExamEntity. These are
+ * the actual job-detail pages (/sarkari-naukri/{slug}).
  *
- * Same gate as the exam JobPosting, decided from the DATA rather than a status
- * label: emit nothing unless the recruitment is open for applications RIGHT NOW
- * (IST) and the required `datePosted` resolves — an incomplete or stale
- * JobPosting is worse than none (Google's stale-job manual action).
- *   - Open now = todayISO falls inside [applicationStartDate, applicationEndDate].
- *     We deliberately DO NOT read item.status: the sarkari_naukri status column
- *     marks ~98.6% of rows "completed" and is not a trustworthy signal.
- *   - datePosted (REQUIRED) = notificationDate; no markup if it is absent.
- *   - validThrough = applicationEndDate, so an open posting later expires.
- * `todayISO` is the single IST anchor (getTodayIST), never Date.now(). All three
- * source columns are Postgres `date` → the service yields clean `YYYY-MM-DD`, so
- * the ISO slice + lexical compare is timezone-free and matches every other
- * past/future decision on the site.
+ * Gate (all conditions must hold):
+ *   1. Status derived from dates = "registration-open" (shared deriveVacancyStatus).
+ *   2. datePosted (REQUIRED) = notificationDate; no markup if absent.
+ *   3. validThrough = applicationEndDate so the posting expires naturally.
+ *   4. verifiedAt is non-null (editor confirmed against official notification).
+ *   5. officialNotificationUrl is non-null (source of truth linked).
+ *
+ * Deliberately does NOT read item.status (the stored column is 98.6% wrong).
+ * Uses the shared date-derived status from deriveVacancyStatus.
  */
 export function buildSarkariJobPostingSchema(
   item: SarkariNaukriItem,
   url: string,
   todayISO: string
 ) {
+  // Gate: must be in registration-open state (derived from dates).
+  const status = deriveVacancyStatus(item, todayISO);
+  if (status !== "registration-open") return null;
+
   const datePosted = item.notificationDate?.slice(0, 10);
-  const windowStart = item.applicationStartDate?.slice(0, 10);
   const validThrough = item.applicationEndDate?.slice(0, 10);
 
-  // datePosted is REQUIRED; the window needs both bounds to be decidable.
-  if (!datePosted || !windowStart || !validThrough) return null;
-  // Open for applications today (inclusive)?
-  if (!(windowStart <= todayISO && todayISO <= validThrough)) return null;
+  // Required fields must exist.
+  if (!datePosted || !validThrough) return null;
+
+  // Verification gate: editor must have verified + provided official link.
+  if (!item.verifiedAt) return null;
+  if (!item.officialNotificationUrl) return null;
 
   const isAllIndia = !item.state || item.state === "all-india";
   const stateName = item.state
