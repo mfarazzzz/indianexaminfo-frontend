@@ -39,7 +39,7 @@ const YEAR = getCurrentYear();
 export const metadata: Metadata = {
   metadataBase: new URL(siteConfig.url),
   title: {
-    default: `IndianExamInfo — Sarkari Result, Admit Card, Exam ${YEAR}`,
+    default: `Indian Exam Info: Sarkari Naukri, Result, Admit Card ${YEAR}`,
     template: `%s | IndianExamInfo`,
   },
   description:
@@ -72,7 +72,7 @@ export const metadata: Metadata = {
     siteName: "IndianExamInfo",
     locale:   "en_IN",
     type:     "website",
-    images:   [{ url: `${siteConfig.url}/api/og?title=${encodeURIComponent("IndianExamInfo — Sarkari Result, Admit Card, Exam " + YEAR)}&type=default`, width: 1200, height: 630 }],
+    images:   [{ url: `${siteConfig.url}/api/og?title=${encodeURIComponent("Indian Exam Info: Sarkari Naukri, Result, Admit Card " + YEAR)}&type=default`, width: 1200, height: 630 }],
   },
   alternates: {
     canonical: siteConfig.url,

@@ -13,7 +13,6 @@ import { SocialChannelBanner } from "@/components/layout/SocialChannelBanner";
 import {
   buildFAQSchema,
   buildJobPostingSchema,
-  buildDatasetSchema,
 } from "@/lib/seo/structured-data";
 import {
   formatDate,
@@ -409,7 +408,6 @@ export async function EntityDetailPage({ exam, breadcrumbs, contentType, edition
     const jobPosting = buildJobPostingSchema(exam);
     if (jobPosting) schemas.push(jobPosting);
   }
-  if (exam.dates.length) schemas.push(buildDatasetSchema(exam, exam.dates));
 
   return (
     <>

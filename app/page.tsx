@@ -26,7 +26,7 @@ export function generateMetadata(): Metadata {
   const year = getCurrentYear();
   return {
     ...meta,
-    title: `IndianExamInfo — Sarkari Result, Admit Card, Exam ${year}`,
+    title: `Indian Exam Info: Sarkari Naukri, Result, Admit Card ${year}`,
     keywords: GLOBAL_SHORT_TAIL,
   };
 }
