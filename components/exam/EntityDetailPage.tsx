@@ -404,8 +404,13 @@ export async function EntityDetailPage({ exam, breadcrumbs, contentType, edition
 
   const schemas: Record<string, unknown>[] = [];
   if (exam.faqs?.length) schemas.push(buildFAQSchema(exam.faqs));
-  if (exam.pillar === "government-exam") schemas.push(buildJobPostingSchema(exam));
-  const eventSchema = buildEventSchema(exam);
+  // JobPosting only when the recruitment is genuinely open AND datePosted resolves;
+  // the builder returns null otherwise so we emit no (invalid/stale) markup.
+  if (exam.pillar === "government-exam") {
+    const jobPosting = buildJobPostingSchema(exam);
+    if (jobPosting) schemas.push(jobPosting);
+  }
+  const eventSchema = buildEventSchema(exam, todayISO);
   if (eventSchema) schemas.push(eventSchema);
   if (exam.dates.length) schemas.push(buildDatasetSchema(exam, exam.dates));
 

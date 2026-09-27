@@ -1,5 +1,6 @@
 import { siteConfig } from "@/config/site";
-import type { ExamEntity, ContentPost } from "@/types/exam";
+import { findDateByType } from "@/lib/exam/actionLinks";
+import type { ExamEntity, ExamStatus, ContentPost } from "@/types/exam";
 import type { BlogPost } from "@/types/blog";
 import type { SarkariNaukriItem } from "@/services/sarkariNaukriService";
 
@@ -116,9 +117,42 @@ export function buildArticleSchema(
   };
 }
 
+/**
+ * Statuses where a recruitment is genuinely OPEN for applications — read from the
+ * SAME derived status the lead block and action links use (never a new check).
+ *   registration-open: the confirmed application window contains today.
+ *   active: editorial "open now" override.
+ * Deliberately EXCLUDED and why (Google's stale-job manual action targets jobs
+ * shown as open that are not):
+ *   notified  — the notification is out but the application window has not opened
+ *               (app_open is null or future), so it is not open for applications.
+ *   upcoming / dates-awaited / ongoing / admit-card-out / result-* / completed /
+ *   registration-closed / postponed / cancelled — the window is not accepting.
+ */
+const OPEN_FOR_APPLICATION: ReadonlySet<ExamStatus> = new Set<ExamStatus>([
+  "registration-open",
+  "active",
+]);
+
+/**
+ * JobPosting for a government-exam entity page. Returns null (emit NO markup) unless
+ * BOTH hold — because for Google Jobs an incomplete or stale JobPosting is worse
+ * than none:
+ *   (a) the recruitment is open for applications (derived status), and
+ *   (b) datePosted (REQUIRED by Google) resolves to a real notification date.
+ * validThrough (the application close date) is added whenever one exists — it is how
+ * an open posting later expires, so omitting it leaves the job looking open forever.
+ * Both dates resolve through the shared by-type resolver (findDateByType) — the same
+ * rule pickDisplayDate uses — never a second resolver and never a raw label string
+ * (the old bug: `label === "Notification"` matched only 34/101 and "Application End"
+ * matched 0/101, so validThrough was empty on every page).
+ */
 export function buildJobPostingSchema(exam: ExamEntity) {
-  const notificationDate = exam.dates.find((d) => d.label === "Notification")?.date;
-  const endDate = exam.dates.find((d) => d.label === "Application End")?.date;
+  if (!OPEN_FOR_APPLICATION.has(exam.status)) return null;
+
+  const datePosted = findDateByType(exam.dates, ["notification"])?.date;
+  if (!datePosted) return null; // REQUIRED field unresolvable → no markup.
+  const validThrough = findDateByType(exam.dates, ["application_end"])?.date;
 
   return {
     "@context": "https://schema.org",
@@ -128,7 +162,7 @@ export function buildJobPostingSchema(exam: ExamEntity) {
     hiringOrganization: {
       "@type": "Organization",
       name: exam.conductingBody,
-      sameAs: exam.officialWebsite,
+      ...(exam.officialWebsite && { sameAs: exam.officialWebsite }),
     },
     jobLocation: {
       "@type": "Place",
@@ -138,8 +172,8 @@ export function buildJobPostingSchema(exam: ExamEntity) {
       },
     },
     employmentType: "FULL_TIME",
-    ...(notificationDate && { datePosted: notificationDate }),
-    ...(endDate && { validThrough: endDate }),
+    datePosted,
+    ...(validThrough && { validThrough }),
     ...(exam.vacancy && { totalJobOpenings: exam.vacancy }),
     applicantLocationRequirements: {
       "@type": "Country",
@@ -149,18 +183,32 @@ export function buildJobPostingSchema(exam: ExamEntity) {
 }
 
 /**
- * Event schema. Returns null when no usable start date exists — schema.org
- * requires `startDate` on Event, and emitting one without it produces an
- * invalid-item warning in Search Console.
+ * Event schema for an exam's sitting date. Returns null (emit NO markup) when:
+ *   - no usable start date exists (schema.org requires `startDate`; emitting one
+ *     without it is an invalid-item warning), OR
+ *   - the date is in the PAST. An `EventScheduled` with a startDate already behind
+ *     us describes a finished event as upcoming — the same stale-content problem as
+ *     an expired JobPosting. Only a today-or-future sitting is announced.
+ * The date is resolved by machine `type` (exam_written/practical/physical) through
+ * the shared findDateByType — the old loose `label.includes("exam"||"date")` matched
+ * unrelated rows like "Last Date to Apply" and used one as the event start.
+ * `todayISO` is the single IST anchor (getTodayIST), never Date.now().
  */
-export function buildEventSchema(exam: ExamEntity) {
-  const examDate = exam.dates.find(
-    (d) =>
-      d.label.toLowerCase().includes("exam") ||
-      d.label.toLowerCase().includes("date")
-  )?.date;
+export function buildEventSchema(exam: ExamEntity, todayISO: string) {
+  const examDateRow =
+    findDateByType(exam.dates, ["exam_written", "exam_practical", "exam_physical"]) ??
+    // Fall back to a labelled exam row only when nothing is typed as an exam sitting.
+    exam.dates.find(
+      (d) =>
+        d.date &&
+        d.date.trim() !== "" &&
+        d.label.toLowerCase().includes("exam")
+    );
+  const examDate = examDateRow?.date;
 
   if (!examDate) return null;
+  // Past event → no markup. Compare the ISO date part against the IST anchor.
+  if (examDate.slice(0, 10) < todayISO) return null;
 
   return {
     "@context": "https://schema.org",

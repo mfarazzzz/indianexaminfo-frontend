@@ -194,16 +194,36 @@ const TYPE_FOR_STATUS: Partial<Record<ExamStatus, string[]>> = {
   "registration-closed": ["exam_written", "admit_card"],
 };
 
+/**
+ * THE one rule for resolving a date by its machine `type`. pickDisplayDate and
+ * the SEO structured-data builders (JobPosting, Event) all call this, so a
+ * date's role is decided exactly once platform-wide. The `type` vocabulary is
+ * the same the derived-status VIEW uses and is populated on ~99% of date rows.
+ * `types` are tried in order, matches are case-insensitive, empty dates are
+ * ignored. Returns undefined when nothing matches — the CALLER decides its own
+ * fallback (pickDisplayDate falls back to the first valid date; the JobPosting
+ * builder emits nothing, because an arbitrary date is never a valid datePosted).
+ */
+export function findDateByType<T extends { date: string; type?: string }>(
+  dates: readonly T[],
+  types: readonly string[],
+): T | undefined {
+  const valid = dates.filter((d) => d.date && d.date.trim() !== "");
+  for (const type of types) {
+    const hit = valid.find((d) => (d.type ?? "").toLowerCase() === type);
+    if (hit) return hit;
+  }
+  return undefined;
+}
+
 export function pickDisplayDate(exam: ExamEntity): DatePick {
   const valid = exam.dates.filter((d) => d.date && d.date.trim() !== "");
   if (valid.length === 0) return null;
 
   const wanted = TYPE_FOR_STATUS[exam.status];
   if (wanted) {
-    for (const t of wanted) {
-      const hit = valid.find((d) => (d.type ?? "").toLowerCase() === t);
-      if (hit) return { label: hit.label, date: hit.date };
-    }
+    const hit = findDateByType(exam.dates, wanted);
+    if (hit) return { label: hit.label, date: hit.date };
   }
   // No typed match for the state — show the first valid date rather than nothing.
   return { label: valid[0].label, date: valid[0].date };
