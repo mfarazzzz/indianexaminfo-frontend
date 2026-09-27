@@ -152,6 +152,18 @@ const nextConfig: NextConfig = {
       { source: "/university-exam/deemed-university/srm-entrance",     destination: "/admission/engineering/srmjeee",             permanent: true },
       { source: "/university-exam/deemed-university/manipal-entrance", destination: "/admission/university-entrance/met-manipal", permanent: true },
       { source: "/university-exam/deemed-university/amity-entrance",   destination: "/admission/university-entrance/amity-entrance", permanent: true },
+      // G7: legacy depth-4 tab URLs under the three slugs above fall through the
+      // exact parent rules and 404. Verified against the live prod build: on the
+      // destination /admission record only the `notification` tab resolves (200);
+      // every other content type 404s. So map `notification`→notification and any
+      // OTHER trailing segment→parent — one hop each, and never a new 404. The
+      // specific `notification` rule MUST precede the `:path+` catch so it wins.
+      { source: "/university-exam/deemed-university/amity-entrance/notification", destination: "/admission/university-entrance/amity-entrance/notification", permanent: true },
+      { source: "/university-exam/deemed-university/amity-entrance/:path+",       destination: "/admission/university-entrance/amity-entrance",                 permanent: true },
+      { source: "/university-exam/deemed-university/manipal-entrance/notification", destination: "/admission/university-entrance/met-manipal/notification",       permanent: true },
+      { source: "/university-exam/deemed-university/manipal-entrance/:path+",       destination: "/admission/university-entrance/met-manipal",                     permanent: true },
+      { source: "/university-exam/deemed-university/srm-entrance/notification",   destination: "/admission/engineering/srmjeee/notification",   permanent: true },
+      { source: "/university-exam/deemed-university/srm-entrance/:path+",         destination: "/admission/engineering/srmjeee",                 permanent: true },
       { source: "/university-exam/central-university/amu-admission",   destination: "/admission/university-entrance/amu-entrance",   permanent: true },
       { source: "/university-exam/central-university/jamia-admission", destination: "/admission/university-entrance/jmi-entrance",    permanent: true },
       { source: "/university-exam/central-university/du-admission",    destination: "/admission/university-entrance/du-admission",    permanent: true },
