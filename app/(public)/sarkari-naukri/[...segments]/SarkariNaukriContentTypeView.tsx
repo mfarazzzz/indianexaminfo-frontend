@@ -58,7 +58,7 @@ export async function SarkariNaukriContentTypeView({ exam, category, slug, conte
     : null;
 
   const [posts, relatedPosts] = await Promise.all([
-    getContentPostsByExam(exam.id, contentType as ContentType),
+    getContentPostsByExam(exam.id, contentType as ContentType, exam.slug),
     getLatestByContentType(contentType as ContentType, 5),
   ]);
 

@@ -112,7 +112,7 @@ export default async function EntranceContentTypePage({ params }: Props) {
     ? await getExamSyllabus(exam.id, exam.syllabusWeightageType ?? null)
     : null;
 
-  const posts = await getContentPostsByExam(exam.id, contentType as ContentType);
+  const posts = await getContentPostsByExam(exam.id, contentType as ContentType, exam.slug);
   const post  = posts[0];
   const ctLabel = contentTypeLabel(contentType);
   const catLabel = category.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());

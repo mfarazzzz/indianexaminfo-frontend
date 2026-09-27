@@ -474,33 +474,39 @@ export async function getFeaturedExams(): Promise<ExamEntity[]> {
 }
 
 export async function getRelatedExams(examId: string): Promise<ExamEntity[]> {
-  try {
-    const supabase = createServerClient();
-    // First get the exam to find its category
-    const { data: examData } = await supabase
-      .from("exams")
-      .select("category_id, pillar")
-      .eq("id", examId)
-      .single();
+  return cached(async () => {
+    try {
+      const supabase = createServerClient();
+      // First get the exam to find its category
+      const { data: examData } = await supabase
+        .from("exams")
+        .select("category_id, pillar")
+        .eq("id", examId)
+        .single();
 
-    if (!examData) return [];
+      if (!examData) return [];
 
-    const { data, error } = await supabase
-      .from("exams")
-      .select(LIST_SELECT)
-      .neq("id", examId)
-      .eq("pillar", (examData as any).pillar)
-      .eq("category_id", (examData as any).category_id)
-      .limit(4);
-    if (error) throw error;
-    const rows = data ?? [];
-    const derivedMap = await fetchDerivedStatuses(supabase, rows.map((r: any) => r.id));
-    const exams = rows.map((r: any) => mapRow(r, derivedMap.get(r.id)));
-    return applyStructuredSyllabusFlags(supabase, exams);
-  } catch (err) {
-    console.error("[examService] getRelatedExams failed:", err);
-    return [];
-  }
+      const { data, error } = await supabase
+        .from("exams")
+        .select(LIST_SELECT)
+        .neq("id", examId)
+        .eq("pillar", (examData as any).pillar)
+        .eq("category_id", (examData as any).category_id)
+        .limit(4);
+      if (error) throw error;
+      const rows = data ?? [];
+      const derivedMap = await fetchDerivedStatuses(supabase, rows.map((r: any) => r.id));
+      const exams = rows.map((r: any) => mapRow(r, derivedMap.get(r.id)));
+      return applyStructuredSyllabusFlags(supabase, exams);
+    } catch (err) {
+      console.error("[examService] getRelatedExams failed:", err);
+      return [];
+    }
+    // `exams` is the broad tag the CMS emits on every exam save
+    // (revalidateAfterExamSave), so a change to any exam clears the related lists
+    // that show it. Keyed uniquely per exam via `exam-related:{id}` — the same
+    // qualifier shape as the exam-resources / exam-syllabus siblings.
+  }, ["exams", `exam-related:${examId}`], { revalidate: 1800 });
 }
 
 export async function searchExams(query: string): Promise<ExamEntity[]> {
@@ -571,14 +577,30 @@ export async function getExamsByStatus(status: string): Promise<ExamEntity[]> {
   }
 }
 
-export async function generateStaticExamParams(): Promise<{ slug: string }[]> {
+/** Slugs for generateStaticParams, scoped to one pillar. A route without
+ *  generateStaticParams is rendered fully dynamic (ƒ) even when `revalidate > 0` —
+ *  declaring the params is what puts the segment into the ISR Full Route Cache.
+ *  `category` is the parent category slug (the {category} / {stateSlug} URL segment).
+ *  Build-time only, so it is not wrapped in cached(); it must not throw or the build
+ *  fails — an empty list simply means "prerender nothing, generate on demand". */
+export async function getExamSlugsForPillar(
+  pillar: Pillar
+): Promise<{ slug: string; category: string | null }[]> {
   try {
     const supabase = createServerClient();
-    const { data, error } = await supabase.from("exams").select("slug");
+    const { data, error } = await supabase
+      .from("exams")
+      .select("slug, cat:categories!category_id(slug)")
+      .eq("pillar", pillar);
     if (error) throw error;
-    return (data ?? []).map((r: any) => ({ slug: r.slug as string }));
+    return (data ?? [])
+      .map((r: any) => ({
+        slug: r.slug as string,
+        category: (r.cat?.slug as string | undefined) ?? null,
+      }))
+      .filter((p) => p.slug);
   } catch (err) {
-    console.error("[examService] generateStaticExamParams failed:", err);
+    console.error(`[examService] getExamSlugsForPillar(${pillar}) failed:`, err);
     return [];
   }
 }

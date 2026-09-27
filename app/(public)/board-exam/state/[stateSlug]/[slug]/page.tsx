@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { getExamBySlug, getExamEditionsForSwitcher } from "@/services/examService";
+import { getExamBySlug, getExamEditionsForSwitcher, getExamSlugsForPillar } from "@/services/examService";
 import { EntityDetailPage } from "@/components/exam/EntityDetailPage";
 import { buildEditionContext } from "@/lib/exam/editions";
 import { buildExamMetadata } from "@/lib/seo/metadata";
@@ -10,6 +10,19 @@ import {
 import { siteConfig } from "@/config/site";
 
 export const revalidate = 3600;
+export const dynamicParams = true; // serve boards added after build without rebuilding
+
+// Prerender published board exams so this segment enters the ISR Full Route Cache.
+// Without generateStaticParams the dynamic segment renders fully dynamic (ƒ) even with
+// revalidate > 0, returning "private, no-cache, no-store" on every request. stateSlug is
+// the exam's parent category slug (the ONE canonical URL builder maps board →
+// /board-exam/state/{category}/{slug}). Same pattern as sarkari-naukri.
+export async function generateStaticParams() {
+  const items = await getExamSlugsForPillar("board-exam");
+  return items
+    .filter((i) => i.category)
+    .map((i) => ({ stateSlug: i.category as string, slug: i.slug }));
+}
 
 type Props = { params: Promise<{ stateSlug: string; slug: string }> };
 

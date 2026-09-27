@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { getExamBySlug, getExamEditionsForSwitcher } from "@/services/examService";
+import { getExamBySlug, getExamEditionsForSwitcher, getExamSlugsForPillar } from "@/services/examService";
 import { EntityDetailPage } from "@/components/exam/EntityDetailPage";
 import { buildEditionContext } from "@/lib/exam/editions";
 import { buildExamMetadata } from "@/lib/seo/metadata";
@@ -9,6 +9,18 @@ import { siteConfig } from "@/config/site";
 
 export const revalidate = 600; // 10 min — ensures new exams appear quickly
 export const dynamicParams = true; // serve new exams added after build without rebuilding
+
+// Prerender the published entrance exams so the segment enters the ISR Full Route
+// Cache. Without generateStaticParams a dynamic segment renders fully dynamic (ƒ) even
+// with revalidate > 0 — every request would re-run the page and return
+// "private, no-cache, no-store". dynamicParams=true keeps on-demand generation for
+// exams added after the build. Same pattern as sarkari-naukri/[...segments].
+export async function generateStaticParams() {
+  const items = await getExamSlugsForPillar("entrance-exam");
+  return items
+    .filter((i) => i.category)
+    .map((i) => ({ category: i.category as string, slug: i.slug }));
+}
 
 type Props = { params: Promise<{ category: string; slug: string }> };
 

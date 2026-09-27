@@ -373,7 +373,7 @@ function LeadBlock({ lead }: { lead: LeadBlockData }) {
 
 export async function EntityDetailPage({ exam, breadcrumbs, contentType, editionContext }: EntityDetailPageProps) {
   const [contentPosts, relatedExams, resources, syllabus, todayISO] = await Promise.all([
-    getContentPostsByExam(exam.id),
+    getContentPostsByExam(exam.id, undefined, exam.slug),
     getRelatedExams(exam.id),
     getExamResources(exam.id),
     getExamSyllabus(exam.id, exam.syllabusWeightageType ?? null),

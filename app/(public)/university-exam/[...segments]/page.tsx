@@ -5,7 +5,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { getExamBySlug, getExamsByCategory, contentTypeAvailable, getExamEditionsForSwitcher } from "@/services/examService";
+import { getExamBySlug, getExamsByCategory, contentTypeAvailable, getExamEditionsForSwitcher, getExamSlugsForPillar } from "@/services/examService";
 import { getContentPostsByExam } from "@/services/contentPostService";
 import { EntityDetailPage } from "@/components/exam/EntityDetailPage";
 import { buildExamMetadata } from "@/lib/seo/metadata";
@@ -18,6 +18,18 @@ import type { ContentType } from "@/types/exam";
 
 export const revalidate = 3600;
 export const dynamicParams = true;
+
+// Prerender the {category}/{slug} entity pages so the catch-all segment enters the ISR
+// Full Route Cache. Without generateStaticParams the dynamic segment renders fully
+// dynamic (ƒ) even with revalidate > 0, returning "private, no-cache, no-store" on every
+// request. Other depths (flat slug, content-type, edition year) generate on demand via
+// dynamicParams=true. Same pattern as sarkari-naukri/[...segments].
+export async function generateStaticParams() {
+  const items = await getExamSlugsForPillar("university-exam");
+  return items
+    .filter((i) => i.category)
+    .map((i) => ({ segments: [i.category as string, i.slug] }));
+}
 
 const SERVED_PILLARS = new Set(["university-exam", "board-exam"]);
 

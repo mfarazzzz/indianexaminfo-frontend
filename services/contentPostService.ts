@@ -42,27 +42,40 @@ function mapRow(row: Record<string, unknown>): ContentPost {
 
 export async function getContentPostsByExam(
   examId: string,
-  contentType?: ContentType
+  contentType?: ContentType,
+  examSlug?: string
 ): Promise<ContentPost[]> {
-  try {
-    const supabase = createServerClient();
-    let query = supabase
-      .from("content_posts")
-      .select("*")
-      .eq("exam_id", examId)
-      .eq("status", "published");
+  return cached(async () => {
+    try {
+      const supabase = createServerClient();
+      let query = supabase
+        .from("content_posts")
+        .select("*")
+        .eq("exam_id", examId)
+        .eq("status", "published");
 
-    if (contentType) {
-      query = query.eq("content_type", contentType);
+      if (contentType) {
+        query = query.eq("content_type", contentType);
+      }
+
+      const { data, error } = await query.order("updated_at", { ascending: false });
+      if (error) throw error;
+      return (data ?? []).map((r: any) => mapRow(r));
+    } catch (err) {
+      console.error("[contentPostService] getContentPostsByExam failed:", err);
+      return [];
     }
-
-    const { data, error } = await query.order("updated_at", { ascending: false });
-    if (error) throw error;
-    return (data ?? []).map((r: any) => mapRow(r));
-  } catch (err) {
-    console.error("[contentPostService] getContentPostsByExam failed:", err);
-    return [];
-  }
+  }, [
+    "exams",
+    "content-posts",
+    `content-posts:exam:${examId}`,
+    ...(contentType ? [`content-type:${contentType}`] : []),
+    // `exam:{slug}` is the tag the CMS revalidates on an exam save AND on a
+    // content-module save for that exam (revalidateAfterExamSave /
+    // revalidateAfterModuleSave), so editing this exam's content clears exactly
+    // this entry. `exams` is the broad fallback (also CMS-emitted on exam save).
+    ...(examSlug ? [`exam:${examSlug}`] : []),
+  ], { revalidate: 600 });
 }
 
 export async function getContentPostBySlug(slug: string): Promise<ContentPost | null> {
