@@ -9,6 +9,13 @@ import { buildSarkariJobPostingSchema } from "@/lib/seo/structured-data";
 import { deriveVacancyStatus, vacancyStatusLabel, vacancyStatusColor } from "@/lib/sarkari/deriveStatus";
 import { siteConfig } from "@/config/site";
 
+/**
+ * J4 ship toggle (owner decides whether it ships on). When true, a vacancy page
+ * whose row has not been verified (verified_at IS NULL) shows one plain line
+ * near the top. Flip to false to hide the notice without touching the markup.
+ */
+const SHOW_UNVERIFIED_NOTICE = true;
+
 type Props = {
   item: SarkariNaukriItem;
   slug: string;
@@ -59,6 +66,16 @@ export function SarkariNaukriDetailView({ item, slug, todayISO }: Props) {
               {item.category && <span className="capitalize">{item.category.replace(/-/g, " ")}</span>}
             </div>
           </div>
+
+          {/* J4: unverified notice — one plain line, no icon (gated by SHOW_UNVERIFIED_NOTICE) */}
+          {SHOW_UNVERIFIED_NOTICE && !item.verifiedAt && (
+            <p className="mb-6 text-sm leading-relaxed text-gray-600">
+              यह जानकारी अभी आधिकारिक अधिसूचना से सत्यापित नहीं है। आवेदन से पहले विभाग की आधिकारिक वेबसाइट अवश्य देखें।
+              <span className="mt-0.5 block text-xs text-gray-500">
+                This information has not yet been verified against the official notification. Please check the department&rsquo;s official website before applying.
+              </span>
+            </p>
+          )}
 
           {/* Quick Info Table */}
           <div className="bg-card border border-border rounded-lg overflow-hidden mb-6">
