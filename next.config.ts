@@ -120,6 +120,14 @@ const nextConfig: NextConfig = {
       { source: "/sarkari-naukri/central-government-jobs", destination: "/sarkari-naukri/exam",   permanent: true },
       { source: "/sarkari-naukri/state-government-jobs",   destination: "/sarkari-naukri/bharti", permanent: true },
 
+      // E3: indexed typo/legacy vacancy URLs whose REAL page exists elsewhere.
+      // Verified live (200 self-canonical) — 308 straight to the canonical
+      // record. All other 200-with-homepage-canonical rows are non-routes and
+      // return a true 404 now that the root loading.tsx soft-404 is removed.
+      { source: "/sarkari-naukri/up-swasthya-vibhag-ambulance-divider-2026", destination: "/sarkari-naukri/up-swasthya-vibhag-ambulance-driver-2026", permanent: true },
+      { source: "/sarkari-naukri/upsc/upsc-cds", destination: "/sarkari-naukri/defence/cds-exam", permanent: true },
+      { source: "/sarkari-naukri/upsc-cds",      destination: "/sarkari-naukri/defence/cds-exam", permanent: true },
+
       // Deleted MJPRU stub → the real MJPRU record. The stub row (slug `mjpru`
       // in the stray `university-exams` category) was removed from the DB
       // (migration 022); its indexed URL 301s here so it never 404s. The real
