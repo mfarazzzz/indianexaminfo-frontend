@@ -1,4 +1,5 @@
 import { siteConfig } from "@/config/site";
+import { newsArticlePath } from "@/lib/exam/actionLinks";
 import type { ContentPost } from "@/types/exam";
 import type { BlogPost } from "@/types/blog";
 
@@ -72,9 +73,11 @@ export function generateExamRss(posts: ContentPost[]): string {
   const items = posts.slice(0, 50).map((post) =>
     buildRssItem({
       title: post.title,
-      link: `${siteConfig.url}/${post.pillar}/${post.examEntityName
-        .toLowerCase()
-        .replace(/\s+/g, "-")}/${post.slug}`,
+      // Every published content_post is a news article rendered at /news/{slug}
+      // (see newsArticlePath). Route through the SAME builder the /news page's
+      // canonical uses so feed and canonical cannot disagree — and never the raw
+      // DB pillar or the empty exam entity (the old bug: /{pillar}//{slug}).
+      link: `${siteConfig.url}${newsArticlePath(post.slug)}`,
       description: post.excerpt,
       pubDate: post.publishedAt,
       categories: post.tags,

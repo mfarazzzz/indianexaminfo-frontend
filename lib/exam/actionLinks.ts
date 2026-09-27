@@ -53,6 +53,22 @@ export function getExamContentTypeHref(
   return `${getExamEntityHref(exam)}/${contentType}`;
 }
 
+/**
+ * Public path where a news article renders as its own page: /news/{slug}.
+ * Both surfaces that publish a news article canonicalise here — the
+ * /news/[section]/[slug] route (blog post) and the /news/[section] slug
+ * fallback (a news-pillar content_post). This is the ONE builder for that
+ * path so the RSS feed and a page's <link rel="canonical"> can never drift.
+ *
+ * Do NOT rebuild it from a post's `pillar` or `examEntityName`. Every
+ * published content_post is pillar=news with an empty exam_entity_name, so the
+ * old feed construction `/${pillar}/${entity}/${slug}` both leaked the raw DB
+ * pillar into the URL and emitted a double slash on the empty entity.
+ */
+export function newsArticlePath(slug: string): string {
+  return `/news/${slug}`;
+}
+
 // ── State rule: which content types suit which lifecycle state ───────────────
 // A content type may only appear when the record's derived status is in its
 // allow-set. This is what stops "Apply on a closed exam", "Admit card before one

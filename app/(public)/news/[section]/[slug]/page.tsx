@@ -6,6 +6,7 @@ import { Breadcrumb } from "@/components/layout/Breadcrumb";
 import { AdSlot } from "@/components/ads/AdSlot";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { buildExamMetadata } from "@/lib/seo/metadata";
+import { newsArticlePath } from "@/lib/exam/actionLinks";
 import { buildArticleSchema, buildFAQSchema } from "@/lib/seo/structured-data";
 import { GLOBAL_SHORT_TAIL } from "@/lib/seo/keywords";
 import { siteConfig } from "@/config/site";
@@ -27,7 +28,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       title: post.seoTitle || post.title,
       description: post.seoDescription || post.excerpt,
       keywords: [...(post.tags ?? []).slice(0, 8), ...GLOBAL_SHORT_TAIL.slice(0, 4)],
-      canonicalUrl: `${siteConfig.url}/news/${slug}`,
+      canonicalUrl: `${siteConfig.url}${newsArticlePath(slug)}`,
       ogImage: post.featuredImage?.startsWith("http") ? post.featuredImage : undefined,
       ogAlt: post.title,
       publishedAt: post.publishedAt,
@@ -59,7 +60,7 @@ export default async function NewsArticlePage({ params }: Props) {
     related = [];
   }
 
-  const articleUrl = `${siteConfig.url}/news/${slug}`;
+  const articleUrl = `${siteConfig.url}${newsArticlePath(slug)}`;
   const authorUrl = post.author?.slug
     ? `${siteConfig.url}/news/author/${post.author.slug}`
     : `${siteConfig.url}/news`;
