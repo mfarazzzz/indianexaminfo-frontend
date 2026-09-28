@@ -68,9 +68,16 @@ export default async function AboutPage() {
 
           <section>
             <h2 className="font-heading font-bold text-lg text-gray-900 mb-2">Editorial Policy</h2>
+            {/* Owner-approved text, Sprint 0 Part 2 2026-09-28. Replaces the old
+                "sourced directly … we verify before publishing" claim: none of the
+                361 vacancy pages links a checked notification, so the policy now
+                states what is actually true. &quot; entities render as plain double
+                quotes — displayed text is exactly the approved copy. */}
             <p>
-              All information on IndianExamInfo is sourced directly from official exam body websites.
-              We verify dates and notifications before publishing.
+              IndianExamInfo summarises recruitment, exam and admission information for readers. Where we have checked a page against the official notification, the page links to that notification. Pages marked &quot;not yet verified&quot; have not yet been checked against an official source and may contain errors. Always confirm dates, eligibility and fees on the official website before you apply or pay any fee. If you find a mistake, please tell us through the &quot;Report an error&quot; link on the page, our Contact page (/contact) or contact@indianexaminfo.com. We correct confirmed errors as quickly as we can.
+            </p>
+            <p lang="hi" className="mt-2">
+              IndianExamInfo भर्ती, परीक्षा और प्रवेश से जुड़ी जानकारी पाठकों के लिए संक्षेप में प्रस्तुत करता है। जिन पेजों को हमने आधिकारिक अधिसूचना से मिलाकर जाँच लिया है, उनमें उस अधिसूचना का लिंक दिया गया है। जिन पेजों पर &quot;अभी सत्यापित नहीं&quot; लिखा है, उन्हें अभी किसी आधिकारिक स्रोत से नहीं मिलाया गया है और उनमें गलतियाँ हो सकती हैं। आवेदन करने या कोई भी शुल्क भरने से पहले तारीखें, पात्रता और शुल्क आधिकारिक वेबसाइट पर ज़रूर जाँच लें। अगर आपको कोई गलती दिखे, तो पेज पर दिए &quot;गलती बताएँ&quot; लिंक, हमारे संपर्क पेज (/contact) या contact@indianexaminfo.com के ज़रिए हमें बताएँ। पुष्टि होने पर हम गलती जल्द से जल्द ठीक करते हैं।
             </p>
             <p className="mt-2">
               <strong>Important:</strong> IndianExamInfo is not affiliated with, endorsed by, or connected

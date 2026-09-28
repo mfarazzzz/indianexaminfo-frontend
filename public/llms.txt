@@ -3,7 +3,11 @@
 
 ## About
 IndianExamInfo (indianexaminfo.com) is operated by IndianExamInfo Media Pvt Ltd, New Delhi.
-All information is sourced directly from official exam body websites and verified before publishing.
+IndianExamInfo summarises recruitment, exam and admission information for readers. Where a page has
+been checked against the official notification, the page links to that notification. Pages marked
+"not yet verified" have not been checked against an official source and may contain errors; readers
+should always confirm dates, eligibility and fees on the official website before applying or paying
+any fee.
 This site is NOT affiliated with UPSC, SSC, IBPS, NTA, CBSE, or any government body.
 
 ## Key Sections
@@ -44,8 +48,12 @@ scholarships, study abroad, EdTech, and student life. Written by domain expert a
 - Blog articles: updated within 1 hour of publication
 
 ## Content Policy
-- All exam dates and information are sourced from official exam body websites
-- Dates are verified before publishing and timestamps are shown on every page
+- Pages summarise recruitment, exam and admission information; where a page has been checked against
+  the official notification, it links to that notification
+- Pages marked "not yet verified" have not been checked against an official source and may contain
+  errors — confirm dates, eligibility and fees on the official website before applying or paying any fee
+- Errors are corrected as quickly as possible once confirmed; report them via the "Report an error"
+  link on the page, the Contact page (/contact) or contact@indianexaminfo.com
 - This portal does not charge students for any information
 
 ## Sitemap
