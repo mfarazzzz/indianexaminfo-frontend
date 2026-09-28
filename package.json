@@ -6,6 +6,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start -p 3002",
+    "shoot:site": "node scripts/shoot-site.mjs",
     "lint": "next lint",
     "test": "vitest run",
     "analyze": "ANALYZE=true next build"
@@ -35,6 +36,7 @@
     "tailwindcss-animate": "^1.0.7"
   },
   "devDependencies": {
+    "@playwright/test": "^1.63.0",
     "@types/node": "^22.0.0",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",

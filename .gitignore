@@ -31,6 +31,11 @@ yarn-error.log*
 # vercel
 .vercel
 
+# Playwright session state (npm run cms:login lives in the CMS repo; this repo
+# only ever shoots public pages, but .auth/ is ignored here too so a stray
+# storageState can never be committed)
+.auth/
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts
