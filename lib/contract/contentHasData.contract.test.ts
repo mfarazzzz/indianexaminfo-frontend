@@ -34,12 +34,17 @@ import {
 } from '../sectionRegistry';
 
 // ── Pinned content hashes (must equal the same constants in the CMS test) ──
-// Baked 2026-09-28 from the frontend rule (REGEN), LF-normalized bytes
+// Baked 2026-09-28 (S0-2) from the frontend rule (REGEN), LF-normalized bytes
 // (.gitattributes pins contract/*.json to eol=lf in both repos). Changing
 // either contract file changes its hash and goes red in BOTH repos until
 // deliberately re-baked.
-const FIXTURES_SHA256 = '2590900cdc2f7d7d6b688f98772f0390707b9a55fb13cada2aeb782d328ec108';
-const EXPECTED_SHA256 = '05b95987a5419d65f3ace35fae6c27714b6e19357c82f6fc6fb2498a6c07f3b8';
+// The FAQs cases pin the owner decision of 2026-09-28: hasData(view,'faqs')
+// counts the exams.faqs COLUMN for the visible main-page section
+// (faqs-column-counts = true), a contentModules.faqs store alone lights nothing
+// (faqs-module-only-not-counted = false), and the 'faqs' CONTENT TYPE does not
+// resolve to a section, so /faqs stays un-routable (ct-faqs-not-routable = false).
+const FIXTURES_SHA256 = '57329f42ff7d9846e4a59e28cb1292f69485426e997207ebfd597afeb9ea35b1';
+const EXPECTED_SHA256 = 'd90e9be51f650f74b89c8c024a52b599b3f078c7ace4b61fded026364f12ab06';
 
 const CONTRACT_DIR = path.resolve(process.cwd(), 'contract');
 const FIXTURES_FILE = path.join(CONTRACT_DIR, 'content-has-data.fixtures.json');

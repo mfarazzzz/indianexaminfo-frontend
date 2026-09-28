@@ -243,20 +243,10 @@ function renderFocusedContentType(
         </section>
       )}
 
-      {/* FAQs from the exam (column), if present. */}
-      {exam.faqs && exam.faqs.length > 0 && (
-        <section aria-label="Frequently asked questions" className="mb-6">
-          <h2 className="font-heading font-bold text-lg text-gray-900 mb-4">Frequently Asked Questions</h2>
-          <div className="space-y-3">
-            {exam.faqs.map((faq, i) => (
-              <div key={i} className="border border-border rounded p-4">
-                <h3 className="font-semibold text-gray-900 text-sm mb-2">{faq.question}</h3>
-                <p className="text-sm text-gray-700 leading-relaxed">{faq.answer}</p>
-              </div>
-            ))}
-          </div>
-        </section>
-      )}
+      {/* FAQs from the exam (column). ONE renderer, the same one the main page uses
+          (SECTION_SUMMARY_RENDERERS.faqs), so the visible section and the FAQPage
+          JSON-LD gate below can never disagree about what is on screen. */}
+      {SECTION_SUMMARY_RENDERERS.faqs?.(exam, todayISO)}
     </>
   );
 }
@@ -401,7 +391,12 @@ export async function EntityDetailPage({ exam, breadcrumbs, contentType, edition
   );
 
   const schemas: Record<string, unknown>[] = [];
-  if (exam.faqs?.length) schemas.push(buildFAQSchema(exam.faqs));
+  // FAQPage markup is emitted from THE SAME predicate that paints the visible FAQ
+  // section (registry hasData for 'faqs', used by renderOrderedSections' filter and
+  // by SECTION_SUMMARY_RENDERERS.faqs). Owner decision 2026-09-28: FAQs are a
+  // visible main-page section and there is no /faqs URL; markup must never exist
+  // without the content a reader can actually see.
+  if (hasData(hasDataView, "faqs")) schemas.push(buildFAQSchema(exam.faqs ?? []));
   // JobPosting only when the recruitment is genuinely open AND datePosted resolves;
   // the builder returns null otherwise so we emit no (invalid/stale) markup.
   if (exam.pillar === "government-exam") {

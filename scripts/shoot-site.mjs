@@ -3,6 +3,9 @@
  *
  * Usage:  npm run shoot:site -- https://indianexaminfo.com/<path>
  *         SHOT_DIR=qa/screenshots npm run shoot:site -- <url>
+ *         SHOT_SELECTOR='section[aria-label="FAQ"]'  — scroll that element into view
+ *         first, so a proof shot can show a section far down the page instead of
+ *         the header. Viewport-size shots only (never fullPage), as the proof spec asks.
  *
  * No login, no storageState, no third-party scripts injected. Screenshots land at
  *   <out>/<slug>-360x800.png  and  <out>/<slug>-1440x900.png
@@ -50,6 +53,12 @@ try {
     const page = await ctx.newPage();
     const resp = await page.goto(url, { waitUntil: 'load', timeout: 60_000 });
     await page.waitForLoadState('networkidle', { timeout: 20_000 }).catch(() => {});
+    // Optional: bring the element under proof into the frame.
+    if (process.env.SHOT_SELECTOR) {
+      await page.locator(process.env.SHOT_SELECTOR).first()
+        .scrollIntoViewIfNeeded({ timeout: 10_000 })
+        .catch((e) => console.warn(`selector not found: ${e.message}`));
+    }
     const file = path.join(outDir, `${slug}-${vp.width}x${vp.height}.png`);
     await page.screenshot({ path: file, fullPage: false });
     console.log(`status=${resp?.status() ?? 'n/a'} ${vp.width}x${vp.height} -> ${file}`);

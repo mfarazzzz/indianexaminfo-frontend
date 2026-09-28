@@ -313,12 +313,20 @@ export function hasData(exam: HasDataView, slug: string): boolean {
             nonEmptyStr(exam.academicInfo.semester) ||
             nonEmptyStr(exam.academicInfo.admissionTo)
           );
+        case "faqs":
+          // Owner decision 2026-09-28: FAQs are a VISIBLE SECTION on the main page
+          // wherever exams.faqs has content - no /faqs URL (see
+          // CONTENT_TYPE_TO_SECTION, where 'faqs' is deliberately absent). This is
+          // the ONE gate: the page body loops registry sections filtered by hasData,
+          // and the FAQPage JSON-LD is emitted from the same predicate, so markup
+          // can never exist without the section the reader is supposed to see.
+          // Reads the column only - FaqsSummary renders exam.faqs or nothing, so a
+          // contentModules.faqs store would light the gate without painting anything.
+          return nonEmptyArr(exam.faqs);
         default:
           return false;
       }
     case "editorial":
-      // FAQs is a column today (exams.faqs) even though it's editorial in nature.
-      if (slug === "faqs") return nonEmptyArr(exam.faqs) || editorialHasData(exam, "faqs");
       return editorialHasData(exam, slug);
   }
 }
@@ -351,7 +359,12 @@ export const CONTENT_TYPE_TO_SECTION: Record<string, string> = {
   // "date-sheet" intentionally absent: it is a board/university concept with no
   // dedicated section in the registry. It must NOT fall through to "admit-card"
   // (that caused recruitment exams with admit-card content to show a Date Sheet tab).
-  faqs: "faqs",
+  //
+  // "faqs" intentionally absent (owner decision 2026-09-28): FAQs show as a visible
+  // section on the MAIN page only. There is no /faqs URL, so the content type must
+  // not resolve - contentTypeHasData('faqs') stays false, which keeps the route
+  // 404ing, the tab row clean and the sitemap silent, while hasData(view,'faqs')
+  // (the section gate above) is what puts the questions on the page.
   news: "news",
 };
 
