@@ -13,6 +13,7 @@
 import Link from "next/link";
 import type { ExamEntity } from "@/types/exam";
 import { formatDate, isUrgent } from "@/lib/utils";
+import { meaningfulFaqs } from "@/lib/sectionRegistry";
 import { Calendar } from "lucide-react";
 
 /** A section summary component receives the exam and the single IST "today"
@@ -215,12 +216,15 @@ const SelectionProcessSummary: SectionSummary = (exam) => {
 
 // ── FAQs (column: exams.faqs) ─────────────────────────────────────────────────
 const FaqsSummary: SectionSummary = (exam) => {
-  if (!exam.faqs || exam.faqs.length === 0) return null;
+  // One rule with hasData and buildFAQSchema (lib/sectionRegistry.meaningfulFaqs):
+  // an entry whose answer is empty or a lone placeholder token does not render.
+  const faqs = meaningfulFaqs(exam.faqs);
+  if (faqs.length === 0) return null;
   return (
     <section aria-label="Frequently asked questions" className="mb-5">
       <h2 className="font-heading font-bold text-lg text-gray-900 mb-4">Frequently Asked Questions</h2>
       <div className="space-y-4">
-        {exam.faqs.map((faq, i) => (
+        {faqs.map((faq, i) => (
           <div key={i} className="border border-border rounded p-4">
             <h3 className="font-semibold text-gray-900 text-sm mb-2">{faq.question}</h3>
             <p className="text-sm text-gray-700 leading-relaxed">{faq.answer}</p>

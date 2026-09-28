@@ -38,13 +38,18 @@ import {
 // (.gitattributes pins contract/*.json to eol=lf in both repos). Changing
 // either contract file changes its hash and goes red in BOTH repos until
 // deliberately re-baked.
-// The FAQs cases pin the owner decision of 2026-09-28: hasData(view,'faqs')
+// The FAQs cases pin the owner decisions of 2026-09-28. S0-2: hasData(view,'faqs')
 // counts the exams.faqs COLUMN for the visible main-page section
 // (faqs-column-counts = true), a contentModules.faqs store alone lights nothing
 // (faqs-module-only-not-counted = false), and the 'faqs' CONTENT TYPE does not
 // resolve to a section, so /faqs stays un-routable (ct-faqs-not-routable = false).
-const FIXTURES_SHA256 = '57329f42ff7d9846e4a59e28cb1292f69485426e997207ebfd597afeb9ea35b1';
-const EXPECTED_SHA256 = 'd90e9be51f650f74b89c8c024a52b599b3f078c7ace4b61fded026364f12ab06';
+// Sprint 0 Part 2: an entry only counts when its answer, trimmed + lowercased
+// with any trailing run of . , ? ! : ; and whitespace stripped, is non-empty and
+// is NOT one bare placeholder token (not specified / n/a / na / - / tba / tbd /
+// none / nil). Sentences that merely CONTAIN a placeholder phrase stay visible
+// (faqs-sentence-not-hidden = true) — the rule is deterministic, never heuristic.
+const FIXTURES_SHA256 = 'e6b2494c9e2730cd67370e6cf2c53fcb22d472e415d1874e564fbd64b4f1ea9b';
+const EXPECTED_SHA256 = '3b94c343629f79dd88b618bc723689ca0a1d19af394200d210572ed11e586e7d';
 
 const CONTRACT_DIR = path.resolve(process.cwd(), 'contract');
 const FIXTURES_FILE = path.join(CONTRACT_DIR, 'content-has-data.fixtures.json');

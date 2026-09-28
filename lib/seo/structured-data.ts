@@ -4,6 +4,7 @@ import type { ExamEntity, ExamStatus, ContentPost } from "@/types/exam";
 import type { BlogPost } from "@/types/blog";
 import type { SarkariNaukriItem } from "@/services/sarkariNaukriService";
 import { deriveVacancyStatus } from "@/lib/sarkari/deriveStatus";
+import { meaningfulFaqs } from "@/lib/sectionRegistry";
 
 const SITE_URL = siteConfig.url;
 const LOGO_URL = `${SITE_URL}/icons/logo.png`;
@@ -66,10 +67,14 @@ export function buildBreadcrumbSchema(
 }
 
 export function buildFAQSchema(faqs: { question: string; answer: string }[]) {
+  // Same rule as the visible section and hasData (lib/sectionRegistry.meaningfulFaqs):
+  // an entry whose answer is empty or a lone placeholder token is not emitted into
+  // the FAQPage JSON-LD, so markup never advertises a non-answer to Google.
+  const real = meaningfulFaqs(faqs);
   return {
     "@context": "https://schema.org",
     "@type": "FAQPage",
-    mainEntity: faqs.map((faq) => ({
+    mainEntity: real.map((faq) => ({
       "@type": "Question",
       name: faq.question,
       acceptedAnswer: {
