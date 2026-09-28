@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import type { SarkariNaukriItem } from "@/services/sarkariNaukriService";
 import { daysUntil, formatDate } from "@/lib/utils";
+import { showsSeededStatistics } from "@/lib/sarkari/verification";
 
 const PAGE_SIZE = 20;
 
@@ -132,7 +133,9 @@ export function SarkariNaukriList({ items, todayISO }: { items: SarkariNaukriIte
                     <span className="capitalize">{item.state.replace(/-/g, " ")}</span>
                   )}
                   {item.state === "all-india" && <span>All India</span>}
-                  {item.vacancyCount != null && item.vacancyCount > 0 && (
+                  {/* S0-3: the post count is a seeded number, so it obeys the
+                      same verified_at gate as the vacancy detail page. */}
+                  {showsSeededStatistics(item) && item.vacancyCount != null && item.vacancyCount > 0 && (
                     <span className="font-medium text-primary">{item.vacancyCount.toLocaleString("en-IN")} posts</span>
                   )}
                   {rd && (

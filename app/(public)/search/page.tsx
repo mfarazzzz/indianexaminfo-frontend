@@ -8,6 +8,7 @@ import { searchEducationNews } from "@/services/educationNewsService";
 import { Breadcrumb } from "@/components/layout/Breadcrumb";
 import { AdSlot } from "@/components/ads/AdSlot";
 import { getExamEntityHref } from "@/lib/utils";
+import { showsSeededStatistics } from "@/lib/sarkari/verification";
 import { pillarToUrlSegment } from "@/lib/exam/pillarUrl";
 import { GLOBAL_SHORT_TAIL } from "@/lib/seo/keywords";
 import { Search, Briefcase, GraduationCap, Newspaper, FileText } from "lucide-react";
@@ -121,7 +122,9 @@ export default async function SearchPage({ searchParams }: Props) {
                       <p className="text-sm font-semibold text-gray-900 group-hover:text-primary leading-snug line-clamp-1">{item.title}</p>
                       <p className="text-xs text-gray-500 mt-0.5">
                         {item.organization} · {item.state?.replace(/-/g, " ")}
-                        {item.vacancyCount && ` · ${item.vacancyCount} posts`}
+                        {/* S0-3: seeded post count - same verified_at gate as the
+                            detail page and the listing rows. */}
+                        {showsSeededStatistics(item) && item.vacancyCount && ` · ${item.vacancyCount} posts`}
                       </p>
                     </div>
                     <span className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-semibold ${

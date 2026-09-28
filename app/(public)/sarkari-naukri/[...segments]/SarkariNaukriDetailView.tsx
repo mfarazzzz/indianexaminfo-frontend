@@ -7,6 +7,7 @@ import { AdSlot } from "@/components/ads/AdSlot";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { buildSarkariJobPostingSchema } from "@/lib/seo/structured-data";
 import { deriveVacancyStatus, vacancyStatusLabel, vacancyStatusColor } from "@/lib/sarkari/deriveStatus";
+import { showsSeededStatistics } from "@/lib/sarkari/verification";
 import { siteConfig } from "@/config/site";
 
 /**
@@ -28,6 +29,18 @@ export function SarkariNaukriDetailView({ item, slug, todayISO }: Props) {
   const derivedStatus = deriveVacancyStatus(item, todayISO);
   const pageUrl = `${siteConfig.url}/sarkari-naukri/${slug}`;
   const jobPosting = buildSarkariJobPostingSchema(item, pageUrl, todayISO);
+  /**
+   * S0-3 (owner decision 2026-09-28): a vacancy nobody has checked against the
+   * official notification shows NO seeded number. ONE gate for every numeric
+   * claim below, from lib/sarkari/verification.ts - the same verified_at switch
+   * result_date (G2) and the result/merit link (L4) already obey.
+   * Gated: total_candidates (361/361 rows seeded), pass_percentage (60/361),
+   * cutoff_marks (60/361), vacancy_count (0/361 today, seeded when present).
+   * NOT gated: title, organisation, state/category, the prose Details block and
+   * the dates - those are what the reader acts on, and the unverified notice
+   * above always states that none of it has been checked.
+   */
+  const showSeededStats = showsSeededStatistics(item);
 
   return (
     <div className="container mx-auto px-4 py-4">
@@ -62,7 +75,7 @@ export function SarkariNaukriDetailView({ item, slug, todayISO }: Props) {
               <span>{item.organization}</span>
               {item.state && item.state !== "all-india" && <span className="capitalize">{item.state.replace(/-/g, " ")}</span>}
               {item.state === "all-india" && <span>All India</span>}
-              {item.vacancyCount && <span>{item.vacancyCount.toLocaleString("en-IN")} vacancies</span>}
+              {showSeededStats && item.vacancyCount && <span>{item.vacancyCount.toLocaleString("en-IN")} vacancies</span>}
               {item.category && <span className="capitalize">{item.category.replace(/-/g, " ")}</span>}
             </div>
           </div>
@@ -86,14 +99,14 @@ export function SarkariNaukriDetailView({ item, slug, todayISO }: Props) {
               <tbody className="divide-y divide-border">
                 <tr><td className="px-4 py-2.5 text-gray-500 w-40">Organization</td><td className="px-4 py-2.5 font-medium text-gray-900">{item.organization}</td></tr>
                 {item.department && <tr><td className="px-4 py-2.5 text-gray-500">Department</td><td className="px-4 py-2.5 text-gray-900">{item.department}</td></tr>}
-                {item.vacancyCount && <tr><td className="px-4 py-2.5 text-gray-500">Total Vacancies</td><td className="px-4 py-2.5 font-semibold text-gray-900">{item.vacancyCount.toLocaleString("en-IN")}</td></tr>}
+                {showSeededStats && item.vacancyCount && <tr><td className="px-4 py-2.5 text-gray-500">Total Vacancies</td><td className="px-4 py-2.5 font-semibold text-gray-900">{item.vacancyCount.toLocaleString("en-IN")}</td></tr>}
                 {item.eligibility && <tr><td className="px-4 py-2.5 text-gray-500">Eligibility</td><td className="px-4 py-2.5 text-gray-900">{item.eligibility}</td></tr>}
                 {item.ageLimit && <tr><td className="px-4 py-2.5 text-gray-500">Age Limit</td><td className="px-4 py-2.5 text-gray-900">{item.ageLimit}</td></tr>}
                 {item.payScale && <tr><td className="px-4 py-2.5 text-gray-500">Salary / Pay Scale</td><td className="px-4 py-2.5 text-gray-900">{item.payScale}</td></tr>}
                 {isExam && item.examMode && <tr><td className="px-4 py-2.5 text-gray-500">Exam Mode</td><td className="px-4 py-2.5 text-gray-900 capitalize">{item.examMode}</td></tr>}
-                {item.cutoffMarks && <tr><td className="px-4 py-2.5 text-gray-500">Cutoff Marks</td><td className="px-4 py-2.5 text-gray-900">{item.cutoffMarks}</td></tr>}
-                {item.totalCandidates && <tr><td className="px-4 py-2.5 text-gray-500">Total Candidates</td><td className="px-4 py-2.5 text-gray-900">{item.totalCandidates.toLocaleString("en-IN")}</td></tr>}
-                {item.passPercentage && <tr><td className="px-4 py-2.5 text-gray-500">Pass Percentage</td><td className="px-4 py-2.5 text-gray-900">{item.passPercentage}%</td></tr>}
+                {showSeededStats && item.cutoffMarks && <tr><td className="px-4 py-2.5 text-gray-500">Cutoff Marks</td><td className="px-4 py-2.5 text-gray-900">{item.cutoffMarks}</td></tr>}
+                {showSeededStats && item.totalCandidates && <tr><td className="px-4 py-2.5 text-gray-500">Total Candidates</td><td className="px-4 py-2.5 text-gray-900">{item.totalCandidates.toLocaleString("en-IN")}</td></tr>}
+                {showSeededStats && item.passPercentage && <tr><td className="px-4 py-2.5 text-gray-500">Pass Percentage</td><td className="px-4 py-2.5 text-gray-900">{item.passPercentage}%</td></tr>}
               </tbody>
             </table>
           </div>
