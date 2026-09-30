@@ -5,6 +5,7 @@ import { getBlogPostBySlug, getRelatedBlogPosts } from "@/services/blogService";
 import { Breadcrumb } from "@/components/layout/Breadcrumb";
 import { AdSlot } from "@/components/ads/AdSlot";
 import { JsonLd } from "@/components/seo/JsonLd";
+import { ReportErrorControl } from "@/components/contact/ReportErrorControl";
 import { buildExamMetadata } from "@/lib/seo/metadata";
 import { buildArticleSchema, buildFAQSchema } from "@/lib/seo/structured-data";
 import { BLOG_SECTION_KEYWORDS, GLOBAL_SHORT_TAIL } from "@/lib/seo/keywords";
@@ -116,6 +117,11 @@ export default async function BlogArticlePage({ params }: Props) {
 
               {/* Deck */}
               <p className="text-lg text-gray-500 mb-5 leading-relaxed">{post.excerpt}</p>
+
+              {/* "Report an error" near the top of the content (S0-5 A.2). */}
+              <div className="mb-5">
+                <ReportErrorControl />
+              </div>
 
               {/* Author block */}
               {post.author?.name && (

@@ -213,6 +213,25 @@ export function MegaMenuMobile({ pillars, quickAccessItems, onClose }: Props) {
             </div>
           ))}
         </nav>
+
+        {/* "Contact" in the mobile menu (owner brief S0-5 A.3) — bottom of the
+            sheet, in the reader's words, with the direct mailto beneath. */}
+        <div className="px-4 py-3 border-t border-gray-100">
+          <Link
+            href="/contact"
+            onClick={onClose}
+            className="flex items-center justify-between w-full py-2.5 px-2 text-sm font-semibold text-gray-800 hover:text-primary rounded min-h-[44px]"
+          >
+            संपर्क · Contact
+            <ChevronRight className="w-4 h-4 text-gray-400" />
+          </Link>
+          <a
+            href="mailto:contact@indianexaminfo.com"
+            className="block px-2 py-1.5 text-xs text-gray-500 hover:text-primary"
+          >
+            contact@indianexaminfo.com
+          </a>
+        </div>
       </div>
     </>
   );

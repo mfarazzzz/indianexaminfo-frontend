@@ -110,6 +110,12 @@ export async function Footer() {
                   ].map((l) => (
                     <li key={l.href}><Link href={l.href} className="text-xs text-white/60 hover:text-white">{l.label}</Link></li>
                   ))}
+                  {/* Direct mailto in the footer (owner brief S0-5 A.3) */}
+                  <li>
+                    <a href="mailto:contact@indianexaminfo.com" className="text-xs text-white/60 hover:text-white">
+                      contact@indianexaminfo.com
+                    </a>
+                  </li>
                 </ul>
               </div>
             </>

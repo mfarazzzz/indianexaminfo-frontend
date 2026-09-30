@@ -9,6 +9,7 @@ import { Breadcrumb, type BreadcrumbItem } from "@/components/layout/Breadcrumb"
 import { ExamListRow } from "@/components/exam/ExamListRow";
 import { AdSlot } from "@/components/ads/AdSlot";
 import { JsonLd } from "@/components/seo/JsonLd";
+import { ReportErrorControl } from "@/components/contact/ReportErrorControl";
 import { SocialChannelBanner } from "@/components/layout/SocialChannelBanner";
 import {
   buildFAQSchema,
@@ -492,6 +493,15 @@ export async function EntityDetailPage({ exam, breadcrumbs, contentType, edition
               >
                 <Share2 className="w-3.5 h-3.5" /> Share
               </button>
+            </div>
+
+            {/* "Report an error on this page" — near the top of the content, NOT
+                buried in the footer (owner brief S0-5 A.2). One control covers
+                every page type that renders through this component: vacancy,
+                exam and its tabs, admission, board, university. Client island;
+                the sheet reads URL + title from the live location. */}
+            <div className="mb-4 -mt-1">
+              <ReportErrorControl />
             </div>
 
             {/* Content Type Navigation — the tab row. Shown on both main and CT pages; on a CT
