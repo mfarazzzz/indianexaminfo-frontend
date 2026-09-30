@@ -9,31 +9,52 @@ import { CONTENT_TYPE_KEYWORDS, GLOBAL_SHORT_TAIL, getCurrentYear } from "@/lib/
 import { siteConfig } from "@/config/site";
 import { formatDate, pillarLabel, getExamContentTypeHref } from "@/lib/utils";
 import { Download, Calendar } from "lucide-react";
+import { hubFor, hubHasContent, filterHubLinks } from "@/lib/hubs/contentHubs";
 
 export const revalidate = 1800;
 
 const YEAR = getCurrentYear();
+const HUB = hubFor("/admit-card");
 
-export const metadata: Metadata = buildExamMetadata({
-  pageType: "hub",
-  title: `Admit Card ${YEAR} — Download Hall Ticket for All Exams`,
-  description:
-    `Download admit card ${YEAR} for UPSC, SSC, IBPS, SBI, RRB, NEET, JEE, CBSE & all exams. ` +
-    `Direct official link, hall ticket release dates, steps to download.`,
-  keywords: [
-    ...CONTENT_TYPE_KEYWORDS["admit-card"].suffixes,
-    ...CONTENT_TYPE_KEYWORDS["admit-card"].longTailTemplates
-      .slice(0, 5)
-      .map((t) => t.replace("{exam}", "").trim()),
-    ...GLOBAL_SHORT_TAIL.slice(0, 8),
-  ],
-  canonicalUrl: `${siteConfig.url}/admit-card`,
-});
+// Empty hubs are noindexed (the one rule, lib/hubs/contentHubs) — the SAME
+// predicate that drops the hub from the homepage strip, menus and the sitemap.
+// It flips back to indexable automatically as soon as the hub renders a record.
+export async function generateMetadata(): Promise<Metadata> {
+  const hasContent = await hubHasContent(HUB);
+  return buildExamMetadata({
+    pageType: "hub",
+    title: `Admit Card ${YEAR} — Download Hall Ticket for All Exams`,
+    description:
+      `Download admit card ${YEAR} for UPSC, SSC, IBPS, SBI, RRB, NEET, JEE, CBSE & all exams. ` +
+      `Direct official link, hall ticket release dates, steps to download.`,
+    keywords: [
+      ...CONTENT_TYPE_KEYWORDS["admit-card"].suffixes,
+      ...CONTENT_TYPE_KEYWORDS["admit-card"].longTailTemplates
+        .slice(0, 5)
+        .map((t) => t.replace("{exam}", "").trim()),
+      ...GLOBAL_SHORT_TAIL.slice(0, 8),
+    ],
+    canonicalUrl: `${siteConfig.url}/admit-card`,
+    noIndex: !hasContent,
+  });
+}
 
 export default async function AdmitCardPage() {
   const [latestPosts, exams] = await Promise.all([
     getLatestByContentType("admit-card", 20),
     getExamsByContentType("admit-card"),
+  ]);
+
+  // Other-content-type cross-links: drop any hub that is currently empty
+  // (same one rule as the homepage strip / menus / sitemap).
+  const otherHubs = await filterHubLinks([
+    { label: "Results", href: "/results" },
+    { label: "Answer Key", href: "/answer-key" },
+    { label: "Syllabus", href: "/syllabus" },
+    { label: "Date Sheet", href: "/date-sheet" },
+    { label: "Mock Test", href: "/mock-test" },
+    { label: "Previous Papers", href: "/previous-papers" },
+    { label: "Study Material", href: "/study-material" },
   ]);
 
   return (
@@ -124,15 +145,7 @@ export default async function AdmitCardPage() {
               Other Content Types
             </h2>
             <ul className="space-y-1.5 text-sm">
-              {[
-                { label: "Results", href: "/results" },
-                { label: "Answer Key", href: "/answer-key" },
-                { label: "Syllabus", href: "/syllabus" },
-                { label: "Date Sheet", href: "/date-sheet" },
-                { label: "Mock Test", href: "/mock-test" },
-                { label: "Previous Papers", href: "/previous-papers" },
-                { label: "Study Material", href: "/study-material" },
-              ].map((q: { label: string; href: string }) => (
+              {otherHubs.map((q: { label: string; href: string }) => (
                 <li key={q.href}>
                   <Link href={q.href} className="text-gray-700 hover:text-primary hover:underline">{q.label}</Link>
                 </li>

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { notFound } from "next/navigation";
 import Link from "next/link";
 import { getExamsByContentType } from "@/services/examService";
 import { Breadcrumb } from "@/components/layout/Breadcrumb";
@@ -7,19 +8,32 @@ import { buildExamMetadata } from "@/lib/seo/metadata";
 import { CONTENT_TYPE_KEYWORDS, GLOBAL_SHORT_TAIL, getCurrentYear } from "@/lib/seo/keywords";
 import { getExamContentTypeHref } from "@/lib/utils";
 import { siteConfig } from "@/config/site";
+import { hubFor, hubHasContent } from "@/lib/hubs/contentHubs";
 
 export const revalidate = 86400;
 
 const YEAR = getCurrentYear();
-export const metadata: Metadata = buildExamMetadata({
-  pageType: "hub",
-  title: `Mock Test ${YEAR} — Free Practice Tests for All Competitive Exams`,
-  description: `Free mock tests ${YEAR} for UPSC, SSC, IBPS, NEET, JEE Main and all exams. Online practice tests with detailed solutions and performance analysis.`,
-  keywords: [...CONTENT_TYPE_KEYWORDS["mock-test"].suffixes, ...GLOBAL_SHORT_TAIL.slice(0, 6), `free mock test ${YEAR}`, `online test series ${YEAR}`],
-  canonicalUrl: `${siteConfig.url}/mock-test`,
-});
+// Mock Test is a structural dead end: it is absent from CONTENT_TYPE_TO_SECTION
+// (the registry calls it "never a real page") and no exam section backs it, so it
+// can never render a record. Under the one rule (lib/hubs/contentHubs) it 404s
+// rather than sitting empty and indexable, and reappears automatically if a real
+// backing store is ever added.
+const HUB = hubFor("/mock-test");
+
+export async function generateMetadata(): Promise<Metadata> {
+  const hasContent = await hubHasContent(HUB);
+  return buildExamMetadata({
+    pageType: "hub",
+    title: `Mock Test ${YEAR} — Free Practice Tests for All Competitive Exams`,
+    description: `Free mock tests ${YEAR} for UPSC, SSC, IBPS, NEET, JEE Main and all exams. Online practice tests with detailed solutions and performance analysis.`,
+    keywords: [...CONTENT_TYPE_KEYWORDS["mock-test"].suffixes, ...GLOBAL_SHORT_TAIL.slice(0, 6), `free mock test ${YEAR}`, `online test series ${YEAR}`],
+    canonicalUrl: `${siteConfig.url}/mock-test`,
+    noIndex: !hasContent,
+  });
+}
 
 export default async function MockTestPage() {
+  if (!(await hubHasContent(HUB))) notFound();
   const exams = await getExamsByContentType("mock-test");
 
   return (

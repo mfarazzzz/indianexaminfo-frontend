@@ -7,17 +7,26 @@ import { buildExamMetadata } from "@/lib/seo/metadata";
 import { CONTENT_TYPE_KEYWORDS, GLOBAL_SHORT_TAIL, getCurrentYear } from "@/lib/seo/keywords";
 import { getExamContentTypeHref } from "@/lib/utils";
 import { siteConfig } from "@/config/site";
+import { hubFor, hubHasContent } from "@/lib/hubs/contentHubs";
 
 export const revalidate = 86400;
 
 const YEAR = getCurrentYear();
-export const metadata: Metadata = buildExamMetadata({
-  pageType: "hub",
-  title: `Previous Year Question Papers ${YEAR} — Download PDF for All Exams`,
-  description: `Download previous year question papers for UPSC, SSC, IBPS, NEET, JEE Main and all exams. Year-wise, shift-wise solved papers with answers.`,
-  keywords: [...CONTENT_TYPE_KEYWORDS["previous-papers"].suffixes, ...GLOBAL_SHORT_TAIL.slice(0, 6), `previous year paper pdf ${YEAR}`, `pyq download ${YEAR}`],
-  canonicalUrl: `${siteConfig.url}/previous-papers`,
-});
+const HUB = hubFor("/previous-papers");
+
+// Empty hub → noindexed by the one rule (lib/hubs/contentHubs); reindexed
+// automatically once it renders a record.
+export async function generateMetadata(): Promise<Metadata> {
+  const hasContent = await hubHasContent(HUB);
+  return buildExamMetadata({
+    pageType: "hub",
+    title: `Previous Year Question Papers ${YEAR} — Download PDF for All Exams`,
+    description: `Download previous year question papers for UPSC, SSC, IBPS, NEET, JEE Main and all exams. Year-wise, shift-wise solved papers with answers.`,
+    keywords: [...CONTENT_TYPE_KEYWORDS["previous-papers"].suffixes, ...GLOBAL_SHORT_TAIL.slice(0, 6), `previous year paper pdf ${YEAR}`, `pyq download ${YEAR}`],
+    canonicalUrl: `${siteConfig.url}/previous-papers`,
+    noIndex: !hasContent,
+  });
+}
 
 export default async function PreviousPapersPage() {
   const exams = await getExamsByContentType("previous-papers");

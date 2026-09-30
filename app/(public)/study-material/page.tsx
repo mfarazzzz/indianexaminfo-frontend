@@ -7,17 +7,26 @@ import { buildExamMetadata } from "@/lib/seo/metadata";
 import { CONTENT_TYPE_KEYWORDS, GLOBAL_SHORT_TAIL, getCurrentYear } from "@/lib/seo/keywords";
 import { getExamContentTypeHref } from "@/lib/utils";
 import { siteConfig } from "@/config/site";
+import { hubFor, hubHasContent } from "@/lib/hubs/contentHubs";
 
 export const revalidate = 86400;
 
 const YEAR = getCurrentYear();
-export const metadata: Metadata = buildExamMetadata({
-  pageType: "hub",
-  title: `Free Study Material ${YEAR} — Notes & PDF for All Competitive Exams`,
-  description: `Download free study material ${YEAR} for UPSC, SSC, IBPS, NEET, JEE Main and all exams. Notes, formula sheets, short notes and topic-wise study material PDF.`,
-  keywords: [...CONTENT_TYPE_KEYWORDS["study-material"].suffixes, ...GLOBAL_SHORT_TAIL.slice(0, 6), `free study material ${YEAR}`, `exam notes pdf ${YEAR}`],
-  canonicalUrl: `${siteConfig.url}/study-material`,
-});
+const HUB = hubFor("/study-material");
+
+// Empty hub → noindexed by the one rule (lib/hubs/contentHubs); reindexed
+// automatically once it renders a record.
+export async function generateMetadata(): Promise<Metadata> {
+  const hasContent = await hubHasContent(HUB);
+  return buildExamMetadata({
+    pageType: "hub",
+    title: `Free Study Material ${YEAR} — Notes & PDF for All Competitive Exams`,
+    description: `Download free study material ${YEAR} for UPSC, SSC, IBPS, NEET, JEE Main and all exams. Notes, formula sheets, short notes and topic-wise study material PDF.`,
+    keywords: [...CONTENT_TYPE_KEYWORDS["study-material"].suffixes, ...GLOBAL_SHORT_TAIL.slice(0, 6), `free study material ${YEAR}`, `exam notes pdf ${YEAR}`],
+    canonicalUrl: `${siteConfig.url}/study-material`,
+    noIndex: !hasContent,
+  });
+}
 
 export default async function StudyMaterialPage() {
   const exams = await getExamsByContentType("study-material");

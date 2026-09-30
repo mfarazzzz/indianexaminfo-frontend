@@ -3,6 +3,7 @@ import { siteConfig } from "@/config/site";
 import { getMenuBySlug, buildColumns } from "@/services/menuService";
 import type { MenuItem } from "@/services/menuService";
 import { pillarToUrlSegment } from "@/lib/exam/pillarUrl";
+import { filterHubLinks, isHubHref, resolveHubPresence } from "@/lib/hubs/contentHubs";
 
 /**
  * CMS-driven footer. Reads from `footer-nav` menu.
@@ -27,6 +28,29 @@ export async function Footer() {
   }
 
   const columns = footerMenu ? buildColumns(allItems) : [];
+
+  // CMS-driven columns follow the ONE rule too (lib/hubs/contentHubs): hub links
+  // inside the footer-nav menu are dropped while the hub has 0 records and
+  // reappear automatically once it gains content. A column left with no links
+  // at all is dropped rather than rendered as a bare heading.
+  const anyHubLinks = columns.some((col) => col.items.some((i) => isHubHref(i.url)));
+  const hubPresence = anyHubLinks ? await resolveHubPresence() : {};
+  const visibleColumns = anyHubLinks
+    ? columns
+        .map((col) => ({ ...col, items: col.items.filter((i) => !isHubHref(i.url) || hubPresence[i.url!]) }))
+        .filter((col) => col.items.length > 0)
+    : columns;
+
+  // Fallback Quick Links (used only when the CMS footer menu is absent). Hub
+  // entries are gated by the one rule (lib/hubs/contentHubs): an empty hub is
+  // dropped here too and reappears automatically once populated.
+  const fallbackQuickLinks = await filterHubLinks([
+    { label: "Government Jobs", href: "/sarkari-naukri" },
+    { label: "Admissions", href: `/${pillarToUrlSegment("entrance-exam")}` },
+    { label: "Board Results", href: "/board-exam" },
+    { label: "Admit Card", href: "/admit-card" },
+    { label: "Results", href: "/results" },
+  ]);
 
   return (
     <footer className="bg-primary text-white mt-12">
@@ -62,7 +86,7 @@ export async function Footer() {
           </div>
 
           {/* CMS-driven columns */}
-          {columns.map((col) => (
+          {visibleColumns.map((col) => (
             <div key={col.heading.id}>
               <h3 className="font-heading font-semibold text-white text-xs uppercase tracking-wider mb-3">
                 {col.heading.label}
@@ -83,18 +107,12 @@ export async function Footer() {
           ))}
 
           {/* Fallback if no CMS columns */}
-          {columns.length === 0 && (
+          {visibleColumns.length === 0 && (
             <>
               <div>
                 <h3 className="font-heading font-semibold text-white text-xs uppercase tracking-wider mb-3">Quick Links</h3>
                 <ul className="space-y-1.5">
-                  {[
-                    { label: "Government Jobs", href: "/sarkari-naukri" },
-                    { label: "Admissions", href: `/${pillarToUrlSegment("entrance-exam")}` },
-                    { label: "Board Results", href: "/board-exam" },
-                    { label: "Admit Card", href: "/admit-card" },
-                    { label: "Results", href: "/results" },
-                  ].map((l) => (
+                  {fallbackQuickLinks.map((l) => (
                     <li key={l.href}><Link href={l.href} className="text-xs text-white/60 hover:text-white">{l.label}</Link></li>
                   ))}
                 </ul>

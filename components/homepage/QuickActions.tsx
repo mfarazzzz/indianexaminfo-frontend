@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { filterHubLinks } from "@/lib/hubs/contentHubs";
 
 // Compact quick-action bar — text labels only, no icons (Part B: the module
 // row carries no icons).
@@ -10,12 +11,18 @@ const actions = [
   { label: "Date sheet", href: "/date-sheet" },
 ] as const;
 
-export function QuickActions() {
+export async function QuickActions() {
+  // The one rule (lib/hubs/contentHubs): show only hubs that currently render a
+  // record. An empty hub drops from the strip and reappears automatically once
+  // it is populated. Non-hub links are always kept.
+  const visible = await filterHubLinks(actions);
+  if (visible.length === 0) return null;
+
   return (
     <section aria-label="Quick content actions">
       <h2 className="sr-only">Quick access</h2>
       <div className="grid grid-cols-3 sm:grid-cols-5 gap-2">
-        {actions.map((action) => (
+        {visible.map((action) => (
           <Link
             key={action.href}
             href={action.href}

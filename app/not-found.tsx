@@ -1,13 +1,24 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { pillarToUrlSegment } from "@/lib/exam/pillarUrl";
+import { filterHubLinks } from "@/lib/hubs/contentHubs";
 
 export const metadata: Metadata = {
   title: "Page Not Found — IndianExamInfo",
   robots: { index: false },
 };
 
-export default function NotFound() {
+export default async function NotFound() {
+  // Hub links in the browse list follow the one rule (lib/hubs/contentHubs):
+  // empty hubs are withheld here too, and reappear automatically once populated.
+  const quickNav = await filterHubLinks([
+    { label: "Sarkari Naukri", href: "/sarkari-naukri" },
+    { label: "Admissions", href: `/${pillarToUrlSegment("entrance-exam")}` },
+    { label: "Board Exam", href: "/board-exam" },
+    { label: "Blog & News", href: "/blog" },
+    { label: "Admit Card", href: "/admit-card" },
+    { label: "Results", href: "/results" },
+  ]);
   return (
     <div className="container mx-auto px-4 py-16 text-center max-w-xl">
       <div className="text-6xl font-heading font-bold text-primary mb-4">404</div>
@@ -32,14 +43,7 @@ export default function NotFound() {
 
       {/* Quick nav */}
       <div className="grid grid-cols-2 gap-3 mb-8">
-        {[
-          { label: "Sarkari Naukri", href: "/sarkari-naukri" },
-          { label: "Admissions", href: `/${pillarToUrlSegment("entrance-exam")}` },
-          { label: "Board Exam", href: "/board-exam" },
-          { label: "Blog & News", href: "/blog" },
-          { label: "Admit Card", href: "/admit-card" },
-          { label: "Results", href: "/results" },
-        ].map((item) => (
+        {quickNav.map((item) => (
           <Link key={item.href} href={item.href} className="p-3 bg-card border border-border rounded text-sm font-medium text-gray-700 hover:border-primary hover:text-primary transition-colors">
             {item.label}
           </Link>

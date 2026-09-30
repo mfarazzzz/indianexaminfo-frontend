@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { notFound } from "next/navigation";
 import Link from "next/link";
 import { getExamsByContentType } from "@/services/examService";
 import { Breadcrumb } from "@/components/layout/Breadcrumb";
@@ -7,19 +8,32 @@ import { buildExamMetadata } from "@/lib/seo/metadata";
 import { CONTENT_TYPE_KEYWORDS, GLOBAL_SHORT_TAIL, getCurrentYear } from "@/lib/seo/keywords";
 import { getExamContentTypeHref } from "@/lib/utils";
 import { siteConfig } from "@/config/site";
+import { hubFor, hubHasContent } from "@/lib/hubs/contentHubs";
 
 export const revalidate = 86400;
 
 const YEAR = getCurrentYear();
-export const metadata: Metadata = buildExamMetadata({
-  pageType: "hub",
-  title: `Date Sheet ${YEAR} — Exam Schedule for CBSE, UP Board & Universities`,
-  description: `Download date sheet ${YEAR} for CBSE, UP Board, Bihar Board, IGNOU, BHU and all universities. Complete subject-wise exam schedule PDF.`,
-  keywords: [...CONTENT_TYPE_KEYWORDS["date-sheet"].suffixes, ...GLOBAL_SHORT_TAIL.slice(0, 6), `cbse date sheet ${YEAR}`, `up board time table ${YEAR}`, `ignou date sheet ${YEAR}`],
-  canonicalUrl: `${siteConfig.url}/date-sheet`,
-});
+// Date Sheet is a structural dead end: no exam section backs it (it is absent
+// from CONTENT_TYPE_TO_SECTION, and mapRow has no date-sheet store), so it can
+// never render a record. Under the one rule (lib/hubs/contentHubs) a hub with no
+// reason to exist 404s rather than sitting empty and indexable. It reappears
+// automatically the day a backing content store is added.
+const HUB = hubFor("/date-sheet");
+
+export async function generateMetadata(): Promise<Metadata> {
+  const hasContent = await hubHasContent(HUB);
+  return buildExamMetadata({
+    pageType: "hub",
+    title: `Date Sheet ${YEAR} — Exam Schedule for CBSE, UP Board & Universities`,
+    description: `Download date sheet ${YEAR} for CBSE, UP Board, Bihar Board, IGNOU, BHU and all universities. Complete subject-wise exam schedule PDF.`,
+    keywords: [...CONTENT_TYPE_KEYWORDS["date-sheet"].suffixes, ...GLOBAL_SHORT_TAIL.slice(0, 6), `cbse date sheet ${YEAR}`, `up board time table ${YEAR}`, `ignou date sheet ${YEAR}`],
+    canonicalUrl: `${siteConfig.url}/date-sheet`,
+    noIndex: !hasContent,
+  });
+}
 
 export default async function DateSheetPage() {
+  if (!(await hubHasContent(HUB))) notFound();
   const exams = await getExamsByContentType("date-sheet");
 
   return (

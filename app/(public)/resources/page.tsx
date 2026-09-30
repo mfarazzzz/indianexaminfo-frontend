@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Breadcrumb } from "@/components/layout/Breadcrumb";
 import { buildExamMetadata } from "@/lib/seo/metadata";
 import { siteConfig } from "@/config/site";
+import { filterHubLinks } from "@/lib/hubs/contentHubs";
 import { BookOpen, FileText, ClipboardList, HelpCircle, Award, Users, Calculator, GraduationCap, Download, ScrollText, Briefcase } from "lucide-react";
 
 export const revalidate = 86400; // 1 day — this page is mostly static
@@ -28,7 +29,11 @@ const resources = [
   { label: "Preparation Strategy", description: "Expert tips, study plans, toppers' advice", href: "/blog/exam-prep", icon: Award, color: "bg-orange-50 text-orange-600 border-orange-200" },
 ];
 
-export default function ResourcesPage() {
+export default async function ResourcesPage() {
+  // The one rule (lib/hubs/contentHubs): drop hub links that render no record;
+  // plain (non-hub) resources like Exam Pattern stay. Empty hubs reappear here
+  // automatically once they are populated.
+  const visibleResources = await filterHubLinks(resources);
   return (
     <div className="container mx-auto px-4 py-4">
       <Breadcrumb items={[{ name: "Resources", href: "/resources" }]} />
@@ -42,7 +47,7 @@ export default function ResourcesPage() {
         </p>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {resources.map((res) => {
+          {visibleResources.map((res) => {
             const Icon = res.icon;
             return (
               <Link

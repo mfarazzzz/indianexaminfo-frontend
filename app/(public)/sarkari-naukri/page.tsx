@@ -11,6 +11,7 @@ import { buildExamMetadata } from "@/lib/seo/metadata";
 import { buildPageKeywords, getCurrentYear } from "@/lib/seo/keywords";
 import { siteConfig } from "@/config/site";
 import { SARKARI_LABELS } from "@/lib/sarkari/labels";
+import { filterHubLinks } from "@/lib/hubs/contentHubs";
 import { SarkariNaukriList } from "@/components/sarkari-naukri/SarkariNaukriList";
 
 export const revalidate = 1800;
@@ -95,6 +96,14 @@ export default async function SarkariNaukriPage() {
   const examCount = items.filter((i) => i.recruitmentType === "exam").length;
   const directCount = items.filter((i) => i.recruitmentType === "direct").length;
   const sorted = sortByUrgency(items);
+
+  // Quick Links hub entries follow the one rule (lib/hubs/contentHubs): empty
+  // hubs are withheld here and reappear automatically once populated.
+  const quickHubLinks = await filterHubLinks([
+    { label: "Admit Card", href: "/admit-card" },
+    { label: "Results", href: "/results" },
+    { label: "Answer Key", href: "/answer-key" },
+  ]);
 
   return (
     <div className="container mx-auto px-4 py-4">
@@ -186,9 +195,9 @@ export default async function SarkariNaukriPage() {
             <ul className="space-y-1.5 text-sm">
               <li><Link href="/sarkari-naukri/exam" className="text-gray-700 hover:text-primary hover:underline">{SARKARI_LABELS.exams}</Link></li>
               <li><Link href="/sarkari-naukri/bharti" className="text-gray-700 hover:text-primary hover:underline">{SARKARI_LABELS.vacancies}</Link></li>
-              <li><Link href="/admit-card" className="text-gray-700 hover:text-primary hover:underline">Admit Card</Link></li>
-              <li><Link href="/results" className="text-gray-700 hover:text-primary hover:underline">Results</Link></li>
-              <li><Link href="/answer-key" className="text-gray-700 hover:text-primary hover:underline">Answer Key</Link></li>
+              {quickHubLinks.map((q) => (
+                <li key={q.href}><Link href={q.href} className="text-gray-700 hover:text-primary hover:underline">{q.label}</Link></li>
+              ))}
             </ul>
           </div>
         </aside>

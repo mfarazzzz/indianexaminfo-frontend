@@ -7,17 +7,26 @@ import { buildExamMetadata } from "@/lib/seo/metadata";
 import { CONTENT_TYPE_KEYWORDS, GLOBAL_SHORT_TAIL, getCurrentYear } from "@/lib/seo/keywords";
 import { getExamContentTypeHref } from "@/lib/utils";
 import { siteConfig } from "@/config/site";
+import { hubFor, hubHasContent } from "@/lib/hubs/contentHubs";
 
 export const revalidate = 86400;
 
 const YEAR = getCurrentYear();
-export const metadata: Metadata = buildExamMetadata({
-  pageType: "hub",
-  title: `Syllabus ${YEAR} — Download PDF for All Competitive Exams`,
-  description: `Download official syllabus PDF ${YEAR} for UPSC, SSC, IBPS, NEET, JEE Main, CBSE and all Indian exams. Complete topic-wise syllabus with exam pattern.`,
-  keywords: [...CONTENT_TYPE_KEYWORDS["syllabus"].suffixes, ...GLOBAL_SHORT_TAIL.slice(0, 6), `upsc syllabus ${YEAR}`, `neet syllabus ${YEAR}`, `jee main syllabus ${YEAR}`],
-  canonicalUrl: `${siteConfig.url}/syllabus`,
-});
+const HUB = hubFor("/syllabus");
+
+// Empty hub → noindexed by the one rule (lib/hubs/contentHubs); reindexed
+// automatically once it renders a record.
+export async function generateMetadata(): Promise<Metadata> {
+  const hasContent = await hubHasContent(HUB);
+  return buildExamMetadata({
+    pageType: "hub",
+    title: `Syllabus ${YEAR} — Download PDF for All Competitive Exams`,
+    description: `Download official syllabus PDF ${YEAR} for UPSC, SSC, IBPS, NEET, JEE Main, CBSE and all Indian exams. Complete topic-wise syllabus with exam pattern.`,
+    keywords: [...CONTENT_TYPE_KEYWORDS["syllabus"].suffixes, ...GLOBAL_SHORT_TAIL.slice(0, 6), `upsc syllabus ${YEAR}`, `neet syllabus ${YEAR}`, `jee main syllabus ${YEAR}`],
+    canonicalUrl: `${siteConfig.url}/syllabus`,
+    noIndex: !hasContent,
+  });
+}
 
 export default async function SyllabusPage() {
   const exams = await getExamsByContentType("syllabus");

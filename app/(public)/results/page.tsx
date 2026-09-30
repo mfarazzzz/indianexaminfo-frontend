@@ -9,24 +9,32 @@ import { CONTENT_TYPE_KEYWORDS, GLOBAL_SHORT_TAIL, getCurrentYear } from "@/lib/
 import { siteConfig } from "@/config/site";
 import { formatDate, pillarLabel, getExamContentTypeHref } from "@/lib/utils";
 import { ClipboardList, Calendar } from "lucide-react";
+import { hubFor, hubHasContent } from "@/lib/hubs/contentHubs";
 
 export const revalidate = 900;
 
 const YEAR = getCurrentYear();
+const HUB = hubFor("/results");
 
-export const metadata: Metadata = buildExamMetadata({
-  pageType: "hub",
-  title: `Results ${YEAR} — Check Exam Results for All Competitive Exams`,
-  description:
-    `Check exam result ${YEAR} for UPSC, SSC, IBPS, NEET, JEE, CBSE, UP Board, IGNOU & all exams. ` +
-    `Direct result link, cutoff marks, merit list & marksheet download.`,
-  keywords: [
-    ...CONTENT_TYPE_KEYWORDS["result"].suffixes,
-    ...GLOBAL_SHORT_TAIL.slice(0, 8),
-    `sarkari result ${YEAR}`, `board result ${YEAR}`, `entrance exam result ${YEAR}`,
-  ],
-  canonicalUrl: `${siteConfig.url}/results`,
-});
+// Empty hub → noindexed by the one rule (lib/hubs/contentHubs); reindexed
+// automatically once it renders a record.
+export async function generateMetadata(): Promise<Metadata> {
+  const hasContent = await hubHasContent(HUB);
+  return buildExamMetadata({
+    pageType: "hub",
+    title: `Results ${YEAR} — Check Exam Results for All Competitive Exams`,
+    description:
+      `Check exam result ${YEAR} for UPSC, SSC, IBPS, NEET, JEE, CBSE, UP Board, IGNOU & all exams. ` +
+      `Direct result link, cutoff marks, merit list & marksheet download.`,
+    keywords: [
+      ...CONTENT_TYPE_KEYWORDS["result"].suffixes,
+      ...GLOBAL_SHORT_TAIL.slice(0, 8),
+      `sarkari result ${YEAR}`, `board result ${YEAR}`, `entrance exam result ${YEAR}`,
+    ],
+    canonicalUrl: `${siteConfig.url}/results`,
+    noIndex: !hasContent,
+  });
+}
 
 export default async function ResultsPage() {
   const [latestPosts, exams] = await Promise.all([

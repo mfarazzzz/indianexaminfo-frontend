@@ -10,6 +10,7 @@ import { getRegionsWithRecords } from "@/services/regionService";
 import { HIGH_PRIORITY_SLUGS } from "@/lib/seo/keywords";
 import { contentTypeHasData, type HasDataView } from "@/lib/sectionRegistry";
 import { pillarToUrlSegment } from "@/lib/exam/pillarUrl";
+import { CONTENT_HUBS, resolveHubPresence } from "@/lib/hubs/contentHubs";
 import type { ContentType } from "@/types/exam";
 
 const BASE = siteConfig.url;
@@ -103,6 +104,32 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   ]);
   const now = new Date();
 
+  // ── Content-type hubs ────────────────────────────
+  // Submitted ONLY while a hub actually renders a record — the SAME one rule
+  // (lib/hubs/contentHubs) that noindexes the page and drops it from the
+  // homepage strip, menus and sidebars. An empty hub leaves the sitemap and
+  // re-enters automatically the day it gains content (mirrors the board-exam
+  // suppression precedent below). Structural dead ends are never present.
+  const hubPresence = await resolveHubPresence();
+  const hubFreq: Partial<Record<string, MetadataRoute.Sitemap[number]["changeFrequency"]>> = {
+    "/admit-card": "hourly", "/results": "hourly", "/answer-key": "hourly",
+    "/syllabus": "daily", "/date-sheet": "daily", "/previous-papers": "weekly",
+    "/study-material": "weekly", "/mock-test": "weekly",
+  };
+  const hubPriority: Record<string, number> = {
+    "/admit-card": 0.9, "/results": 0.9, "/answer-key": 0.9,
+    "/syllabus": 0.8, "/date-sheet": 0.8, "/previous-papers": 0.7,
+    "/study-material": 0.7, "/mock-test": 0.7,
+  };
+  const hubPages: MetadataRoute.Sitemap = CONTENT_HUBS
+    .filter((h) => hubPresence[h.href])
+    .map((h) => ({
+      url: `${BASE}${h.href}`,
+      lastModified: now,
+      changeFrequency: hubFreq[h.href] ?? "weekly",
+      priority: hubPriority[h.href] ?? 0.7,
+    }));
+
   // ── Static pages ─────────────────────────────────
   const staticPages: MetadataRoute.Sitemap = [
     { url: BASE,                        lastModified: now, changeFrequency: "daily",   priority: 1.0 },
@@ -115,14 +142,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // boards don't belong in the sitemap.
   // { url: `${BASE}/board-exam`, lastModified: now, changeFrequency: "daily", priority: 0.9 },
     { url: `${BASE}/blog`,              lastModified: now, changeFrequency: "daily",   priority: 0.7 },
-    { url: `${BASE}/admit-card`,        lastModified: now, changeFrequency: "hourly",  priority: 0.9 },
-    { url: `${BASE}/results`,           lastModified: now, changeFrequency: "hourly",  priority: 0.9 },
-    { url: `${BASE}/answer-key`,        lastModified: now, changeFrequency: "hourly",  priority: 0.9 },
-    { url: `${BASE}/syllabus`,          lastModified: now, changeFrequency: "daily",   priority: 0.8 },
-    { url: `${BASE}/date-sheet`,        lastModified: now, changeFrequency: "daily",   priority: 0.8 },
-    { url: `${BASE}/mock-test`,         lastModified: now, changeFrequency: "weekly",  priority: 0.7 },
-    { url: `${BASE}/previous-papers`,   lastModified: now, changeFrequency: "weekly",  priority: 0.7 },
-    { url: `${BASE}/study-material`,    lastModified: now, changeFrequency: "weekly",  priority: 0.7 },
     { url: `${BASE}/about`,             lastModified: now, changeFrequency: "monthly", priority: 0.3 },
     { url: `${BASE}/contact`,           lastModified: now, changeFrequency: "monthly", priority: 0.3 },
     { url: `${BASE}/privacy-policy`,    lastModified: now, changeFrequency: "monthly", priority: 0.3 },
@@ -264,6 +283,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   return [
     ...staticPages,
+    ...hubPages,
     ...sarkariHubPages,
     ...examPages,
     ...editionPages,

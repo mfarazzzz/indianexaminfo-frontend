@@ -7,24 +7,32 @@ import { buildExamMetadata } from "@/lib/seo/metadata";
 import { CONTENT_TYPE_KEYWORDS, GLOBAL_SHORT_TAIL, getCurrentYear } from "@/lib/seo/keywords";
 import { getExamContentTypeHref } from "@/lib/utils";
 import { siteConfig } from "@/config/site";
+import { hubFor, hubHasContent } from "@/lib/hubs/contentHubs";
 
 export const revalidate = 3600;
 
 const YEAR = getCurrentYear();
+const HUB = hubFor("/answer-key");
 
-export const metadata: Metadata = buildExamMetadata({
-  pageType: "hub",
-  title: `Answer Key ${YEAR} — Download PDF for All Competitive Exams`,
-  description:
-    `Download official answer key ${YEAR} for UPSC, SSC, IBPS, NEET, JEE & all exams. ` +
-    `Set-wise answer key PDF, objection window dates and final answer key.`,
-  keywords: [
-    ...CONTENT_TYPE_KEYWORDS["answer-key"].suffixes,
-    ...GLOBAL_SHORT_TAIL.slice(0, 6),
-    `official answer key ${YEAR}`, `provisional answer key ${YEAR}`,
-  ],
-  canonicalUrl: `${siteConfig.url}/answer-key`,
-});
+// Empty hub → noindexed by the one rule (lib/hubs/contentHubs); reindexed
+// automatically once it renders a record.
+export async function generateMetadata(): Promise<Metadata> {
+  const hasContent = await hubHasContent(HUB);
+  return buildExamMetadata({
+    pageType: "hub",
+    title: `Answer Key ${YEAR} — Download PDF for All Competitive Exams`,
+    description:
+      `Download official answer key ${YEAR} for UPSC, SSC, IBPS, NEET, JEE & all exams. ` +
+      `Set-wise answer key PDF, objection window dates and final answer key.`,
+    keywords: [
+      ...CONTENT_TYPE_KEYWORDS["answer-key"].suffixes,
+      ...GLOBAL_SHORT_TAIL.slice(0, 6),
+      `official answer key ${YEAR}`, `provisional answer key ${YEAR}`,
+    ],
+    canonicalUrl: `${siteConfig.url}/answer-key`,
+    noIndex: !hasContent,
+  });
+}
 
 export default async function AnswerKeyPage() {
   const exams = await getExamsByContentType("answer-key");
