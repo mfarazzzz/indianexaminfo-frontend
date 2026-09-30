@@ -17,6 +17,13 @@
  * (getExamsByContentType + getLatestByContentType), so "has content" here is
  * literally "the page would render at least one row" — never a number pulled
  * from a different query that could drift from what the reader sees.
+ *
+ * Presence is DATA, nothing else. There is no "this hub can never exist" flag:
+ * a hub whose content type has no backing store (date-sheet, mock-test) simply
+ * finds no rows and is therefore hidden + noindexed like any other empty hub,
+ * and it comes alive on its own the day the store is wired. The pages do NOT
+ * 404 while empty (owner decision, R2c 2026-09-30) — a planned feature's URL
+ * must not disappear, it must just stay out of the index and out of the UI.
  */
 import type { ContentType } from "@/types/exam";
 import { getExamsByContentType } from "@/services/examService";
@@ -29,30 +36,22 @@ export interface ContentHub {
   label: string;
   /** The content type this hub aggregates. */
   contentType: ContentType;
-  /**
-   * False → the hub has NO backing content store at all (date-sheet, mock-test:
-   * neither is present in CONTENT_TYPE_TO_SECTION, and the registry calls them
-   * "never real pages"). Such a hub can never be populated, so it 404s instead
-   * of noindex-ing while empty. True → the hub maps to a real section that will
-   * gain content, so it is noindexed while empty and reappears once populated.
-   */
-  populatable: boolean;
 }
 
 /**
- * The eight public content-type hubs. The two structural dead ends
- * (date-sheet, mock-test) are marked populatable:false and are removed for good
- * (404) until a real backing store exists for them.
+ * The eight public content-type hubs. Every one of them is judged the same way:
+ * does the hub's own listing have a row? date-sheet and mock-test read a store
+ * that does not exist yet, so they are empty today and therefore hidden — not 404.
  */
 export const CONTENT_HUBS: readonly ContentHub[] = [
-  { href: "/admit-card",      label: "Admit Card",      contentType: "admit-card",      populatable: true },
-  { href: "/results",         label: "Results",         contentType: "result",          populatable: true },
-  { href: "/answer-key",      label: "Answer Key",      contentType: "answer-key",      populatable: true },
-  { href: "/syllabus",        label: "Syllabus",        contentType: "syllabus",        populatable: true },
-  { href: "/previous-papers", label: "Previous Papers", contentType: "previous-papers", populatable: true },
-  { href: "/study-material",  label: "Study Material",  contentType: "study-material",  populatable: true },
-  { href: "/date-sheet",      label: "Date Sheet",      contentType: "date-sheet",      populatable: false },
-  { href: "/mock-test",       label: "Mock Test",       contentType: "mock-test",       populatable: false },
+  { href: "/admit-card",      label: "Admit Card",      contentType: "admit-card"      },
+  { href: "/results",         label: "Results",         contentType: "result"          },
+  { href: "/answer-key",      label: "Answer Key",      contentType: "answer-key"      },
+  { href: "/syllabus",        label: "Syllabus",        contentType: "syllabus"        },
+  { href: "/previous-papers", label: "Previous Papers", contentType: "previous-papers" },
+  { href: "/study-material",  label: "Study Material",  contentType: "study-material"  },
+  { href: "/date-sheet",      label: "Date Sheet",      contentType: "date-sheet"      },
+  { href: "/mock-test",       label: "Mock Test",       contentType: "mock-test"       },
 ];
 
 const HUB_BY_HREF = new Map(CONTENT_HUBS.map((h) => [h.href, h]));
@@ -73,10 +72,9 @@ export function isHubHref(href: string | null | undefined): boolean {
  * THE single presence rule. True iff this hub's own page would render at least
  * one row: an exam carrying the section (registry gate, via the same listing
  * query the page uses) OR a published content post of that type (the "Latest"
- * strip some hubs render). Structural dead ends are always empty.
+ * strip some hubs render).
  */
 export async function hubHasContent(hub: ContentHub): Promise<boolean> {
-  if (!hub.populatable) return false;
   const [exams, latest] = await Promise.all([
     getExamsByContentType(hub.contentType),
     getLatestByContentType(hub.contentType, 1),

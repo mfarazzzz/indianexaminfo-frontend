@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
 import Link from "next/link";
 import { getExamsByContentType } from "@/services/examService";
 import { Breadcrumb } from "@/components/layout/Breadcrumb";
@@ -13,11 +12,13 @@ import { hubFor, hubHasContent } from "@/lib/hubs/contentHubs";
 export const revalidate = 86400;
 
 const YEAR = getCurrentYear();
-// Date Sheet is a structural dead end: no exam section backs it (it is absent
-// from CONTENT_TYPE_TO_SECTION, and mapRow has no date-sheet store), so it can
-// never render a record. Under the one rule (lib/hubs/contentHubs) a hub with no
-// reason to exist 404s rather than sitting empty and indexable. It reappears
-// automatically the day a backing content store is added.
+// Date Sheet has no backing store yet: the content type is absent from
+// CONTENT_TYPE_TO_SECTION (no registry section reads a date-sheet module), so the
+// hub's own listing is empty today. Under the one rule (lib/hubs/contentHubs) an
+// empty hub is HIDDEN and noindexed — not 404 — because date sheets are a planned
+// board/university feature and this URL is where they will land. It becomes
+// indexable and appears in the strip, menus and sitemap by itself the day the
+// store is wired (see the R2c report in this session's log).
 const HUB = hubFor("/date-sheet");
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -33,7 +34,6 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function DateSheetPage() {
-  if (!(await hubHasContent(HUB))) notFound();
   const exams = await getExamsByContentType("date-sheet");
 
   return (
@@ -46,7 +46,9 @@ export default async function DateSheetPage() {
         Date Sheet {new Date().getFullYear()} — Exam Schedule for All Boards &amp; Universities
       </h1>
       <p className="text-sm text-gray-500 mb-5">
-        Official date sheets with PDF download for {exams.length}+ exams
+        {exams.length > 0
+          ? `Official date sheets with PDF download for ${exams.length}+ exams`
+          : "Date sheets are being added to this site. This page is not listed or indexed until the first one is published."}
       </p>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
         {exams.map((exam) => (

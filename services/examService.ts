@@ -9,8 +9,48 @@
 import { createServerClient } from "@/lib/supabase/server";
 import { cached } from "@/lib/cache";
 import { normalizeUrl } from "@/lib/utils";
-import { contentTypeHasData, type HasDataView } from "@/lib/sectionRegistry";
+import {
+  contentTypeHasData,
+  CONTENT_TYPE_TO_SECTION,
+  SECTION_BY_SLUG,
+  type HasDataView,
+} from "@/lib/sectionRegistry";
 import type { ExamEntity, Pillar, ContentType } from "@/types/exam";
+
+// ── Batched `in()` lookups ─────────────────────────────────────────────
+// PostgREST puts an `in()` list in the REQUEST URL, so a big id set is not a slow
+// query — it is a rejected one. Supabase answers "Headers Overflow Error" with a
+// RESULT ERROR (supabase-js does not throw), and the URL is ~37 bytes per uuid:
+// all 396 exam ids = 15,545 characters, over the ~16 KB header limit. Measured
+// 2026-09-30: the 396-id structured-syllabus lookup returned
+// `{ data: null, error: HeadersOverflowError }` while a 50-id slice returned rows.
+// Every caller that batches by id therefore chunks, and checks `error` instead of
+// reading `data` alone — the silently-swallowed result error is what made /syllabus
+// report 0 exams while exam_syllabus_subjects held 13.
+const IN_CHUNK_SIZE = 100;
+
+function idsInChunks(ids: string[], size: number = IN_CHUNK_SIZE): string[][] {
+  const chunks: string[][] = [];
+  for (let i = 0; i < ids.length; i += size) chunks.push(ids.slice(i, i + size));
+  return chunks;
+}
+
+/** A PostgREST builder is thenable, not a Promise — accept either shape. */
+type ThenableResult<T> = PromiseLike<{ data: T[] | null; error: { message: string } | null }>;
+
+/** One `in()` lookup split into URL-safe chunks; rows from every chunk in order. */
+async function selectInBatches<T>(
+  run: (chunk: string[]) => ThenableResult<T>,
+  ids: string[],
+): Promise<{ data: T[]; error: { message: string } | null }> {
+  const data: T[] = [];
+  for (const chunk of idsInChunks(ids)) {
+    const res = await run(chunk);
+    if (res.error) return { data, error: res.error };
+    data.push(...(res.data ?? []));
+  }
+  return { data, error: null };
+}
 
 // ── Derived status lookup ───────────────────────────────────────────────
 // Fetches derived_status from exam_derived_status VIEW for a batch of exam IDs.
@@ -31,10 +71,17 @@ async function fetchDerivedStatuses(
 ): Promise<Map<string, DerivedInfo>> {
   if (examIds.length === 0) return new Map();
   try {
-    const { data } = await supabase
-      .from("exam_derived_status")
-      .select("exam_id, derived_status, strip_eligible, has_confirmed_dates, admit_card_date, result_date")
-      .in("exam_id", examIds);
+    const { data, error } = await selectInBatches<any>(
+      (chunk) => supabase
+        .from("exam_derived_status")
+        .select("exam_id, derived_status, strip_eligible, has_confirmed_dates, admit_card_date, result_date")
+        .in("exam_id", chunk),
+      examIds,
+    );
+    // A lookup that FAILED is not a lookup that found nothing: returning an empty
+    // map here made every exam fall back to the stored edition status and showed
+    // wrong badges for days (see the 57014 / headers-overflow class of failures).
+    if (error) throw error;
     const map = new Map<string, DerivedInfo>();
     for (const row of data ?? []) {
       map.set((row as any).exam_id, {
@@ -64,20 +111,21 @@ async function applyStructuredSyllabusFlags(
   exams: ExamEntity[]
 ): Promise<ExamEntity[]> {
   if (exams.length === 0) return exams;
-  try {
-    const { data } = await supabase
+  const { data, error } = await selectInBatches<any>(
+    (chunk) => supabase
       .from("exam_syllabus_subjects")
       .select("exam_id")
-      .in("exam_id", exams.map((e) => e.id));
-    const withSyllabus = new Set<string>((data ?? []).map((r: any) => r.exam_id as string));
-    for (const e of exams) e.hasStructuredSyllabus = withSyllabus.has(e.id);
-    return exams;
-  } catch (err) {
-    // Non-fatal: leave the flag undefined (getActionLinks then withholds the
-    // syllabus link rather than risk a 404).
-    console.error("[examService] applyStructuredSyllabusFlags failed:", err);
-    return exams;
-  }
+      .in("exam_id", chunk),
+    exams.map((e) => e.id),
+  );
+  // Throws rather than leaving the flags undefined: `hasStructuredSyllabus`
+  // undefined and `false` are indistinguishable to contentTypeHasData, so a
+  // silently failed lookup reads as "this hub has no content" — the hub empties,
+  // goes noindex and the data bug is invisible. The caller logs and surfaces it.
+  if (error) throw new Error(`[examService] structured-syllabus flag lookup failed: ${error.message}`);
+  const withSyllabus = new Set<string>((data ?? []).map((r: any) => r.exam_id as string));
+  for (const e of exams) e.hasStructuredSyllabus = withSyllabus.has(e.id);
+  return exams;
 }
 
 // ── Row mapper: Supabase snake_case → camelCase ExamEntity ─────────────
@@ -214,15 +262,36 @@ const CT_TO_FLAG: Partial<Record<ContentType, keyof ExamEntity>> = {
 // status) were DROPPED in step 4. All cycle data + status now read from the
 // current edition (and status from the exam_derived_status VIEW). updated_at is
 // the real last-write timestamp.
-const LIST_SELECT = `
+//
+// Split into named pieces so the content-hub select (HUB_SELECT below) can add
+// the ONE store the presence rule reads without every other list query paying
+// for the jsonb blob.
+const LIST_SCALAR_COLUMNS = `
   id, slug, name, short_name, pillar, region, entity_type, is_featured,
   updated_at, tags, search_keywords,
-  cat:categories!category_id(slug), subcat:categories!subcategory_id(slug),
-  current_ed:exam_editions!current_edition_id(
+  cat:categories!category_id(slug), subcat:categories!subcategory_id(slug)
+`;
+
+const LIST_EDITION_COLUMNS = `
     id, year, edition_label, status, important_dates, vacancy,
     has_admit_card, has_result, has_answer_key, has_syllabus,
     has_application, has_notification, has_cutoff
-  )
+`;
+
+const LIST_SELECT = `
+  ${LIST_SCALAR_COLUMNS},
+  current_ed:exam_editions!current_edition_id(${LIST_EDITION_COLUMNS})
+`;
+
+/**
+ * The content-hub select: the list row PLUS exam_editions.content_modules — the
+ * only store the editorial presence gate (editorialHasData) reads. It is used
+ * ONLY for the small candidate set getExamsByContentType resolves, so the blob
+ * costs a handful of rows instead of all 396 published exams.
+ */
+const HUB_SELECT = `
+  ${LIST_SCALAR_COLUMNS},
+  current_ed:exam_editions!current_edition_id(${LIST_EDITION_COLUMNS}, content_modules)
 `;
 
 // ── Full exam detail select ─────────────────────────────────────────────
@@ -531,24 +600,93 @@ export async function searchExams(query: string): Promise<ExamEntity[]> {
   }
 }
 
+/**
+ * Which store a hub's content type is judged against, read from the registry
+ * (SECTION_BY_SLUG.source) — never a second copy of the mapping. Returns null for
+ * a content type with no registry section (date-sheet, mock-test): no store, so no
+ * rows, so the hub stays empty and hidden until a real section backs it.
+ */
+function hubSectionForContentType(contentType: ContentType): { slug: string; source: "column" | "editorial" | "structure" } | null {
+  const slug = CONTENT_TYPE_TO_SECTION[contentType];
+  if (!slug) return null;
+  const def = SECTION_BY_SLUG[slug];
+  return def ? { slug, source: def.source } : null;
+}
+
+/**
+ * Exams that carry real content for one content type — the list every content-hub
+ * page (/admit-card, /results, /syllabus, …) renders, and the same call the hub
+ * presence rule asks. THE decision is contentTypeHasData (the one rule the tabs,
+ * sub-page routes and sitemap use); this function only decides *which rows to look
+ * at*, so the query stays small:
+ *
+ *  • editorial sections read exam_editions.content_modules and nothing else, and
+ *    editorialHasData returns false the moment the section key is absent from the
+ *    blob — so editions that do not carry the key can be left out of the query.
+ *    That pre-filter is a provable SUPERSET: the gate still decides each row.
+ *  • every other section (the syllabus gate reads exam_syllabus_subjects) uses the
+ *    normal list select, with the structured-syllabus flag applied in one batch.
+ *
+ * Both paths load exactly what the gate needs — content_modules for editorial
+ * presence, hasStructuredSyllabus for the syllabus — which the old shared
+ * LIST_SELECT did not, the bug that made every hub report "0 exams" while the DB
+ * held admit-card content on 7 exams, results on 6 and syllabus on 13.
+ */
 export async function getExamsByContentType(contentType: ContentType): Promise<ExamEntity[]> {
-  // The parent exams.has_* flag columns were dropped (step 4). Presence is now
-  // decided solely by hasData/contentTypeHasData (the registry gate used by tabs,
-  // sitemap, and routes). Fetch all exams, then filter by real data presence —
-  // fetch-then-filter replaces the old `.eq(has_x, true)` SQL prefilter.
+  const section = hubSectionForContentType(contentType);
+  if (!section) return [];
+  return cached(
+    () => loadExamsForContentType(contentType, section),
+    ["exams", `content-type:${contentType}`],
+    { revalidate: 1800 },
+  );
+}
+
+async function loadExamsForContentType(
+  contentType: ContentType,
+  section: { slug: string; source: "column" | "editorial" | "structure" },
+): Promise<ExamEntity[]> {
   try {
     const supabase = createServerClient();
-    const { data, error } = await supabase
-      .from("exams")
-      .select(LIST_SELECT)
-      .order("is_featured", { ascending: false })
-      .order("updated_at", { ascending: false });
-    if (error) throw error;
-    const rows = data ?? [];
+
+    let rows: Record<string, unknown>[];
+    if (section.source === "editorial") {
+      // Candidate editions carrying this section key (small), then the exams whose
+      // CURRENT edition is one of them — presence is edition-current-only, the same
+      // source mapRow reads. An empty candidate list is a valid empty answer.
+      const { data: editions, error: edErr } = await supabase
+        .from("exam_editions")
+        .select("id")
+        .filter("content_modules", "cs", JSON.stringify({ [section.slug]: {} }))
+        .limit(1000);
+      if (edErr) throw edErr;
+      const editionIds = (editions ?? []).map((r: any) => r.id as string);
+      if (editionIds.length === 0) return [];
+
+      const { data, error } = await supabase
+        .from("exams")
+        .select(HUB_SELECT)
+        .in("current_edition_id", editionIds)
+        .order("is_featured", { ascending: false })
+        .order("updated_at", { ascending: false });
+      if (error) throw error;
+      rows = data ?? [];
+    } else {
+      const { data, error } = await supabase
+        .from("exams")
+        .select(LIST_SELECT)
+        .order("is_featured", { ascending: false })
+        .order("updated_at", { ascending: false });
+      if (error) throw error;
+      rows = data ?? [];
+    }
+
     const derivedMap = await fetchDerivedStatuses(supabase, rows.map((r: any) => r.id));
-    return rows
-      .map((r: any) => mapRow(r, derivedMap.get(r.id)))
-      .filter((exam) => contentTypeHasData(exam as unknown as HasDataView, contentType));
+    const exams = await applyStructuredSyllabusFlags(
+      supabase,
+      rows.map((r: any) => mapRow(r, derivedMap.get(r.id))),
+    );
+    return exams.filter((exam) => contentTypeHasData(exam as unknown as HasDataView, contentType));
   } catch (err) {
     console.error("[examService] getExamsByContentType failed:", err);
     return [];

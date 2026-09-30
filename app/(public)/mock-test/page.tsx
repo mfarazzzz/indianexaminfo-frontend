@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
 import Link from "next/link";
 import { getExamsByContentType } from "@/services/examService";
 import { Breadcrumb } from "@/components/layout/Breadcrumb";
@@ -13,11 +12,12 @@ import { hubFor, hubHasContent } from "@/lib/hubs/contentHubs";
 export const revalidate = 86400;
 
 const YEAR = getCurrentYear();
-// Mock Test is a structural dead end: it is absent from CONTENT_TYPE_TO_SECTION
-// (the registry calls it "never a real page") and no exam section backs it, so it
-// can never render a record. Under the one rule (lib/hubs/contentHubs) it 404s
-// rather than sitting empty and indexable, and reappears automatically if a real
-// backing store is ever added.
+// Mock Test has no backing store today: the content type is absent from
+// CONTENT_TYPE_TO_SECTION, no registry section reads a mock-test module, and the
+// resource library holds no mock-test rows. So the hub's listing is empty, and
+// under the one rule (lib/hubs/contentHubs) an empty hub is HIDDEN and noindexed
+// — not 404. It becomes indexable and joins the strip, menus and sitemap by
+// itself the day the store is wired (see the R2c report in this session's log).
 const HUB = hubFor("/mock-test");
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -33,7 +33,6 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function MockTestPage() {
-  if (!(await hubHasContent(HUB))) notFound();
   const exams = await getExamsByContentType("mock-test");
 
   return (
@@ -46,7 +45,9 @@ export default async function MockTestPage() {
         Mock Test {new Date().getFullYear()} — Free Practice Tests for All Competitive Exams
       </h1>
       <p className="text-sm text-gray-500 mb-5">
-        Practice free online mock tests for {exams.length}+ exams
+        {exams.length > 0
+          ? `Practice free online mock tests for ${exams.length}+ exams`
+          : "Mock tests are being added to this site. This page is not listed or indexed until the first one is published."}
       </p>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
         {exams.map((exam) => (
