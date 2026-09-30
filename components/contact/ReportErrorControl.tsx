@@ -12,7 +12,7 @@
  *
  * One-tap reasons (exactly the reader_messages.reason enum), an optional
  * note, OPTIONAL contact details to lower the barrier. Submit goes to the
- * submit-message edge function (source report_sheet) with the honeypot and
+ * submit-message edge function (source page_report) with the honeypot and
  * the fill-time; the success screen shows the IEI reference.
  *
  * Mobile-first rules from the brief: Hindi + English labels, tap targets
@@ -94,7 +94,7 @@ export function ReportErrorControl() {
       ? `${label.en} — ${note.trim()}`
       : `${label.en} (reported from this page)`;
     const res = await submitMessage({
-      source: "report_sheet",
+      source: "page_report",
       category: "report_error",
       message: message.slice(0, 2000),
       reason,

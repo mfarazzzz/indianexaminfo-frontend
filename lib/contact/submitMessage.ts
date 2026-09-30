@@ -20,7 +20,7 @@
  */
 import { env } from "@/config/env";
 
-export type MessageSource = "contact_form" | "report_sheet";
+export type MessageSource = "contact_form" | "page_report";
 
 /** Mirrors the reader_messages.category CHECK values (reader_messages.sql). */
 export type MessageCategory =
