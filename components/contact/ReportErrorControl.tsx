@@ -24,7 +24,7 @@ import {
   submitMessage,
   looksLikeEmail,
   looksLikePhone,
-  normalizePhone,
+  canonicalizePhone,
   type MessageReason,
   type SubmitResult,
 } from "@/lib/contact/submitMessage";
@@ -100,7 +100,7 @@ export function ReportErrorControl() {
       reason,
       name: name.trim() || undefined,
       email: contactKind === "email" ? contact.trim() : undefined,
-      phone: contactKind === "phone" ? normalizePhone(contact) : undefined,
+      phone: contactKind === "phone" ? canonicalizePhone(contact) ?? undefined : undefined,
       pageUrl,
       pageTitle,
       honeypot,

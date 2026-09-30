@@ -25,7 +25,7 @@ import {
   submitMessage,
   looksLikeEmail,
   looksLikePhone,
-  normalizePhone,
+  canonicalizePhone,
   type MessageCategory,
   type SubmitResult,
 } from "@/lib/contact/submitMessage";
@@ -81,7 +81,7 @@ export function ContactForm() {
       message: message.trim().slice(0, 2000),
       name: name.trim() || undefined,
       email: contactKind === "email" ? contact.trim() : undefined,
-      phone: contactKind === "phone" ? normalizePhone(contact) : undefined,
+      phone: contactKind === "phone" ? canonicalizePhone(contact) ?? undefined : undefined,
       pageUrl: pageUrl.trim() || undefined,
       pageTitle: pageTitle || undefined,
       consent: true,

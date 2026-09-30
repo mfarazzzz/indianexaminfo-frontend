@@ -69,24 +69,36 @@ export function submitMessage(input: SubmitInput): Promise<SubmitResult> {
  * problem before sending (the function remains the authority).
  */
 export const EMAIL_RE = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
-/**
- * Indian mobile (10 digits starting 6-9), optional +91/91/9/1 prefix —
- * EXACTLY the edge function's regex. Keep in lock-step with
- * supabase/functions/submit-message: the server does not strip separators,
- * so callers must normalizePhone() before validating AND before sending.
- */
-export const PHONE_RE = /^\+?9?1?[6-9][0-9]{9}$/;
 
 /**
- * Strip spaces/dashes/parentheses a reader types for readability, keeping
- * digits and a leading '+'. This is the value we both validate and send, so
- * the client's decision always matches the server's raw regex test.
+ * ONE shared phone rule, used by this client AND the submit-message edge
+ * function (supabase/functions/submit-message). Indian mobile: 10 digits
+ * starting 6-9, with an optional +91 / 91 / 0 country/trunk prefix. Separators
+ * a reader types for readability (spaces, dashes, dots, brackets) are stripped
+ * BEFORE the test.
+ *
+ * Deliberately stricter than the old /^\+?9?1?[6-9][0-9]{9}$/, which read the
+ * leading "9" as an optional country-code prefix and therefore accepted an
+ * 11-digit number such as 98765432101. Here the prefix is anchored to the exact
+ * strings +91 / 91 / 0, so 98765432101 is rejected while 09876543210 is accepted.
  */
-export function normalizePhone(v: string): string {
-  const trimmed = v.trim();
-  const leadPlus = trimmed.startsWith('+');
-  const digits = trimmed.replace(/\D/g, '');
-  return leadPlus ? `+${digits}` : digits;
+export const PHONE_RE = /^(?:\+91|91|0)?[6-9]\d{9}$/;
+
+/** Remove the separators a reader types for readability (keeps digits and +). */
+export function stripPhoneSeparators(v: string): string {
+  return v.trim().replace(/[\s\-().\[\]]/g, '');
+}
+
+/**
+ * Canonical storage form: +91 followed by the 10-digit national number. Returns
+ * null when the value is not a valid Indian mobile number. Any accepted prefix
+ * (+91 / 91 / 0 / none) is dropped and re-added as +91, so every valid spelling
+ * collapses to the same stored value.
+ */
+export function canonicalizePhone(v: string): string | null {
+  const s = stripPhoneSeparators(v);
+  if (!PHONE_RE.test(s)) return null;
+  return `+91${s.replace(/\D/g, '').slice(-10)}`;
 }
 
 export function looksLikeEmail(v: string): boolean {
@@ -94,7 +106,7 @@ export function looksLikeEmail(v: string): boolean {
 }
 
 export function looksLikePhone(v: string): boolean {
-  return PHONE_RE.test(normalizePhone(v));
+  return PHONE_RE.test(stripPhoneSeparators(v));
 }
 
 async function postSubmitMessage(input: SubmitInput): Promise<SubmitResult> {
@@ -109,7 +121,7 @@ async function postSubmitMessage(input: SubmitInput): Promise<SubmitResult> {
     reason: input.reason ?? null,
     name: input.name?.trim() ?? "",
     email: input.email?.trim().toLowerCase() ?? "",
-    phone: input.phone?.trim() ?? "",
+    phone: input.phone?.trim() ? (canonicalizePhone(input.phone) ?? input.phone.trim()) : "",
     page_url: input.pageUrl ?? "",
     page_title: input.pageTitle ?? "",
     consent: input.consent === true,
