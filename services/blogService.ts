@@ -148,12 +148,15 @@ export async function getBreakingBlogPosts(): Promise<BlogPost[]> {
 export async function getBlogPostsByAuthor(authorSlug: string): Promise<BlogPost[]> {
   try {
     const supabase = createServerClient();
-    // Look up author id by slug
-    const { data: authorData } = await supabase
+    // Look up author id by slug. maybeSingle: a non-null error is transport, NOT
+    // "author without posts" — surface it (rethrown by the catch below) so the
+    // author page never renders a fake-empty archive.
+    const { data: authorData, error: authorErr } = await supabase
       .from("blog_authors")
       .select("id")
       .eq("slug", authorSlug)
       .maybeSingle();
+    if (authorErr) throw authorErr;
 
     if (!authorData) return [];
 
@@ -166,8 +169,10 @@ export async function getBlogPostsByAuthor(authorSlug: string): Promise<BlogPost
     if (error) throw error;
     return (data ?? []).map(mapPost);
   } catch (err) {
-    console.error("[blogService] getBlogPostsByAuthor failed:", err);
-    return [];
+    // Author archives are PRIMARY content: a failed read must surface as an
+    // error/retry, never as "this author has no posts".
+    console.error(`[blogService] getBlogPostsByAuthor(${authorSlug}) failed:`, err);
+    throw err;
   }
 }
 
@@ -191,13 +196,16 @@ export async function getBlogPostsByTag(tag: string): Promise<BlogPost[]> {
 export async function getRelatedBlogPosts(postSlug: string): Promise<BlogPost[]> {
   try {
     const supabase = createServerClient();
-    // First get the post's section by slug (not id)
-    const { data: post } = await supabase
+    // First get the post's section by slug (not id). maybeSingle: transport
+    // errors throw (logged by the catch) instead of silently hiding the
+    // related-posts strip.
+    const { data: post, error: postErr } = await supabase
       .from("blog_posts")
       .select("id, section, tags")
       .eq("slug", postSlug)
       .eq("status", "published")
       .maybeSingle();
+    if (postErr) throw postErr;
 
     if (!post) return [];
 

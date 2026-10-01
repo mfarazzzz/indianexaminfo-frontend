@@ -60,14 +60,22 @@ export async function getNavigationCategories(pillar: Pillar): Promise<Navigatio
         .order("order_index");
 
       if (error) {
+        // The join failure used to be invisible — log it, then degrade to the
+        // plain query (shared nav must not hard-fail every page, but ops must
+        // see the degradation).
+        console.error(`[navigationService] getNavigationCategories(${pillar}) join failed, using fallback:`, error);
         // Fallback: query without navigation_config join
-        const { data: fallback } = await supabase
+        const { data: fallback, error: fallbackErr } = await supabase
           .from("categories")
           .select("id, slug, name, pillar, icon, order_index")
           .eq("pillar", pillar)
           .eq("is_active", true)
           .is("parent_id", null)
           .order("order_index");
+        if (fallbackErr) {
+          console.error(`[navigationService] getNavigationCategories(${pillar}) fallback ALSO failed:`, fallbackErr);
+          return [];
+        }
 
         return (fallback ?? []).map((c: any, i: number) => ({
           id: c.id,
@@ -87,13 +95,17 @@ export async function getNavigationCategories(pillar: Pillar): Promise<Navigatio
         }));
       }
 
-      // Get exam counts per category
+      // Get exam counts per category. A failed count read used to be invisible
+      // (every badge silently showed 0). Nav degrades — but with a log.
       const categoryIds = (data ?? []).map((c: any) => c.id);
-      const { data: counts } = await supabase
+      const { data: counts, error: countsErr } = await supabase
         .from("exams")
         .select("category_id")
         .in("category_id", categoryIds)
         .eq("is_published", true);
+      if (countsErr) {
+        console.error(`[navigationService] getNavigationCategories(${pillar}) exam-count read failed (badges show 0):`, countsErr);
+      }
 
       const countMap: Record<string, number> = {};
       for (const row of (counts ?? []) as any[]) {
@@ -237,15 +249,18 @@ export async function getPrebuiltNavigationCards(pillar: Pillar): Promise<Prebui
       const categories = await getNavigationCategories(pillar);
       const supabase = createServerClient();
 
-      // Batch fetch: get top 3 exams for all categories in one query
+      // Batch fetch: get top 3 exams for all categories in one query. A failed
+      // read used to be invisible — cards rendered with zero top-exams forever
+      // (1h cache). Surface it so the mega-menu degradation is at least logged.
       const categoryIds = categories.map((c) => c.id);
-      const { data: allExams } = await supabase
+      const { data: allExams, error: examsErr } = await supabase
         .from("exams")
         .select("id, slug, short_name, name, is_featured, category_id")
         .in("category_id", categoryIds)
         .eq("is_published", true)
         .order("is_featured", { ascending: false })
         .order("name");
+      if (examsErr) throw examsErr;
 
       // Group exams by category
       const examsByCategory: Record<string, { slug: string; shortName: string }[]> = {};

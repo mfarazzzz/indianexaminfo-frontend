@@ -497,13 +497,15 @@ export async function getExamsByCategory(category: string): Promise<ExamEntity[]
   return cached(async () => {
     try {
       const supabase = createServerClient();
-      // Look up category id by slug first
-      const { data: catData } = await supabase
+      // Look up category id by slug first. maybeSingle: no error on a genuine
+      // miss — a non-null error here is a real failure and must not become an
+      // empty category page (reader-critical hub).
+      const { data: catData, error: catErr } = await supabase
         .from("categories")
         .select("id")
         .eq("slug", category)
         .maybeSingle();
-
+      if (catErr) throw catErr;
       if (!catData) return [];
 
       const { data, error } = await supabase
@@ -517,8 +519,13 @@ export async function getExamsByCategory(category: string): Promise<ExamEntity[]
       const exams = rows.map((r: any) => mapRow(r, derivedMap.get(r.id)));
       return applyStructuredSyllabusFlags(supabase, exams);
     } catch (err) {
-      console.error("[examService] getExamsByCategory failed:", err);
-      return [];
+      // A category page does `if (!exams.length) notFound()`. Returning [] on a
+      // transport failure would therefore fake a 404 for a category that may
+      // exist. Genuine misses already returned [] above (`!catData`, or 0 rows
+      // under RLS success); anything reaching this catch is a real failure —
+      // log it and let it surface as a retryable error, never a fake empty.
+      console.error(`[examService] getExamsByCategory(${category}) failed:`, err);
+      throw err;
     }
   }, ["exams", `category:${category}`], { revalidate: 600 });
 }
@@ -546,13 +553,15 @@ export async function getRelatedExams(examId: string): Promise<ExamEntity[]> {
   return cached(async () => {
     try {
       const supabase = createServerClient();
-      // First get the exam to find its category
-      const { data: examData } = await supabase
+      // First get the exam to find its category. maybeSingle: a non-null error
+      // is a transport failure, not "exam missing" — surface it (logged by the
+      // catch below) instead of silently rendering "no related exams".
+      const { data: examData, error: examErr } = await supabase
         .from("exams")
         .select("category_id, pillar")
         .eq("id", examId)
         .single();
-
+      if (examErr) throw examErr;
       if (!examData) return [];
 
       const { data, error } = await supabase
@@ -953,11 +962,14 @@ export async function getTodayIST(): Promise<string> {
   return cached(async () => {
     try {
       const supabase = createServerClient();
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from("exam_derived_status")
         .select("today_ist")
         .limit(1)
         .maybeSingle();
+      // A result-error used to be invisible (data-only destructure). The local
+      // IST fallback below is honest, but ops must still see WHY the view lost.
+      if (error) console.error("[examService] getTodayIST view read returned error, using local clock:", error);
       const fromView = (data as { today_ist?: string } | null)?.today_ist;
       if (fromView) return fromView;
     } catch (err) {
@@ -997,13 +1009,22 @@ export async function getDeadlineBands(perBand = 8): Promise<DeadlineBands> {
       const in7  = addDaysISO(today, 7);    // exams-this-week window
       const ago7 = addDaysISO(today, -7);   // admit-card / results lookback
 
-      // Name + category lookup (single extra query; VIEW is not a real table so
-      // a PostgREST embed can't be relied on).
+      // Name + category lookup (VIEW is not a real table so a PostgREST embed
+      // can't be relied on). BATCHED (selectInBatches): a wide deadline window
+      // can carry many exam ids, and a single `in()` list big enough overflows
+      // the request URL (the same Headers-Overflow class that emptied the
+      // syllabus hub). Errors now surface instead of silently degrading every
+      // label to its slug.
       const ids = rows.map((r: any) => r.exam_id as string);
-      const { data: examRows } = await supabase
-        .from("exams")
-        .select("id, name, short_name, cat:categories!category_id(slug)")
-        .in("id", ids);
+      const { data: examRows, error: examRowsErr } = await selectInBatches<any>(
+        (chunk) =>
+          supabase
+            .from("exams")
+            .select("id, name, short_name, cat:categories!category_id(slug)")
+            .in("id", chunk),
+        ids,
+      );
+      if (examRowsErr) throw examRowsErr;
       const examMap = new Map<string, { name: string; short_name: string; category_slug: string | null }>();
       for (const e of examRows ?? []) {
         examMap.set((e as any).id, {
@@ -1085,43 +1106,55 @@ export type EditionSummary = {
 /**
  * Get a specific archived edition of an exam (for /exam/slug/2025 pages).
  * Returns the exam identity merged with that edition's temporal data.
+ *
+ * DECISION PATH: feeds the year route's notFound(). null therefore means
+ * "the edition genuinely does not exist" — NEVER a failed read. A transport
+ * error LOGS and THROWS (the route surfaces an error/retry; a real page is
+ * never fake-404ed because a lookup hiccuped — the hub-bug lesson).
  */
 export async function getExamArchive(slug: string, year: number): Promise<ExamEntity | null> {
-  try {
-    const supabase = createServerClient();
-    // First get the exam
-    const { data: exam } = await supabase
-      .from("exams")
-      .select("id")
-      .eq("slug", slug)
-      .maybeSingle();
-    if (!exam) return null;
-
-    // Get the specific edition
-    const { data: edition } = await supabase
-      .from("exam_editions")
-      .select("*")
-      .eq("exam_id", (exam as any).id)
-      .eq("year", year)
-      .eq("session", "main")
-      .maybeSingle();
-    if (!edition) return null;
-
-    // Fetch full exam with this edition's data overlaid
-    const { data: fullExam } = await supabase
-      .from("exams")
-      .select(`*, cat:categories!category_id(slug), subcat:categories!subcategory_id(slug)`)
-      .eq("id", (exam as any).id)
-      .single();
-    if (!fullExam) return null;
-
-    // Overlay edition data onto exam row for mapRow compatibility
-    const merged = { ...fullExam, current_ed: edition };
-    return mapRow(merged as Record<string, unknown>);
-  } catch (err) {
-    console.error("[examService] getExamArchive failed:", err);
-    return null;
+  const supabase = createServerClient();
+  // First get the exam
+  const { data: exam, error: examErr } = await supabase
+    .from("exams")
+    .select("id")
+    .eq("slug", slug)
+    .maybeSingle();
+  if (examErr) {
+    console.error(`[examService] getExamArchive(${slug}/${year}) exam lookup failed:`, examErr);
+    throw examErr;
   }
+  if (!exam) return null;
+
+  // Get the specific edition
+  const { data: edition, error: edErr } = await supabase
+    .from("exam_editions")
+    .select("*")
+    .eq("exam_id", (exam as any).id)
+    .eq("year", year)
+    .eq("session", "main")
+    .maybeSingle();
+  if (edErr) {
+    console.error(`[examService] getExamArchive(${slug}/${year}) edition lookup failed:`, edErr);
+    throw edErr;
+  }
+  if (!edition) return null;
+
+  // Fetch full exam with this edition's data overlaid
+  const { data: fullExam, error: fullErr } = await supabase
+    .from("exams")
+    .select(`*, cat:categories!category_id(slug), subcat:categories!subcategory_id(slug)`)
+    .eq("id", (exam as any).id)
+    .single();
+  if (fullErr) {
+    console.error(`[examService] getExamArchive(${slug}/${year}) identity fetch failed:`, fullErr);
+    throw fullErr;
+  }
+  if (!fullExam) return null;
+
+  // Overlay edition data onto exam row for mapRow compatibility
+  const merged = { ...fullExam, current_ed: edition };
+  return mapRow(merged as Record<string, unknown>);
 }
 
 /**
@@ -1130,11 +1163,14 @@ export async function getExamArchive(slug: string, year: number): Promise<ExamEn
 export async function getExamEditions(examSlug: string): Promise<EditionSummary[]> {
   try {
     const supabase = createServerClient();
-    const { data: exam } = await supabase
+    // maybeSingle: no error on a genuine miss; a non-null error is transport —
+    // surface it (logged by the catch) instead of faking "no previous years".
+    const { data: exam, error: examErr } = await supabase
       .from("exams")
       .select("id")
       .eq("slug", examSlug)
       .maybeSingle();
+    if (examErr) throw examErr;
     if (!exam) return [];
 
     const { data, error } = await supabase
@@ -1196,37 +1232,62 @@ function editionHasContent(ed: Record<string, unknown>): boolean {
  * content flag. Drives: the "Other Editions" tab gate, the switcher pills, the year route's
  * notFound() decision, and sitemap emission — one source so all four agree.
  */
-export async function getExamEditionsForSwitcher(examSlug: string): Promise<OtherEditionSummary[]> {
+/**
+ * STRICT switcher read — the one true query. THROWS on transport failure; an
+ * empty array means the exam genuinely has no editions, NEVER "the read blew
+ * up". Consumers that MAKE A DECISION from emptiness (the year route's
+ * notFound() gate, the tab/sitemap presence rule) must call this directly, so
+ * a hiccup surfaces as a retryable error instead of a fabricated 404 / dropped
+ * URL — the exact failure class that emptied and noindexed the syllabus hub.
+ */
+function loadSwitcherStrict(examSlug: string): Promise<OtherEditionSummary[]> {
   return cached(async () => {
-    try {
-      const supabase = createServerClient();
-      const { data: exam } = await supabase
-        .from("exams")
-        .select("id, current_edition_id")
-        .eq("slug", examSlug)
-        .maybeSingle();
-      if (!exam) return [];
-
-      const { data: rows, error } = await supabase
-        .from("exam_editions")
-        .select("id, year, edition_label, status, is_current, important_dates, vacancy, eligibility, content_modules")
-        .eq("exam_id", (exam as any).id)
-        .order("year", { ascending: false }); // sort key only — NOT a status signal
-      if (error) throw error;
-
-      const currentId = (exam as any).current_edition_id;
-      return (rows ?? []).map((r: any): OtherEditionSummary => ({
-        year: r.year,
-        editionLabel: r.edition_label,
-        status: r.status,
-        isCurrent: r.id === currentId || r.is_current === true,
-        hasContent: editionHasContent(r as Record<string, unknown>),
-      }));
-    } catch (err) {
-      console.error("[examService] getExamEditionsForSwitcher failed:", err);
-      return [];
+    const supabase = createServerClient();
+    const { data: exam, error: examErr } = await supabase
+      .from("exams")
+      .select("id, current_edition_id")
+      .eq("slug", examSlug)
+      .maybeSingle();
+    if (examErr) {
+      console.error(`[examService] edition switcher identity read failed (${examSlug}):`, examErr);
+      throw examErr;
     }
+    if (!exam) return [];
+
+    const { data: rows, error } = await supabase
+      .from("exam_editions")
+      .select("id, year, edition_label, status, is_current, important_dates, vacancy, eligibility, content_modules")
+      .eq("exam_id", (exam as any).id)
+      .order("year", { ascending: false }); // sort key only — NOT a status signal
+    if (error) {
+      console.error(`[examService] edition switcher rows read failed (${examSlug}):`, error);
+      throw error;
+    }
+
+    const currentId = (exam as any).current_edition_id;
+    return (rows ?? []).map((r: any): OtherEditionSummary => ({
+      year: r.year,
+      editionLabel: r.edition_label,
+      status: r.status,
+      isCurrent: r.id === currentId || r.is_current === true,
+      hasContent: editionHasContent(r as Record<string, unknown>),
+    }));
   }, ["exams", `editions-switcher:${examSlug}`], { revalidate: 600 });
+}
+
+/**
+ * LENIENT wrapper for DISPLAY consumers (the year-pill switcher on a main exam
+ * page): a transport hiccup logs and renders no pills — losing decorative pills
+ * is not worth taking down the whole page. DECISION consumers use
+ * loadSwitcherStrict directly.
+ */
+export async function getExamEditionsForSwitcher(examSlug: string): Promise<OtherEditionSummary[]> {
+  try {
+    return await loadSwitcherStrict(examSlug);
+  } catch (err) {
+    // loadSwitcherStrict already logged; degrade to "no pills" for the display caller.
+    return [];
+  }
 }
 
 /**
@@ -1235,7 +1296,9 @@ export async function getExamEditionsForSwitcher(examSlug: string): Promise<Othe
  * (thin/absent edition 404s). Same-shape rule as contentTypeHasData — presence, not year math.
  */
 export async function hasOtherEditions(examSlug: string): Promise<boolean> {
-  const eds = await getExamEditionsForSwitcher(examSlug);
+  // Decision consumer — uses the strict read so a failed query can never make
+  // a real "Other Editions" tab/URL disappear as a silent false-negative.
+  const eds = await loadSwitcherStrict(examSlug);
   return eds.some((e) => !e.isCurrent && e.hasContent);
 }
 
@@ -1251,7 +1314,7 @@ export async function resolveEditionYear(
   | { kind: "edition"; exam: ExamEntity; isCurrent: boolean; hasContent: boolean }
   | { kind: "notfound" }
 > {
-  const editions = await getExamEditionsForSwitcher(slug);
+  const editions = await loadSwitcherStrict(slug);
   const match = editions.find((e) => e.year === year);
   if (!match) return { kind: "notfound" };
   // A non-current edition with no content is a thin page → 404 (same rule as everything else).
