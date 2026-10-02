@@ -26,6 +26,13 @@ function gitStamp() {
   } else if (head && dirty) {
     sync = "dirty";
   }
+  // On a dirty build, name the offending files in the build log so Hostinger's
+  // log shows what dirtied the tree (the <meta name="build"> only says "dirty").
+  if (sync === "dirty" && dirty) {
+    const files = dirty.split(/\r?\n/).map((s) => s.trim()).filter(Boolean);
+    console.log(`[build-stamp] working tree DIRTY — ${files.length} uncommitted file(s) (git status --porcelain):`);
+    for (const f of files) console.log("  " + f);
+  }
   return { sha, time, sync };
 }
 
