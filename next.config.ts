@@ -45,6 +45,12 @@ const CSP = [
 ].join("; ");
 
 const nextConfig: NextConfig = {
+  // Lint is a report, not a gate. `next lint` (CI) still surfaces findings, but
+  // a lint error must never block a production deploy — a build on the deploy
+  // box failing on lint would silently keep the old site live. Type checking
+  // during the build is intentionally left ON; only ESLint is ignored here.
+  eslint: { ignoreDuringBuilds: true },
+
   // Build stamp — exposed to the client bundle so the root layout can emit a
   // <meta name="build"> tag (invisible to readers, visible in view-source).
   env: {
