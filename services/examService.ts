@@ -178,6 +178,9 @@ function mapRow(row: Record<string, unknown>, derived?: DerivedInfo): ExamEntity
     pillar,
     region: (row.region as string) ?? null,
     category: (row.category_slug as string) ?? (row as any).cat?.slug ?? "",
+    // Breadcrumb label authority — categories.name, VERBATIM (may contain "&", mixed case).
+    // Never re-derived from the URL slug (that title-casing was the "university"/"a exam" leak).
+    categoryName: (row as any).cat?.name ?? "",
     subcategory: (row.subcategory_slug as string) ?? (row as any).subcat?.slug ?? "",
     entityType: (row.entity_type as ExamEntity["entityType"]) ?? "exam",
     conductingBody: (row.conducting_body as string) ?? "",
@@ -297,7 +300,7 @@ const HUB_SELECT = `
 
 // ── Full exam detail select ─────────────────────────────────────────────
 const DETAIL_SELECT = `
-  *, cat:categories!category_id(slug), subcat:categories!subcategory_id(slug),
+  *, cat:categories!category_id(slug, name), subcat:categories!subcategory_id(slug, name),
   current_ed:exam_editions!current_edition_id(*)
 `;
 

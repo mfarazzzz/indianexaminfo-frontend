@@ -54,7 +54,8 @@ export type ExamEntity = {
   shortName: string;
   pillar: Pillar;
   region: string | null;  // state-page routing key → regions.slug (all-india = national)
-  category: string;
+  category: string;       // categories.slug — the URL routing authority for the record
+  categoryName: string;   // categories.name — the breadcrumb display label, VERBATIM (may contain "&")
   subcategory: string;
   entityType: "exam" | "board" | "university-admission" | "recruitment" | "university-exam";
   conductingBody: string;
