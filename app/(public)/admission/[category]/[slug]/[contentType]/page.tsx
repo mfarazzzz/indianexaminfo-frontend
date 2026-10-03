@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
+import { notFound, permanentRedirect } from "next/navigation";
 import { getExamBySlug, contentTypeAvailable, getExamSyllabus } from "@/services/examService";
 import { SyllabusSection } from "@/components/exam/SyllabusSection";
 import { getContentPostsByExam, getLatestByContentType } from "@/services/contentPostService";
@@ -19,6 +19,7 @@ import { contentTypeHasData } from "@/lib/sectionRegistry";
 import { isEditionYear } from "@/lib/exam/editions";
 import { buildEditionMetadata, renderEditionPage } from "@/lib/exam/editionDispatch";
 import { pillarToUrlSegment } from "@/lib/exam/pillarUrl";
+import { categoryBreadcrumbLabel, categoryMismatch } from "@/lib/exam/categoryCanonical";
 import type { ContentType } from "@/types/exam";
 import { ExternalLink, Download, Clock } from "lucide-react";
 import Link from "next/link";
@@ -44,19 +45,22 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { category, slug, contentType } = await params;
 
   // Year → edition page. Routes through the SHARED dispatch (canonical → MAIN exam URL,
-  // noindex non-current, 404-safe). Replaces the old self-canonical, no-noindex Archive
-  // metadata that this route used to emit.
+  // noindex non-current, 404-safe). The base is built from the RECORD's category, never
+  // the URL segment (S1 item 3: a wrong segment 308s to the canonical, so the edition
+  // canonical must point at the same target).
   if (isEditionYear(contentType)) {
+    const rec = await getExamBySlug(slug);
+    if (!rec || !SERVED_PILLARS.has(rec.pillar) || !rec.category) return {};
     return buildEditionMetadata({
       slug,
       year: Number(contentType),
-      absoluteBasePath: `${siteConfig.url}/admission/${category}/${slug}`,
+      absoluteBasePath: `${siteConfig.url}/admission/${rec.category}/${slug}`,
       servedPillars: SERVED_PILLARS,
     });
   }
 
   const exam = await getExamBySlug(slug);
-  if (!exam) return {};
+  if (!exam || !exam.category) return {};
   const ct = contentType as ContentType;
   const year = getCurrentYear();
   return buildExamMetadata({
@@ -64,13 +68,24 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     title: buildSEOTitle(exam.shortName, contentType, year),
     description: buildMetaDescription(exam.name, ct, "", year),
     keywords: buildPageKeywords({ pageType: "content-type", pillar: exam.pillar, examSlug: slug, contentType: ct }),
-    canonicalUrl: `${siteConfig.url}/admission/${category}/${slug}/${contentType}`,
+    canonicalUrl: `${siteConfig.url}/admission/${exam.category}/${slug}/${contentType}`,
     updatedAt: exam.lastUpdated,
   });
 }
 
 export default async function EntranceContentTypePage({ params }: Props) {
   const { category, slug, contentType } = await params;
+
+  // Category-canonical (one 308 hop): the URL segment must equal the record's category.
+  // Covers BOTH the content-type and the edition-year forms; the suffix is preserved.
+  // A category-less entrance record has no public URL (no flat /admission/<slug> route).
+  {
+    const rec = await getExamBySlug(slug);
+    if (rec && rec.pillar === "entrance-exam") {
+      if (!rec.category) notFound();
+      if (categoryMismatch(category, rec)) permanentRedirect(`/admission/${rec.category}/${slug}/${contentType}`);
+    }
+  }
 
   // Year segment → a specific edition. Now routed through the SHARED dispatch so entrance
   // renders like every other pillar (full EntityDetailPage + switcher + resource library),
@@ -79,7 +94,6 @@ export default async function EntranceContentTypePage({ params }: Props) {
   if (isEditionYear(contentType)) {
     const year = Number(contentType);
     const basePath = `/admission/${category}/${slug}`;
-    const catLabel = category.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
     return renderEditionPage({
       slug,
       year,
@@ -88,7 +102,7 @@ export default async function EntranceContentTypePage({ params }: Props) {
       servedPillars: SERVED_PILLARS,
       breadcrumbs: (exam, y) => [
         { name: "Admissions", href: "/admission" },
-        { name: catLabel, href: `/admission/${category}` },
+        { name: categoryBreadcrumbLabel(exam, category), href: `/admission/${exam.category ?? category}` },
         { name: exam.shortName, href: basePath },
         { name: String(y), href: `${basePath}/${y}` },
       ],
@@ -115,7 +129,7 @@ export default async function EntranceContentTypePage({ params }: Props) {
   const posts = await getContentPostsByExam(exam.id, contentType as ContentType, exam.slug);
   const post  = posts[0];
   const ctLabel = contentTypeLabel(contentType);
-  const catLabel = category.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+  const catLabel = categoryBreadcrumbLabel(exam, category);
   let officialHost = "";
   try { officialHost = new URL(exam.officialWebsite).hostname; } catch {}
 
@@ -126,7 +140,7 @@ export default async function EntranceContentTypePage({ params }: Props) {
       <div className="container mx-auto px-4 py-4">
         <Breadcrumb items={[
           { name: "Admissions", href: "/admission" },
-          { name: catLabel,        href: `/admission/${category}` },
+          { name: catLabel,        href: `/admission/${exam.category}` },
           { name: exam.shortName,  href: `/admission/${category}/${slug}` },
           { name: ctLabel,         href: `/admission/${category}/${slug}/${contentType}` },
         ]} />

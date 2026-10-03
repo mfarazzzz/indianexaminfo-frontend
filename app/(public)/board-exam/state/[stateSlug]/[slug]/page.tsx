@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
+import { notFound, permanentRedirect } from "next/navigation";
 import { getExamBySlug, getExamEditionsForSwitcher, getExamSlugsForPillar } from "@/services/examService";
 import { EntityDetailPage } from "@/components/exam/EntityDetailPage";
 import { buildEditionContext } from "@/lib/exam/editions";
@@ -7,6 +7,7 @@ import { buildExamMetadata } from "@/lib/seo/metadata";
 import {
   buildPageKeywords, buildMetaDescription, getCurrentYear,
 } from "@/lib/seo/keywords";
+import { categoryBreadcrumbLabel, categoryMismatch } from "@/lib/exam/categoryCanonical";
 import { siteConfig } from "@/config/site";
 
 export const revalidate = 3600;
@@ -27,15 +28,17 @@ export async function generateStaticParams() {
 type Props = { params: Promise<{ stateSlug: string; slug: string }> };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { stateSlug, slug } = await params;
+  const { slug } = await params;
   const exam = await getExamBySlug(slug);
-  if (!exam) return {};
+  // Canonical from the RECORD, never the URL. A board record with no category has no
+  // public URL at this shape (the flat /board-exam/<slug> route is its home) → no metadata.
+  if (!exam || !exam.category) return {};
   return buildExamMetadata({
     pageType: "board",
     title: exam.seoTitle ?? `${exam.shortName} ${getCurrentYear()} — Result, Date Sheet & Admit Card`,
     description: exam.seoDescription ?? buildMetaDescription(exam.name, "result", "", getCurrentYear()),
     keywords: buildPageKeywords({ pageType: "board", pillar: "board-exam", examSlug: slug }),
-    canonicalUrl: `${siteConfig.url}/board-exam/state/${stateSlug}/${slug}`,
+    canonicalUrl: `${siteConfig.url}/board-exam/state/${exam.category}/${slug}`,
     updatedAt: exam.lastUpdated,
   });
 }
@@ -45,8 +48,16 @@ export default async function StateBoardExamPage({ params }: Props) {
   const exam = await getExamBySlug(slug);
   if (!exam) notFound();
 
-  const boardLabel = stateSlug.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
-  const basePath = `/board-exam/state/${stateSlug}/${slug}`;
+  // A board record with no category has no public URL at this shape — 404, matching the
+  // owner rule (no category ⇒ no canonical state segment to route under).
+  if (!exam.category) notFound();
+  // Category-canonical (one 308 hop): the URL state segment must EQUAL the record's
+  // category. Loop-safe: the target's segment matches, so it renders 200.
+  if (categoryMismatch(stateSlug, exam)) permanentRedirect(`/board-exam/state/${exam.category}/${slug}`);
+
+  // Label from the RECORD (categories.name, verbatim) — never title-cased from the URL slug.
+  const boardLabel = categoryBreadcrumbLabel(exam, stateSlug);
+  const basePath = `/board-exam/state/${exam.category}/${slug}`;
 
   // Other-editions switcher on the MAIN page (null for ≤1 edition). Same rule as every pillar.
   const editions = await getExamEditionsForSwitcher(slug);
@@ -58,7 +69,7 @@ export default async function StateBoardExamPage({ params }: Props) {
       exam={exam}
       breadcrumbs={[
         { name: "Board Exam", href: "/board-exam" },
-        { name: boardLabel, href: `/board-exam/state/${stateSlug}` },
+        { name: boardLabel, href: `/board-exam/state/${exam.category}` },
         { name: exam.shortName, href: basePath },
       ]}
       editionContext={editionContext ?? undefined}

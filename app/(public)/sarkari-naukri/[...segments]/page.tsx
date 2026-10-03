@@ -19,6 +19,7 @@ import { getExamBySlug, getExamsByCategory, getExamEditionsForSwitcher } from "@
 import { sarkariCategoryLabel } from "@/lib/sarkari/categories";
 import { Breadcrumb } from "@/components/layout/Breadcrumb";
 import { isEditionYear, buildEditionContext } from "@/lib/exam/editions";
+import { categoryBreadcrumbLabel, categoryMismatch } from "@/lib/exam/categoryCanonical";
 import { buildEditionMetadata, renderEditionPage } from "@/lib/exam/editionDispatch";
 import { getContentPostsByExam, getLatestByContentType } from "@/services/contentPostService";
 import { EntityDetailPage } from "@/components/exam/EntityDetailPage";
@@ -98,10 +99,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   }
 
   if (segments.length === 2) {
-    // category/slug — exams table entity
-    const [category, slug] = segments;
-    const exam = await getExamBySlug(slug, category);
-    if (!exam || !SERVED_PILLARS.has(exam.pillar)) return {};
+    // category/slug — exams table entity. Canonical from the RECORD (the page 308s a wrong
+    // segment to this exact URL), never echoed from the URL.
+    const [, slug] = segments;
+    const exam = await getExamBySlug(slug);
+    if (!exam || !SERVED_PILLARS.has(exam.pillar) || !exam.category) return {};
     // Title year = current edition's year (current_edition_id), not calendar year.
     const year = exam.currentEditionYear ?? getCurrentYear();
     return buildExamMetadata({
@@ -109,38 +111,40 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       title: exam.seoTitle ?? `${exam.name} ${year} — Notification, Eligibility & Apply`,
       description: exam.seoDescription ?? buildMetaDescription(exam.name, "notification", "", year),
       keywords: buildPageKeywords({ pageType: "exam-entity", pillar: "government-exam", examSlug: slug }),
-      canonicalUrl: `${siteConfig.url}/sarkari-naukri/${category}/${slug}`,
+      canonicalUrl: `${siteConfig.url}/sarkari-naukri/${exam.category}/${slug}`,
       tags: exam.tags,
       updatedAt: exam.lastUpdated,
     });
   }
 
   if (segments.length === 3) {
-    const [category, slug, seg3] = segments;
-    const basePath = `${siteConfig.url}/sarkari-naukri/${category}/${slug}`;
+    const [, slug, seg3] = segments;
 
     // Year → a specific edition page. Shared dispatch owns the SEO rules (canonical → MAIN,
-    // noindex non-current, 404-safe). basePath here has no origin; pass the absolute form.
+    // noindex non-current, 404-safe). Canonical base from the RECORD (see the guard in the
+    // page handler — a wrong segment 308s before this metadata matters on the final URL).
     if (isEditionYear(seg3)) {
+      const rec = await getExamBySlug(slug);
+      if (!rec || !SERVED_PILLARS.has(rec.pillar) || !rec.category) return {};
       return buildEditionMetadata({
         slug,
         year: Number(seg3),
-        absoluteBasePath: basePath,
+        absoluteBasePath: `${siteConfig.url}/sarkari-naukri/${rec.category}/${slug}`,
         servedPillars: SERVED_PILLARS,
       });
     }
 
     // Otherwise → content type page
     const contentType = seg3;
-    const exam = await getExamBySlug(slug, category);
-    if (!exam || !SERVED_PILLARS.has(exam.pillar)) return {};
+    const exam = await getExamBySlug(slug);
+    if (!exam || !SERVED_PILLARS.has(exam.pillar) || !exam.category) return {};
     const year = getCurrentYear();
     return buildExamMetadata({
       pageType: "content-type",
       title: buildSEOTitle(exam.shortName, contentType, year),
       description: buildMetaDescription(exam.name, contentType as ContentType, "", year),
       keywords: buildPageKeywords({ pageType: "content-type", pillar: "government-exam", examSlug: slug, contentType: contentType as ContentType }),
-      canonicalUrl: `${siteConfig.url}/sarkari-naukri/${category}/${slug}/${contentType}`,
+      canonicalUrl: `${siteConfig.url}/sarkari-naukri/${exam.category}/${slug}/${contentType}`,
       updatedAt: exam.lastUpdated,
     });
   }
@@ -227,9 +231,12 @@ export default async function SarkariNaukriCatchAll({ params }: Props) {
   // ─── Pattern 2: category/slug — Exam entity detail ──────────────────
   if (segments.length === 2) {
     const [category, slug] = segments;
-    const exam = await getExamBySlug(slug, category);
+    // Lookup by SLUG ONLY: a WRONG category segment must get one 308 hop to the record's
+    // canonical (category-canonical rule), not a 404. A served record with NO category
+    // keeps the old fall-through (it has no public URL under /sarkari-naukri/{cat}/…).
+    const exam = await getExamBySlug(slug);
 
-    if (!exam || !SERVED_PILLARS.has(exam.pillar)) {
+    if (!exam || !SERVED_PILLARS.has(exam.pillar) || !exam.category) {
       // Maybe slug is a subcategory — show listing
       const subCategoryExams = await getExamsByCategory(slug);
       if (subCategoryExams.length > 0) {
@@ -248,8 +255,11 @@ export default async function SarkariNaukriCatchAll({ params }: Props) {
       notFound();
     }
 
-    const categoryLabel = category.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
-    const basePath = `/sarkari-naukri/${category}/${slug}`;
+    if (categoryMismatch(category, exam)) permanentRedirect(`/sarkari-naukri/${exam.category}/${slug}`);
+
+    // Label and hrefs from the RECORD (categories.name, verbatim) — never the URL segment.
+    const categoryLabel = categoryBreadcrumbLabel(exam, category);
+    const basePath = `/sarkari-naukri/${exam.category}/${slug}`;
 
     // Switcher on the MAIN page when ≥1 other edition with content exists. viewingYear = the
     // CURRENT edition's year (resolved from is_current, NOT from year order).
@@ -264,7 +274,7 @@ export default async function SarkariNaukriCatchAll({ params }: Props) {
         exam={exam}
         breadcrumbs={[
           { name: SARKARI_LABELS.root, href: "/sarkari-naukri" },
-          { name: categoryLabel, href: `/sarkari-naukri/${category}` },
+          { name: categoryLabel, href: `/sarkari-naukri/${exam.category}` },
           { name: exam.shortName, href: basePath },
         ]}
         editionContext={editionContext ?? undefined}
@@ -276,12 +286,21 @@ export default async function SarkariNaukriCatchAll({ params }: Props) {
   if (segments.length === 3) {
     const [category, slug, seg3] = segments;
 
+    // Category-canonical (one 308 hop) — covers BOTH the year and content-type forms;
+    // suffix preserved. A served record with no category has no public URL here.
+    {
+      const rec = await getExamBySlug(slug);
+      if (rec && SERVED_PILLARS.has(rec.pillar)) {
+        if (!rec.category) notFound();
+        if (categoryMismatch(category, rec)) permanentRedirect(`/sarkari-naukri/${rec.category}/${slug}/${seg3}`);
+      }
+    }
+
     // 3a. Year segment → a specific edition (see CORE INVARIANT: year is a label, not lifecycle).
     // Shared dispatch owns resolve → current-year redirect → thin-404 → render + switcher.
     if (isEditionYear(seg3)) {
       const year = Number(seg3);
       const basePath = `/sarkari-naukri/${category}/${slug}`;
-      const categoryLabel = category.replace(/-/g, " ").replace(/\b\w/g, (c: string) => c.toUpperCase());
       return renderEditionPage({
         slug,
         year,
@@ -290,7 +309,7 @@ export default async function SarkariNaukriCatchAll({ params }: Props) {
         servedPillars: SERVED_PILLARS,
         breadcrumbs: (exam, y) => [
           { name: SARKARI_LABELS.root, href: "/sarkari-naukri" },
-          { name: categoryLabel, href: `/sarkari-naukri/${category}` },
+          { name: categoryBreadcrumbLabel(exam, category), href: `/sarkari-naukri/${exam.category ?? category}` },
           { name: exam.shortName, href: basePath },
           { name: String(y), href: `${basePath}/${y}` },
         ],
@@ -299,12 +318,12 @@ export default async function SarkariNaukriCatchAll({ params }: Props) {
 
     // 3b. Otherwise → content-type page (existing behaviour).
     const contentType = seg3;
-    const exam = await getExamBySlug(slug, category);
-    if (!exam || !SERVED_PILLARS.has(exam.pillar)) notFound();
+    const exam = await getExamBySlug(slug);
+    if (!exam || !SERVED_PILLARS.has(exam.pillar) || !exam.category) notFound();
     return (
       <SarkariNaukriContentTypeView
         exam={exam}
-        category={category}
+        category={exam.category}
         slug={slug}
         contentType={contentType}
       />

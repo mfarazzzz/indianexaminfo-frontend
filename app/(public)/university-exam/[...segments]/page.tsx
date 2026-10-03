@@ -3,7 +3,7 @@
  * Handles: /university-exam/{category}/{slug} and /university-exam/{category}/{slug}/{ct}
  */
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
+import { notFound, permanentRedirect } from "next/navigation";
 import Link from "next/link";
 import { getExamBySlug, getExamsByCategory, contentTypeAvailable, getExamEditionsForSwitcher, getExamSlugsForPillar } from "@/services/examService";
 import { getContentPostsByExam } from "@/services/contentPostService";
@@ -14,6 +14,7 @@ import { siteConfig } from "@/config/site";
 import { contentTypeLabel } from "@/lib/utils";
 import { isEditionYear, buildEditionContext } from "@/lib/exam/editions";
 import { buildEditionMetadata, renderEditionPage } from "@/lib/exam/editionDispatch";
+import { categoryBreadcrumbLabel, categoryMismatch } from "@/lib/exam/categoryCanonical";
 import type { ContentType } from "@/types/exam";
 
 export const revalidate = 3600;
@@ -54,9 +55,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     return {};
   }
   if (segments.length === 2) {
-    const [category, slug] = segments;
-    const exam = await getExamBySlug(slug, category);
-    if (exam && SERVED_PILLARS.has(exam.pillar)) {
+    const [, slug] = segments;
+    // Lookup by SLUG ONLY; the canonical below comes from the RECORD's category, never the
+    // URL segment. A served record with no category has no public URL at this shape → no
+    // metadata (the page 404s it), matching the pre-fix filtered lookup that returned null.
+    const exam = await getExamBySlug(slug);
+    if (exam && SERVED_PILLARS.has(exam.pillar) && exam.category) {
       // Title year = current edition's year (current_edition_id), not the calendar year.
       const year = exam.currentEditionYear ?? getCurrentYear();
       return buildExamMetadata({
@@ -64,34 +68,35 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
         title: exam.seoTitle ?? `${exam.name} ${year} — Result, Date Sheet & Admission`,
         description: exam.seoDescription ?? buildMetaDescription(exam.name, "result", "", year),
         keywords: buildPageKeywords({ pageType: "exam-entity", pillar: "university-exam", examSlug: slug }),
-        canonicalUrl: `${siteConfig.url}/university-exam/${category}/${slug}`,
+        canonicalUrl: `${siteConfig.url}/university-exam/${exam.category}/${slug}`,
         updatedAt: exam.lastUpdated,
       });
     }
     return {};
   }
   if (segments.length === 3) {
-    const [category, slug, seg3] = segments;
+    const [, slug, seg3] = segments;
+    // Record-driven canonical for BOTH the year and content-type forms (see the page's
+    // category-canonical guard — a wrong URL segment 308s to this canonical).
+    const exam = await getExamBySlug(slug);
+    if (!exam || !SERVED_PILLARS.has(exam.pillar) || !exam.category) return {};
     // Year → edition page. Shared dispatch owns canonical → MAIN / noindex / 404-safe.
     if (isEditionYear(seg3)) {
       return buildEditionMetadata({
         slug,
         year: Number(seg3),
-        absoluteBasePath: `${siteConfig.url}/university-exam/${category}/${slug}`,
+        absoluteBasePath: `${siteConfig.url}/university-exam/${exam.category}/${slug}`,
         servedPillars: SERVED_PILLARS,
       });
     }
     const contentType = seg3;
-    const exam = await getExamBySlug(slug, category);
-    if (exam && SERVED_PILLARS.has(exam.pillar)) {
-      return buildExamMetadata({
-        pageType: "content-type",
-        title: buildSEOTitle(exam.shortName, contentType, getCurrentYear()),
-        description: buildMetaDescription(exam.name, contentType as ContentType, "", getCurrentYear()),
-        canonicalUrl: `${siteConfig.url}/university-exam/${category}/${slug}/${contentType}`,
-        updatedAt: exam.lastUpdated,
-      });
-    }
+    return buildExamMetadata({
+      pageType: "content-type",
+      title: buildSEOTitle(exam.shortName, contentType, getCurrentYear()),
+      description: buildMetaDescription(exam.name, contentType as ContentType, "", getCurrentYear()),
+      canonicalUrl: `${siteConfig.url}/university-exam/${exam.category}/${slug}/${contentType}`,
+      updatedAt: exam.lastUpdated,
+    });
   }
   return {};
 }
@@ -141,17 +146,24 @@ export default async function UniversityExamCatchAll({ params }: Props) {
   // category/slug
   if (segments.length === 2) {
     const [category, slug] = segments;
-    const exam = await getExamBySlug(slug, category);
+    const exam = await getExamBySlug(slug);
     if (exam && SERVED_PILLARS.has(exam.pillar)) {
-      const catLabel = category.replace(/-/g, " ").replace(/\b\w/g, (c: string) => c.toUpperCase());
-      const basePath = `/university-exam/${category}/${slug}`;
+      // A served record with no category has no public URL at this shape (the filtered
+      // pre-fix lookup 404ed it too) — and there is no canonical to redirect to.
+      if (!exam.category) notFound();
+      // Category-canonical (one 308 hop): the URL segment must EQUAL the record's category.
+      // Loop-safe: the target's segment matches, so it renders 200.
+      if (categoryMismatch(category, exam)) permanentRedirect(`/university-exam/${exam.category}/${slug}`);
+      // Label and hrefs from the RECORD (categories.name verbatim), never the URL segment.
+      const catLabel = categoryBreadcrumbLabel(exam, category);
+      const basePath = `/university-exam/${exam.category}/${slug}`;
       const editions = await getExamEditionsForSwitcher(slug);
       const currentEd = editions.find((e) => e.isCurrent);
       const editionContext = currentEd ? buildEditionContext(editions, currentEd.year, basePath) : null;
       return (
         <EntityDetailPage exam={exam} editionContext={editionContext ?? undefined} breadcrumbs={[
           { name: "University Exam", href: "/university-exam" },
-          { name: catLabel, href: `/university-exam/${category}` },
+          { name: catLabel, href: `/university-exam/${exam.category}` },
           { name: exam.shortName, href: basePath },
         ]} />
       );
@@ -183,11 +195,20 @@ export default async function UniversityExamCatchAll({ params }: Props) {
   if (segments.length === 3) {
     const [category, slug, seg3] = segments;
 
+    // Category-canonical (one 308 hop) — covers BOTH the year and content-type forms;
+    // the suffix is preserved. A served record with no category has no public URL here.
+    {
+      const rec = await getExamBySlug(slug);
+      if (rec && SERVED_PILLARS.has(rec.pillar)) {
+        if (!rec.category) notFound();
+        if (categoryMismatch(category, rec)) permanentRedirect(`/university-exam/${rec.category}/${slug}/${seg3}`);
+      }
+    }
+
     // Year segment → a specific edition (see CORE INVARIANT: year is a label, not lifecycle).
     if (isEditionYear(seg3)) {
       const year = Number(seg3);
       const basePath = `/university-exam/${category}/${slug}`;
-      const catLabel = category.replace(/-/g, " ").replace(/\b\w/g, (c: string) => c.toUpperCase());
       return renderEditionPage({
         slug,
         year,
@@ -196,7 +217,7 @@ export default async function UniversityExamCatchAll({ params }: Props) {
         servedPillars: SERVED_PILLARS,
         breadcrumbs: (exam, y) => [
           { name: "University Exam", href: "/university-exam" },
-          { name: catLabel, href: `/university-exam/${category}` },
+          { name: categoryBreadcrumbLabel(exam, category), href: `/university-exam/${exam.category ?? category}` },
           { name: exam.shortName, href: basePath },
           { name: String(y), href: `${basePath}/${y}` },
         ],
@@ -211,9 +232,9 @@ export default async function UniversityExamCatchAll({ params }: Props) {
     return (
       <EntityDetailPage exam={exam} contentType={contentType as ContentType} breadcrumbs={[
         { name: "University Exam", href: "/university-exam" },
-        { name: category.replace(/-/g, " ").replace(/\b\w/g, (c: string) => c.toUpperCase()), href: `/university-exam/${category}` },
-        { name: exam.shortName, href: `/university-exam/${category}/${slug}` },
-        { name: contentTypeLabel(contentType), href: `/university-exam/${category}/${slug}/${contentType}` },
+        { name: categoryBreadcrumbLabel(exam, category), href: `/university-exam/${exam.category}` },
+        { name: exam.shortName, href: `/university-exam/${exam.category}/${slug}` },
+        { name: contentTypeLabel(contentType), href: `/university-exam/${exam.category}/${slug}/${contentType}` },
       ]} />
     );
   }

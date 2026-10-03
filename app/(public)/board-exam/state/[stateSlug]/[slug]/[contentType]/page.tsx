@@ -1,6 +1,6 @@
 // Board Exam — State [stateSlug]/[slug]/[contentType] Page
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
+import { notFound, permanentRedirect } from "next/navigation";
 import Link from "next/link";
 import { getExamBySlug, contentTypeAvailable, getExamSyllabus } from "@/services/examService";
 import { getContentPostsByExam, getLatestByContentType } from "@/services/contentPostService";
@@ -17,6 +17,7 @@ import { formatDate, contentTypeLabel } from "@/lib/utils";
 import { safeHtml } from "@/lib/sanitize";
 import { isEditionYear } from "@/lib/exam/editions";
 import { buildEditionMetadata, renderEditionPage } from "@/lib/exam/editionDispatch";
+import { categoryBreadcrumbLabel, categoryMismatch } from "@/lib/exam/categoryCanonical";
 import type { ContentType } from "@/types/exam";
 import { ExternalLink, Download, Clock } from "lucide-react";
 
@@ -27,7 +28,13 @@ const SERVED_PILLARS = new Set(["board-exam"]);
 type Props = { params: Promise<{ stateSlug: string; slug: string; contentType: string }> };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { stateSlug, slug, contentType } = await params;
+  const { slug, contentType } = await params;
+
+  // Canonical comes from the RECORD, never the URL — the page 308s a wrong state segment
+  // to the record's canonical, so metadata here must match that target.
+  const exam = await getExamBySlug(slug);
+  if (!exam || !exam.category) return {};
+  const canonicalBase = `/board-exam/state/${exam.category}/${slug}`;
 
   // Year in the [contentType] slot → edition page. Shared dispatch owns canonical → MAIN /
   // noindex / 404-safe. (Same year-as-label rule as every other pillar route.)
@@ -35,13 +42,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     return buildEditionMetadata({
       slug,
       year: Number(contentType),
-      absoluteBasePath: `${siteConfig.url}/board-exam/state/${stateSlug}/${slug}`,
+      absoluteBasePath: `${siteConfig.url}${canonicalBase}`,
       servedPillars: SERVED_PILLARS,
     });
   }
 
-  const exam = await getExamBySlug(slug);
-  if (!exam) return {};
   const year = getCurrentYear();
   const ct = contentType as ContentType;
   return buildExamMetadata({
@@ -49,18 +54,28 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     title: buildSEOTitle(exam.shortName, contentType, year),
     description: buildMetaDescription(exam.name, ct, "", year),
     keywords: buildPageKeywords({ pageType: "content-type", pillar: "board-exam", examSlug: slug, contentType: ct }),
-    canonicalUrl: `${siteConfig.url}/board-exam/state/${stateSlug}/${slug}/${contentType}`,
+    canonicalUrl: `${siteConfig.url}${canonicalBase}/${contentType}`,
   });
 }
 
 export default async function StateBoardContentTypePage({ params }: Props) {
   const { stateSlug, slug, contentType } = await params;
 
+  // Category-canonical (one 308 hop): the URL state segment must equal the record's
+  // category. Covers BOTH the content-type and the edition-year forms; suffix preserved.
+  // A board record with no category has no public URL at this shape → 404.
+  {
+    const rec = await getExamBySlug(slug);
+    if (rec && SERVED_PILLARS.has(rec.pillar)) {
+      if (!rec.category) notFound();
+      if (categoryMismatch(stateSlug, rec)) permanentRedirect(`/board-exam/state/${rec.category}/${slug}/${contentType}`);
+    }
+  }
+
   // Year segment → a specific edition (see CORE INVARIANT: year is a label, not lifecycle).
   if (isEditionYear(contentType)) {
     const year = Number(contentType);
     const basePath = `/board-exam/state/${stateSlug}/${slug}`;
-    const boardLabel = stateSlug.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
     return renderEditionPage({
       slug,
       year,
@@ -69,7 +84,7 @@ export default async function StateBoardContentTypePage({ params }: Props) {
       servedPillars: SERVED_PILLARS,
       breadcrumbs: (exam, y) => [
         { name: "Board Exam", href: "/board-exam" },
-        { name: boardLabel, href: `/board-exam/state/${stateSlug}` },
+        { name: categoryBreadcrumbLabel(exam, stateSlug), href: `/board-exam/state/${exam.category ?? stateSlug}` },
         { name: exam.shortName, href: basePath },
         { name: String(y), href: `${basePath}/${y}` },
       ],
@@ -91,7 +106,8 @@ export default async function StateBoardContentTypePage({ params }: Props) {
   const posts  = await getContentPostsByExam(exam.id, contentType as ContentType, exam.slug);
   const post   = posts[0];
   const ctLabel   = contentTypeLabel(contentType);
-  const boardLabel = stateSlug.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+  // Label from the RECORD (categories.name, verbatim) — never title-cased from the URL slug.
+  const boardLabel = categoryBreadcrumbLabel(exam, stateSlug);
   let officialHost = "";
   try { officialHost = new URL(exam.officialWebsite).hostname; } catch {}
 
@@ -102,9 +118,9 @@ export default async function StateBoardContentTypePage({ params }: Props) {
       <div className="container mx-auto px-4 py-4">
         <Breadcrumb items={[
           { name: "Board Exam",  href: "/board-exam" },
-          { name: boardLabel,   href: `/board-exam/state/${stateSlug}` },
-          { name: exam.shortName, href: `/board-exam/state/${stateSlug}/${slug}` },
-          { name: ctLabel,       href: `/board-exam/state/${stateSlug}/${slug}/${contentType}` },
+          { name: boardLabel,   href: `/board-exam/state/${exam.category}` },
+          { name: exam.shortName, href: `/board-exam/state/${exam.category}/${slug}` },
+          { name: ctLabel,       href: `/board-exam/state/${exam.category}/${slug}/${contentType}` },
         ]} />
 
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-6 mt-4">

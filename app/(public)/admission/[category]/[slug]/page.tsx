@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
+import { notFound, permanentRedirect } from "next/navigation";
 import { getExamBySlug, getExamEditionsForSwitcher, getExamSlugsForPillar } from "@/services/examService";
 import { EntityDetailPage } from "@/components/exam/EntityDetailPage";
 import { buildEditionContext } from "@/lib/exam/editions";
 import { buildExamMetadata } from "@/lib/seo/metadata";
 import { buildPageKeywords, buildMetaDescription, getCurrentYear } from "@/lib/seo/keywords";
+import { categoryBreadcrumbLabel, categoryMismatch } from "@/lib/exam/categoryCanonical";
 import { siteConfig } from "@/config/site";
 
 export const revalidate = 600; // 10 min — ensures new exams appear quickly
@@ -25,16 +26,19 @@ export async function generateStaticParams() {
 type Props = { params: Promise<{ category: string; slug: string }> };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { category, slug } = await params;
+  const { slug } = await params;
   const exam = await getExamBySlug(slug);
-  if (!exam) return {};
+  // Canonical comes from the RECORD, never the URL. A category-less (or off-pillar)
+  // record has no indexable public URL on this route → emit no metadata (the page
+  // handler 404s it).
+  if (!exam || exam.pillar !== "entrance-exam" || !exam.category) return {};
   const year = getCurrentYear();
   return buildExamMetadata({
     pageType: "exam-entity",
     title: exam.seoTitle ?? `${exam.name} ${year} — Notification, Eligibility & Apply`,
     description: exam.seoDescription ?? buildMetaDescription(exam.name, "notification", "", year),
     keywords: buildPageKeywords({ pageType: "exam-entity", pillar: exam.pillar, examSlug: slug }),
-    canonicalUrl: `${siteConfig.url}/admission/${category}/${slug}`,
+    canonicalUrl: `${siteConfig.url}/admission/${exam.category}/${slug}`,
     tags: exam.tags,
     updatedAt: exam.lastUpdated,
   });
@@ -46,8 +50,17 @@ export default async function EntranceExamEntityPage({ params }: Props) {
 
   if (!exam || exam.pillar !== "entrance-exam") notFound();
 
-  const categoryLabel = category.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
-  const basePath = `/admission/${category}/${slug}`;
+  // A record with no category has no public URL on this pillar — there is no flat
+  // /admission/<slug> route — so 404 rather than render at whatever segment was typed.
+  if (!exam.category) notFound();
+  // The URL category segment must EQUAL the record's category. When it does not, one
+  // permanent (308) hop to the canonical /admission/<recordCategory>/<slug>. Loop-safe:
+  // the target's segment now matches, so it renders 200.
+  if (categoryMismatch(category, exam)) permanentRedirect(`/admission/${exam.category}/${slug}`);
+
+  // Label from the RECORD (categories.name, verbatim) — never title-cased from the slug.
+  const categoryLabel = categoryBreadcrumbLabel(exam, category);
+  const basePath = `/admission/${exam.category}/${slug}`;
 
   // Other-editions switcher on the MAIN page when >1 pillable edition exists. viewingYear =
   // the CURRENT edition's year (from is_current, NOT year order). buildEditionContext returns
@@ -61,7 +74,7 @@ export default async function EntranceExamEntityPage({ params }: Props) {
       exam={exam}
       breadcrumbs={[
         { name: "Admissions", href: "/admission" },
-        { name: categoryLabel, href: `/admission/${category}` },
+        { name: categoryLabel, href: `/admission/${exam.category}` },
         { name: exam.shortName, href: basePath },
       ]}
       editionContext={editionContext ?? undefined}

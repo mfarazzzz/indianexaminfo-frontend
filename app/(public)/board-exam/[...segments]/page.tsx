@@ -19,7 +19,8 @@ import { buildPageKeywords, buildMetaDescription, getCurrentYear } from "@/lib/s
 import { siteConfig } from "@/config/site";
 import { contentTypeLabel } from "@/lib/utils";
 import { isEditionYear, buildEditionContext } from "@/lib/exam/editions";
-import { buildEditionMetadata, renderEditionPage } from "@/lib/exam/editionDispatch";
+import { renderEditionPage } from "@/lib/exam/editionDispatch";
+import { categoryBreadcrumbLabel } from "@/lib/exam/categoryCanonical";
 import type { ContentType } from "@/types/exam";
 
 export const revalidate = 3600;
@@ -39,11 +40,17 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     if (exam && SERVED_PILLARS.has(exam.pillar)) {
       // Title year = current edition's year (current_edition_id), not the calendar year.
       const year = exam.currentEditionYear ?? getCurrentYear();
+      // Canonical from the RECORD. The category form of this URL is /board-exam/state/{cat}
+      // /{slug} (the bare /board-exam/{cat}/{slug} 308s there); a record with no category
+      // keeps its current flat home. Never echo a URL segment into the canonical.
+      const canonicalUrl = exam.category
+        ? `${siteConfig.url}/board-exam/state/${exam.category}/${slug}`
+        : `${siteConfig.url}/board-exam/${slug}`;
       return buildExamMetadata({
         pageType: "exam-entity",
         title: exam.seoTitle ?? `${exam.name} ${year}`,
         description: exam.seoDescription ?? buildMetaDescription(exam.name, "result", "", year),
-        canonicalUrl: `${siteConfig.url}/board-exam/${exam.category}/${slug}`,
+        canonicalUrl,
         updatedAt: exam.lastUpdated,
       });
     }
@@ -59,17 +66,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   }
 
   if (segments.length === 3) {
-    const [category, slug, seg3] = segments;
-    // Year → edition page. Shared dispatch owns canonical → MAIN / noindex / 404-safe.
-    if (isEditionYear(seg3)) {
-      return buildEditionMetadata({
-        slug,
-        year: Number(seg3),
-        absoluteBasePath: `${siteConfig.url}/board-exam/${category}/${slug}`,
-        servedPillars: SERVED_PILLARS,
-      });
-    }
-    // Non-year third segment = content-type → redirecting URL → no metadata.
+    // Both year and content-type forms of the bare catch-all are redirecting shapes now
+    // (they 308 to the state canonical — see the page handler), so they emit no metadata.
     return {};
   }
 
@@ -128,9 +126,13 @@ export default async function BoardExamCatchAll({ params }: Props) {
   // below are preserved (only real served entities redirect).
   if (segments.length === 2) {
     const [category, slug] = segments;
-    const exam = await getExamBySlug(slug, category);
-    if (exam && SERVED_PILLARS.has(exam.pillar)) {
-      permanentRedirect(`/board-exam/state/${category}/${slug}`);
+    // Look up by SLUG ONLY and redirect to the RECORD's canonical — a WRONG category
+    // segment previously fell through to a 404; the owner rule is one 308 hop to
+    // /board-exam/state/{record.category}/{slug} instead. A served record with no category
+    // has no state canonical → keep the old fall-through (listing / 404).
+    const exam = await getExamBySlug(slug);
+    if (exam && SERVED_PILLARS.has(exam.pillar) && exam.category) {
+      permanentRedirect(`/board-exam/state/${exam.category}/${slug}`);
     }
     // Try slug as subcategory
     const subExams = await getExamsByCategory(slug);
@@ -158,11 +160,18 @@ export default async function BoardExamCatchAll({ params }: Props) {
   if (segments.length === 3) {
     const [category, slug, seg3] = segments;
 
-    // Year segment → a specific edition (see CORE INVARIANT: year is a label, not lifecycle).
+    // Year segment → redirect to the EDITION page on the state canonical (one 308 hop,
+    // record-driven target — the URL category may be wrong). The state [contentType]
+    // route handles the year form with the shared dispatch.
     if (isEditionYear(seg3)) {
+      const rec = await getExamBySlug(slug);
+      if (rec && SERVED_PILLARS.has(rec.pillar)) {
+        if (!rec.category) notFound();
+        permanentRedirect(`/board-exam/state/${rec.category}/${slug}/${seg3}`);
+      }
+      // Not a served record — fall through to the old render path (404s via dispatch).
       const year = Number(seg3);
       const basePath = `/board-exam/${category}/${slug}`;
-      const catLabel = category.replace(/-/g, " ").replace(/\b\w/g, (c: string) => c.toUpperCase());
       return renderEditionPage({
         slug,
         year,
@@ -171,7 +180,7 @@ export default async function BoardExamCatchAll({ params }: Props) {
         servedPillars: SERVED_PILLARS,
         breadcrumbs: (exam, y) => [
           { name: "Board Exam", href: "/board-exam" },
-          { name: catLabel, href: `/board-exam/${category}` },
+          { name: categoryBreadcrumbLabel(exam, category), href: `/board-exam/${exam.category ?? category}` },
           { name: exam.shortName, href: basePath },
           { name: String(y), href: `${basePath}/${y}` },
         ],
@@ -179,15 +188,17 @@ export default async function BoardExamCatchAll({ params }: Props) {
     }
 
     // Non-year third segment = content-type → CANONICAL is
-    // /board-exam/state/{category}/{slug}/{contentType}. Permanently redirect the bare
-    // catch-all form there. Preserve the existence + content-availability guard so an
-    // absent exam or empty content type still 404s (matching the canonical route) rather
-    // than redirecting into a page that would 404 anyway. Loop-safe: distinct state route.
+    // /board-exam/state/{record.category}/{slug}/{contentType}. Permanently redirect the
+    // bare catch-all form there — from the RECORD's category, so a WRONG segment also
+    // gets the 308 (was a 404 via the filtered lookup). Preserve the existence +
+    // content-availability guard so an absent exam or empty content type still 404s
+    // (matching the canonical route) rather than redirecting into a page that would 404
+    // anyway. Loop-safe: distinct state route.
     const contentType = seg3;
-    const exam = await getExamBySlug(slug, category);
-    if (!exam || !SERVED_PILLARS.has(exam.pillar)) notFound();
+    const exam = await getExamBySlug(slug);
+    if (!exam || !SERVED_PILLARS.has(exam.pillar) || !exam.category) notFound();
     if (!(await contentTypeAvailable(exam, contentType))) notFound();
-    permanentRedirect(`/board-exam/state/${category}/${slug}/${contentType}`);
+    permanentRedirect(`/board-exam/state/${exam.category}/${slug}/${contentType}`);
   }
 
   // Pattern 4: category/slug/contentType — same as 3 but accessed differently

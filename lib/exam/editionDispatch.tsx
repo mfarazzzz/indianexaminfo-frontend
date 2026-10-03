@@ -63,6 +63,10 @@ export interface ExamForCrumbs {
   name: string;
   shortName: string;
   pillar: string;
+  // Category authority for the breadcrumb (record-driven, never the URL). ExamEntity
+  // satisfies this; the year-branch builders read the RECORD's category, not the slug.
+  category: string;
+  categoryName?: string;
 }
 
 /**
