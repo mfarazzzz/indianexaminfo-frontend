@@ -38,10 +38,39 @@ function readEnv(key: string): string {
   return val;
 }
 
+/**
+ * readIntEnv — parse a non-negative integer build/runtime knob.
+ *
+ * Unset/blank falls back to the default. A non-integer or negative value is
+ * warned about (never thrown — same build-safety rule as readEnv) and falls
+ * back to the default. `0` is a legal, meaningful value (means "none").
+ */
+function readIntEnv(key: string, fallback: number): number {
+  const raw = process.env[key];
+  if (raw === undefined || raw.trim() === "") return fallback;
+  const n = Number.parseInt(raw, 10);
+  if (!Number.isFinite(n) || n < 0) {
+    console.warn(
+      `[IndianExamInfo] Warning: environment variable "${key}"="${raw}" is not a non-negative integer; using ${fallback}.`,
+    );
+    return fallback;
+  }
+  return n;
+}
+
 export const env = {
   SUPABASE_URL:      readEnv("NEXT_PUBLIC_SUPABASE_URL"),
   SUPABASE_ANON_KEY: readEnv("NEXT_PUBLIC_SUPABASE_ANON_KEY"),
   REVALIDATE_TOKEN:  process.env.REVALIDATE_TOKEN ?? "",   // server-only
   GA_ID:             process.env.NEXT_PUBLIC_GA_ID ?? "",
   GSC_VERIFY:        process.env.NEXT_PUBLIC_GSC_VERIFY ?? "",
+  /**
+   * BUILD_PRERENDER_LIMIT — how many records each dynamic route prerenders at
+   * build time (the deliberate "hot set"). Everything else is generated on
+   * first request and cached by ISR (dynamicParams stays true). Server-only:
+   * read at build, never shipped to the client. Default 20; 0 = prerender none
+   * (fully on-demand). Lowering this is the primary lever against build-time
+   * request stampedes against Supabase.
+   */
+  BUILD_PRERENDER_LIMIT: readIntEnv("BUILD_PRERENDER_LIMIT", 20),
 } as const;

@@ -224,6 +224,13 @@ const nextConfig: NextConfig = {
 
   experimental: {
     optimizePackageImports: ["@radix-ui", "lucide-react", "date-fns"],
+    // Cap build parallelism so static generation stops firing a flood of
+    // simultaneous Supabase reads (the stampede behind the Cloudflare 522/525
+    // build failures). Both keys verified present in the installed Next 15.3.3
+    // ExperimentalConfig (config-shared.d.ts): `cpus` limits worker count,
+    // `staticGenerationMaxConcurrency` is "pages to export per worker".
+    cpus: 2,
+    staticGenerationMaxConcurrency: 4,
   },
 
   // Turbopack for faster dev builds (Next.js 15)

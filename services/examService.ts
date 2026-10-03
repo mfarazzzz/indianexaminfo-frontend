@@ -8,6 +8,7 @@
 
 import { createServerClient } from "@/lib/supabase/server";
 import { cached } from "@/lib/cache";
+import { env } from "@/config/env";
 import { normalizeUrl } from "@/lib/utils";
 import {
   contentTypeHasData,
@@ -733,12 +734,21 @@ export async function getExamsByStatus(status: string): Promise<ExamEntity[]> {
 export async function getExamSlugsForPillar(
   pillar: Pillar
 ): Promise<{ slug: string; category: string | null }[]> {
+  // Prerender only the top-N most-recently-updated PUBLISHED exams for this
+  // pillar. The long tail generates on demand (dynamicParams=true + the route's
+  // revalidate). Capping here is what stops the build fetching a page per exam
+  // across every pillar — the stampede behind the Hostinger 522/525 failures.
+  const limit = env.BUILD_PRERENDER_LIMIT;
+  if (limit <= 0) return [];
   try {
     const supabase = createServerClient();
     const { data, error } = await supabase
       .from("exams")
       .select("slug, cat:categories!category_id(slug)")
-      .eq("pillar", pillar);
+      .eq("pillar", pillar)
+      .eq("is_published", true)
+      .order("updated_at", { ascending: false })
+      .limit(limit);
     if (error) throw error;
     return (data ?? [])
       .map((r: any) => ({

@@ -1,5 +1,6 @@
 import { createClient } from "@supabase/supabase-js";
 import { env } from "@/config/env";
+import { fetchWithRetry } from "./fetchWithRetry";
 
 /**
  * createServerClient — returns a Supabase client for server-side use.
@@ -18,5 +19,9 @@ export function createServerClient() {
 
   return createClient(url, key, {
     auth: { persistSession: false },
+    // Route every read through a retry-aware fetch: transient Cloudflare 5xx
+    // (522/525 …) on the Supabase edge are retried for GET/HEAD only, so one
+    // blip no longer aborts a whole page's prerender. See fetchWithRetry.ts.
+    global: { fetch: fetchWithRetry },
   });
 }

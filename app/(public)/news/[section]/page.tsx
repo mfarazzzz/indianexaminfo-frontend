@@ -11,6 +11,7 @@ import { siteConfig } from "@/config/site";
 import { formatDate } from "@/lib/utils";
 import { safeHtml } from "@/lib/sanitize";
 import type { BlogSection, BlogPost } from "@/types/blog";
+import { capPrerender } from "@/lib/build/prerender";
 import { Clock } from "lucide-react";
 
 export const revalidate = 1800;
@@ -75,7 +76,9 @@ const sectionMeta: Record<string, { label: string; description: string; blogSect
 type Props = { params: Promise<{ section: string }> };
 
 export async function generateStaticParams() {
-  return Object.keys(sectionMeta).map((s) => ({ section: s }));
+  // Sections are a small fixed set; cap keeps the count under one knob and lets
+  // BUILD_PRERENDER_LIMIT=0 prerender none. dynamicParams stays true.
+  return capPrerender(Object.keys(sectionMeta).map((s) => ({ section: s })));
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {

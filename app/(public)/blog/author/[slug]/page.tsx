@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { getBlogPostsByAuthor } from "@/services/blogService";
 import { authors } from "@/data/authors";
+import { capPrerender } from "@/lib/build/prerender";
 import { Breadcrumb } from "@/components/layout/Breadcrumb";
 import { buildExamMetadata } from "@/lib/seo/metadata";
 import { GLOBAL_SHORT_TAIL } from "@/lib/seo/keywords";
@@ -15,7 +16,10 @@ export const revalidate = 86400;
 type Props = { params: Promise<{ slug: string }> };
 
 export async function generateStaticParams() {
-  return authors.map((a) => ({ slug: a.slug }));
+  // Cap to the deliberate build set (default all authors, fewer under a lower
+  // BUILD_PRERENDER_LIMIT, none at 0). dynamicParams stays true, so any author
+  // not prerendered is generated on first request and cached by ISR.
+  return capPrerender(authors.map((a) => ({ slug: a.slug })));
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {

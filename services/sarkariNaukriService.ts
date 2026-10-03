@@ -6,6 +6,7 @@
 
 import { createServerClient } from "@/lib/supabase/server";
 import { cached } from "@/lib/cache";
+import { env } from "@/config/env";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -337,12 +338,20 @@ export async function getCategoryList(): Promise<{ category: string; count: numb
 }
 
 export async function generateStaticSarkariNaukriParams(): Promise<{ slug: string }[]> {
+  // Prerender only the top-N most-recently-updated published records (the
+  // deliberate "hot set"). The long tail is generated on demand via
+  // dynamicParams=true + this route's revalidate — that keeps the build from
+  // stampeding Supabase with a read-per-page across every record.
+  const limit = env.BUILD_PRERENDER_LIMIT;
+  if (limit <= 0) return [];
   try {
     const supabase = createServerClient();
     const { data, error } = await supabase
       .from("sarkari_naukri")
       .select("slug")
-      .eq("workflow_status", "published");
+      .eq("workflow_status", "published")
+      .order("updated_at", { ascending: false })
+      .limit(limit);
     if (error) throw error;
     return (data ?? []).map((r: any) => ({ slug: r.slug as string }));
   } catch (err) {
