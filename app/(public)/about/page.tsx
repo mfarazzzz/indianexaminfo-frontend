@@ -13,7 +13,7 @@ export async function generateMetadata(): Promise<Metadata> {
   return buildExamMetadata({
     pageType: "static",
     title: page?.metaTitle ?? "About IndianExamInfo — India's Most Trusted Exam Portal",
-    description: page?.metaDescription ?? "Learn about IndianExamInfo, India's most trusted exam information portal. Our mission, team, editorial policy and how we help millions of students.",
+    description: page?.metaDescription ?? "Learn about IndianExamInfo, India's most trusted exam information portal. Our mission, team and editorial policy.",
     keywords: ["about indianexaminfo", "exam information portal india", ...GLOBAL_SHORT_TAIL.slice(0, 4)],
     canonicalUrl: `${siteConfig.url}/about`,
   });
@@ -40,7 +40,7 @@ export default async function AboutPage() {
           <section>
             <h2 className="font-heading font-bold text-lg text-gray-900 mb-2">Who We Are</h2>
             <p>
-              IndianExamInfo is India&apos;s most trusted exam information portal, helping millions of students
+              IndianExamInfo is India&apos;s most trusted exam information portal, helping students
               stay updated on government jobs, entrance exams, board results and university information.
               We are operated by {siteConfig.organization.name}, based in New Delhi.
             </p>
