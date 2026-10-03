@@ -23,7 +23,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ChevronLeft } from "lucide-react";
-import { statusColor } from "@/lib/utils";
+import { statusColor, statusLabel } from "@/lib/utils";
 
 interface Props {
   shortName: string;
@@ -90,7 +90,7 @@ export function StickyContextBar({ shortName, status }: Props) {
         </span>
 
         <span className={`shrink-0 status-badge ${statusColor(status)}`}>
-          {status.replace(/-/g, " ")}
+          {statusLabel(status)}
         </span>
       </div>
     </div>

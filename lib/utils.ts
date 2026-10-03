@@ -166,6 +166,40 @@ export function statusColor(status: string): string {
   return colors[status] ?? "text-muted bg-gray-100";
 }
 
+/**
+ * The ONE reader-facing display label per lifecycle status. The status badge in
+ * EntityDetailPage and StickyContextBar used to print the raw enum ("notified",
+ * or "admit-card-out" → "admit card out"). All badge text now comes from here so
+ * an internal enum value can never leak to a reader and the label is consistent
+ * across every surface. Every ExamStatus is covered; unknown values are
+ * title-cased defensively rather than shown in raw kebab/snake form.
+ */
+export const STATUS_LABELS: Record<string, string> = {
+  upcoming:               "Upcoming",
+  active:                 "Open Now",
+  "registration-open":    "Applications Open",
+  "registration-closed":  "Applications Closed",
+  "result-awaited":       "Result Awaited",
+  "result-declared":      "Result Declared",
+  completed:              "Completed",
+  ongoing:                "Ongoing",
+  notified:               "Notified",
+  "admit-card-out":       "Admit Card Out",
+  "dates-awaited":        "Dates Awaited",
+  postponed:              "Postponed",
+  cancelled:              "Cancelled",
+};
+
+export function statusLabel(status: string): string {
+  const known = STATUS_LABELS[status];
+  if (known) return known;
+  // Defensive fallback: never expose a raw kebab/snake enum to a reader.
+  return status
+    .replace(/[_-]+/g, " ")
+    .trim()
+    .replace(/\b\w/g, (c) => c.toUpperCase());
+}
+
 export function absoluteUrl(path: string, base = "https://www.indianexaminfo.com"): string {
   return `${base}${path}`;
 }

@@ -18,8 +18,14 @@ import {
 import {
   formatDate,
   statusColor,
+  statusLabel,
   contentTypeLabel,
 } from "@/lib/utils";
+import {
+  getExamVerification,
+  shouldShowListWidget,
+  UNVERIFIED_EXAM_NOTICE,
+} from "@/lib/exam/detailView";
 import { contentTypeHasData, hasData, mainSectionsForPillar, CONTENT_TYPE_TO_SECTION, type HasDataView, type Pillar } from "@/lib/sectionRegistry";
 import { getLeadBlock, type LeadBlock as LeadBlockData } from "@/lib/exam/actionLinks";
 import { pillarToUrlSegment } from "@/lib/exam/pillarUrl";
@@ -424,7 +430,7 @@ export async function EntityDetailPage({ exam, breadcrumbs, contentType, edition
             {/* Status + Last Updated */}
             <div className="flex items-center gap-3 mb-2 text-sm">
               <span className={`status-badge ${statusColor(exam.status)}`}>
-                {exam.status.replace(/-/g, " ")}
+                {statusLabel(exam.status)}
               </span>
               <span className="text-gray-400 text-xs">
                 Last Updated: {formatDate(exam.lastUpdated)}
@@ -580,14 +586,17 @@ export async function EntityDetailPage({ exam, breadcrumbs, contentType, edition
                   <span className="font-medium text-gray-600">Last Updated:</span>{" "}
                   {formatDate(exam.lastUpdated)}
                 </p>
-                <p>
-                  <span className="font-medium text-gray-600">Verified by:</span>{" "}
-                  IndianExamInfo Editorial Team
-                </p>
-                <p className="text-gray-400 mt-1">
-                  Information compiled from official notifications and verified by our editorial team.
-                  Always confirm details from the official website before applying.
-                </p>
+                {(() => {
+                  const v = getExamVerification(exam);
+                  return v.kind === "verified" ? (
+                    <p>
+                      <span className="font-medium text-gray-600">Verified by:</span>{" "}
+                      {v.name} on {formatDate(v.date)}
+                    </p>
+                  ) : (
+                    <p className="text-gray-400 mt-1">{UNVERIFIED_EXAM_NOTICE}</p>
+                  );
+                })()}
               </div>
             </section>
           </main>
@@ -630,7 +639,8 @@ export async function EntityDetailPage({ exam, breadcrumbs, contentType, edition
             </div>
             )}
 
-            {/* Tags */}
+            {/* Tags — hide the whole panel when there are none (H2) */}
+            {shouldShowListWidget(exam.tags) && (
             <div className="bg-card border border-border rounded p-4">
               <h2 className="font-heading font-semibold text-sm text-gray-800 mb-3 uppercase tracking-wide">
                 Tags
@@ -643,6 +653,7 @@ export async function EntityDetailPage({ exam, breadcrumbs, contentType, edition
                 ))}
               </div>
             </div>
+            )}
 
             <AdSlot position="article-sidebar-2" size="300x250" />
           </aside>

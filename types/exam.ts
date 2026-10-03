@@ -61,6 +61,18 @@ export type ExamEntity = {
   officialWebsite: string;
   status: ExamStatus;
 
+  /**
+   * Editor verification — populated ONLY when a human has compared this record
+   * against the official notification. These are NOT columns on the
+   * exams / admission / board / university tables today (only sarkari_naukri has
+   * verified_at), so they are undefined for every exam record and the detail page
+   * always renders the honest "not yet verified" line. Kept optional so the same
+   * rule (lib/exam/detailView.getExamVerification) lights up automatically if the
+   * columns are ever added — no component change required.
+   */
+  verifiedAt?: string | null;
+  verifiedBy?: string | null;
+
   /** Year LABEL of the current edition (from current_edition_id → exam_editions.year).
    *  This is the year the MAIN exam page represents — used for the title/H1 year so it
    *  reflects the current cycle, NOT the calendar year (getCurrentYear). A label, never a
