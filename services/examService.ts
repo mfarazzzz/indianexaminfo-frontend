@@ -130,7 +130,10 @@ async function applyStructuredSyllabusFlags(
 }
 
 // ── Row mapper: Supabase snake_case → camelCase ExamEntity ─────────────
-function mapRow(row: Record<string, unknown>, derived?: DerivedInfo): ExamEntity {
+// Exported for tests (FX1.7): a published exam with no current edition must map
+// to an honest identity-only entity — every cycle field empty/undefined, no
+// fabricated content, no throw.
+export function mapRow(row: Record<string, unknown>, derived?: DerivedInfo): ExamEntity {
   // The current edition is the SINGLE SOURCE OF TRUTH for all cycle-specific data
   // (dates, vacancy, eligibility, fee). The parent `exams.*` copies are migration
   // residue and are NOT read here (they were dual-source: ~67% of has_* rows
@@ -337,7 +340,7 @@ export async function getExamBySlug(
 
       // Normalize slug: strip year suffix, spaces, handle legacy formats
       // e.g. "cat-2026" → "cat", "cat 2026" → "cat", "mba-cat-2026" → "cat"
-      let normalizedSlug = slug.trim().toLowerCase().replace(/\s+/g, "-");
+      const normalizedSlug = slug.trim().toLowerCase().replace(/\s+/g, "-");
       const legacySlugs = [
         normalizedSlug,
         normalizedSlug.replace(/-\d{4}$/, ""),             // strip trailing -2026
