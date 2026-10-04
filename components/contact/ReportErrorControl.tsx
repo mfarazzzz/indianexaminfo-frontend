@@ -22,8 +22,7 @@
 import { useEffect, useRef, useState } from "react";
 import {
   submitMessage,
-  looksLikeEmail,
-  looksLikePhone,
+  validateContact,
   canonicalizePhone,
   type MessageReason,
   type SubmitResult,
@@ -42,7 +41,9 @@ export function ReportErrorControl() {
   const [reason, setReason] = useState<MessageReason | null>(null);
   const [note, setNote] = useState("");
   const [name, setName] = useState("");
-  const [contact, setContact] = useState(""); // email OR phone, optional here
+  // B3: separate optional email + mobile reply contacts (both optional here).
+  const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
   const [honeypot, setHoneypot] = useState("");
   const [busy, setBusy] = useState(false);
   const [result, setResult] = useState<SubmitResult | null>(null);
@@ -68,20 +69,21 @@ export function ReportErrorControl() {
     setReason(null);
     setNote("");
     setName("");
-    setContact("");
+    setEmail("");
+    setPhone("");
     setHoneypot("");
     setResult(null);
   }
 
-  const contactKind = contact.trim() === "" ? "none"
-    : looksLikeEmail(contact) ? "email"
-    : looksLikePhone(contact) ? "phone"
-    : "invalid";
+  const emailFilled = email.trim() !== "";
+  const phoneFilled = phone.trim() !== "";
+  // B3: both optional here (requireOne=false); each validated only when filled.
+  const { emailValid, phoneValid } = validateContact(email, phone, false);
 
   const canSend =
     reason !== null &&
     (reason !== "other" || note.trim().length >= 10) &&
-    contactKind !== "invalid" &&
+    emailValid && phoneValid &&
     !busy;
 
   async function send() {
@@ -99,8 +101,8 @@ export function ReportErrorControl() {
       message: message.slice(0, 2000),
       reason,
       name: name.trim() || undefined,
-      email: contactKind === "email" ? contact.trim() : undefined,
-      phone: contactKind === "phone" ? canonicalizePhone(contact) ?? undefined : undefined,
+      email: emailFilled ? email.trim() : undefined,
+      phone: phoneFilled ? (canonicalizePhone(phone.trim()) ?? undefined) : undefined,
       pageUrl,
       pageTitle,
       honeypot,
@@ -215,7 +217,8 @@ export function ReportErrorControl() {
                     className="mt-1 w-full border border-border rounded-lg px-3 py-2 text-sm outline-none focus:border-primary transition-colors resize-none"
                   />
 
-                  {/* Optional contact — lowers the barrier (A.2). */}
+                  {/* Optional contact — lowers the barrier (A.2). B3: separate
+                      optional email + mobile, each validated only when filled. */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-3">
                     <input
                       value={name}
@@ -225,20 +228,37 @@ export function ReportErrorControl() {
                       className="border border-border rounded-lg px-3 py-2.5 text-sm outline-none focus:border-primary transition-colors"
                     />
                     <input
-                      value={contact}
-                      onChange={(e) => setContact(e.target.value.slice(0, 254))}
-                      placeholder="ईमेल या फ़ोन (वैकल्पिक) · Email or phone"
-                      aria-label="Email or phone (optional)"
+                      type="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value.slice(0, 254))}
+                      placeholder="ईमेल (वैकल्पिक) · Email"
+                      aria-label="Email (optional)"
                       inputMode="email"
+                      autoComplete="email"
+                      aria-invalid={emailFilled && !emailValid}
                       className={`border rounded-lg px-3 py-2.5 text-sm outline-none transition-colors ${
-                        contactKind === "invalid" ? "border-red-400" : "border-border focus:border-primary"
+                        emailFilled && !emailValid ? "border-red-400" : "border-border focus:border-primary"
+                      }`}
+                    />
+                    <input
+                      type="tel"
+                      value={phone}
+                      onChange={(e) => setPhone(e.target.value.slice(0, 20))}
+                      placeholder="मोबाइल नंबर (वैकल्पिक) · Mobile number"
+                      aria-label="Mobile number (optional)"
+                      inputMode="numeric"
+                      autoComplete="tel"
+                      aria-invalid={phoneFilled && !phoneValid}
+                      className={`border rounded-lg px-3 py-2.5 text-sm outline-none transition-colors ${
+                        phoneFilled && !phoneValid ? "border-red-400" : "border-border focus:border-primary"
                       }`}
                     />
                   </div>
-                  {contactKind === "invalid" && (
-                    <p className="text-xs text-red-600 mt-1">
-                      यह ईमेल/फ़ोन सही नहीं लग रहा — that email or phone number doesn&apos;t look right.
-                    </p>
+                  {(emailFilled && !emailValid) && (
+                    <p className="text-xs text-red-600 mt-1">यह ईमेल सही नहीं लग रहा — that email doesn&apos;t look right.</p>
+                  )}
+                  {(phoneFilled && !phoneValid) && (
+                    <p className="text-xs text-red-600 mt-1">यह मोबाइल नंबर सही नहीं लग रहा — that mobile number doesn&apos;t look right.</p>
                   )}
 
                   {/* Honeypot: bots fill it, humans never see it. */}

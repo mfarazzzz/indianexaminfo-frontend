@@ -23,8 +23,7 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import {
   submitMessage,
-  looksLikeEmail,
-  looksLikePhone,
+  validateContact,
   canonicalizePhone,
   type MessageCategory,
   type SubmitResult,
@@ -43,7 +42,10 @@ export function ContactForm() {
   const [category, setCategory] = useState<MessageCategory>("general_question");
   const [message, setMessage] = useState("");
   const [name, setName] = useState("");
-  const [contact, setContact] = useState("");
+  // B3: separate Email and Mobile fields. At least ONE is required; each is
+  // validated only when filled.
+  const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
   const [pageUrl, setPageUrl] = useState("");
   const [pageTitle, setPageTitle] = useState("");
   const [consent, setConsent] = useState(false);
@@ -63,14 +65,14 @@ export function ContactForm() {
     if (t) setPageTitle(t);
   }, []);
 
-  const contactKind = contact.trim() === "" ? "empty"
-    : looksLikeEmail(contact) ? "email"
-    : looksLikePhone(contact) ? "phone"
-    : "invalid";
+  const emailFilled = email.trim() !== "";
+  const phoneFilled = phone.trim() !== "";
+  // B3: shared rule — at least one required; each filled field validated.
+  const { ok: contactOk, emailValid, phoneValid, hasContact } = validateContact(email, phone, true);
 
   const msgLen = message.trim().length;
   const msgOk = msgLen >= 10 && msgLen <= 2000;
-  const canSend = msgOk && contactKind !== "empty" && contactKind !== "invalid" && consent && !busy;
+  const canSend = msgOk && contactOk && consent && !busy;
 
   async function send() {
     if (!canSend) return;
@@ -80,8 +82,8 @@ export function ContactForm() {
       category,
       message: message.trim().slice(0, 2000),
       name: name.trim() || undefined,
-      email: contactKind === "email" ? contact.trim() : undefined,
-      phone: contactKind === "phone" ? canonicalizePhone(contact) ?? undefined : undefined,
+      email: emailFilled ? email.trim() : undefined,
+      phone: phoneFilled ? (canonicalizePhone(phone.trim()) ?? undefined) : undefined,
       pageUrl: pageUrl.trim() || undefined,
       pageTitle: pageTitle || undefined,
       consent: true,
@@ -109,7 +111,7 @@ export function ContactForm() {
         </p>
         <button
           type="button"
-          onClick={() => { setResult(null); setMessage(""); setName(""); setContact(""); setConsent(false); }}
+          onClick={() => { setResult(null); setMessage(""); setName(""); setEmail(""); setPhone(""); setConsent(false); }}
           className="mt-4 min-h-[44px] px-4 rounded-lg border border-green-300 text-sm font-semibold text-green-800"
         >
           दूसरा संदेश भेजें · Send another message
@@ -162,47 +164,73 @@ export function ContactForm() {
         </p>
       </div>
 
-      {/* Name optional; ONE smart contact field (email or phone) */}
+      {/* Name optional */}
+      <div>
+        <label htmlFor="cf-name" className="block text-sm font-medium text-gray-700 mb-1.5">
+          नाम · Name <span className="text-gray-400 font-normal">(वैकल्पिक · optional)</span>
+        </label>
+        <input
+          id="cf-name"
+          value={name}
+          onChange={(e) => setName(e.target.value.slice(0, 120))}
+          autoComplete="name"
+          className="w-full border border-border rounded-lg px-3 py-2.5 min-h-[44px] text-sm outline-none focus:border-primary transition-colors"
+        />
+      </div>
+
+      {/* B3: separate Email and Mobile. At least ONE required; each validated when filled. */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <div>
-          <label htmlFor="cf-name" className="block text-sm font-medium text-gray-700 mb-1.5">
-            नाम · Name <span className="text-gray-400 font-normal">(वैकल्पिक · optional)</span>
+          <label htmlFor="cf-email" className="block text-sm font-medium text-gray-700 mb-1.5">
+            ईमेल · Email
           </label>
           <input
-            id="cf-name"
-            value={name}
-            onChange={(e) => setName(e.target.value.slice(0, 120))}
-            autoComplete="name"
-            className="w-full border border-border rounded-lg px-3 py-2.5 min-h-[44px] text-sm outline-none focus:border-primary transition-colors"
-          />
-        </div>
-        <div>
-          <label htmlFor="cf-contact" className="block text-sm font-medium text-gray-700 mb-1.5">
-            ईमेल या फ़ोन · Email or phone <span className="text-red-500">*</span>
-          </label>
-          <input
-            id="cf-contact"
-            value={contact}
-            onChange={(e) => setContact(e.target.value.slice(0, 254))}
-            required
+            id="cf-email"
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value.slice(0, 254))}
             inputMode="email"
             autoComplete="email"
-            placeholder="you@email.com या 9876543210"
-            aria-describedby="cf-contact-hint"
+            placeholder="you@email.com"
+            aria-invalid={emailFilled && !emailValid}
+            aria-describedby="cf-email-hint"
             className={`w-full border rounded-lg px-3 py-2.5 min-h-[44px] text-sm outline-none transition-colors ${
-              contactKind === "invalid" ? "border-red-400" : "border-border focus:border-primary"
+              emailFilled && !emailValid ? "border-red-400" : "border-border focus:border-primary"
             }`}
           />
-          <p id="cf-contact-hint" className={`text-xs mt-1 ${
-            contactKind === "invalid" ? "text-red-600" : contactKind === "email" || contactKind === "phone" ? "text-green-700" : "text-gray-400"
-          }`}>
-            {contactKind === "invalid" && "सही ईमेल या 10 अंकों का भारतीय मोबाइल नंबर डालें — enter a valid email or Indian mobile number"}
-            {contactKind === "email" && "ईमेल पहचाना · recognised as email"}
-            {contactKind === "phone" && "मोबाइल नंबर पहचाना · recognised as Indian mobile"}
-            {(contactKind === "empty") && "कम से कम एक ज़रूरी — at least one is needed so we can reply"}
+          <p id="cf-email-hint" className={`text-xs mt-1 ${emailFilled && !emailValid ? "text-red-600" : "text-gray-400"}`}>
+            {emailFilled && !emailValid && "सही ईमेल पता डालें — enter a valid email address"}
+          </p>
+        </div>
+        <div>
+          <label htmlFor="cf-phone" className="block text-sm font-medium text-gray-700 mb-1.5">
+            मोबाइल नंबर · Mobile number
+          </label>
+          <input
+            id="cf-phone"
+            type="tel"
+            value={phone}
+            onChange={(e) => setPhone(e.target.value.slice(0, 20))}
+            inputMode="numeric"
+            autoComplete="tel"
+            placeholder="9876543210"
+            aria-invalid={phoneFilled && !phoneValid}
+            aria-describedby="cf-phone-hint"
+            className={`w-full border rounded-lg px-3 py-2.5 min-h-[44px] text-sm outline-none transition-colors ${
+              phoneFilled && !phoneValid ? "border-red-400" : "border-border focus:border-primary"
+            }`}
+          />
+          <p id="cf-phone-hint" className={`text-xs mt-1 ${phoneFilled && !phoneValid ? "text-red-600" : "text-gray-400"}`}>
+            {phoneFilled && !phoneValid && "10 अंकों का भारतीय मोबाइल नंबर डालें — enter a valid Indian mobile number"}
           </p>
         </div>
       </div>
+      {/* At least one of the two is required. */}
+      {!hasContact && (
+        <p className="text-xs text-gray-500 -mt-2">
+          ईमेल या मोबाइल नंबर में से कोई एक भरें, ताकि हम जवाब दे सकें · Enter an email or a mobile number so we can reply.
+        </p>
+      )}
 
       {/* Page URL — auto-filled from the report sheet link, editable */}
       <div>

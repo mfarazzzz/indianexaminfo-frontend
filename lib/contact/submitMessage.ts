@@ -109,6 +109,29 @@ export function looksLikePhone(v: string): boolean {
   return PHONE_RE.test(stripPhoneSeparators(v));
 }
 
+/**
+ * B3 — shared two-field contact validation, used by ContactForm (at least one
+ * required) and ReportErrorControl (both optional). Each field is validated only
+ * when filled; an empty field is never "invalid". `requireOne` enforces that at
+ * least one of email/phone is present (the contact form); the report sheet passes
+ * requireOne=false so both stay optional.
+ */
+export function validateContact(
+  email: string,
+  phone: string,
+  requireOne = true,
+): { ok: boolean; emailValid: boolean; phoneValid: boolean; hasContact: boolean } {
+  const emailTrim = email.trim();
+  const phoneTrim = phone.trim();
+  const emailFilled = emailTrim !== "";
+  const phoneFilled = phoneTrim !== "";
+  const emailValid = !emailFilled || looksLikeEmail(emailTrim);
+  const phoneValid = !phoneFilled || looksLikePhone(phoneTrim);
+  const hasContact = emailFilled || phoneFilled;
+  const ok = (!requireOne || hasContact) && emailValid && phoneValid;
+  return { ok, emailValid, phoneValid, hasContact };
+}
+
 async function postSubmitMessage(input: SubmitInput): Promise<SubmitResult> {
   if (!env.SUPABASE_URL || !env.SUPABASE_ANON_KEY) {
     return { ok: false, error: "The site cannot reach the message service right now. Please try again later." };
