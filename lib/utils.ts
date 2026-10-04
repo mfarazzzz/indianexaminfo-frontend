@@ -5,6 +5,29 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
+// ── R1.8: URL tracking parameter stripping (MUST STAY IDENTICAL to CMS) ─────
+const ALWAYS_STRIP_PARAMS = /^utm_|^gclid$|^fbclid$|^mc_cid$|^mc_eid$|^msclkid$|^dclid$/i;
+const CONDITIONAL_REF_PARAMS = /^(ref|source)$/i;
+const TRACKING_REF_VALUES = /chatgpt\.com|perplexity|copilot|gemini|claude\.ai|bing\.com\/chat/i;
+
+export function stripTrackingParams(rawUrl: string): string {
+  try {
+    const url = new URL(rawUrl);
+    const toDelete: string[] = [];
+    url.searchParams.forEach((value, key) => {
+      if (ALWAYS_STRIP_PARAMS.test(key)) {
+        toDelete.push(key);
+      } else if (CONDITIONAL_REF_PARAMS.test(key) && TRACKING_REF_VALUES.test(value)) {
+        toDelete.push(key);
+      }
+    });
+    for (const k of toDelete) url.searchParams.delete(k);
+    return url.toString();
+  } catch {
+    return rawUrl;
+  }
+}
+
 /**
  * Normalise a stored website value into a valid absolute URL.
  * Does exactly one thing: prepend "https://" when no protocol is present.
@@ -27,7 +50,8 @@ export function normalizeUrl(raw: string | null | undefined): string {
   if (/[\s,]/.test(trimmed) || /%20|%2c/i.test(trimmed)) return "";
   const withProto = /^https?:\/\//i.test(trimmed) ? trimmed : `https://${trimmed}`;
   try {
-    return new URL(withProto).toString();
+    const parsed = new URL(withProto).toString();
+    return stripTrackingParams(parsed);
   } catch {
     return "";
   }
