@@ -22,8 +22,20 @@ function isPlaceholder(val: string): boolean {
   return PLACEHOLDER_PATTERNS.some((p) => lower.includes(p));
 }
 
-function readEnv(key: string): string {
-  const val = process.env[key] ?? "";
+/**
+ * readEnv — validate a value that has ALREADY been read from a LITERAL
+ * process.env.NEXT_PUBLIC_* reference.
+ *
+ * B1 (critical): Next.js only inlines LITERAL `process.env.NEXT_PUBLIC_X`
+ * references into the client bundle. A dynamic `process.env[key]` is NOT
+ * inlined, so in the browser it reads undefined. The Supabase URL/anon key are
+ * needed by client components (ContactForm, ReportErrorControl) via this module,
+ * so they MUST be read through a literal reference at the call site and passed
+ * in here for validation only. (The old `process.env[key]` here returned "" in
+ * the browser, which broke the contact form for every reader.)
+ */
+function readEnv(key: string, value: string | undefined): string {
+  const val = value ?? "";
 
   if (!val || isPlaceholder(val)) {
     const msg =
@@ -59,8 +71,10 @@ function readIntEnv(key: string, fallback: number): number {
 }
 
 export const env = {
-  SUPABASE_URL:      readEnv("NEXT_PUBLIC_SUPABASE_URL"),
-  SUPABASE_ANON_KEY: readEnv("NEXT_PUBLIC_SUPABASE_ANON_KEY"),
+  // B1: LITERAL process.env.NEXT_PUBLIC_* references so Next inlines them into
+  // the client bundle. readEnv only validates/warns on the already-read value.
+  SUPABASE_URL:      readEnv("NEXT_PUBLIC_SUPABASE_URL", process.env.NEXT_PUBLIC_SUPABASE_URL),
+  SUPABASE_ANON_KEY: readEnv("NEXT_PUBLIC_SUPABASE_ANON_KEY", process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY),
   REVALIDATE_TOKEN:  process.env.REVALIDATE_TOKEN ?? "",   // server-only
   GA_ID:             process.env.NEXT_PUBLIC_GA_ID ?? "",
   GSC_VERIFY:        process.env.NEXT_PUBLIC_GSC_VERIFY ?? "",
