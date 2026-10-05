@@ -82,6 +82,80 @@ export function formatDateLong(dateStr: string): string {
   });
 }
 
+// ── FX3 C2 — time with dates (IST) ───────────────────────────────────────────
+
+/** A stored HH:MM (24h, IST) rendered as a 12h clock, e.g. "18:00" -> "6:00 PM". */
+export function formatEventTime(hhmm: string | undefined): string {
+  if (!hhmm || !/^\d{1,2}:\d{2}$/.test(hhmm)) return "";
+  const [hRaw, m] = hhmm.split(":");
+  const h = Number(hRaw);
+  if (!Number.isFinite(h) || h < 0 || h > 23) return "";
+  const suffix = h >= 12 ? "PM" : "AM";
+  const hour12 = h % 12 === 0 ? 12 : h % 12;
+  return `${hour12}:${m} ${suffix}`;
+}
+
+interface EventDateLike {
+  date: string;
+  end_date?: string;
+  start_time?: string;
+  end_time?: string;
+  time_text?: string;
+}
+
+/**
+ * Render a date event with its optional range and IST times, e.g.
+ *   "5 Oct 2026 (afternoon) – 7 Oct 2026, till 6:00 PM"
+ *   "9 Oct 2026 – 14 Oct 2026, till 5:00 PM"
+ *   "1 Dec 2026, 9:00 AM – 12:30 PM"
+ * Falls back to just the formatted date when no time info is present.
+ */
+export function formatEventDateTime(d: EventDateLike): string {
+  const start = formatDate(d.date);
+  if (!start) return "";
+  const end = d.end_date && d.end_date !== d.date ? formatDate(d.end_date) : "";
+  const st = formatEventTime(d.start_time);
+  const et = formatEventTime(d.end_time);
+  let head = start;
+  if (d.time_text) head += ` (${d.time_text})`;
+  if (st) head += `, ${st}`;
+  if (end) {
+    let tail = end;
+    if (et) tail += st ? `, ${et}` : `, till ${et}`;
+    return `${head} – ${tail}`;
+  }
+  if (et) head += st ? ` – ${et}` : `, till ${et}`;
+  return head;
+}
+
+/**
+ * The deadline a countdown should use: the LAST moment the event is open.
+ * end_date when it is a range, else date. Returns a yyyy-mm-dd string (or "").
+ * Status computation itself stays date-based (exam_derived_status is unchanged —
+ * that is S3/E1); this is only for display/countdown of a deadline.
+ */
+export function eventDeadlineDate(d: EventDateLike): string {
+  return (d.end_date && d.end_date !== d.date ? d.end_date : d.date) || "";
+}
+
+/**
+ * The deadline as an absolute instant for a countdown, interpreted in IST
+ * (UTC+05:30). Uses end_date (or date) + end_time (or start_time), defaulting
+ * the time to end-of-day 23:59 IST when no clock time is set. Returns a UTC ISO
+ * string (so 18:00 IST -> 12:30Z). "" when there is no date.
+ */
+export function eventDeadlineInstantISO(d: EventDateLike, now?: Date): string {
+  const day = eventDeadlineDate(d);
+  if (!day) return "";
+  const time = d.end_time || d.start_time || "23:59";
+  // Build the IST wall-clock instant explicitly, then let Date normalise to UTC.
+  const iso = `${day.slice(0, 10)}T${time.length === 5 ? time : "23:59"}:00+05:30`;
+  const dt = new Date(iso);
+  if (isNaN(dt.getTime())) return "";
+  void now;
+  return dt.toISOString();
+}
+
 // ── Date window helpers ──────────────────────────────────────────────────
 // These take an explicit `todayISO` (yyyy-mm-dd) anchor — the caller passes
 // the single IST "today" from getTodayIST(). They must NOT read Date.now():

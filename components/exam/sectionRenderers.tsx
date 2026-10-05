@@ -12,7 +12,7 @@
  */
 import Link from "next/link";
 import type { ExamEntity } from "@/types/exam";
-import { formatDate, isUrgent } from "@/lib/utils";
+import { formatDate, formatEventDateTime, isUrgent } from "@/lib/utils";
 import { meaningfulFaqs } from "@/lib/sectionRegistry";
 import { Calendar } from "lucide-react";
 
@@ -77,11 +77,11 @@ const ImportantDatesSummary: SectionSummary = (exam, todayISO) => (
               {hasDate ? (
                 isExpected ? (
                   <span title="Tentative date — not yet officially confirmed." className="cursor-help">
-                    {formatDate(d.date)}{" "}
+                    {formatEventDateTime(d)}{" "}
                     <span className="text-[11px] font-normal not-italic">(expected)</span>
                   </span>
                 ) : (
-                  formatDate(d.date)
+                  formatEventDateTime(d)
                 )
               ) : (
                 <span className="text-[11px] font-normal not-italic text-gray-400">To be announced</span>

@@ -124,6 +124,14 @@ export type ExamEntity = {
      *  editor with no firm date, or a caveat, say so without writing prose into
      *  the date field. */
     note?: string;
+    /** FX3 C1/C2 — time with dates. All optional, written by the CMS as JSONB
+     *  keys. end_date makes the event a range; start_time/end_time are HH:MM 24h
+     *  in IST; time_text is free text (e.g. "afternoon") shown when no clock time
+     *  is known. Derived status stays date-based (that change is S3/E1). */
+    end_date?: string;
+    start_time?: string;
+    end_time?: string;
+    time_text?: string;
   }[];
 
   eligibility?: {
