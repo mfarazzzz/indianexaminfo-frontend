@@ -9,6 +9,7 @@
     "shoot:site": "node scripts/shoot-site.mjs",
     "lint": "next lint",
     "test": "vitest run",
+    "e2e": "playwright test",
     "analyze": "ANALYZE=true next build"
   },
   "dependencies": {

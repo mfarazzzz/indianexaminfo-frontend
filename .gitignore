@@ -6,6 +6,10 @@
 # testing
 /coverage
 
+# Playwright e2e artifacts (local evidence only, never versioned)
+/test-results/
+/playwright-report/
+
 # next.js
 /.next/
 /out/
