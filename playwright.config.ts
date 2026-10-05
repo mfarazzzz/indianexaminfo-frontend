@@ -19,6 +19,9 @@ const TEST_SUPABASE_ANON_KEY = "e2e-anon-key-abc123";
 
 export default defineConfig({
   testDir: "./e2e",
+  // This config builds WITH E2E=1 (fixture enabled) and runs the submit specs.
+  // The 404-in-a-normal-build check lives in playwright.prod.config.ts.
+  testMatch: /contact\.e2e\.spec\.ts/,
   fullyParallel: false,
   retries: 0,
   reporter: [["list"]],
@@ -38,9 +41,12 @@ export default defineConfig({
       NODE_ENV: "production",
       NEXT_PUBLIC_SUPABASE_URL: TEST_SUPABASE_URL,
       NEXT_PUBLIC_SUPABASE_ANON_KEY: TEST_SUPABASE_ANON_KEY,
+      // E2E=1 is the ONLY thing that makes the /ie2e/report-error fixture route
+      // exist. A normal build (no E2E) 404s it — see playwright.prod.config.ts.
+      E2E: "1",
       // The URL above is a fake host, so the build must NOT prerender data pages
       // (they would try to fetch Supabase and fail). 0 = prerender none; the two
-      // pages this suite needs (/contact static, /__e2e/report-error dynamic) do
+      // pages this suite needs (/contact static, /ie2e/report-error fixture) do
       // not depend on Supabase at build time.
       BUILD_PRERENDER_LIMIT: "0",
     },
