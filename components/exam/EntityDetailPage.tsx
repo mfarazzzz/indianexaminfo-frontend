@@ -30,6 +30,7 @@ import { contentTypeHasData, hasData, mainSectionsForPillar, CONTENT_TYPE_TO_SEC
 import { getLeadBlock, type LeadBlock as LeadBlockData } from "@/lib/exam/actionLinks";
 import { pillarToUrlSegment } from "@/lib/exam/pillarUrl";
 import { SECTION_SUMMARY_RENDERERS, MODULE_RENDERERS } from "@/components/exam/sectionRenderers";
+import { moduleShowsInContentBlock } from "@/components/exam/contentModulesVisibility";
 import { nameWithYear } from "@/lib/seo/keywords";
 import { ExternalLink, Share2, ArrowRight } from "lucide-react";
 
@@ -693,11 +694,9 @@ const MODULE_LABELS: Record<string, string> = {
   news: "News & Updates",
 };
 
-// These modules show on content type tab pages, not the main exam page
-// exam-pattern is tab-only (surfaces on the syllabus tab via CT_TO_MODULES.syllabus). Listed
-// here so the onlyTabModules filter admits it on the tab page and excludes it from the main page.
-const TAB_ONLY_MODULES = new Set(["application-process", "admit-card", "result", "cut-off", "syllabus", "date-sheet", "news", "faqs", "exam-pattern"]);
-
+// These modules show on content type tab pages, not the main exam page; and the main-page
+// reader sections the ordered-section loop already renders (overview) must not be shown
+// again here. That decision lives in contentModulesVisibility (a pure, unit-tested module).
 function ContentModulesBlock({ contentModules, onlyTabModules = false }: { contentModules?: Record<string, unknown>; onlyTabModules?: boolean }) {
   if (!contentModules) return null;
   const config = contentModules._config as { moduleOrder?: string[]; enabledModules?: string[] } | undefined;
@@ -705,10 +704,8 @@ function ContentModulesBlock({ contentModules, onlyTabModules = false }: { conte
   const enabled = config?.enabledModules ?? order;
 
   const items = order.filter(slug => {
-    if (!enabled.includes(slug) || !contentModules[slug] || slug === "_config") return false;
-    // Main page: skip tab-only modules. Tab page: only show that specific module.
-    if (onlyTabModules) return TAB_ONLY_MODULES.has(slug);
-    return !TAB_ONLY_MODULES.has(slug);
+    if (!contentModules[slug]) return false;
+    return moduleShowsInContentBlock(slug, enabled, onlyTabModules);
   });
 
   return (
