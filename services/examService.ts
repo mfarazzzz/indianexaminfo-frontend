@@ -236,6 +236,11 @@ export function mapRow(row: Record<string, unknown>, derived?: DerivedInfo): Exa
     // updated_at is the real last-write timestamp; last_updated is NOT read
     // (legacy CURRENT_DATE-at-insert column, cycle residue on exams).
     lastUpdated: (row.updated_at as string) ?? new Date().toISOString().split("T")[0],
+        // D2: the edition's own edit stamp + author, for the trustworthy Last Updated
+        // line. On the DETAIL path current_ed is selected with *, so both are present;
+        // other selects may omit updated_by (→ treated as not-human → line omitted).
+        editionUpdatedAt: ((ed as any)?.updated_at as string) ?? null,
+        editionUpdatedBy: ((ed as any)?.updated_by as string) ?? null,
     isFeatured: (row.is_featured as boolean) ?? false,
     searchKeywords: (row.search_keywords as string[]) ?? [],
     seoTitle: (row.seo_title as string) ?? undefined,

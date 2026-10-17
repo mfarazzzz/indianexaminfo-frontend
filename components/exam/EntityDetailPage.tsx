@@ -31,6 +31,7 @@ import { getLeadBlock, type LeadBlock as LeadBlockData } from "@/lib/exam/action
 import { pillarToUrlSegment } from "@/lib/exam/pillarUrl";
 import { SECTION_SUMMARY_RENDERERS, MODULE_RENDERERS } from "@/components/exam/sectionRenderers";
 import { moduleShowsInContentBlock } from "@/components/exam/contentModulesVisibility";
+import { resolveLastUpdated } from "@/lib/exam/lastUpdated";
 import { nameWithYear } from "@/lib/seo/keywords";
 import { ExternalLink, Share2, ArrowRight } from "lucide-react";
 
@@ -378,6 +379,17 @@ export async function EntityDetailPage({ exam, breadcrumbs, contentType, edition
     getTodayIST(),
   ]);
 
+  // D2: "Last Updated" is shown only from a trustworthy source (a human edition
+  // edit, a published update, or a verification) — never the trigger-stamped
+  // exams.updated_at, which the 25-Sep bulk region backfill set for ~356/398
+  // records. null → the line is omitted entirely (we do not show a false date).
+  const lastUpdated = resolveLastUpdated({
+    editionUpdatedAt: exam.editionUpdatedAt,
+    editionUpdatedBy: exam.editionUpdatedBy,
+    verifiedAt: exam.verifiedAt,
+    postUpdatedAts: (contentPosts as { updatedAt?: string | null }[]).map((p) => p?.updatedAt),
+  });
+
   // Structured syllabus presence (exam_syllabus_subjects) drives the Syllabus TAB — the same
   // signal the /syllabus sub-page gate reads (both derive from getExamSyllabus, one source),
   // so the tab can't show while the page 404s.
@@ -433,9 +445,11 @@ export async function EntityDetailPage({ exam, breadcrumbs, contentType, edition
               <span className={`status-badge ${statusColor(exam.status)}`}>
                 {statusLabel(exam.status)}
               </span>
-              <span className="text-gray-400 text-xs">
-                Last Updated: {formatDate(exam.lastUpdated)}
-              </span>
+              {lastUpdated && (
+                <span className="text-gray-400 text-xs">
+                  Last Updated: {formatDate(lastUpdated)}
+                </span>
+              )}
             </div>
 
             {/* Other-edition banner — ONLY when viewing a NON-CURRENT edition at its year URL.
@@ -583,10 +597,12 @@ export async function EntityDetailPage({ exam, breadcrumbs, contentType, edition
                     </a>
                   </p>
                 )}
-                <p>
-                  <span className="font-medium text-gray-600">Last Updated:</span>{" "}
-                  {formatDate(exam.lastUpdated)}
-                </p>
+                {lastUpdated && (
+                  <p>
+                    <span className="font-medium text-gray-600">Last Updated:</span>{" "}
+                    {formatDate(lastUpdated)}
+                  </p>
+                )}
                 {(() => {
                   const v = getExamVerification(exam);
                   return v.kind === "verified" ? (

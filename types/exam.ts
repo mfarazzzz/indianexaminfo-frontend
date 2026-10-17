@@ -159,6 +159,12 @@ export type ExamEntity = {
 
   tags: string[];
   lastUpdated: string;
+  /** Current edition's updated_at / updated_by — used by the D2 "Last Updated"
+   *  rule (lib/exam/lastUpdated.ts). updated_by 'system' (the seed) or null is
+   *  NOT a human edit, so it never drives the line. `exams.updated_at` (the
+   *  lastUpdated field above) is trigger-stamped and is NOT trusted for display. */
+  editionUpdatedAt?: string | null;
+  editionUpdatedBy?: string | null;
   isFeatured: boolean;
   searchKeywords: string[];
 
