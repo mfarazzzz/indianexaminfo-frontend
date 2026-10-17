@@ -6,6 +6,7 @@
  */
 import { createServerClient } from "@/lib/supabase/server";
 import { cached } from "@/lib/cache";
+import { fetchDerivedStatuses } from "@/services/examService";
 import type { Pillar } from "@/types/exam";
 
 // ── Types ──────────────────────────────────────────────────────────────────
@@ -152,7 +153,7 @@ export async function getExamsForCategory(
     const supabase = createServerClient();
     const { data, error } = await supabase
       .from("exams")
-      .select("id, slug, short_name, name, is_featured, status, category_id, pillar, categories!category_id(slug)")
+      .select("id, slug, short_name, name, is_featured, category_id, pillar, categories!category_id(slug)")
       .eq("category_id", categoryId)
       .eq("is_published", true)
       .order("is_featured", { ascending: false })
@@ -167,10 +168,18 @@ export async function getExamsForCategory(
       shortName: e.short_name ?? "",
       name: e.name,
       isFeatured: e.is_featured ?? false,
-      status: e.status ?? "upcoming",
+      // status is not a column on exams any more (step 4 dropped it); selecting it
+      // threw 42703 and the whole query fell through to []. Read it from the
+      // exam_derived_status VIEW — the same single source examService uses.
+      status: "upcoming",
       categorySlug: e.categories?.slug ?? "",
       pillar: e.pillar,
     }));
+    const derived = await fetchDerivedStatuses(supabase, exams.map((x) => x.id));
+    for (const x of exams) {
+      const d = derived.get(x.id);
+      if (d?.status) x.status = d.status;
+    }
 
     // Pin featured exams (from navigation_config) to the top
     if (featuredIds.length > 0) {
@@ -199,7 +208,7 @@ export async function searchExamsInPillar(
     const supabase = createServerClient();
     const { data, error } = await supabase
       .from("exams")
-      .select("id, slug, short_name, name, is_featured, status, pillar, categories!category_id(slug)")
+      .select("id, slug, short_name, name, is_featured, pillar, categories!category_id(slug)")
       .eq("pillar", pillar)
       .eq("is_published", true)
       .or(`name.ilike.%${query}%,short_name.ilike.%${query}%`)
@@ -209,16 +218,23 @@ export async function searchExamsInPillar(
 
     if (error) throw error;
 
-    return (data ?? []).map((e: any) => ({
+    const exams = (data ?? []).map((e: any) => ({
       id: e.id,
       slug: e.slug,
       shortName: e.short_name ?? "",
       name: e.name,
       isFeatured: e.is_featured ?? false,
-      status: e.status ?? "upcoming",
+      // status read from the exam_derived_status VIEW (exams.status is dropped).
+      status: "upcoming",
       categorySlug: e.categories?.slug ?? "",
       pillar: e.pillar,
     }));
+    const derived = await fetchDerivedStatuses(supabase, exams.map((x) => x.id));
+    for (const x of exams) {
+      const d = derived.get(x.id);
+      if (d?.status) x.status = d.status;
+    }
+    return exams;
   } catch (err) {
     console.error("[navigationService] searchExamsInPillar failed:", err);
     return [];

@@ -66,7 +66,9 @@ type DerivedInfo = {
 
 // Returns a map of exam_id → DerivedInfo (status + derived confirmed dates).
 // Falls back silently — if the view is unavailable, callers use the stored column.
-async function fetchDerivedStatuses(
+// Exported so the mega-menu navigation reuses THIS single source instead of reading
+// the dropped `exams.status` column (navigationService).
+export async function fetchDerivedStatuses(
   supabase: ReturnType<typeof createServerClient>,
   examIds: string[]
 ): Promise<Map<string, DerivedInfo>> {
