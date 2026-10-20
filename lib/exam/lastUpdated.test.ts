@@ -4,7 +4,7 @@
  * published post, and a verify each do; newest wins; none → null (line omitted).
  */
 import { describe, it, expect } from "vitest";
-import { resolveLastUpdated } from "@/lib/exam/lastUpdated";
+import { resolveLastUpdated, examUpdatedFrom } from "@/lib/exam/lastUpdated";
 
 describe("resolveLastUpdated (D2)", () => {
   it("returns null when there is no trustworthy source (e.g. only the bulk/seed touch)", () => {
@@ -51,5 +51,18 @@ describe("resolveLastUpdated (D2)", () => {
       editionUpdatedAt: "2026-07-30T11:12:22Z", editionUpdatedBy: "system",
       postUpdatedAts: ["2026-10-17T00:00:00Z"],
     })).toBe("2026-10-17T00:00:00Z");
+  });
+});
+
+describe("examUpdatedFrom (entity-level, for JSON-LD)", () => {
+  it("null when the only stamp is a system/bulk edition touch", () => {
+    expect(examUpdatedFrom({ editionUpdatedAt: "2026-09-25", editionUpdatedBy: "system" })).toBeNull();
+    expect(examUpdatedFrom({})).toBeNull();
+  });
+  it("the human edition edit", () => {
+    expect(examUpdatedFrom({ editionUpdatedAt: "2026-10-08", editionUpdatedBy: "user-1" })).toBe("2026-10-08");
+  });
+  it("a verification counts", () => {
+    expect(examUpdatedFrom({ verifiedAt: "2026-10-09" })).toBe("2026-10-09");
   });
 });

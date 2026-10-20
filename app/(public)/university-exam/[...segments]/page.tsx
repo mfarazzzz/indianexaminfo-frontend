@@ -3,6 +3,7 @@
  * Handles: /university-exam/{category}/{slug} and /university-exam/{category}/{slug}/{ct}
  */
 import type { Metadata } from "next";
+import { examUpdatedFrom } from "@/lib/exam/lastUpdated";
 import { notFound, permanentRedirect } from "next/navigation";
 import Link from "next/link";
 import { getExamBySlug, getExamsByCategory, contentTypeAvailable, getExamEditionsForSwitcher, getExamSlugsForPillar } from "@/services/examService";
@@ -49,7 +50,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
         title: exam.seoTitle ?? `${exam.name} ${year} — Result, Date Sheet & Admission`,
         description: exam.seoDescription ?? buildMetaDescription(exam.name, "result", "", year),
         canonicalUrl: `${siteConfig.url}/university-exam/${exam.category}/${slug}`,
-        updatedAt: exam.lastUpdated,
+        updatedAt: examUpdatedFrom(exam) ?? undefined,
       });
     }
     return {};
@@ -69,7 +70,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
         description: exam.seoDescription ?? buildMetaDescription(exam.name, "result", "", year),
         keywords: buildPageKeywords({ pageType: "exam-entity", pillar: "university-exam", examSlug: slug }),
         canonicalUrl: `${siteConfig.url}/university-exam/${exam.category}/${slug}`,
-        updatedAt: exam.lastUpdated,
+        updatedAt: examUpdatedFrom(exam) ?? undefined,
       });
     }
     return {};
@@ -95,7 +96,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       title: buildSEOTitle(exam.shortName, contentType, getCurrentYear()),
       description: buildMetaDescription(exam.name, contentType as ContentType, "", getCurrentYear()),
       canonicalUrl: `${siteConfig.url}/university-exam/${exam.category}/${slug}/${contentType}`,
-      updatedAt: exam.lastUpdated,
+      updatedAt: examUpdatedFrom(exam) ?? undefined,
     });
   }
   return {};

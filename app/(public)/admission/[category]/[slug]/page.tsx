@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { examUpdatedFrom } from "@/lib/exam/lastUpdated";
 import { notFound, permanentRedirect } from "next/navigation";
 import { getExamBySlug, getExamEditionsForSwitcher, getExamSlugsForPillar } from "@/services/examService";
 import { EntityDetailPage } from "@/components/exam/EntityDetailPage";
@@ -40,7 +41,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     keywords: buildPageKeywords({ pageType: "exam-entity", pillar: exam.pillar, examSlug: slug }),
     canonicalUrl: `${siteConfig.url}/admission/${exam.category}/${slug}`,
     tags: exam.tags,
-    updatedAt: exam.lastUpdated,
+    updatedAt: examUpdatedFrom(exam) ?? undefined,
   });
 }
 

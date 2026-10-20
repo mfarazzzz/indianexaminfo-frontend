@@ -22,6 +22,7 @@ import { isEditionYear, buildEditionContext } from "@/lib/exam/editions";
 import { categoryBreadcrumbLabel, categoryMismatch } from "@/lib/exam/categoryCanonical";
 import { buildEditionMetadata, renderEditionPage } from "@/lib/exam/editionDispatch";
 import { getContentPostsByExam, getLatestByContentType } from "@/services/contentPostService";
+import { examUpdatedFrom } from "@/lib/exam/lastUpdated";
 import { EntityDetailPage } from "@/components/exam/EntityDetailPage";
 import { ExamListRow } from "@/components/exam/ExamListRow";
 import { SarkariNaukriList } from "@/components/sarkari-naukri/SarkariNaukriList";
@@ -79,7 +80,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
         keywords: buildPageKeywords({ pageType: "exam-entity", pillar: "government-exam", examSlug: slug }),
         canonicalUrl: `${siteConfig.url}/sarkari-naukri/${exam.category}/${slug}`,
         tags: exam.tags,
-        updatedAt: exam.lastUpdated,
+        updatedAt: examUpdatedFrom(exam) ?? undefined,
       });
     }
 
@@ -113,7 +114,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       keywords: buildPageKeywords({ pageType: "exam-entity", pillar: "government-exam", examSlug: slug }),
       canonicalUrl: `${siteConfig.url}/sarkari-naukri/${exam.category}/${slug}`,
       tags: exam.tags,
-      updatedAt: exam.lastUpdated,
+      updatedAt: examUpdatedFrom(exam) ?? undefined,
     });
   }
 
@@ -145,7 +146,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       description: buildMetaDescription(exam.name, contentType as ContentType, "", year),
       keywords: buildPageKeywords({ pageType: "content-type", pillar: "government-exam", examSlug: slug, contentType: contentType as ContentType }),
       canonicalUrl: `${siteConfig.url}/sarkari-naukri/${exam.category}/${slug}/${contentType}`,
-      updatedAt: exam.lastUpdated,
+      updatedAt: examUpdatedFrom(exam) ?? undefined,
     });
   }
 

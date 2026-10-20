@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { examUpdatedFrom } from "@/lib/exam/lastUpdated";
 import { notFound, permanentRedirect } from "next/navigation";
 import { getExamBySlug, contentTypeAvailable, getExamSyllabus } from "@/services/examService";
 import { SyllabusSection } from "@/components/exam/SyllabusSection";
@@ -69,7 +70,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     description: buildMetaDescription(exam.name, ct, "", year),
     keywords: buildPageKeywords({ pageType: "content-type", pillar: exam.pillar, examSlug: slug, contentType: ct }),
     canonicalUrl: `${siteConfig.url}/admission/${exam.category}/${slug}/${contentType}`,
-    updatedAt: exam.lastUpdated,
+    updatedAt: examUpdatedFrom(exam) ?? undefined,
   });
 }
 
@@ -182,7 +183,7 @@ export default async function EntranceContentTypePage({ params }: Props) {
 
             <div className="flex flex-wrap items-center gap-3 mb-4 text-xs text-gray-500 border-b border-border pb-3">
               <span>By IndianExamInfo Team</span>
-              <span className="flex items-center gap-1"><Clock className="w-3.5 h-3.5" />Updated: {buildLastModifiedSignal(exam.lastUpdated)}</span>
+              {(() => { const lu = examUpdatedFrom(exam); return lu ? (<span className="flex items-center gap-1"><Clock className="w-3.5 h-3.5" />Updated: {buildLastModifiedSignal(lu)}</span>) : null; })()}
               <a href={exam.officialWebsite} target="_blank" rel="noopener noreferrer"
                  className="flex items-center gap-1 text-primary hover:underline ml-auto">
                 Official Website <ExternalLink className="w-3 h-3" />
@@ -275,7 +276,7 @@ export default async function EntranceContentTypePage({ params }: Props) {
 
             <p className="text-xs text-gray-400 border-t border-border pt-3">
               Information sourced from <a href={exam.officialWebsite} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">{officialHost}</a>.{" "}
-              Last verified: {buildLastModifiedSignal(exam.lastUpdated)}.
+              {(() => { const lu = examUpdatedFrom(exam); return lu ? <>Last verified: {buildLastModifiedSignal(lu)}.</> : null; })()}
             </p>
 
             {/* Related keyword searches */}

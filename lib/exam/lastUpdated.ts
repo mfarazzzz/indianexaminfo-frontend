@@ -47,3 +47,22 @@ export function resolveLastUpdated(sources: LastUpdatedSources): string | null {
   if (candidates.length === 0) return null;
   return candidates.slice().sort()[candidates.length - 1] ?? null;
 }
+
+/**
+ * The trustworthy "last updated" for an exam ENTITY, from the fields already on
+ * the loaded record (edition edit + verification). Used by JSON-LD / metadata so a
+ * false freshness date (from the trigger-stamped exams.updated_at) is never emitted
+ * as dateModified/modifiedTime; returns null so callers OMIT the property entirely.
+ * Content-post dates are added only where the page has them (EntityDetailPage).
+ */
+export function examUpdatedFrom(exam: {
+  editionUpdatedAt?: string | null;
+  editionUpdatedBy?: string | null;
+  verifiedAt?: string | null;
+}): string | null {
+  return resolveLastUpdated({
+    editionUpdatedAt: exam.editionUpdatedAt,
+    editionUpdatedBy: exam.editionUpdatedBy,
+    verifiedAt: exam.verifiedAt,
+  });
+}

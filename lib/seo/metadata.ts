@@ -73,7 +73,9 @@ export function buildExamMetadata({
       type: isArticle ? "article" : "website",
       ...(isArticle && {
         publishedTime: publishedAt,
-        modifiedTime: updatedAt,
+        // D2 / PART 3: emit og:article:modified_time ONLY when a trustworthy
+        // updatedAt exists; a false freshness date is worse than none.
+        ...(updatedAt && { modifiedTime: updatedAt }),
         section: section ?? "Education",
         tags,
       }),

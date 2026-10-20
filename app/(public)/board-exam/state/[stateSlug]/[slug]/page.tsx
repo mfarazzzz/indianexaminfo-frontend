@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { examUpdatedFrom } from "@/lib/exam/lastUpdated";
 import { notFound, permanentRedirect } from "next/navigation";
 import { getExamBySlug, getExamEditionsForSwitcher, getExamSlugsForPillar } from "@/services/examService";
 import { EntityDetailPage } from "@/components/exam/EntityDetailPage";
@@ -39,7 +40,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     description: exam.seoDescription ?? buildMetaDescription(exam.name, "result", "", getCurrentYear()),
     keywords: buildPageKeywords({ pageType: "board", pillar: "board-exam", examSlug: slug }),
     canonicalUrl: `${siteConfig.url}/board-exam/state/${exam.category}/${slug}`,
-    updatedAt: exam.lastUpdated,
+    updatedAt: examUpdatedFrom(exam) ?? undefined,
   });
 }
 

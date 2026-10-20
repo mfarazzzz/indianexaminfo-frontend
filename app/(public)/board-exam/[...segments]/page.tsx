@@ -9,6 +9,7 @@
  * Static sub-routes (cbse, state, university) take precedence.
  */
 import type { Metadata } from "next";
+import { examUpdatedFrom } from "@/lib/exam/lastUpdated";
 import { notFound, permanentRedirect } from "next/navigation";
 import Link from "next/link";
 import { getExamBySlug, getExamsByCategory, contentTypeAvailable, getExamEditionsForSwitcher } from "@/services/examService";
@@ -51,7 +52,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
         title: exam.seoTitle ?? `${exam.name} ${year}`,
         description: exam.seoDescription ?? buildMetaDescription(exam.name, "result", "", year),
         canonicalUrl,
-        updatedAt: exam.lastUpdated,
+        updatedAt: examUpdatedFrom(exam) ?? undefined,
       });
     }
     return {};
