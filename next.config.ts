@@ -1,5 +1,6 @@
 import type { NextConfig } from "next";
 import { execSync } from "child_process";
+import { RETIRE_REDIRECTS } from "./config/retireRedirects";
 
 /**
  * Build-time git stamp — baked in at build so "which commit is deployed?" is
@@ -112,6 +113,12 @@ const nextConfig: NextConfig = {
 
   async redirects() {
     return [
+      // ── Retire duplicate exam pages → one canonical page per exam (owner, Oct 2026).
+      // Data lives in config/retireRedirects.ts so a unit test can prove the
+      // invariants (every destination is a published winner; no chain/loop).
+      // permanent:true → HTTP 308. Placed FIRST so no generic rule shadows these
+      // exact detail paths. The loser RECORDS are unpublished separately (Phase 2).
+      ...RETIRE_REDIRECTS.map((r) => ({ source: r.source, destination: r.destination, permanent: true as const })),
       // === New pillar name redirects (sarkari-naukri → government-exam, govt-vacancy) ===
       // /government-exam/* → /sarkari-naukri/* (rewrite handled internally by sarkari-naukri catch-all)
       { source: "/government-exam",              destination: "/sarkari-naukri",              permanent: false },

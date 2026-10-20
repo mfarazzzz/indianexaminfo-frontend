@@ -215,9 +215,9 @@ const entranceExamCategories: TaxonomyNode[] = [
     path: `${ENTRANCE_EXAM_SEGMENT}/defence-entrance`, depth: 1, icon: "🎖️",
     
     children: [
-      node({ slug: "cds", label: "CDS", pillar: "entrance-exam", path: `${ENTRANCE_EXAM_SEGMENT}/defence-entrance/cds`, depth: 2 }),
+      node({ slug: "cds", label: "CDS", pillar: "entrance-exam", path: "sarkari-naukri/defence/cds-exam", depth: 2 }),
       node({ slug: "afcat", label: "AFCAT", pillar: "entrance-exam", path: `${ENTRANCE_EXAM_SEGMENT}/defence-entrance/afcat`, depth: 2 }),
-      node({ slug: "nda", label: "NDA", pillar: "entrance-exam", path: `${ENTRANCE_EXAM_SEGMENT}/defence-entrance/nda`, depth: 2 }),
+      node({ slug: "nda", label: "NDA", pillar: "entrance-exam", path: "sarkari-naukri/defence/nda-exam", depth: 2 }),
     ],
   }),
 ];
