@@ -174,7 +174,7 @@ function renderOrderedSections(
           URL. The full timeline treatment is 4b. */}
       {contentPosts.length > 0 && (
         <section aria-label="Updates" className="mb-5">
-          <h2 className="font-heading font-semibold text-base text-gray-800 mb-3">Updates</h2>
+          <h2 className="font-heading font-semibold text-base text-gray-800 mb-3">Updates / अपडेट</h2>
           <ul className="space-y-3">
             {contentPosts.map((post) => (
               <li key={post.id} className="border-l-2 border-primary/40 pl-3">

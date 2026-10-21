@@ -26,7 +26,7 @@ const ImportantDatesSummary: SectionSummary = (exam, todayISO) => (
   <section aria-label="Important dates" className="mb-5">
     <h2 className="font-heading font-semibold text-base text-gray-800 mb-3 flex items-center gap-2">
       <Calendar className="w-4 h-4 text-primary" />
-      Important Dates
+      Important Dates / महत्वपूर्ण तारीखें
     </h2>
     {/* Item 4 (mobile): rows, not a 3-column table. Event on the left, date on the right.
         The old Event/Date/Status grid needed a 420px min-width and scrolled horizontally at
@@ -99,7 +99,7 @@ const EligibilitySummary: SectionSummary = (exam) => {
   if (!exam.eligibility || !Object.values(exam.eligibility).some((v) => v)) return null;
   return (
     <section aria-label="Eligibility criteria" className="mb-5">
-      <h2 className="font-heading font-semibold text-base text-gray-800 mb-3">Eligibility Criteria</h2>
+      <h2 className="font-heading font-semibold text-base text-gray-800 mb-3">Eligibility / योग्यता</h2>
       <div className="overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0">
         <table className="min-w-[320px]">
           <caption className="sr-only">Eligibility for {exam.name}</caption>
@@ -131,7 +131,7 @@ const ApplicationFeeSummary: SectionSummary = (exam) => {
   if (!exam.applicationFee) return null;
   return (
     <section aria-label="Application fee" className="mb-5">
-      <h2 className="font-heading font-semibold text-base text-gray-800 mb-3">Application Fee</h2>
+      <h2 className="font-heading font-semibold text-base text-gray-800 mb-3">Application Fee / आवेदन शुल्क</h2>
       <div className="overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0">
         <table className="min-w-[280px]">
           <caption className="sr-only">Application fee for {exam.name}</caption>
@@ -185,7 +185,7 @@ const VacancySummary: SectionSummary = (exam) => {
   if (exam.vacancy == null || exam.vacancy <= 0) return null;
   return (
     <section aria-label="Vacancy details" className="mb-5">
-      <h2 className="font-heading font-semibold text-base text-gray-800 mb-3">Vacancy Details</h2>
+      <h2 className="font-heading font-semibold text-base text-gray-800 mb-3">Vacancy / रिक्तियाँ</h2>
       <p className="text-sm text-gray-700">
         <span className="font-medium">Total Vacancies:</span>{" "}
         {exam.vacancy.toLocaleString("en-IN")}
@@ -199,7 +199,7 @@ const SelectionProcessSummary: SectionSummary = (exam) => {
   if (!exam.selectionProcess || exam.selectionProcess.length === 0) return null;
   return (
     <section aria-label="Selection process" className="mb-5">
-      <h2 className="font-heading font-semibold text-base text-gray-800 mb-3">Selection Process</h2>
+      <h2 className="font-heading font-semibold text-base text-gray-800 mb-3">Selection Process / चयन प्रक्रिया</h2>
       <ol className="space-y-2">
         {exam.selectionProcess.map((step, i) => (
           <li key={step} className="flex items-start gap-3 text-sm">
