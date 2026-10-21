@@ -87,7 +87,35 @@
 
   /* Status badge */
   .status-badge {
-    @apply inline-flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded;
+    @apply inline-flex items-center gap-1 text-xs font-medium px-2.5 py-1 rounded-full;
+  }
+
+  /* ── Exam detail page — mock parity (scoped to .exam-content; no global
+     table/typography change). Cards, radius 14px, 12px gaps, row-bottom
+     tables, stacked dates on phones. Reuses existing tokens. ── */
+  .exam-content section {
+    @apply bg-card border border-border rounded-[14px] p-4 sm:px-4 sm:py-[14px] mb-3;
+  }
+  .exam-content section h2 {
+    @apply text-[1.05rem];
+  }
+  /* tables inside exam cards: row-bottom borders only (not the global grid) */
+  .exam-content table {
+    @apply w-full text-sm;
+  }
+  .exam-content table th,
+  .exam-content table td {
+    @apply border-0 border-b border-border px-2 py-2.5 text-left align-top;
+  }
+  .exam-content table thead th {
+    @apply bg-transparent text-xs uppercase tracking-wide text-gray-500;
+  }
+  /* important-dates: stacked rows on phones, a real table from 700px */
+  .exam-dates-table thead { @apply hidden; }
+  .exam-dates-table td { @apply flex items-baseline justify-between gap-3; }
+  .exam-dates-table td::before {
+    content: attr(data-label);
+    @apply text-gray-500 font-semibold shrink-0 mr-3;
   }
 
   /* Content type badge */
@@ -104,6 +132,15 @@
 @layer utilities {
   .animate-fade-in {
     animation: fadeIn 0.3s ease-in-out;
+  }
+
+  /* Exam-page important-dates becomes a real table from 700px (mock breakpoint). */
+  @media (min-width: 700px) {
+    .exam-dates-table thead { display: table-header-group; }
+    .exam-dates-table tr { display: table-row; }
+    .exam-dates-table th, .exam-dates-table td { display: table-cell; }
+    .exam-dates-table td { display: table-cell; }
+    .exam-dates-table td::before { content: none; }
   }
 
   /* Ticker animation */

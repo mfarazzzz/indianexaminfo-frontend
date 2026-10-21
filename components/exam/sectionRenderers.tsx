@@ -222,13 +222,13 @@ const FaqsSummary: SectionSummary = (exam) => {
   if (faqs.length === 0) return null;
   return (
     <section aria-label="Frequently asked questions" className="mb-5">
-      <h2 className="font-heading font-bold text-lg text-gray-900 mb-4">Frequently Asked Questions</h2>
-      <div className="space-y-4">
+      <h2 className="font-heading font-semibold text-[1.05rem] text-gray-900 mb-2">Frequently Asked Questions / प्रश्नोत्तरी</h2>
+      <div className="divide-y divide-border">
         {faqs.map((faq, i) => (
-          <div key={i} className="border border-border rounded p-4">
-            <h3 className="font-semibold text-gray-900 text-sm mb-2">{faq.question}</h3>
-            <p className="text-sm text-gray-700 leading-relaxed">{faq.answer}</p>
-          </div>
+          <details key={i} open={i === 0} className="py-2">
+            <summary className="cursor-pointer font-semibold text-gray-900 text-sm min-h-[32px]">{faq.question}</summary>
+            <p className="text-sm text-gray-700 leading-relaxed mt-2">{faq.answer}</p>
+          </details>
         ))}
       </div>
     </section>

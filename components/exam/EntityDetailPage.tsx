@@ -442,7 +442,7 @@ export async function EntityDetailPage({ exam, breadcrumbs, contentType, edition
 
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-6 mt-4">
           {/* Main */}
-          <main>
+          <main className="exam-content">
             {/* Status + Last Updated */}
             <div className="flex items-center gap-3 mb-2 text-sm">
               <span className={`status-badge ${statusColor(exam.status)}`}>
@@ -473,7 +473,7 @@ export async function EntityDetailPage({ exam, breadcrumbs, contentType, edition
                 focused body renders its own CT-specific H1. On a NON-CURRENT edition page, label
                 the cycle by its year (the year is a label). */}
             {!contentType && (
-              <h1 className="font-heading font-bold text-2xl text-gray-900 mb-3 article-title">
+              <h1 className="font-heading font-bold text-[1.35rem] min-[700px]:text-[1.7rem] text-gray-900 mb-3 article-title">
                 {editionContext && !editionContext.editions.some((e) => e.isCurrent && e.year === editionContext.viewingYear)
                   ? `${exam.name} ${editionContext.viewingYear} — Cycle Details`
                   : `${nameWithYear(exam.name, exam.currentEditionYear)} — Notification, Eligibility & Apply`}
@@ -493,7 +493,7 @@ export async function EntityDetailPage({ exam, breadcrumbs, contentType, edition
               return (
                 <>
                   {v.kind !== "verified" && (
-                    <p className="mb-3 rounded-lg bg-amber-50 border border-amber-200 text-amber-800 text-sm px-3 py-2">
+                    <p className="mb-3 rounded-[12px] bg-amber-50 border border-amber-200 text-amber-800 text-sm px-3 py-2">
                       {UNVERIFIED_EXAM_NOTICE}
                     </p>
                   )}
