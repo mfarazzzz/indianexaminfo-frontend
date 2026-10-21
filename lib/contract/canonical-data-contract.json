@@ -92,10 +92,10 @@
     "admit-card": {
       "status": "ACTIVE",
       "class": "editorial",
-      "editorFields": ["releaseDate", "downloadLink", "body", "documents"],
-      "rendererFields": ["releaseDate", "downloadLink", "documents"],
+      "editorFields": ["releaseDate", "downloadLink", "body", "documents", "steps", "carry"],
+      "rendererFields": ["releaseDate", "downloadLink", "documents", "steps", "carry"],
       "rendererFallback": { "prose": ["body", "content", "description"] },
-      "note": "Own editorial module; no column duplicate. AdmitCardModule renders releaseDate/downloadLink/documents + prose fallback."
+      "note": "Own editorial module; no column duplicate. AdmitCardModule renders releaseDate/downloadLink/documents + steps (how-to-download, 4b) + carry (documents to carry) + prose fallback. steps/carry are CMS/drawer-authored plain-string lists (B2/B3)."
     },
 
     "exam-pattern": {

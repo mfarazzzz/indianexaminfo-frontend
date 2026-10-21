@@ -85,6 +85,23 @@ export function buildFAQSchema(faqs: { question: string; answer: string }[]) {
   };
 }
 
+export function buildHowToSchema(name: string, steps: unknown) {
+  // 4b: HowTo markup ONLY when there are real, stored steps — never for empty,
+  // never invented. Each step is a plain string the editor authored from the notice.
+  const real = (Array.isArray(steps) ? steps : []).map((s) => String(s).trim()).filter(Boolean);
+  if (real.length === 0) return null;
+  return {
+    "@context": "https://schema.org",
+    "@type": "HowTo",
+    name,
+    itemListElement: real.map((text, i) => ({
+      "@type": "HowToStep",
+      position: i + 1,
+      text,
+    })),
+  };
+}
+
 export function buildArticleSchema(
   post: BlogPost | ContentPost,
   url: string,

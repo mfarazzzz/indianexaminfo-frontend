@@ -14,6 +14,7 @@ import { SocialChannelBanner } from "@/components/layout/SocialChannelBanner";
 import {
   buildFAQSchema,
   buildJobPostingSchema,
+  buildHowToSchema,
 } from "@/lib/seo/structured-data";
 import {
   formatDate,
@@ -426,6 +427,10 @@ export async function EntityDetailPage({ exam, breadcrumbs, contentType, edition
     const jobPosting = buildJobPostingSchema(exam);
     if (jobPosting) schemas.push(jobPosting);
   }
+  // 4b: HowTo markup ONLY when the admit-card module carries real steps (never empty).
+  const admitSteps = (exam.contentModules?.["admit-card"] as { steps?: unknown } | undefined)?.steps;
+  const howTo = buildHowToSchema(`${exam.name} admit card \u2014 how to download`, Array.isArray(admitSteps) ? admitSteps : []);
+  if (howTo) schemas.push(howTo);
 
   return (
     <>

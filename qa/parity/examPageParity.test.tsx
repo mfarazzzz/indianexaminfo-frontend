@@ -71,7 +71,7 @@ function renderPage(exam: ExamEntity): string {
 
 const RICH = makeExam();
 const NO_DATES = makeExam({ dates: [] });
-const NO_ELIG = makeExam({ eligibility: null });
+const NO_ELIG = makeExam({ eligibility: undefined });
 const NO_LINKS = makeExam({ officialWebsite: "" });
 
 describe("mock-parity harness — rich record renders its sections", () => {

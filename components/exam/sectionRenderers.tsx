@@ -613,14 +613,39 @@ const AdmitCardModule = (d: Record<string, unknown>, dateCtx?: DateCtx): React.R
   const downloadLink = str(d.downloadLink);
   const documents = safeHtml(d.documents);
   const body = safeHtml(d.body) || safeHtml(d.content) || safeHtml(d.description);
+  // 4b: how-to-download steps + documents-to-carry list (short plain strings, stored
+  // by the CMS). Rendered ONLY when present — never an empty shell, never invented.
+  const steps = strList(d.steps);
+  const carry = strList(d.carry);
   const dateLine = <DateLine label="Release Date" ctx={dateCtx} />;
   const hasDateLine = !!(dateCtx && (dateCtx.confirmedDate || dateCtx.expectedNote || dateCtx.expectedDate));
-  if (!hasDateLine && !downloadLink && !documents && !body) return null;
+  if (!hasDateLine && !downloadLink && !documents && !body && steps.length === 0 && carry.length === 0) return null;
   return (
     <section aria-label="Admit card" className="mb-5">
       <h2 className="font-heading font-semibold text-base text-gray-800 mb-3">Admit Card</h2>
       {dateLine}
       {body && <div className="article-body text-sm" dangerouslySetInnerHTML={{ __html: body }} />}
+      {steps.length > 0 && (
+        <div className="mt-3">
+          <h3 className="text-sm font-medium text-gray-800 mb-2">How to download / डाउनलोड कैसे करें</h3>
+          <ol className="space-y-2">
+            {steps.map((s, i) => (
+              <li key={i} className="flex items-start gap-3 text-sm">
+                <span className="w-6 h-6 shrink-0 rounded-full bg-primary text-white flex items-center justify-center text-xs font-bold mt-0.5">{i + 1}</span>
+                <span className="text-gray-700">{s}</span>
+              </li>
+            ))}
+          </ol>
+        </div>
+      )}
+      {carry.length > 0 && (
+        <div className="mt-3">
+          <h3 className="text-sm font-medium text-gray-800 mb-1">Documents to carry on exam day / साथ ले जाएँ</h3>
+          <ul className="list-disc pl-5 space-y-1 text-sm text-gray-700">
+            {carry.map((c, i) => <li key={i}>{c}</li>)}
+          </ul>
+        </div>
+      )}
       {documents && (
         <div className="mt-2">
           <h3 className="text-sm font-medium text-gray-800 mb-1">Documents to carry</h3>
