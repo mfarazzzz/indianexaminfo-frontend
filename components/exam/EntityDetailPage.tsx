@@ -32,6 +32,8 @@ import { pillarToUrlSegment } from "@/lib/exam/pillarUrl";
 import { SECTION_SUMMARY_RENDERERS, MODULE_RENDERERS } from "@/components/exam/sectionRenderers";
 import { moduleShowsInContentBlock } from "@/components/exam/contentModulesVisibility";
 import { resolveLastUpdated } from "@/lib/exam/lastUpdated";
+import { KeyDatesStrip } from "@/components/exam/KeyDatesStrip";
+import { pickAttestedAction, type AttestedLink } from "@/lib/exam/keyDates";
 import { nameWithYear } from "@/lib/seo/keywords";
 import { ExternalLink, Share2, ArrowRight } from "lucide-react";
 
@@ -477,6 +479,28 @@ export async function EntityDetailPage({ exam, breadcrumbs, contentType, edition
                   : `${nameWithYear(exam.name, exam.currentEditionYear)} — Notification, Eligibility & Apply`}
               </h1>
             )}
+
+            {/* 4a (2d): mobile-first — right under the title, the honest unverified
+                notice (when not editor-verified) then the Key-dates strip (next 2-3
+                dates + primary buttons). A Download/Apply button appears ONLY when an
+                attested URL exists on the exam's published updates; never a greyed
+                placeholder. MAIN PAGE ONLY. */}
+            {!contentType && (() => {
+              const v = getExamVerification(exam);
+              const links: AttestedLink[] = contentPosts.flatMap(
+                (p) => [...(p.quickLinks ?? []), ...(p.attachmentUrls ?? [])].map((l) => ({ label: l.label, url: l.url })),
+              );
+              return (
+                <>
+                  {v.kind !== "verified" && (
+                    <p className="mb-3 rounded-lg bg-amber-50 border border-amber-200 text-amber-800 text-sm px-3 py-2">
+                      {UNVERIFIED_EXAM_NOTICE}
+                    </p>
+                  )}
+                  <KeyDatesStrip dates={exam.dates} todayISO={todayISO} officialWebsite={exam.officialWebsite} action={pickAttestedAction(exam.status, links)} />
+                </>
+              );
+            })()}
 
             {/* Lead block — the answer first. MAIN PAGE ONLY (a CT sub-page is already the
                 answer to one question; repeating the card there is duplication). Reads derived
