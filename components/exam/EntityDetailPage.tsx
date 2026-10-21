@@ -165,25 +165,26 @@ function renderOrderedSections(
       {/* Resource library — exam-level, shared across editions (exam_resources). */}
       <ResourceLibrary resources={resources} />
 
-      {/* Content Posts — Latest Updates linked to this exam. */}
+      {/* Updates — the exam's own published updates (content_posts). Rendered ONLY
+          when published updates exist (the leak audit keeps them out of every
+          generic list/feed/sitemap, so this is their only surface). No per-update
+          page exists yet (4b), so each is shown INLINE — never linked to a made-up
+          URL. The full timeline treatment is 4b. */}
       {contentPosts.length > 0 && (
-        <section aria-label="Related content" className="mb-5">
-          <h2 className="font-heading font-semibold text-base text-gray-800 mb-3">Latest Updates</h2>
-          <div className="space-y-3">
+        <section aria-label="Updates" className="mb-5">
+          <h2 className="font-heading font-semibold text-base text-gray-800 mb-3">Updates</h2>
+          <ul className="space-y-3">
             {contentPosts.map((post) => (
-              <Link
-                key={post.id}
-                href={`/${post.pillar}/${post.examEntityName.toLowerCase().replace(/\s+/g, "-")}/${post.slug}`}
-                className="flex items-start gap-3 p-3 bg-card border border-border rounded hover:border-primary transition-colors group"
-              >
-                <span className="content-type-badge bg-primary/10 text-primary mt-0.5 shrink-0">{contentTypeLabel(post.contentType)}</span>
-                <div>
-                  <p className="text-sm font-semibold text-gray-900 group-hover:text-primary leading-snug">{post.title}</p>
-                  <p className="text-xs text-gray-500 mt-0.5">{formatDate(post.updatedAt)}</p>
+              <li key={post.id} className="border-l-2 border-primary/40 pl-3">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className="content-type-badge bg-primary/10 text-primary">{contentTypeLabel(post.contentType)}</span>
+                  <time className="text-xs text-gray-500">{formatDate(post.publishedAt || post.updatedAt)}</time>
                 </div>
-              </Link>
+                <p className="text-sm font-semibold text-gray-900 mt-1 leading-snug">{post.title}</p>
+                {post.excerpt && <p className="text-sm text-gray-600 mt-0.5">{post.excerpt}</p>}
+              </li>
             ))}
-          </div>
+          </ul>
         </section>
       )}
     </>

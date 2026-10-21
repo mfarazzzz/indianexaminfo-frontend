@@ -28,6 +28,7 @@ import { ExamListRow } from "@/components/exam/ExamListRow";
 import { SarkariNaukriList } from "@/components/sarkari-naukri/SarkariNaukriList";
 import { sortRecruitmentsOpenFirst } from "@/lib/sarkari/listing";
 import { buildExamMetadata } from "@/lib/seo/metadata";
+import { examUpdateSeo } from "@/lib/seo/examUpdateMeta";
 import { buildPageKeywords, buildSEOTitle, buildMetaDescription, buildLastModifiedSignal, getCurrentYear } from "@/lib/seo/keywords";
 import { siteConfig } from "@/config/site";
 import type { ContentType } from "@/types/exam";
@@ -73,10 +74,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       // so the main page's title matches the cycle it renders. Falls back to calendar year
       // only when no current edition is loaded.
       const year = exam.currentEditionYear ?? getCurrentYear();
+      // 4a (2g): a fresher title from the latest PUBLISHED update, else evergreen.
+      const seo = examUpdateSeo(exam, await getContentPostsByExam(exam.id, undefined, exam.slug));
       return buildExamMetadata({
         pageType: "exam-entity",
-        title: exam.seoTitle ?? `${exam.name} ${year} — Notification, Eligibility & Apply`,
-        description: exam.seoDescription ?? buildMetaDescription(exam.name, "notification", "", year),
+        title: exam.seoTitle ?? seo?.title ?? `${exam.name} ${year} — Notification, Eligibility & Apply`,
+        description: exam.seoDescription ?? seo?.description ?? buildMetaDescription(exam.name, "notification", "", year),
         keywords: buildPageKeywords({ pageType: "exam-entity", pillar: "government-exam", examSlug: slug }),
         canonicalUrl: `${siteConfig.url}/sarkari-naukri/${exam.category}/${slug}`,
         tags: exam.tags,
@@ -107,10 +110,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     if (!exam || !SERVED_PILLARS.has(exam.pillar) || !exam.category) return {};
     // Title year = current edition's year (current_edition_id), not calendar year.
     const year = exam.currentEditionYear ?? getCurrentYear();
+    // 4a (2g): a fresher title from the latest PUBLISHED update, else evergreen.
+    const seo = examUpdateSeo(exam, await getContentPostsByExam(exam.id, undefined, exam.slug));
     return buildExamMetadata({
       pageType: "exam-entity",
-      title: exam.seoTitle ?? `${exam.name} ${year} — Notification, Eligibility & Apply`,
-      description: exam.seoDescription ?? buildMetaDescription(exam.name, "notification", "", year),
+      title: exam.seoTitle ?? seo?.title ?? `${exam.name} ${year} — Notification, Eligibility & Apply`,
+      description: exam.seoDescription ?? seo?.description ?? buildMetaDescription(exam.name, "notification", "", year),
       keywords: buildPageKeywords({ pageType: "exam-entity", pillar: "government-exam", examSlug: slug }),
       canonicalUrl: `${siteConfig.url}/sarkari-naukri/${exam.category}/${slug}`,
       tags: exam.tags,
