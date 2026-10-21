@@ -10,6 +10,9 @@ export default defineConfig({
   resolve: {
     alias: { "@": root },
   },
+  // Enable the automatic JSX runtime for the qa/parity harness (which renders real
+  // components to static markup). Harmless for the pure-logic tests.
+  esbuild: { jsx: "automatic", jsxImportSource: "react" },
   test: {
     include: ["**/*.test.ts", "**/*.test.tsx"],
     environment: "node",
