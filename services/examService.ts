@@ -161,6 +161,16 @@ export function mapRow(row: Record<string, unknown>, derived?: DerivedInfo): Exa
   const contentModules = (ed?.content_modules as Record<string, unknown>) ?? undefined;
   const pillar = row.pillar as Pillar;
 
+  // S3.2 verification — a verified record is EXACTLY one carrying all three:
+  // the is_verified flag, a verified_at date and a verified_by id. The uuid is
+  // folded into this boolean and never mapped onto the entity (D6 decision 3:
+  // the public line names the editorial team, never a person).
+  const verifiedStamp = ((row.verified_at as string | undefined) ?? "").trim();
+  const verifiedFlag =
+    Boolean(row.is_verified) &&
+    !!((row.verified_by as string | undefined) ?? "").trim() &&
+    verifiedStamp !== "";
+
   // has_* flags are read EDITION-ONLY (no ?? row.has_* parent fallback). The
   // parent copies were the dual source (~67% disagreed); the edition flag is
   // what the CMS writes and what renders today.
@@ -241,6 +251,10 @@ export function mapRow(row: Record<string, unknown>, derived?: DerivedInfo): Exa
         // other selects may omit updated_by (→ treated as not-human → line omitted).
         editionUpdatedAt: ((ed as any)?.updated_at as string) ?? null,
         editionUpdatedBy: ((ed as any)?.updated_by as string) ?? null,
+    // S3.2: the reader trust line. `verified` is the only shape the verified_by
+    // uuid ever takes here — the id itself is not exposed to the page.
+    verified: verifiedFlag,
+    verifiedAt: verifiedFlag ? verifiedStamp : null,
     isFeatured: (row.is_featured as boolean) ?? false,
     searchKeywords: (row.search_keywords as string[]) ?? [],
     seoTitle: (row.seo_title as string) ?? undefined,

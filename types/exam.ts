@@ -63,16 +63,16 @@ export type ExamEntity = {
   status: ExamStatus;
 
   /**
-   * Editor verification — populated ONLY when a human has compared this record
-   * against the official notification. These are NOT columns on the
-   * exams / admission / board / university tables today (only sarkari_naukri has
-   * verified_at), so they are undefined for every exam record and the detail page
-   * always renders the honest "not yet verified" line. Kept optional so the same
-   * rule (lib/exam/detailView.getExamVerification) lights up automatically if the
-   * columns are ever added — no component change required.
+   * Editor verification (S3.2). The exams table carries is_verified /
+   * verified_at / verified_by; verified_by is a uuid and is deliberately NOT
+   * mapped — it folds into the `verified` boolean only, so a personal id can
+   * never reach the page (D6 decision 3: the public line names the team, never
+   * a person). A record is verified only with ALL THREE — flag, date, verifier.
+   * Until the CMS verify control stamps one, every exam resolves to the honest
+   * "not yet verified" line (lib/exam/detailView.getExamVerification).
    */
+  verified?: boolean;
   verifiedAt?: string | null;
-  verifiedBy?: string | null;
 
   /** Year LABEL of the current edition (from current_edition_id → exam_editions.year).
    *  This is the year the MAIN exam page represents — used for the title/H1 year so it

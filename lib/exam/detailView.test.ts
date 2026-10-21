@@ -1,14 +1,15 @@
 /**
- * detailView.test.ts — Sprint-1 T1 trust hotfix, reader-facing display rules.
+ * detailView.test.ts — reader-facing display rules (Sprint-1 T1, S3.2/D6 update).
  *
- * Pins two things the detail page must never get wrong again:
+ * Pins three things the detail page must never get wrong:
  *  (a) A record advertises an editor verification ONLY when it carries real
- *      verification data. Because the exam/admission/board/university tables have
- *      no verified_at / verified_by column, an exam record always resolves to the
- *      honest unverified line. A source scan also guards that the old false claim
- *      ("IndianExamInfo Editorial Team" / "verified by our editorial team") is not
- *      reintroduced into the component — in the spirit of
- *      lib/sarkari/verification.test.ts.
+ *      verification data — the `verified` flag AND a date (the read path already
+ *      requires the verifier id to set the flag; the uuid is never mapped). The
+ *      claim names the TEAM, never a person (D6 decision 3). Without both, the
+ *      honest "not yet verified" line stands — as it does for every record the
+ *      S3.2 verify control has not stamped (live today: 0 of 398).
+ * (b) No personal name can leak: the component reads v.label, never a name,
+ *      and the old unconditional claim stays source-blocked.
  *  (c) A sidebar list widget renders only when it has items (empty → hidden).
  */
 import { describe, it, expect } from 'vitest';
@@ -18,29 +19,31 @@ import {
   getExamVerification,
   shouldShowListWidget,
   UNVERIFIED_EXAM_NOTICE,
+  VERIFIED_BY_LABEL,
 } from './detailView';
 
-describe('getExamVerification — the verified-by line needs real data', () => {
-  it('is unverified when the record carries nothing (the exam-tables reality)', () => {
+describe('getExamVerification — the verified line needs real data', () => {
+  it('is unverified when the record carries nothing (the reality for every unstamped exam)', () => {
     expect(getExamVerification({})).toEqual({ kind: 'unverified' });
-    expect(getExamVerification({ verifiedAt: null, verifiedBy: null })).toEqual({ kind: 'unverified' });
+    expect(getExamVerification({ verified: false, verifiedAt: null })).toEqual({ kind: 'unverified' });
   });
 
-  it('is unverified when only a name OR only a date is present', () => {
-    expect(getExamVerification({ verifiedBy: 'Asha Rao' }).kind).toBe('unverified');
+  it('is unverified with a date but no verified flag, or a flag with no date', () => {
     expect(getExamVerification({ verifiedAt: '2026-09-28T00:00:00Z' }).kind).toBe('unverified');
+    expect(getExamVerification({ verified: true }).kind).toBe('unverified');
+    expect(getExamVerification({ verified: true, verifiedAt: '   ' }).kind).toBe('unverified');
   });
 
-  it('is unverified when the values are blank/whitespace', () => {
-    expect(getExamVerification({ verifiedBy: '   ', verifiedAt: '' }).kind).toBe('unverified');
-  });
-
-  it('is verified only when BOTH a name and a date are present, and trims them', () => {
-    expect(getExamVerification({ verifiedBy: ' Asha Rao ', verifiedAt: ' 2026-09-28 ' })).toEqual({
+  it('is verified ONLY with the flag AND a real date — and names the TEAM, never a person (D6 #3)', () => {
+    expect(getExamVerification({ verified: true, verifiedAt: ' 2026-10-21 ' })).toEqual({
       kind: 'verified',
-      name: 'Asha Rao',
-      date: '2026-09-28',
+      label: VERIFIED_BY_LABEL,
+      date: '2026-10-21',
     });
+  });
+
+  it('the team label is exactly the approved public line', () => {
+    expect(VERIFIED_BY_LABEL).toBe('IndianExamInfo editorial team');
   });
 });
 
@@ -78,6 +81,13 @@ describe('source scan — the false verification claim cannot return to the deta
 
   it('does not print "verified by our editorial team"', () => {
     expect(src.toLowerCase()).not.toContain('verified by our editorial team');
+  });
+
+  it('reads the team LABEL only — a personal name (v.name) can never return', () => {
+    expect(src).not.toMatch(/v\.name/);
+    expect(src).toContain('v.label');
+    // the team name lives in detailView (one source), not as a component literal
+    expect(src).not.toContain('IndianExamInfo editorial team');
   });
 
   it('renders the badge label from the shared statusLabel, not the raw enum', () => {

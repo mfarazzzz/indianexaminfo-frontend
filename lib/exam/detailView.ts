@@ -4,13 +4,14 @@
  * claim is decided inline in JSX. Same "derivation here, render there" split as
  * lib/exam/actionLinks.ts and lib/sarkari/verification.ts.
  *
- * Why these exist (Sprint-1 T1 trust hotfix):
+ * Why these exist (Sprint-1 T1 trust hotfix, updated for S3.2 / D6):
  *  - (a) The detail page used to print "Verified by: IndianExamInfo Editorial
- *    Team" / "verified by our editorial team" UNCONDITIONALLY. The
- *    exams/admission/board/university tables have no verified_at / verified_by
- *    column (only sarkari_naukri does — see lib/sarkari/verification.ts), so that
- *    claim was false for every exam record. A record may advertise an editor
- *    verification ONLY when it actually carries one.
+ *    Team" UNCONDITIONALLY — a false claim for every exam record. A record may
+ *    advertise an editor verification ONLY when it actually carries one. The
+ *    exams table now has is_verified / verified_at / verified_by (the S3.2
+ *    verify control writes them); the reader claim lights up only when all
+ *    three are present, and names the TEAM — never the person (D6 decision 3:
+ *    verified_by is a uuid and stays internal).
  *  - (c) A sidebar widget with no items (e.g. Tags) still rendered its heading
  *    and an empty box. It must disappear entirely when empty.
  */
@@ -25,23 +26,29 @@ export const UNVERIFIED_EXAM_NOTICE =
   "Compiled from the official notification. Not yet verified by our editors. " +
   "Always confirm dates, eligibility and fees on the official website before you apply or pay.";
 
+/**
+ * The ONE claim a verified page may make (D6 decision 3): the editorial team,
+ * never a personal name. verified_by stays an internal uuid; the read path
+ * folds it into the `verified` boolean and this label replaces any name.
+ */
+export const VERIFIED_BY_LABEL = "IndianExamInfo editorial team";
+
 export type VerificationAttribution =
-  | { kind: "verified"; name: string; date: string }
+  | { kind: "verified"; label: string; date: string }
   | { kind: "unverified" };
 
 /**
- * The verified-by line is shown ONLY when the record carries real verification
- * data — a non-empty verifier name AND a date. Missing/blank on either → the
- * honest unverified line. Today no exam table populates these columns, so exam
- * records always resolve to "unverified"; the rule lights up automatically if
- * verified_at / verified_by are added, without touching the component.
+ * The verified line is shown ONLY when the record carries real verification —
+ * the is_verified flag AND a verified_at date (the service already requires a
+ * verifier id to set `verified`; the uuid itself is never mapped). Anything
+ * less stays on the honest unverified line — a flag without an author or a
+ * date is not something a reader can trust.
  */
 export function getExamVerification(
-  exam: Pick<ExamEntity, "verifiedAt" | "verifiedBy">,
+  exam: Pick<ExamEntity, "verified" | "verifiedAt">,
 ): VerificationAttribution {
-  const name = exam.verifiedBy?.trim();
   const date = exam.verifiedAt?.trim();
-  if (name && date) return { kind: "verified", name, date };
+  if (exam.verified === true && date) return { kind: "verified", label: VERIFIED_BY_LABEL, date };
   return { kind: "unverified" };
 }
 

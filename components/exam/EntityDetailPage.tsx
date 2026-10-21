@@ -540,7 +540,15 @@ export async function EntityDetailPage({ exam, breadcrumbs, contentType, edition
               );
               return (
                 <>
-                  {v.kind !== "verified" && (
+                  {v.kind === "verified" ? (
+                    /* S3.2/D6 #3: the verified line names the TEAM and the date —
+                       never a person. It replaces the honest notice at the same
+                       spot; nothing here is shown unless the record really carries
+                       flag + date + verifier. */
+                    <p className="mb-3 rounded-[12px] bg-emerald-50 border border-emerald-200 text-emerald-800 text-sm px-3 py-2" data-testid="verified-notice">
+                      Verified by {v.label} · {formatDate(v.date)}
+                    </p>
+                  ) : (
                     <p className="mb-3 rounded-[12px] bg-amber-50 border border-amber-200 text-amber-800 text-sm px-3 py-2">
                       {UNVERIFIED_EXAM_NOTICE}
                     </p>
@@ -681,7 +689,7 @@ export async function EntityDetailPage({ exam, breadcrumbs, contentType, edition
                   return v.kind === "verified" ? (
                     <p>
                       <span className="font-medium text-gray-600">Verified by:</span>{" "}
-                      {v.name} on {formatDate(v.date)}
+                      {v.label} · {formatDate(v.date)}
                     </p>
                   ) : (
                     <p className="text-gray-400 mt-1">{UNVERIFIED_EXAM_NOTICE}</p>
