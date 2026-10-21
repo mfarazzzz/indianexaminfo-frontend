@@ -5,6 +5,8 @@ import { getExamBySlug, getExamEditionsForSwitcher, getExamSlugsForPillar } from
 import { EntityDetailPage } from "@/components/exam/EntityDetailPage";
 import { buildEditionContext } from "@/lib/exam/editions";
 import { buildExamMetadata } from "@/lib/seo/metadata";
+import { examUpdateSeo } from "@/lib/seo/examUpdateMeta";
+import { getContentPostsByExam } from "@/services/contentPostService";
 import {
   buildPageKeywords, buildMetaDescription, getCurrentYear,
 } from "@/lib/seo/keywords";
@@ -34,10 +36,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   // Canonical from the RECORD, never the URL. A board record with no category has no
   // public URL at this shape (the flat /board-exam/<slug> route is its home) → no metadata.
   if (!exam || !exam.category) return {};
+  // 4a (2g): a fresher title from the latest PUBLISHED update, else evergreen.
+  const seo = examUpdateSeo(exam, await getContentPostsByExam(exam.id, undefined, exam.slug));
   return buildExamMetadata({
     pageType: "board",
-    title: exam.seoTitle ?? `${exam.shortName} ${getCurrentYear()} — Result, Date Sheet & Admit Card`,
-    description: exam.seoDescription ?? buildMetaDescription(exam.name, "result", "", getCurrentYear()),
+    title: exam.seoTitle ?? seo?.title ?? `${exam.shortName} ${getCurrentYear()} — Result, Date Sheet & Admit Card`,
+    description: exam.seoDescription ?? seo?.description ?? buildMetaDescription(exam.name, "result", "", getCurrentYear()),
     keywords: buildPageKeywords({ pageType: "board", pillar: "board-exam", examSlug: slug }),
     canonicalUrl: `${siteConfig.url}/board-exam/state/${exam.category}/${slug}`,
     updatedAt: examUpdatedFrom(exam) ?? undefined,

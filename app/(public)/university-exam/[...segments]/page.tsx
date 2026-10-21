@@ -10,6 +10,7 @@ import { getExamBySlug, getExamsByCategory, contentTypeAvailable, getExamEdition
 import { getContentPostsByExam } from "@/services/contentPostService";
 import { EntityDetailPage } from "@/components/exam/EntityDetailPage";
 import { buildExamMetadata } from "@/lib/seo/metadata";
+import { examUpdateSeo } from "@/lib/seo/examUpdateMeta";
 import { buildPageKeywords, buildSEOTitle, buildMetaDescription, getCurrentYear } from "@/lib/seo/keywords";
 import { siteConfig } from "@/config/site";
 import { contentTypeLabel } from "@/lib/utils";
@@ -45,10 +46,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     if (exam && SERVED_PILLARS.has(exam.pillar)) {
       // Title year = current edition's year (current_edition_id), not the calendar year.
       const year = exam.currentEditionYear ?? getCurrentYear();
+      const seo = examUpdateSeo(exam, await getContentPostsByExam(exam.id, undefined, exam.slug));
       return buildExamMetadata({
         pageType: "exam-entity",
-        title: exam.seoTitle ?? `${exam.name} ${year} — Result, Date Sheet & Admission`,
-        description: exam.seoDescription ?? buildMetaDescription(exam.name, "result", "", year),
+        title: exam.seoTitle ?? seo?.title ?? `${exam.name} ${year} — Result, Date Sheet & Admission`,
+        description: exam.seoDescription ?? seo?.description ?? buildMetaDescription(exam.name, "result", "", year),
         canonicalUrl: `${siteConfig.url}/university-exam/${exam.category}/${slug}`,
         updatedAt: examUpdatedFrom(exam) ?? undefined,
       });
@@ -64,10 +66,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     if (exam && SERVED_PILLARS.has(exam.pillar) && exam.category) {
       // Title year = current edition's year (current_edition_id), not the calendar year.
       const year = exam.currentEditionYear ?? getCurrentYear();
+      const seo = examUpdateSeo(exam, await getContentPostsByExam(exam.id, undefined, exam.slug));
       return buildExamMetadata({
         pageType: "exam-entity",
-        title: exam.seoTitle ?? `${exam.name} ${year} — Result, Date Sheet & Admission`,
-        description: exam.seoDescription ?? buildMetaDescription(exam.name, "result", "", year),
+        title: exam.seoTitle ?? seo?.title ?? `${exam.name} ${year} — Result, Date Sheet & Admission`,
+        description: exam.seoDescription ?? seo?.description ?? buildMetaDescription(exam.name, "result", "", year),
         keywords: buildPageKeywords({ pageType: "exam-entity", pillar: "university-exam", examSlug: slug }),
         canonicalUrl: `${siteConfig.url}/university-exam/${exam.category}/${slug}`,
         updatedAt: examUpdatedFrom(exam) ?? undefined,

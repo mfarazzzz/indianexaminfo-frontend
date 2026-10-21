@@ -5,6 +5,8 @@ import { getExamBySlug, getExamEditionsForSwitcher, getExamSlugsForPillar } from
 import { EntityDetailPage } from "@/components/exam/EntityDetailPage";
 import { buildEditionContext } from "@/lib/exam/editions";
 import { buildExamMetadata } from "@/lib/seo/metadata";
+import { examUpdateSeo } from "@/lib/seo/examUpdateMeta";
+import { getContentPostsByExam } from "@/services/contentPostService";
 import { buildPageKeywords, buildMetaDescription, getCurrentYear } from "@/lib/seo/keywords";
 import { categoryBreadcrumbLabel, categoryMismatch } from "@/lib/exam/categoryCanonical";
 import { siteConfig } from "@/config/site";
@@ -34,10 +36,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   // handler 404s it).
   if (!exam || exam.pillar !== "entrance-exam" || !exam.category) return {};
   const year = getCurrentYear();
+  // 4a (2g): a fresher title from the latest PUBLISHED update, else evergreen.
+  const seo = examUpdateSeo(exam, await getContentPostsByExam(exam.id, undefined, exam.slug));
   return buildExamMetadata({
     pageType: "exam-entity",
-    title: exam.seoTitle ?? `${exam.name} ${year} — Notification, Eligibility & Apply`,
-    description: exam.seoDescription ?? buildMetaDescription(exam.name, "notification", "", year),
+    title: exam.seoTitle ?? seo?.title ?? `${exam.name} ${year} — Notification, Eligibility & Apply`,
+    description: exam.seoDescription ?? seo?.description ?? buildMetaDescription(exam.name, "notification", "", year),
     keywords: buildPageKeywords({ pageType: "exam-entity", pillar: exam.pillar, examSlug: slug }),
     canonicalUrl: `${siteConfig.url}/admission/${exam.category}/${slug}`,
     tags: exam.tags,

@@ -16,6 +16,7 @@ import { getExamBySlug, getExamsByCategory, contentTypeAvailable, getExamEdition
 import { getContentPostsByExam, getLatestByContentType } from "@/services/contentPostService";
 import { EntityDetailPage } from "@/components/exam/EntityDetailPage";
 import { buildExamMetadata } from "@/lib/seo/metadata";
+import { examUpdateSeo } from "@/lib/seo/examUpdateMeta";
 import { buildPageKeywords, buildMetaDescription, getCurrentYear } from "@/lib/seo/keywords";
 import { siteConfig } from "@/config/site";
 import { contentTypeLabel } from "@/lib/utils";
@@ -47,10 +48,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       const canonicalUrl = exam.category
         ? `${siteConfig.url}/board-exam/state/${exam.category}/${slug}`
         : `${siteConfig.url}/board-exam/${slug}`;
+      // 4a (2g): a fresher title from the latest PUBLISHED update, else evergreen.
+      const seo = examUpdateSeo(exam, await getContentPostsByExam(exam.id, undefined, exam.slug));
       return buildExamMetadata({
         pageType: "exam-entity",
-        title: exam.seoTitle ?? `${exam.name} ${year}`,
-        description: exam.seoDescription ?? buildMetaDescription(exam.name, "result", "", year),
+        title: exam.seoTitle ?? seo?.title ?? `${exam.name} ${year}`,
+        description: exam.seoDescription ?? seo?.description ?? buildMetaDescription(exam.name, "result", "", year),
         canonicalUrl,
         updatedAt: examUpdatedFrom(exam) ?? undefined,
       });
