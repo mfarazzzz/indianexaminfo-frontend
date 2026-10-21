@@ -26,6 +26,7 @@ export async function GET() {
       .from("content_posts")
       .select("slug, title, published_at, content_type, tags, exam_entity_name")
       .eq("status", "published")
+      .is("exam_id", null) // exam-linked updates are NOT generic news — keep them out of the news sitemap
       .in("content_type", NEWS_CONTENT_TYPES)
       .gte("published_at", twoDaysAgo)
       .order("published_at", { ascending: false })

@@ -86,6 +86,7 @@ export async function getContentPostBySlug(slug: string): Promise<ContentPost | 
       .select("*")
       .eq("slug", slug)
       .eq("status", "published")
+      .is("exam_id", null) // a generic /news page never renders an exam-linked update
       .maybeSingle();
     if (error || !data) return null;
     return mapRow(data as Record<string, unknown>);
@@ -107,6 +108,7 @@ export async function getLatestByContentType(
         .select("*")
         .eq("content_type", contentType)
         .eq("status", "published")
+        .is("exam_id", null) // hubs/lists show generic posts only; exam updates live on the exam page
         .order("updated_at", { ascending: false })
         .limit(limit);
       if (error) throw error;
@@ -126,6 +128,7 @@ export async function getContentPostsByPillar(pillar: Pillar): Promise<ContentPo
       .select("*")
       .eq("pillar", pillar)
       .eq("status", "published")
+      .is("exam_id", null)
       .order("updated_at", { ascending: false });
     if (error) throw error;
     return (data ?? []).map((r: any) => mapRow(r));
@@ -143,6 +146,7 @@ export async function getFeaturedContentPosts(): Promise<ContentPost[]> {
       .select("*")
       .eq("is_featured", true)
       .eq("status", "published")
+      .is("exam_id", null)
       .order("updated_at", { ascending: false });
     if (error) throw error;
     return (data ?? []).map((r: any) => mapRow(r));
@@ -160,6 +164,7 @@ export async function searchContentPosts(query: string): Promise<ContentPost[]> 
       .from("content_posts")
       .select("*")
       .eq("status", "published")
+      .is("exam_id", null) // search surfaces generic posts, not an exam's update feed
       .or(`title.ilike.%${query}%,exam_entity_name.ilike.%${query}%`)
       .limit(20);
     if (error) throw error;
@@ -178,6 +183,7 @@ export async function getLatestContentPosts(limit = 10): Promise<ContentPost[]> 
         .from("content_posts")
         .select("*")
         .eq("status", "published")
+        .is("exam_id", null) // latest/ticker/RSS show generic posts only
         .order("updated_at", { ascending: false })
         .limit(limit);
       if (error) throw error;
