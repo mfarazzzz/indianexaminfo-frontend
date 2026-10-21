@@ -229,4 +229,22 @@ export type ContentPost = {
   seoTitle: string;
   seoDescription: string;
   faqs?: { question: string; answer: string }[];
+
+  /**
+   * D-P2 / 4b — the per-exam Updates lifecycle carried by content_posts. All
+   * OPTIONAL: a generic news/blog post has none of these, and the reader never
+   * shows a chip for an absent field. Mirrors the CMS write side
+   * (src/services/examUpdatesService.ts) and the content_posts columns added in
+   * migration 20261013125113.
+   *   kind        — announcement lifecycle (null on a plain post).
+   *   supersedesId— this update replaces the referenced one (chain edge).
+   *   verifiedBy  — an editor confirmed it against the official notice; a verified
+   *                 update is exactly one where this is non-null (no separate flag).
+   *   displayOrder/reader order; expiresAt — a dated announcement that has passed.
+   */
+  kind?: "provisional" | "final" | "revised" | "corrigendum" | "withdrawn" | null;
+  supersedesId?: string | null;
+  verifiedBy?: string | null;
+  displayOrder?: number;
+  expiresAt?: string | null;
 };

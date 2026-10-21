@@ -35,6 +35,13 @@ function mapRow(row: Record<string, unknown>): ContentPost {
     seoTitle: (row.seo_title as string) ?? "",
     seoDescription: (row.seo_description as string) ?? "",
     faqs: (row.faqs as ContentPost["faqs"]) ?? [],
+    // D-P2 / 4b Updates lifecycle — only meaningful on an exam update; a plain
+    // post leaves these null/undefined and the reader shows no chip for them.
+    kind: (row.kind as ContentPost["kind"]) ?? null,
+    supersedesId: (row.supersedes_id as string) ?? null,
+    verifiedBy: (row.verified_by as string) ?? null,
+    displayOrder: typeof row.display_order === "number" ? row.display_order : 0,
+    expiresAt: (row.expires_at as string) ?? null,
   };
 }
 

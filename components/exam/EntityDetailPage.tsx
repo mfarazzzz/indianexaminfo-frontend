@@ -33,6 +33,7 @@ import { pillarToUrlSegment } from "@/lib/exam/pillarUrl";
 import { SECTION_SUMMARY_RENDERERS, MODULE_RENDERERS } from "@/components/exam/sectionRenderers";
 import { moduleShowsInContentBlock } from "@/components/exam/contentModulesVisibility";
 import { resolveLastUpdated } from "@/lib/exam/lastUpdated";
+import { partitionUpdates } from "@/lib/exam/updates";
 import { KeyDatesStrip } from "@/components/exam/KeyDatesStrip";
 import { pickAttestedAction, type AttestedLink } from "@/lib/exam/keyDates";
 import { nameWithYear } from "@/lib/seo/keywords";
@@ -170,26 +171,68 @@ function renderOrderedSections(
 
       {/* Updates — the exam's own published updates (content_posts). Rendered ONLY
           when published updates exist (the leak audit keeps them out of every
-          generic list/feed/sitemap, so this is their only surface). No per-update
-          page exists yet (4b), so each is shown INLINE — never linked to a made-up
-          URL. The full timeline treatment is 4b. */}
-      {contentPosts.length > 0 && (
-        <section aria-label="Updates" className="mb-5">
-          <h2 className="font-heading font-semibold text-base text-gray-800 mb-3">Updates / अपडेट</h2>
-          <ul className="space-y-3">
-            {contentPosts.map((post) => (
-              <li key={post.id} className="border-l-2 border-primary/40 pl-3">
-                <div className="flex items-center gap-2 flex-wrap">
-                  <span className="content-type-badge bg-primary/10 text-primary">{contentTypeLabel(post.contentType)}</span>
-                  <time className="text-xs text-gray-500">{formatDate(post.publishedAt || post.updatedAt)}</time>
-                </div>
-                <p className="text-sm font-semibold text-gray-900 mt-1 leading-snug">{post.title}</p>
-                {post.excerpt && <p className="text-sm text-gray-600 mt-0.5">{post.excerpt}</p>}
-              </li>
-            ))}
-          </ul>
-        </section>
-      )}
+          generic list/feed/sitemap, so this is their only surface). 4b timeline:
+          each item carries ONLY the chips its stored data supports — a content-type
+          badge, a lifecycle kind badge (provisional/revised/corrigendum/final), a
+          Verified chip ONLY when an editor verified it (verifiedBy set). Withdrawn
+          and superseded updates move out of the live list into "History / Withdrawn"
+          (still readable — withdrawal is history, not a secret). No per-update page
+          exists, so each is shown INLINE — never linked to a made-up URL. */}
+      {(() => {
+        const { active, history } = partitionUpdates(contentPosts);
+        if (active.length === 0 && history.length === 0) return null;
+        const KIND_LABEL: Record<string, string> = { provisional: "Provisional", final: "Final", revised: "Revised", corrigendum: "Corrigendum" };
+        return (
+          <>
+            {active.length > 0 && (
+              <section aria-label="Updates" className="mb-5">
+                <h2 className="font-heading font-semibold text-base text-gray-800 mb-3">Updates / अपडेट</h2>
+                <ul className="space-y-3">
+                  {active.map(({ post, kind, verified }) => (
+                    <li key={post.id} className="border-l-2 border-primary/40 pl-3">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="content-type-badge bg-primary/10 text-primary">{contentTypeLabel(post.contentType)}</span>
+                        {kind && kind !== "withdrawn" && (
+                          <span className="text-[11px] font-medium px-1.5 py-0.5 rounded bg-gray-100 text-gray-600">{KIND_LABEL[kind] ?? kind}</span>
+                        )}
+                        {verified && (
+                          <span
+                            className="text-[11px] font-semibold px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-700"
+                            title="An editor confirmed this against the official notice"
+                          >
+                            Verified
+                          </span>
+                        )}
+                        <time className="text-xs text-gray-500">{formatDate(post.publishedAt || post.updatedAt)}</time>
+                      </div>
+                      <p className="text-sm font-semibold text-gray-900 mt-1 leading-snug">{post.title}</p>
+                      {post.excerpt && <p className="text-sm text-gray-600 mt-0.5">{post.excerpt}</p>}
+                    </li>
+                  ))}
+                </ul>
+              </section>
+            )}
+            {history.length > 0 && (
+              <section aria-label="History and withdrawn updates" className="mb-5">
+                <h2 className="font-heading font-semibold text-sm text-gray-500 mb-2">History / Withdrawn</h2>
+                <ul className="space-y-2">
+                  {history.map(({ post, withdrawn, superseded }) => (
+                    <li key={post.id} className="border-l-2 border-gray-300 pl-3">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="content-type-badge bg-gray-100 text-gray-500">{contentTypeLabel(post.contentType)}</span>
+                        {withdrawn && <span className="text-[11px] font-medium px-1.5 py-0.5 rounded bg-rose-50 text-rose-700">Withdrawn</span>}
+                        {superseded && <span className="text-[11px] font-medium px-1.5 py-0.5 rounded bg-amber-50 text-amber-700">Superseded</span>}
+                        <time className="text-xs text-gray-400">{formatDate(post.publishedAt || post.updatedAt)}</time>
+                      </div>
+                      <p className="text-sm text-gray-500 mt-0.5 leading-snug">{post.title}</p>
+                    </li>
+                  ))}
+                </ul>
+              </section>
+            )}
+          </>
+        );
+      })()}
     </>
   );
 }
