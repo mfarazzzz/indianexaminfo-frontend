@@ -10,6 +10,7 @@ import { RelatedKeywordsSection } from "@/components/seo/RelatedKeywords";
 import { buildFAQSchema } from "@/lib/seo/structured-data";
 import { buildSEOTitle, buildLastModifiedSignal, getCurrentYear } from "@/lib/seo/keywords";
 import { formatDate, contentTypeLabel } from "@/lib/utils";
+import { getExamVerification, UNVERIFIED_EXAM_NOTICE } from "@/lib/exam/detailView";
 import { safeHtml } from "@/lib/sanitize";
 import { ContentTypeDataRenderer } from "@/components/exam/ContentTypeDataRenderer";
 import { ContentModulesBlock } from "@/components/exam/EntityDetailPage";
@@ -69,10 +70,15 @@ export async function SarkariNaukriContentTypeView({ exam, category, slug, conte
   const catLabel = category.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
   let officialHost = "";
   try { officialHost = new URL(exam.officialWebsite).hostname; } catch {}
+  // Item 4 (one rule): the CURRENT EDITION timeline (exam.dates) is the single
+  // canonical schedule everywhere — strip, status card, dates list and CT pages
+  // all read it, so they can never disagree. An update's own important_dates is a
+  // point-in-time announcement, not a second schedule (shown in the Updates feed).
+  const dateRows = exam.dates ?? [];
 
   return (
     <>
-      {post?.faqs?.length && <JsonLd data={buildFAQSchema(post.faqs)} />}
+      {!!post?.faqs?.length && <JsonLd data={buildFAQSchema(post.faqs)} />}
 
       <div className="container mx-auto px-4 py-4">
         <Breadcrumb items={[
@@ -127,11 +133,12 @@ export async function SarkariNaukriContentTypeView({ exam, category, slug, conte
               )}
             </div>
 
-            {/* Summary box */}
+            {/* Summary box — renders only when there is at least one fact. */}
+            {(dateRows.length > 0 || exam.officialWebsite) && (
             <section className="summary-box mb-5" aria-label="Quick Summary">
               <h2 className="font-heading font-semibold text-sm text-gray-800 mb-2">Key Highlights</h2>
               <ul className="space-y-1 text-sm text-gray-700">
-                {exam.dates.slice(0, 4).map((d) => (
+                {dateRows.slice(0, 4).map((d) => (
                   <li key={d.label}>
                     <span className="font-medium">{d.label}:</span>{" "}
                     <span className={d.isUrgent ? "text-accent font-semibold" : ""}>{formatDate(d.date)}</span>
@@ -144,6 +151,7 @@ export async function SarkariNaukriContentTypeView({ exam, category, slug, conte
                 )}
               </ul>
             </section>
+            )}
 
             {/* CTA */}
             <div className="mb-5 flex flex-wrap gap-3">
@@ -199,7 +207,8 @@ export async function SarkariNaukriContentTypeView({ exam, category, slug, conte
               />
             )}
 
-            {/* Dates table */}
+            {/* Dates table — renders only when there is at least one row (no header-only table). */}
+            {dateRows.length > 0 && (
             <section aria-label="Important dates" className="mb-6">
               <h2 className="font-heading font-bold text-lg text-gray-900 mb-3">Important Dates</h2>
               <div className="overflow-x-auto">
@@ -207,7 +216,7 @@ export async function SarkariNaukriContentTypeView({ exam, category, slug, conte
                   <caption className="sr-only">Dates for {exam.name} {ctLabel}</caption>
                   <thead><tr><th scope="col">Event</th><th scope="col">Date</th></tr></thead>
                   <tbody>
-                    {(post?.importantDates ?? exam.dates).map((d) => (
+                    {dateRows.map((d) => (
                       <tr key={d.label}>
                         <td>{d.label}</td>
                         <td className={`font-mono ${d.isUrgent ? "text-accent font-semibold" : "text-gray-700"}`}>
@@ -219,6 +228,7 @@ export async function SarkariNaukriContentTypeView({ exam, category, slug, conte
                 </table>
               </div>
             </section>
+            )}
 
             {/* FAQs */}
             {post?.faqs?.length ? (
@@ -235,12 +245,25 @@ export async function SarkariNaukriContentTypeView({ exam, category, slug, conte
               </section>
             ) : null}
 
-            {officialHost && (
-              <p className="text-xs text-gray-400 border-t border-border pt-3">
-                Information sourced from <a href={exam.officialWebsite} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">{officialHost}</a>.{" "}
-                Last verified: {buildLastModifiedSignal(exam.lastUpdated)}.
-              </p>
-            )}
+            {(() => {
+              // Item 3: a verification claim ONLY when the record truly carries the
+              // verified stamp (flag + date + verifier, the examService.mapRow rule).
+              // Otherwise: source line with no claim, plus the honest amber notice.
+              const v = getExamVerification(exam);
+              return (
+                <>
+                  {officialHost && (
+                    <p className="text-xs text-gray-400 border-t border-border pt-3">
+                      Information sourced from <a href={exam.officialWebsite} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">{officialHost}</a>.{" "}
+                      {v.kind === "verified" ? <>Verified by {v.label} · {formatDate(v.date)}.</> : null}
+                    </p>
+                  )}
+                  {v.kind !== "verified" && (
+                    <p className="exam-notice-warn mt-3">{UNVERIFIED_EXAM_NOTICE}</p>
+                  )}
+                </>
+              );
+            })()}
 
             <RelatedKeywordsSection examSlug={slug} />
           </main>

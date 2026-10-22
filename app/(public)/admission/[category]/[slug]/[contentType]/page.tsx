@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { examUpdatedFrom } from "@/lib/exam/lastUpdated";
+import { getExamVerification, UNVERIFIED_EXAM_NOTICE } from "@/lib/exam/detailView";
 import { notFound, permanentRedirect } from "next/navigation";
 import { getExamBySlug, contentTypeAvailable, getExamSyllabus } from "@/services/examService";
 import { SyllabusSection } from "@/components/exam/SyllabusSection";
@@ -138,7 +139,7 @@ export default async function EntranceContentTypePage({ params }: Props) {
 
   return (
     <>
-      {post?.faqs?.length && <JsonLd data={buildFAQSchema(post.faqs)} />}
+      {!!post?.faqs?.length && <JsonLd data={buildFAQSchema(post.faqs)} />}
 
       <div className="container mx-auto px-4 py-4">
         <Breadcrumb items={[
@@ -252,7 +253,7 @@ export default async function EntranceContentTypePage({ params }: Props) {
                   <caption className="sr-only">Dates for {exam.name} {ctLabel}</caption>
                   <thead><tr><th scope="col">Event</th><th scope="col">Date</th></tr></thead>
                   <tbody>
-                    {(post?.importantDates ?? exam.dates).map((d) => (
+                    {(exam.dates ?? []).map((d) => (
                       <tr key={d.label}>
                         <td>{d.label}</td>
                         <td className={`font-mono ${d.isUrgent ? "text-accent font-semibold" : "text-gray-700"}`}>
@@ -266,7 +267,7 @@ export default async function EntranceContentTypePage({ params }: Props) {
             </section>
 
             {/* FAQs */}
-            {post?.faqs?.length && (
+            {!!post?.faqs?.length && (
               <section aria-label="FAQ" className="mb-6">
                 <h2 className="font-heading font-bold text-lg text-gray-900 mb-4">Frequently Asked Questions</h2>
                 <div className="space-y-3">
@@ -282,8 +283,11 @@ export default async function EntranceContentTypePage({ params }: Props) {
 
             <p className="text-xs text-gray-400 border-t border-border pt-3">
               Information sourced from <a href={exam.officialWebsite} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">{officialHost}</a>.{" "}
-              {(() => { const lu = examUpdatedFrom(exam); return lu ? <>Last verified: {buildLastModifiedSignal(lu)}.</> : null; })()}
+              {(() => { const v = getExamVerification(exam); return v.kind === "verified" ? <>Verified by {v.label} · {buildLastModifiedSignal(v.date)}.</> : null; })()}
             </p>
+            {getExamVerification(exam).kind !== "verified" && (
+              <p className="exam-notice-warn mt-3">{UNVERIFIED_EXAM_NOTICE}</p>
+            )}
 
             {/* Related keyword searches */}
             <RelatedKeywordsSection examSlug={slug} />

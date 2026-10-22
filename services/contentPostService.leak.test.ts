@@ -65,6 +65,11 @@ describe("the exam-page reader is the ONLY one that reads by exam_id", () => {
     expect(lastFilters.some(([c, op, v]) => c === "exam_id" && op === "eq" && v === "ex-123")).toBe(true);
     expect(hasExamNull()).toBe(false);
   });
+  it("getContentPostsByExam filters status=published, so a DRAFT can never appear publicly", async () => {
+    await getContentPostsByExam("ex-123");
+    // P0 item 5: the reader must never surface an unpublished draft update.
+    expect(lastFilters.some(([c, op, v]) => c === "status" && op === "eq" && v === "published")).toBe(true);
+  });
 });
 
 // B3/B4 (owner decision 22 Oct): the ticker/home pools are exam-linked BY DESIGN -
