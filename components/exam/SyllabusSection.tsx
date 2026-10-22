@@ -7,6 +7,7 @@
  * separately. Renders nothing when there are no subjects.
  */
 import type { StructuredSyllabus } from "@/services/examService";
+import { sectionHeading } from "@/lib/exam/sectionHeadings";
 
 const UNIT_LABEL: Record<string, string> = { marks: "Marks", questions: "Questions", percent: "%" };
 
@@ -26,7 +27,7 @@ export function SyllabusSection({
   return (
     <section aria-label="Syllabus" className="mb-5">
       <h2 className="font-heading font-semibold text-base text-gray-800 mb-1">
-        Syllabus{showWeightage ? " & Weightage" : ""}
+        {sectionHeading(showWeightage ? "syllabus-weightage" : "syllabus")}
       </h2>
       {archived && (
         // Never let the current structured syllabus read as "this was the archived year's".

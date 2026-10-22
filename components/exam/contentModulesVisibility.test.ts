@@ -1,50 +1,91 @@
 /**
- * contentModulesVisibility.test.ts — the duplicate "About This Exam" fix (Part 1 / 1c).
+ * contentModulesVisibility.test.ts — the block renders what no other surface owns.
  *
- * On live exam pages overview rendered TWICE: once by the registry ordered-section
- * loop (SECTION_SUMMARY_RENDERERS.overview) and again by ContentModulesBlock. The
- * pure predicate below is the single rule ContentModulesBlock now uses; these tests
- * pin that overview is dropped from the block on the main page (so it shows once,
- * from the loop) while every other editorial module still renders, and that the
- * focused tab sub-page keeps its own behaviour.
+ * The duplicate-section defect class (reference-page audit, 23 Oct): the ordered
+ * main-page loop and ContentModulesBlock both walked the editorial modules, so a
+ * record with an `eligibility` module got "Eligibility / योग्यता" AND "Eligibility
+ * Criteria" on one page. The predicate now comes from the section registry (via
+ * mainPageOwner), so ownership is derived, never hand-listed.
  */
 import { describe, it, expect } from "vitest";
-import {
-  moduleShowsInContentBlock, TAB_ONLY_MODULES, MAIN_PAGE_LOOP_MODULES,
-} from "@/components/exam/contentModulesVisibility";
+import { moduleShowsInContentBlock } from "@/components/exam/contentModulesVisibility";
+import { mainPageOwner, TAB_SURFACE_MODULES } from "@/lib/exam/sectionOwnership";
+import { SECTION_BY_SLUG } from "@/lib/sectionRegistry";
 
-const ENABLED = ["overview", "eligibility", "important-dates", "vacancy-details", "result", "news", "_config"];
+const ENABLED = [
+  "overview", "eligibility", "important-dates", "vacancy-details", "salary",
+  "age-limit", "selection-process", "reservation", "result", "news",
+  "answer-key", "previous-papers", "study-material", "exam-pattern", "date-sheet",
+  "revaluation",
+];
+const GOVT = "government-exam";
 
-describe("ContentModulesBlock visibility (main page)", () => {
-  it("drops overview so it is not rendered a second time next to the ordered loop", () => {
-    expect(MAIN_PAGE_LOOP_MODULES.has("overview")).toBe(true);
-    expect(moduleShowsInContentBlock("overview", ENABLED, false)).toBe(false);
-  });
-
-  it("still renders the editorial modules the ordered loop does NOT own", () => {
-    for (const slug of ["eligibility", "important-dates", "vacancy-details"]) {
-      expect(moduleShowsInContentBlock(slug, ENABLED, false), slug).toBe(true);
+describe("main page — one heading per concept", () => {
+  it("the block stays silent for every module the ordered loop already renders", () => {
+    for (const slug of ["overview", "eligibility", "important-dates", "vacancy-details", "salary", "age-limit", "selection-process", "reservation", "result"]) {
+      expect(mainPageOwner(slug, GOVT), slug).toBe("loop");
+      expect(moduleShowsInContentBlock(slug, ENABLED, false, GOVT), slug).toBe(false);
     }
   });
 
-  it("keeps tab-only modules off the main page", () => {
-    for (const slug of ["result", "news"]) {
-      expect(TAB_ONLY_MODULES.has(slug)).toBe(true);
-      expect(moduleShowsInContentBlock(slug, ENABLED, false), slug).toBe(false);
+  it("reference material lives on its own tab, not on the main page", () => {
+    for (const slug of ["news", "answer-key", "previous-papers", "study-material", "exam-pattern", "date-sheet"]) {
+      expect(mainPageOwner(slug, GOVT), slug).toBe("tab");
+      expect(moduleShowsInContentBlock(slug, ENABLED, false, GOVT), slug).toBe(false);
     }
   });
 
-  it("skips _config and any module not in the enabled set", () => {
-    expect(moduleShowsInContentBlock("_config", ENABLED, false)).toBe(false);
-    expect(moduleShowsInContentBlock("syllabus", ENABLED, false)).toBe(false); // not enabled here
+  it("a module no other surface can show still renders (nothing is dropped silently)", () => {
+    // revaluation has no registry section and no tab of its own -> only the block can show it
+    expect(mainPageOwner("revaluation", GOVT)).toBe("block");
+    expect(moduleShowsInContentBlock("revaluation", ENABLED, false, GOVT)).toBe(true);
+    // a section that does not apply to THIS pillar has no other surface either
+    expect(mainPageOwner("age-limit", "university-exam")).toBe("block");
+    expect(moduleShowsInContentBlock("age-limit", ENABLED, false, "university-exam")).toBe(true);
+  });
+
+  it("skips _config and any module the editor disabled", () => {
+    expect(moduleShowsInContentBlock("_config", ENABLED, false, GOVT)).toBe(false);
+    expect(moduleShowsInContentBlock("revaluation", ["overview"], false, GOVT)).toBe(false);
   });
 });
 
-describe("ContentModulesBlock visibility (focused tab sub-page)", () => {
-  it("renders exactly the tab-only module requested, and not overview", () => {
-    expect(moduleShowsInContentBlock("result", ENABLED, true)).toBe(true);
-    expect(moduleShowsInContentBlock("news", ENABLED, true)).toBe(true);
-    expect(moduleShowsInContentBlock("eligibility", ENABLED, true)).toBe(false); // not tab-only
-    expect(moduleShowsInContentBlock("overview", ENABLED, true)).toBe(false);
+describe("focused content-type sub-page", () => {
+  it("shows its tab material, and never re-shows a main-page loop section", () => {
+    expect(moduleShowsInContentBlock("result", ENABLED, true, GOVT)).toBe(false); // loop-owned
+    expect(moduleShowsInContentBlock("eligibility", ENABLED, true, GOVT)).toBe(false);
+    expect(moduleShowsInContentBlock("news", ENABLED, true, GOVT)).toBe(true);
+    expect(moduleShowsInContentBlock("exam-pattern", ENABLED, true, GOVT)).toBe(true);
+    // the fix this rule unlocks: previous-papers / study-material were never rendered
+    // on their own tab because the old hand-listed set did not contain them.
+    expect(moduleShowsInContentBlock("previous-papers", ENABLED, true, GOVT)).toBe(true);
+    expect(moduleShowsInContentBlock("study-material", ENABLED, true, GOVT)).toBe(true);
+    expect(moduleShowsInContentBlock("answer-key", ENABLED, true, GOVT)).toBe(true);
+  });
+});
+
+describe("ownership is derived from the registry, not from a list", () => {
+  it("every registry section with a main-page placement is loop-owned for a pillar it applies to", () => {
+    for (const [slug, def] of Object.entries(SECTION_BY_SLUG)) {
+      if (def.placement === "tab" || def.source === "structure") continue;
+      for (const pillar of def.appliesTo) {
+        expect(mainPageOwner(slug, pillar), `${slug}@${pillar}`).toBe("loop");
+      }
+    }
+  });
+
+  it("every placement-tab registry section is tab-owned for a pillar it applies to", () => {
+    for (const [slug, def] of Object.entries(SECTION_BY_SLUG)) {
+      if (def.placement !== "tab") continue;
+      for (const pillar of def.appliesTo) {
+        expect(mainPageOwner(slug, pillar), `${slug}@${pillar}`).toBe("tab");
+      }
+    }
+  });
+
+  it("the escape hatch only speaks for modules the registry does not know", () => {
+    for (const slug of TAB_SURFACE_MODULES) {
+      expect(SECTION_BY_SLUG[slug], `${slug} is now registered — the registry must decide`).toBeUndefined();
+    }
   });
 });

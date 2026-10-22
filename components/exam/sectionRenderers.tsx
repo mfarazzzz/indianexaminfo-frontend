@@ -15,6 +15,8 @@ import type { ExamEntity } from "@/types/exam";
 import { formatDate, formatEventDateTime, isUrgent } from "@/lib/utils";
 import { relDayLabel } from "@/lib/exam/keyDates";
 import { meaningfulFaqs } from "@/lib/sectionRegistry";
+import { sectionHeading, sectionHeadingEn } from "@/lib/exam/sectionHeadings";
+import { ageLimitOwnsTheFact } from "@/lib/exam/sectionOwnership";
 import { Calendar } from "lucide-react";
 
 /** A section summary component receives the exam and the single IST "today"
@@ -27,7 +29,7 @@ const ImportantDatesSummary: SectionSummary = (exam, todayISO) => (
   <section aria-label="Important dates" className="mb-5">
     <h2 className="font-heading font-semibold text-base text-gray-800 mb-3 flex items-center gap-2">
       <Calendar className="w-4 h-4 text-primary" />
-      Important Dates / महत्वपूर्ण तारीखें
+      {sectionHeading("important-dates")}
     </h2>
     {/* Item 4 (mobile): rows, not a 3-column table. Event on the left, date on the right.
         The old Event/Date/Status grid needed a 420px min-width and scrolled horizontally at
@@ -104,11 +106,25 @@ const ImportantDatesSummary: SectionSummary = (exam, todayISO) => (
 );
 
 // ── Eligibility (column) ──────────────────────────────────────────────────────
+// One heading for the concept (P1 item 6, 23 Oct): the ordered loop renders this
+// section, so ContentModulesBlock no longer renders its `eligibility` module. The
+// module is not thrown away — structured columns win the ROWS, and whatever the
+// column does not carry is appended as notes under the SAME heading (never a
+// second "Eligibility Criteria" block).
 const EligibilitySummary: SectionSummary = (exam) => {
-  if (!exam.eligibility || !Object.values(exam.eligibility).some((v) => v)) return null;
+  const mod = (moduleData(exam, "eligibility") ?? {}) as Record<string, unknown>;
+  const col = exam.eligibility;
+  const age = col?.age?.trim() || str(mod.ageLimit);
+  const qualification = col?.qualification?.trim() || str(mod.qualification);
+  const nationality = col?.nationality?.trim() || str(mod.nationality);
+  // AGE HAS ONE HOME: when an Age Limit section renders, the age detail lives there
+  // (with the structured value first), so the table must not repeat it as a row.
+  const showAgeRow = !!age && !ageLimitOwnsTheFact(exam);
+  const notes = moduleNotes(exam, "eligibility");
+  if (!qualification && !nationality && !showAgeRow && !notes) return null;
   return (
     <section aria-label="Eligibility criteria" className="mb-5">
-      <h2 className="font-heading font-semibold text-base text-gray-800 mb-3">Eligibility / योग्यता</h2>
+      <h2 className="font-heading font-semibold text-base text-gray-800 mb-3">{sectionHeading("eligibility")}</h2>
       <div className="overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0">
         <table className="min-w-[320px]">
           <caption className="sr-only">Eligibility for {exam.name}</caption>
@@ -119,18 +135,19 @@ const EligibilitySummary: SectionSummary = (exam) => {
             </tr>
           </thead>
           <tbody>
-            {exam.eligibility.age && exam.eligibility.age.trim() && (
-              <tr><td>Age Limit</td><td>{exam.eligibility.age}</td></tr>
+            {showAgeRow && (
+              <tr><td>Age Limit</td><td>{age}</td></tr>
             )}
-            {exam.eligibility.qualification && exam.eligibility.qualification.trim() && (
-              <tr><td>Educational Qualification</td><td>{exam.eligibility.qualification}</td></tr>
+            {qualification && (
+              <tr><td>Educational Qualification</td><td>{qualification}</td></tr>
             )}
-            {exam.eligibility.nationality && exam.eligibility.nationality.trim() && (
-              <tr><td>Nationality</td><td>{exam.eligibility.nationality}</td></tr>
+            {nationality && (
+              <tr><td>Nationality</td><td>{nationality}</td></tr>
             )}
           </tbody>
         </table>
       </div>
+      {notes && <ModuleNotes html={notes} />}
     </section>
   );
 };
@@ -140,7 +157,7 @@ const ApplicationFeeSummary: SectionSummary = (exam) => {
   if (!exam.applicationFee) return null;
   return (
     <section aria-label="Application fee" className="mb-5">
-      <h2 className="font-heading font-semibold text-base text-gray-800 mb-3">Application Fee / आवेदन शुल्क</h2>
+      <h2 className="font-heading font-semibold text-base text-gray-800 mb-3">{sectionHeading("application-fee")}</h2>
       <div className="overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0">
         <table className="min-w-[280px]">
           <caption className="sr-only">Application fee for {exam.name}</caption>
@@ -192,13 +209,15 @@ const ApplicationFeeSummary: SectionSummary = (exam) => {
 // ── Vacancy (column) ──────────────────────────────────────────────────────────
 const VacancySummary: SectionSummary = (exam) => {
   if (exam.vacancy == null || exam.vacancy <= 0) return null;
+  const notes = moduleNotes(exam, "vacancy-details");
   return (
     <section aria-label="Vacancy details" className="mb-5">
-      <h2 className="font-heading font-semibold text-base text-gray-800 mb-3">Vacancy / रिक्तियाँ</h2>
+      <h2 className="font-heading font-semibold text-base text-gray-800 mb-3">{sectionHeading("vacancy")}</h2>
       <p className="text-sm text-gray-700">
         <span className="font-medium">Total Vacancies:</span>{" "}
         {exam.vacancy.toLocaleString("en-IN")}
       </p>
+      {notes && <ModuleNotes html={notes} />}
     </section>
   );
 };
@@ -206,9 +225,10 @@ const VacancySummary: SectionSummary = (exam) => {
 // ── Selection Process (column) ────────────────────────────────────────────────
 const SelectionProcessSummary: SectionSummary = (exam) => {
   if (!exam.selectionProcess || exam.selectionProcess.length === 0) return null;
+  const notes = moduleNotes(exam, "selection-process");
   return (
     <section aria-label="Selection process" className="mb-5">
-      <h2 className="font-heading font-semibold text-base text-gray-800 mb-3">Selection Process / चयन प्रक्रिया</h2>
+      <h2 className="font-heading font-semibold text-base text-gray-800 mb-3">{sectionHeading("selection-process")}</h2>
       <ol className="space-y-2">
         {exam.selectionProcess.map((step, i) => (
           <li key={step} className="flex items-start gap-3 text-sm">
@@ -219,6 +239,7 @@ const SelectionProcessSummary: SectionSummary = (exam) => {
           </li>
         ))}
       </ol>
+      {notes && <ModuleNotes html={notes} />}
     </section>
   );
 };
@@ -231,7 +252,7 @@ const FaqsSummary: SectionSummary = (exam) => {
   if (faqs.length === 0) return null;
   return (
     <section aria-label="Frequently asked questions" className="mb-5">
-      <h2 className="font-heading font-semibold text-[1.05rem] text-gray-900 mb-2">Frequently Asked Questions / प्रश्नोत्तरी</h2>
+      <h2 className="font-heading font-semibold text-[1.05rem] text-gray-900 mb-2">{sectionHeading("faqs")}</h2>
       <div className="divide-y divide-border">
         {faqs.map((faq, i) => (
           <details key={i} open={i === 0} className="py-2">
@@ -248,13 +269,40 @@ const FaqsSummary: SectionSummary = (exam) => {
 // These read exam.contentModules[slug]. Markup moved verbatim from ContentModulesBlock.
 function safeHtml(val: unknown): string | null {
   if (typeof val !== "string" || !val.trim()) return null;
-  return val.replace(/^<html[^>]*><body[^>]*>/i, "").replace(/<\/body><\/html>$/i, "").trim();
+  return val
+    .replace(/^<html[^>]*><body[^>]*>/i, "")
+    .replace(/<\/body><\/html>$/i, "")
+    // A section already owns the <h2>. Prose written inside the module must not open
+    // a SECOND section-level heading — demote it one level (P1 items 6 and 11).
+    .replace(/<h2\b/gi, "<h3")
+    .replace(/<\/h2>/gi, "</h3>")
+    .trim();
 }
 function moduleData(exam: ExamEntity, slug: string): Record<string, unknown> | null {
   const cm = exam.contentModules;
   if (!cm) return null;
   const d = cm[slug];
   return d && typeof d === "object" && !Array.isArray(d) ? (d as Record<string, unknown>) : null;
+}
+
+/**
+ * Editorial notes carried by the module of a CONCEPT the section is column-backed on
+ * (eligibility, vacancy, selection-process). The structured column owns the facts; the
+ * module may add prose beneath them. It renders under the SAME heading — never as a
+ * second section. Null when the module holds no prose, so nothing extra is painted.
+ */
+function moduleNotes(exam: ExamEntity, slug: string): string | null {
+  const d = moduleData(exam, slug);
+  if (!d) return null;
+  return (
+    safeHtml(d.additionalCriteria) || safeHtml(d.body) ||
+    safeHtml(d.content) || safeHtml(d.description) || null
+  );
+}
+
+/** The notes block itself — visually secondary to the table/list above it. */
+function ModuleNotes({ html }: { html: string }) {
+  return <div className="article-body text-sm text-gray-700 mt-3" dangerouslySetInnerHTML={{ __html: html }} />;
 }
 
 const OverviewSummary: SectionSummary = (exam) => {
@@ -267,7 +315,7 @@ const OverviewSummary: SectionSummary = (exam) => {
   if (!body && !summary) return null;
   return (
     <section aria-label="About This Exam" className="mb-5">
-      <h2 className="font-heading font-semibold text-base text-gray-800 mb-3">About This Exam</h2>
+      <h2 className="font-heading font-semibold text-base text-gray-800 mb-3">{sectionHeading("overview")}</h2>
       {summary && <p className="text-sm text-gray-600 mb-3 leading-relaxed">{summary}</p>}
       {body && <div className="article-body text-sm" dangerouslySetInnerHTML={{ __html: body }} />}
     </section>
@@ -283,7 +331,7 @@ const ApplicationProcessSummary: SectionSummary = (exam) => {
   if (!steps?.length && !description) return null;
   return (
     <section aria-label="Application Process" className="mb-5">
-      <h2 className="font-heading font-semibold text-base text-gray-800 mb-3">Application Process</h2>
+      <h2 className="font-heading font-semibold text-base text-gray-800 mb-3">{sectionHeading("application-process")}</h2>
       {description && <div className="article-body text-sm mb-4" dangerouslySetInnerHTML={{ __html: description }} />}
       {steps && steps.length > 0 && (
         <ol className="space-y-3">
@@ -308,23 +356,33 @@ const ApplicationProcessSummary: SectionSummary = (exam) => {
   );
 };
 
-/** Generic editorial section (salary, age-limit, admit-card, result, documents, reservation). */
-function makeGenericEditorial(slug: string, label: string): SectionSummary {
-  return (exam) => {
-    const data = moduleData(exam, slug);
-    if (!data) return null;
-    const body = safeHtml(data.body) || safeHtml(data.content) || safeHtml(data.description);
-    const summary = data.summary as string | undefined;
-    if (!body && !summary) return null;
-    return (
-      <section aria-label={label} className="mb-5">
-        <h2 className="font-heading font-semibold text-base text-gray-800 mb-3">{label}</h2>
-        {summary && <p className="text-sm text-gray-600 mb-3 leading-relaxed">{summary}</p>}
-        {body && <div className="article-body text-sm" dangerouslySetInnerHTML={{ __html: body }} />}
-      </section>
-    );
-  };
+/** Generic editorial section (salary, documents-required, reservation): the module's own
+ *  prose, under the ONE heading this concept has (P1 item 6). */
+function makeGenericEditorial(slug: string): SectionSummary {
+  return (exam) => renderEditorialSection(exam, slug);
 }
+
+/** The shared editorial body: an optional structured line first, then the module text. */
+function renderEditorialSection(exam: ExamEntity, slug: string, leadLine?: string | null): React.ReactNode {
+  const data = moduleData(exam, slug);
+  if (!data) return null;
+  const body = safeHtml(data.body) || safeHtml(data.content) || safeHtml(data.description);
+  const summary = data.summary as string | undefined;
+  if (!body && !summary && !leadLine) return null;
+  return (
+    <section aria-label={sectionHeadingEn(slug)} className="mb-5">
+      <h2 className="font-heading font-semibold text-base text-gray-800 mb-3">{sectionHeading(slug)}</h2>
+      {leadLine && <p className="text-sm text-gray-800 font-medium mb-2">{leadLine}</p>}
+      {summary && <p className="text-sm text-gray-600 mb-3 leading-relaxed">{summary}</p>}
+      {body && <div className="article-body text-sm" dangerouslySetInnerHTML={{ __html: body }} />}
+    </section>
+  );
+}
+
+/** Age Limit — the ONE home for the age detail when it has a section of its own: the
+ *  structured column value leads, the editorial text follows, under a single heading. */
+const AgeLimitSummary: SectionSummary = (exam) =>
+  renderEditorialSection(exam, "age-limit", exam.eligibility?.age?.trim() || null);
 
 // ── Selection-outcome sections (2026-09-11) ──────────────────────────────────
 // Read from content_modules[slug], written by the CMS module editor (saveModuleContent).
@@ -363,7 +421,7 @@ const MeritListModule: ModuleRenderer = (d) => {
   const listType = str(d.listType), total = num(d.totalSelected);
   return (
     <section aria-label="Merit List" className="mb-5">
-      <h2 className="font-heading font-semibold text-base text-gray-800 mb-2">Merit List</h2>
+      <h2 className="font-heading font-semibold text-base text-gray-800 mb-2">{sectionHeading("merit-list")}</h2>
       <dl className="text-sm text-gray-700 space-y-1">
         {listType && <div><dt className="inline font-medium text-gray-800">Type: </dt><dd className="inline capitalize">{listType}</dd></div>}
         {releaseDate && <div><dt className="inline font-medium text-gray-800">Released: </dt><dd className="inline">{formatDate(releaseDate)}</dd></div>}
@@ -387,7 +445,7 @@ const InterviewScheduleModule: ModuleRenderer = (d) => {
   if (!callUrl && roundRows.length === 0 && !str(d.callLetterDate)) return null;
   return (
     <section aria-label="Interview Schedule" className="mb-5">
-      <h2 className="font-heading font-semibold text-base text-gray-800 mb-2">Interview Schedule</h2>
+      <h2 className="font-heading font-semibold text-base text-gray-800 mb-2">{sectionHeading("interview-schedule")}</h2>
       {str(d.callLetterDate) && <p className="text-sm text-gray-700 mb-1"><span className="font-medium text-gray-800">Call letter: </span>{formatDate(str(d.callLetterDate)!)}</p>}
       {str(d.marksWeightage) && <p className="text-sm text-gray-700 mb-1"><span className="font-medium text-gray-800">Weightage: </span>{str(d.marksWeightage)}</p>}
       {roundRows.length > 0 && (
@@ -423,7 +481,7 @@ const DocumentVerificationModule: ModuleRenderer = (d) => {
   if (!str(d.startDate) && !str(d.venue) && !str(d.callLetterUrl) && docRows.length === 0) return null;
   return (
     <section aria-label="Document Verification" className="mb-5">
-      <h2 className="font-heading font-semibold text-base text-gray-800 mb-2">Document Verification</h2>
+      <h2 className="font-heading font-semibold text-base text-gray-800 mb-2">{sectionHeading("document-verification")}</h2>
       <dl className="text-sm text-gray-700 space-y-1">
         {str(d.startDate) && <div><dt className="inline font-medium text-gray-800">Dates: </dt><dd className="inline">{formatDate(str(d.startDate)!)}{str(d.endDate) ? ` – ${formatDate(str(d.endDate)!)}` : ""}</dd></div>}
         {str(d.venue) && <div><dt className="inline font-medium text-gray-800">Venue: </dt><dd className="inline">{str(d.venue)}</dd></div>}
@@ -456,7 +514,7 @@ const FinalSelectionModule: ModuleRenderer = (d) => {
   const total = num(d.totalSelected);
   return (
     <section aria-label="Final Selection" className="mb-5">
-      <h2 className="font-heading font-semibold text-base text-gray-800 mb-2">Final Selection</h2>
+      <h2 className="font-heading font-semibold text-base text-gray-800 mb-2">{sectionHeading("final-selection")}</h2>
       <dl className="text-sm text-gray-700 space-y-1">
         {releaseDate && <div><dt className="inline font-medium text-gray-800">Released: </dt><dd className="inline">{formatDate(releaseDate)}</dd></div>}
         {total != null && <div><dt className="inline font-medium text-gray-800">Total selected: </dt><dd className="inline">{total.toLocaleString("en-IN")}</dd></div>}
@@ -478,7 +536,7 @@ const SeatAllotmentModule: ModuleRenderer = (d) => {
   if (roundRows.length === 0 && !url && !str(d.acceptanceProcess)) return null;
   return (
     <section aria-label="Seat Allotment" className="mb-5">
-      <h2 className="font-heading font-semibold text-base text-gray-800 mb-2">Seat Allotment</h2>
+      <h2 className="font-heading font-semibold text-base text-gray-800 mb-2">{sectionHeading("seat-allotment")}</h2>
       {roundRows.length > 0 && (
         <div className="overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0">
           <table className="min-w-[320px] w-full text-sm">
@@ -510,7 +568,7 @@ const AcademicInfoSummary: SectionSummary = (exam) => {
   if (!exam.academicYear && !exam.semester && !exam.admissionTo) return null;
   return (
     <section aria-label="Academic information" className="mb-5">
-      <h2 className="font-heading font-semibold text-base text-gray-800 mb-3">Academic Information</h2>
+      <h2 className="font-heading font-semibold text-base text-gray-800 mb-3">{sectionHeading("academic-info")}</h2>
       <div className="overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0">
         <table className="min-w-[280px]">
           <caption className="sr-only">Academic details for {exam.name}</caption>
@@ -602,7 +660,7 @@ const ResultModule = (d: Record<string, unknown>, dateCtx?: DateCtx): React.Reac
   if (!hasDateLine && !checkLink && !statistics && !body) return null;
   return (
     <section aria-label="Result" className="mb-5">
-      <h2 className="font-heading font-semibold text-base text-gray-800 mb-3">Result</h2>
+      <h2 className="font-heading font-semibold text-base text-gray-800 mb-3">{sectionHeading("result")}</h2>
       {dateLine}
       {body && <div className="article-body text-sm" dangerouslySetInnerHTML={{ __html: body }} />}
       {statistics && <div className="article-body text-sm mt-2" dangerouslySetInnerHTML={{ __html: statistics }} />}
@@ -631,7 +689,7 @@ const AdmitCardModule = (d: Record<string, unknown>, dateCtx?: DateCtx): React.R
   if (!hasDateLine && !downloadLink && !documents && !body && steps.length === 0 && carry.length === 0) return null;
   return (
     <section aria-label="Admit card" className="mb-5">
-      <h2 className="font-heading font-semibold text-base text-gray-800 mb-3">Admit Card</h2>
+      <h2 className="font-heading font-semibold text-base text-gray-800 mb-3">{sectionHeading("admit-card")}</h2>
       {dateLine}
       {body && <div className="article-body text-sm" dangerouslySetInnerHTML={{ __html: body }} />}
       {steps.length > 0 && (
@@ -685,7 +743,7 @@ const ExamPatternModule: ModuleRenderer = (d) => {
   if (marking) specRows.push(["Marking Scheme", marking]);
   return (
     <section aria-label="Exam pattern" className="mb-5">
-      <h2 className="font-heading font-semibold text-base text-gray-800 mb-3">Exam Pattern</h2>
+      <h2 className="font-heading font-semibold text-base text-gray-800 mb-3">{sectionHeading("exam-pattern")}</h2>
       {specRows.length > 0 && (
         <div className="overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0">
           <table className="min-w-[320px] w-full text-sm">
@@ -724,7 +782,7 @@ const PreviousPapersModule: ModuleRenderer = (d) => {
   if (papers.length === 0 && !notes) return null;
   return (
     <section aria-label="Previous papers" className="mb-5">
-      <h2 className="font-heading font-semibold text-base text-gray-800 mb-3">Previous Papers</h2>
+      <h2 className="font-heading font-semibold text-base text-gray-800 mb-3">{sectionHeading("previous-papers")}</h2>
       {papers.length > 0 && (
         <ul className="space-y-1.5 mb-3">
           {papers.map((p, i) => {
@@ -759,7 +817,7 @@ const StudyMaterialModule: ModuleRenderer = (d) => {
   if (materials.length === 0 && !notes) return null;
   return (
     <section aria-label="Study material" className="mb-5">
-      <h2 className="font-heading font-semibold text-base text-gray-800 mb-3">Study Material</h2>
+      <h2 className="font-heading font-semibold text-base text-gray-800 mb-3">{sectionHeading("study-material")}</h2>
       {materials.length > 0 && (
         <ul className="space-y-1.5 mb-3">
           {materials.map((m, i) => {
@@ -822,15 +880,15 @@ export const SECTION_SUMMARY_RENDERERS: Record<string, SectionSummary> = {
   vacancy: VacancySummary,
   "application-process": ApplicationProcessSummary,
   "selection-process": SelectionProcessSummary,
-  salary: makeGenericEditorial("salary", "Salary & Pay Scale"),
-  "age-limit": makeGenericEditorial("age-limit", "Age Limit"),
+  salary: makeGenericEditorial("salary"),
+  "age-limit": AgeLimitSummary,
   // Structured renderers REPLACE the generic editorial ones (they render body internally too).
   // 1c: admit-card / result read their DATE from the timeline (deriveDateCtx), never from the
   // module's own releaseDate/declarationDate — so removing those module fields is invisible here.
   "admit-card": (exam) => AdmitCardModule(moduleData(exam, "admit-card") ?? {}, deriveDateCtx(exam, "admit_card")),
   result: (exam) => ResultModule(moduleData(exam, "result") ?? {}, deriveDateCtx(exam, "result")),
-  "documents-required": makeGenericEditorial("documents-required", "Documents Required"),
-  reservation: makeGenericEditorial("reservation", "Reservation Policy"),
+  "documents-required": makeGenericEditorial("documents-required"),
+  reservation: makeGenericEditorial("reservation"),
   "academic-info": AcademicInfoSummary,
   faqs: FaqsSummary,
   // Selection-outcome sections (content_modules-backed) — delegated to MODULE_RENDERERS.

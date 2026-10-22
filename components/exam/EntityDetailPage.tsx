@@ -31,6 +31,8 @@ import { getLeadBlock, type LeadBlock as LeadBlockData } from "@/lib/exam/action
 import { pillarToUrlSegment } from "@/lib/exam/pillarUrl";
 import { SECTION_SUMMARY_RENDERERS, MODULE_RENDERERS } from "@/components/exam/sectionRenderers";
 import { moduleShowsInContentBlock } from "@/components/exam/contentModulesVisibility";
+import { hasDataViewOf } from "@/lib/exam/sectionOwnership";
+import { sectionHeading } from "@/lib/exam/sectionHeadings";
 import { resolveLastUpdated } from "@/lib/exam/lastUpdated";
 import { partitionUpdates } from "@/lib/exam/updates";
 import { KeyDatesStrip } from "@/components/exam/KeyDatesStrip";
@@ -105,20 +107,10 @@ const SHOW_KEY_HIGHLIGHTS = false;
 
 /** Build the minimal view sectionRegistry.hasData needs from an ExamEntity.
  *  hasStructuredSyllabus comes from the separately-loaded exam_syllabus_subjects
- *  (the flat syllabus_highlights column was dropped 2026-09-11). */
+ *  (the flat syllabus_highlights column was dropped 2026-09-11). The builder itself
+ *  lives in lib/exam/sectionOwnership so the renderers use the SAME view. */
 function buildHasDataView(exam: ExamEntity, hasStructuredSyllabus: boolean): HasDataView {
-  return {
-    pillar: exam.pillar,
-    dates: exam.dates,
-    eligibility: exam.eligibility ?? null,
-    vacancy: exam.vacancy ?? null,
-    applicationFee: (exam.applicationFee ?? null) as HasDataView["applicationFee"],
-    selectionProcess: exam.selectionProcess ?? null,
-    academicInfo: { academicYear: exam.academicYear ?? null, semester: exam.semester ?? null, admissionTo: exam.admissionTo ?? null },
-    hasStructuredSyllabus,
-    faqs: exam.faqs ?? null,
-    contentModules: exam.contentModules,
-  };
+  return hasDataViewOf(exam, hasStructuredSyllabus);
 }
 
 /**
@@ -174,9 +166,12 @@ function renderOrderedSections(
           sub-page, NOT the main page. Do not render SyllabusSection here (that violated the
           tab-only placement and put it on the main page by mistake). */}
 
-      {/* Content Modules — editorial modules from exam_editions.content_modules (overview,
-          exam-pattern, cut-off, counselling, date-sheet, etc.). Renders nothing when empty. */}
-      <ContentModulesBlock contentModules={exam.contentModules} />
+      {/* Content Modules — editorial modules from exam_editions.content_modules. The
+          registry decides which ones land here (lib/exam/sectionOwnership): the ordered
+          loop above already renders its own sections, a placement-"tab" section lives on
+          its own sub-page, and only what no other surface can show is painted here — so
+          no concept gets a second heading. Renders nothing when empty. */}
+      <ContentModulesBlock contentModules={exam.contentModules} pillar={exam.pillar} />
 
       {/* Resource library — exam-level, shared across editions (exam_resources). */}
       <ResourceLibrary resources={resources} />
@@ -201,7 +196,7 @@ function renderOrderedSections(
           <>
             {active.length > 0 && (
               <section aria-label="Updates" className="mb-5">
-                <h2 className="font-heading font-semibold text-base text-gray-800 mb-3">Updates / अपडेट</h2>
+                <h2 className="font-heading font-semibold text-base text-gray-800 mb-3">{sectionHeading("updates")}</h2>
                 <ul className="space-y-3">
                   {active.map(({ post, kind, verified }) => (
                     <li key={post.id} className="exam-upd">
@@ -229,7 +224,7 @@ function renderOrderedSections(
             )}
             {history.length > 0 && (
               <section aria-label="History and withdrawn updates" className="mb-5">
-                <h2 className="font-heading font-semibold text-sm text-gray-500 mb-2">History / Withdrawn</h2>
+                <h2 className="font-heading font-semibold text-sm text-gray-500 mb-2">{sectionHeading("history")}</h2>
                 <ul className="space-y-2">
                   {history.map(({ post, withdrawn, superseded }) => (
                     <li key={post.id} className="border-l-2 border-gray-300 pl-3">
@@ -289,14 +284,14 @@ function renderFocusedContentType(
           if (node) return node;
         }
         // Fallback: render the mapped module (or tab-only modules) directly from content_modules.
-        return <ContentModulesBlock contentModules={exam.contentModules} onlyTabModules />;
+        return <ContentModulesBlock contentModules={exam.contentModules} onlyTabModules pillar={exam.pillar} />;
       })()}
 
       {/* Compact Important Dates reference — matches the entrance CT page. A short dates list
           is genuinely useful on a result/admit-card page; it is NOT the full main-page section. */}
       {exam.dates.length > 0 && (
         <section aria-label="Important dates" className="mb-6 mt-6">
-          <h2 className="font-heading font-semibold text-base text-gray-800 mb-3">Important Dates</h2>
+          <h2 className="font-heading font-semibold text-base text-gray-800 mb-3">{sectionHeading("important-dates")}</h2>
           <div className="overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0">
             <table className="min-w-[320px]">
               <caption className="sr-only">Key dates for {exam.name} {ctLabel}</caption>
@@ -682,7 +677,7 @@ export async function EntityDetailPage({ exam, breadcrumbs, contentType, edition
                 {relatedExams.length > 0 && (
                   <section aria-label="Related exams" className="mb-5">
                     <h2 className="font-heading font-semibold text-base text-gray-800 mb-3">
-                      Related Exams
+                      {sectionHeading("related-exams")}
                     </h2>
                     <div className="divide-y divide-border border-t border-border">
                       {relatedExams.slice(0, 6).map((e) => (
@@ -741,7 +736,7 @@ export async function EntityDetailPage({ exam, breadcrumbs, contentType, edition
             {(exam.officialWebsite || availableContentTypes.length > 0) && (
             <div className="bg-card border border-border rounded p-4">
               <h2 className="font-heading font-semibold text-sm text-gray-800 mb-3 uppercase tracking-wide pb-2 border-b border-border">
-                Quick Links
+                {sectionHeading("quick-links")}
               </h2>
               <ul className="space-y-2">
                 {exam.officialWebsite && (
@@ -775,7 +770,7 @@ export async function EntityDetailPage({ exam, breadcrumbs, contentType, edition
             {shouldShowListWidget(exam.tags) && (
             <div className="bg-card border border-border rounded p-4">
               <h2 className="font-heading font-semibold text-sm text-gray-800 mb-3 uppercase tracking-wide">
-                Tags
+                {sectionHeading("tags")}
               </h2>
               <div className="flex flex-wrap gap-1.5">
                 {exam.tags.map((tag) => (
@@ -801,34 +796,29 @@ export { ContentModulesBlock };
 
 function safeHtml(val: unknown): string | null {
   if (typeof val !== "string" || !val.trim()) return null;
-  return val.replace(/^<html[^>]*><body[^>]*>/i, "").replace(/<\/body><\/html>$/i, "").trim();
+  return val
+    .replace(/^<html[^>]*><body[^>]*>/i, "")
+    .replace(/<\/body><\/html>$/i, "")
+    // The section already owns the <h2>; prose inside it must not open a second
+    // section-level heading (P1 items 6 and 11). Demote one level.
+    .replace(/<h2\b/gi, "<h3")
+    .replace(/<\/h2>/gi, "</h3>")
+    .trim();
 }
 
-const MODULE_LABELS: Record<string, string> = {
-  overview: "About This Exam",
-  eligibility: "Eligibility Criteria",
-  "important-dates": "Important Dates",
-  "application-process": "How to Apply",
-  "exam-pattern": "Exam Pattern",
-  syllabus: "Syllabus",
-  faqs: "Frequently Asked Questions",
-  "admit-card": "Admit Card",
-  result: "Result",
-  "cut-off": "Cut Off Marks",
-  "vacancy-details": "Vacancy Details",
-  salary: "Salary & Pay Scale",
-  "age-limit": "Age Limit",
-  "selection-process": "Selection Process",
-  "documents-required": "Documents Required",
-  reservation: "Reservation Policy",
-  counselling: "Counselling Process",
-  news: "News & Updates",
-};
+// Headings come from ONE config (lib/exam/sectionHeadings.ts) — `English / हिन्दी`
+// for every section, with the humanised slug as the fallback for a module the
+// registry does not know. MODULE_LABELS used to be a second, drifting copy of the
+// registry's own labels; it is gone.
 
-// These modules show on content type tab pages, not the main exam page; and the main-page
-// reader sections the ordered-section loop already renders (overview) must not be shown
-// again here. That decision lives in contentModulesVisibility (a pure, unit-tested module).
-function ContentModulesBlock({ contentModules, onlyTabModules = false }: { contentModules?: Record<string, unknown>; onlyTabModules?: boolean }) {
+/**
+ * The editorial-module block. WHICH slugs land here is decided by the section
+ * registry (lib/exam/sectionOwnership.ts -> moduleShowsInContentBlock), so a concept
+ * the ordered loop or a tab sub-page already renders can never open a second heading
+ * from here. The eligibility/vacancy/dates module TEXT is not lost: the column-backed
+ * renderer shows it as notes under its own heading.
+ */
+function ContentModulesBlock({ contentModules, onlyTabModules = false, pillar }: { contentModules?: Record<string, unknown>; onlyTabModules?: boolean; pillar: string }) {
   if (!contentModules) return null;
   const config = contentModules._config as { moduleOrder?: string[]; enabledModules?: string[] } | undefined;
   const order = config?.moduleOrder ?? Object.keys(contentModules).filter(k => k !== "_config");
@@ -836,7 +826,7 @@ function ContentModulesBlock({ contentModules, onlyTabModules = false }: { conte
 
   const items = order.filter(slug => {
     if (!contentModules[slug]) return false;
-    return moduleShowsInContentBlock(slug, enabled, onlyTabModules);
+    return moduleShowsInContentBlock(slug, enabled, onlyTabModules, pillar);
   });
 
   return (
@@ -844,7 +834,7 @@ function ContentModulesBlock({ contentModules, onlyTabModules = false }: { conte
       {items.map(slug => {
         const data = contentModules[slug] as Record<string, unknown>;
         if (!data || typeof data !== "object") return null;
-        const label = MODULE_LABELS[slug] ?? slug.replace(/-/g, " ").replace(/\b\w/g, c => c.toUpperCase());
+        const label = sectionHeading(slug);
 
         // Structured modules render through the SHARED MODULE_RENDERERS (one home). This is what
         // makes the bespoke CT tab pages render identically to the main page / focused CT view —
@@ -855,29 +845,6 @@ function ContentModulesBlock({ contentModules, onlyTabModules = false }: { conte
         if (moduleRender) {
           const node = moduleRender(data);
           return node ? <div key={slug}>{node}</div> : null;
-        }
-
-        if (slug === "eligibility") {
-          const qualification = data.qualification as string | undefined;
-          const ageLimit = data.ageLimit as string | undefined;
-          const nationality = data.nationality as string | undefined;
-          const additionalCriteria = safeHtml(data.additionalCriteria);
-          if (!qualification && !ageLimit && !additionalCriteria) return null;
-          return (
-            <section key={slug} aria-label={label} className="mb-5">
-              <h2 className="font-heading font-semibold text-base text-gray-800 mb-3">{label}</h2>
-              <div className="overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0">
-                <table><thead><tr><th scope="col">Criteria</th><th scope="col">Details</th></tr></thead>
-                  <tbody>
-                    {ageLimit && <tr><td>Age Limit</td><td>{ageLimit}</td></tr>}
-                    {qualification && <tr><td>Educational Qualification</td><td>{qualification}</td></tr>}
-                    {nationality && <tr><td>Nationality</td><td>{nationality}</td></tr>}
-                  </tbody>
-                </table>
-              </div>
-              {additionalCriteria && <div className="article-body text-sm mt-3" dangerouslySetInnerHTML={{ __html: additionalCriteria }} />}
-            </section>
-          );
         }
 
         if (slug === "application-process") {
@@ -950,7 +917,7 @@ function ContentModulesBlock({ contentModules, onlyTabModules = false }: { conte
           if (!newsItems.length) return null;
           return (
             <section key={slug} aria-label="News & Updates" className="mb-5">
-              <h2 className="font-heading font-semibold text-base text-gray-800 mb-3">News &amp; Updates</h2>
+              <h2 className="font-heading font-semibold text-base text-gray-800 mb-3">{sectionHeading("news")}</h2>
               <div className="space-y-4">
                 {newsItems.filter(item => item.title).map((item, i) => (
                   <div key={i} className="border border-border rounded p-4">

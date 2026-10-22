@@ -12,6 +12,7 @@
  */
 import { ExternalLink, FileText, BookOpen, ClipboardList, ScrollText, FileCheck } from "lucide-react";
 import type { ExamResourceRow, ResourceKind } from "@/services/examService";
+import { sectionHeading } from "@/lib/exam/sectionHeadings";
 
 // Stable display order + singular/plural label + icon per kind. Heading pluralizes by count.
 const KIND_ORDER: { kind: ResourceKind; singular: string; plural: string; Icon: typeof FileText }[] = [
@@ -63,7 +64,7 @@ export function ResourceLibrary({ resources }: { resources: ExamResourceRow[] })
 
   return (
     <section aria-label="Resource library" className="mb-5">
-      <h2 className="font-heading font-semibold text-base text-gray-800 mb-3">Resources &amp; Downloads</h2>
+      <h2 className="font-heading font-semibold text-base text-gray-800 mb-3">{sectionHeading("resources")}</h2>
       <div className="space-y-4">
         {groups.map(({ kind, label, Icon, items }) => {
           // Split into the "All years" (undated) block and the year-grouped rest.

@@ -18,6 +18,7 @@ import { SECTION_SUMMARY_RENDERERS } from "@/components/exam/sectionRenderers";
 import { KeyDatesStrip } from "@/components/exam/KeyDatesStrip";
 import { QuickInfoCard, ImportantLinksCard, cycleFrequencyText } from "@/components/exam/ReaderInfoCards";
 import { hasData, mainSectionsForPillar, type HasDataView } from "@/lib/sectionRegistry";
+import { sectionHeading } from "@/lib/exam/sectionHeadings";
 import type { ExamEntity, ContentPost } from "@/types/exam";
 
 const OUT = resolve(__dirname);
@@ -119,14 +120,15 @@ describe("mock-parity harness — rich record renders its sections", () => {
 describe("mock gap audit (22 Oct) - Quick information + Important links", () => {
   const html = renderPage(RICH, MOCK_POSTS);
   it("renders the Quick information facts card from STORED fields only", () => {
-    expect(html).toContain("Quick information");
+    // the heading text comes from the ONE bilingual config (P1 item 11), so pin that form
+    expect(html).toContain(sectionHeading("quick-info"));
     expect(html).toContain("Conducting body");
     expect(html).toContain("Once a year"); // annual, in the mock's plain words
     expect(cycleFrequencyText("biannual")).toBe("Multiple cycles per year");
     expect(cycleFrequencyText("")).toBeNull();
   });
   it("Important links shows ATTESTED live urls; expired and url-less labels never appear", () => {
-    expect(html).toContain("Important links");
+    expect(html).toContain(sectionHeading("important-links"));
     expect(html).toContain("upsssc.gov.in/admit");
     expect(html).toContain("upsssc.gov.in/city");
     expect(html).not.toContain("upsssc.gov.in/apply"); // expired update's link
@@ -137,8 +139,8 @@ describe("mock gap audit (22 Oct) - Quick information + Important links", () => 
     expect(bare).not.toContain("Quick information");
     expect(bare).not.toContain("Important links");
     const officialOnly = renderPage(NO_FACTS, MOCK_POSTS);
-    expect(officialOnly).not.toContain("Quick information");
-    expect(officialOnly).toContain("Important links"); // update links are attested regardless of the site field
+    expect(officialOnly).not.toContain(sectionHeading("quick-info"));
+    expect(officialOnly).toContain(sectionHeading("important-links")); // update links are attested regardless of the site field
   });
 });
 

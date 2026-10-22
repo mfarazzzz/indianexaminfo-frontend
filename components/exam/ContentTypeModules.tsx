@@ -25,13 +25,16 @@ export const CT_TO_MODULES: Partial<Record<ContentType, string[]>> = {
 interface Props {
   contentModules: Record<string, unknown> | undefined;
   contentType: string;
+  /** The record's pillar — the section registry decides per pillar which module this
+   *  surface may show (a section the main-page loop owns is not repeated here). */
+  pillar: string;
 }
 
 /**
  * Renders only the CMS modules relevant to the current content type tab.
  * Returns null if no matching modules are enabled or have content.
  */
-export function ContentTypeModules({ contentModules, contentType }: Props) {
+export function ContentTypeModules({ contentModules, contentType, pillar }: Props) {
   if (!contentModules) return null;
   const relevantSlugs = CT_TO_MODULES[contentType as ContentType];
   if (!relevantSlugs?.length) return null;
@@ -48,6 +51,7 @@ export function ContentTypeModules({ contentModules, contentType }: Props) {
     <ContentModulesBlock
       contentModules={filtered}
       onlyTabModules={true}
+      pillar={pillar}
     />
   );
 }

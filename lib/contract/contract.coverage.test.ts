@@ -37,7 +37,9 @@ const registry = registryJson as unknown as RegistrySnapshot;
 // and extract reads from that slice only, so one renderer's reads aren't mis-attributed.
 const RENDERER_FUNCTIONS: Record<string, string[]> = {
   overview: ["OverviewSummary"],
-  eligibility: [], // sectionRenderers has no eligibility module renderer (see SURFACE 2)
+  // eligibility renders through ONE surface since 23 Oct (P1 item 6): the column-backed
+  // summary, which reads the module fields as fallbacks and appends its notes.
+  eligibility: ["EligibilitySummary", "moduleNotes"],
   "important-dates": [], // rendered from exam_editions.important_dates column (mirror)
   result: ["ResultModule"],
   "admit-card": ["AdmitCardModule"],
@@ -52,7 +54,7 @@ const RENDERER_FUNCTIONS: Record<string, string[]> = {
 // fields on the bespoke CT tab pages — a SECOND render surface Phase 1 missed. We scan each branch
 // in isolation (slice `if (slug === "X")` up to the next `if (slug === ` or the generic fallback),
 // so reads stay module-specific and don't contaminate other modules.
-const CONTENT_BLOCK_BRANCHES: string[] = ["eligibility", "application-process", "overview", "faqs", "news"];
+const CONTENT_BLOCK_BRANCHES: string[] = ["application-process", "overview", "faqs", "news"];
 
 function readFile(rel: string): string {
   return readFileSync(fileURLToPath(new URL(rel, import.meta.url)), "utf8");

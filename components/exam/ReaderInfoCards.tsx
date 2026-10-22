@@ -18,6 +18,7 @@
  */
 import type { ExamEntity, ContentPost } from "@/types/exam";
 import { isExpired } from "@/lib/exam/updateFeed";
+import { sectionHeading } from "@/lib/exam/sectionHeadings";
 
 /** exams.cycle_frequency, stored value → the mock's plain words. Anything
  *  unrecognised renders the stored text itself — never a guess. */
@@ -57,7 +58,7 @@ export function QuickInfoCard({ exam }: QuickInfoProps) {
 
   return (
     <section aria-label="Quick information" className="mb-5" data-testid="quick-info-card">
-      <h2 className="font-heading font-semibold text-[1.05rem] text-gray-900 mb-2">Quick information</h2>
+      <h2 className="font-heading font-semibold text-[1.05rem] text-gray-900 mb-2">{sectionHeading("quick-info")}</h2>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-4 gap-y-2">
         {facts.map((f) => (
           <div key={f.label}>
@@ -115,7 +116,7 @@ export function ImportantLinksCard({ exam, contentPosts, todayISO }: ImportantLi
 
   return (
     <section aria-label="Important links" className="mb-5" data-testid="important-links-card">
-      <h2 className="font-heading font-semibold text-[1.05rem] text-gray-900 mb-2">Important links</h2>
+      <h2 className="font-heading font-semibold text-[1.05rem] text-gray-900 mb-2">{sectionHeading("important-links")}</h2>
       <div className="overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0">
         <table className="min-w-[280px] exam-dates-table">
           <caption className="sr-only">Attested links for this exam</caption>
@@ -136,9 +137,10 @@ export function ImportantLinksCard({ exam, contentPosts, todayISO }: ImportantLi
           </tbody>
         </table>
       </div>
-      <p className="text-xs text-gray-500 mt-2">
-        A link appears here only when its URL was published with the update it belongs to — labels without a URL are never guessed.
-      </p>
+      {/* P1 item 10: the old explainer ("A link appears here only when its URL was
+          published with the update it belongs to…") described OUR pipeline, not the
+          reader's task, so it is gone. The attestation rule still holds — it is simply
+          no longer narrated on the page. */}
     </section>
   );
 }

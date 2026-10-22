@@ -11,6 +11,7 @@ import { buildFAQSchema } from "@/lib/seo/structured-data";
 import { buildSEOTitle, buildLastModifiedSignal, getCurrentYear } from "@/lib/seo/keywords";
 import { formatDate, contentTypeLabel } from "@/lib/utils";
 import { getExamVerification, UNVERIFIED_EXAM_NOTICE } from "@/lib/exam/detailView";
+import { sectionHeading } from "@/lib/exam/sectionHeadings";
 import { safeHtml } from "@/lib/sanitize";
 import { ContentTypeDataRenderer } from "@/components/exam/ContentTypeDataRenderer";
 import { ContentModulesBlock } from "@/components/exam/EntityDetailPage";
@@ -136,7 +137,7 @@ export async function SarkariNaukriContentTypeView({ exam, category, slug, conte
             {/* Summary box — renders only when there is at least one fact. */}
             {(dateRows.length > 0 || exam.officialWebsite) && (
             <section className="summary-box mb-5" aria-label="Quick Summary">
-              <h2 className="font-heading font-semibold text-sm text-gray-800 mb-2">Key Highlights</h2>
+              <h2 className="font-heading font-semibold text-sm text-gray-800 mb-2">{sectionHeading("key-highlights")}</h2>
               <ul className="space-y-1 text-sm text-gray-700">
                 {dateRows.slice(0, 4).map((d) => (
                   <li key={d.label}>
@@ -195,6 +196,7 @@ export async function SarkariNaukriContentTypeView({ exam, category, slug, conte
                   ])
                 }
                 onlyTabModules={true}
+                pillar={exam.pillar}
               />
             )}
 
@@ -210,7 +212,7 @@ export async function SarkariNaukriContentTypeView({ exam, category, slug, conte
             {/* Dates table — renders only when there is at least one row (no header-only table). */}
             {dateRows.length > 0 && (
             <section aria-label="Important dates" className="mb-6">
-              <h2 className="font-heading font-bold text-lg text-gray-900 mb-3">Important Dates</h2>
+              <h2 className="font-heading font-bold text-lg text-gray-900 mb-3">{sectionHeading("important-dates")}</h2>
               <div className="overflow-x-auto">
                 <table>
                   <caption className="sr-only">Dates for {exam.name} {ctLabel}</caption>
@@ -233,7 +235,7 @@ export async function SarkariNaukriContentTypeView({ exam, category, slug, conte
             {/* FAQs */}
             {post?.faqs?.length ? (
               <section aria-label="FAQ" className="mb-6">
-                <h2 className="font-heading font-bold text-lg text-gray-900 mb-4">Frequently Asked Questions</h2>
+                <h2 className="font-heading font-bold text-lg text-gray-900 mb-4">{sectionHeading("faqs")}</h2>
                 <div className="space-y-3">
                   {post.faqs.map((faq, i) => (
                     <div key={i} className="border border-border rounded p-4">

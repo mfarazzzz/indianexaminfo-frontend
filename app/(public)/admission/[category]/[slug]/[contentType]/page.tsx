@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { examUpdatedFrom } from "@/lib/exam/lastUpdated";
 import { getExamVerification, UNVERIFIED_EXAM_NOTICE } from "@/lib/exam/detailView";
+import { sectionHeading } from "@/lib/exam/sectionHeadings";
 import { notFound, permanentRedirect } from "next/navigation";
 import { getExamBySlug, contentTypeAvailable, getExamSyllabus } from "@/services/examService";
 import { SyllabusSection } from "@/components/exam/SyllabusSection";
@@ -191,15 +192,18 @@ export default async function EntranceContentTypePage({ params }: Props) {
             <div className="flex flex-wrap items-center gap-3 mb-4 text-xs text-gray-500 border-b border-border pb-3">
               <span>By IndianExamInfo Team</span>
               {(() => { const lu = examUpdatedFrom(exam); return lu ? (<span className="flex items-center gap-1"><Clock className="w-3.5 h-3.5" />Updated: {buildLastModifiedSignal(lu)}</span>) : null; })()}
+              {exam.officialWebsite && (
               <a href={exam.officialWebsite} target="_blank" rel="noopener noreferrer"
                  className="flex items-center gap-1 text-primary hover:underline ml-auto">
                 Official Website <ExternalLink className="w-3 h-3" />
               </a>
+              )}
             </div>
 
-            {/* Summary box */}
+            {/* Summary box — only when it actually has a row to show (P0 item 2). */}
+            {(exam.dates.length > 0 || officialHost) && (
             <section className="summary-box mb-5" aria-label="Quick Summary">
-              <h2 className="font-heading font-semibold text-sm text-gray-800 mb-2">Key Highlights</h2>
+              <h2 className="font-heading font-semibold text-sm text-gray-800 mb-2">{sectionHeading("key-highlights")}</h2>
               <ul className="space-y-1 text-sm text-gray-700">
                 {exam.dates.slice(0, 4).map((d) => (
                   <li key={d.label}>
@@ -207,11 +211,14 @@ export default async function EntranceContentTypePage({ params }: Props) {
                     <span className={d.isUrgent ? "text-accent font-semibold" : ""}>{formatDate(d.date)}</span>
                   </li>
                 ))}
+                {officialHost && (
                 <li><span className="font-medium">Official Site:</span>{" "}
                   <a href={exam.officialWebsite} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">{officialHost}</a>
                 </li>
+                )}
               </ul>
             </section>
+            )}
 
             {/* CTA */}
             <div className="mb-5 flex flex-wrap gap-3">
@@ -236,7 +243,7 @@ export default async function EntranceContentTypePage({ params }: Props) {
             {contentType === "syllabus" && syllabus && <SyllabusSection syllabus={syllabus} />}
 
             {/* CMS Structured Module Content for this tab */}
-            <ContentTypeModules contentModules={exam.contentModules} contentType={contentType} />
+            <ContentTypeModules contentModules={exam.contentModules} contentType={contentType} pillar={exam.pillar} />
             {post?.contentTypeData && (
               <ContentTypeDataRenderer
                 contentType={contentType}
@@ -245,9 +252,10 @@ export default async function EntranceContentTypePage({ params }: Props) {
               />
             )}
 
-            {/* Dates table */}
+            {/* Dates table — never a header-only table (P0 item 2). */}
+            {exam.dates.length > 0 && (
             <section aria-label="Important dates" className="mb-6">
-              <h2 className="font-heading font-bold text-lg text-gray-900 mb-3">Important Dates</h2>
+              <h2 className="font-heading font-bold text-lg text-gray-900 mb-3">{sectionHeading("important-dates")}</h2>
               <div className="overflow-x-auto">
                 <table>
                   <caption className="sr-only">Dates for {exam.name} {ctLabel}</caption>
@@ -265,11 +273,12 @@ export default async function EntranceContentTypePage({ params }: Props) {
                 </table>
               </div>
             </section>
+            )}
 
             {/* FAQs */}
             {!!post?.faqs?.length && (
               <section aria-label="FAQ" className="mb-6">
-                <h2 className="font-heading font-bold text-lg text-gray-900 mb-4">Frequently Asked Questions</h2>
+                <h2 className="font-heading font-bold text-lg text-gray-900 mb-4">{sectionHeading("faqs")}</h2>
                 <div className="space-y-3">
                   {post.faqs.map((faq, i) => (
                     <div key={i} className="border border-border rounded p-4">

@@ -64,9 +64,9 @@
       "canonicalFact": "eligibility",
       "editorFields": ["qualification", "ageLimit", "nationality", "attempts", "additionalCriteria"],
       "rendererFields": ["qualification", "ageLimit", "nationality", "additionalCriteria"],
-      "renderSurfaces": ["EntityDetailPage.ContentModulesBlock (eligibility branch)"],
+      "renderSurfaces": ["sectionRenderers.EligibilitySummary (column facts first, module fields as fallback rows + notes)"],
       "syncsTo": "exam_editions.eligibility",
-      "note": "CANONICAL VALUE = exam_editions.eligibility column (rendered by EligibilitySummary on the main page). The module ALSO has an editorial render surface: the ContentModulesBlock eligibility branch on bespoke CT/tab pages renders qualification/ageLimit/nationality/additionalCriteria. This does NOT make the module canonical — it is an editorial/rendering surface whose structured domain value is owned by the column. 'attempts' is editor-only (not rendered)."
+      "note": "CANONICAL VALUE = exam_editions.eligibility column. ONE render surface: EligibilitySummary, which prints the column values first and falls back to the module's qualification/ageLimit/nationality, then appends additionalCriteria as notes under the SAME heading. The duplicate ContentModulesBlock eligibility branch was removed 23 Oct (reference-page review, P1 item 6: the concept rendered twice under two headings). This does NOT make the module canonical — it is an editorial/rendering surface whose structured domain value is owned by the column. 'attempts' is editor-only (not rendered)."
     },
 
     "important-dates": {
