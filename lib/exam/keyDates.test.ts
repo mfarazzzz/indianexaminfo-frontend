@@ -4,7 +4,7 @@
  * ONLY when an attested URL matches the status action (never a placeholder).
  */
 import { describe, it, expect } from "vitest";
-import { pickKeyDates, pickAttestedAction } from "./keyDates";
+import { pickKeyDates, pickAttestedAction, relDayLabel, REL_DAY_WINDOW_DAYS } from "./keyDates";
 
 describe("pickKeyDates", () => {
   const today = "2026-10-20";
@@ -41,5 +41,26 @@ describe("pickAttestedAction", () => {
   });
   it("apply for registration-open when an apply URL is attested", () => {
     expect(pickAttestedAction("registration-open", [{ label: "Apply Online", url: "https://x/apply" }])).toEqual({ label: "Apply Online", href: "https://x/apply" });
+  });
+});
+
+describe("relDayLabel — colour-parity date badge (derived, never invented)", () => {
+  const today = "2026-10-22";
+  it("names today and tomorrow outright", () => {
+    expect(relDayLabel("2026-10-22", today)).toBe("Today");
+    expect(relDayLabel("2026-10-23", today)).toBe("Tomorrow");
+  });
+  it("counts the near future in days", () => {
+    expect(relDayLabel("2026-10-25", today)).toBe("in 3 days");
+    expect(relDayLabel("2026-12-21", today)).toBe(`in ${REL_DAY_WINDOW_DAYS} days`); // exactly at the window edge
+  });
+  it("no badge for past, beyond-window, malformed or missing dates", () => {
+    expect(relDayLabel("2026-10-21", today)).toBeNull();
+    expect(relDayLabel("2026-12-22", today)).toBeNull(); // 61 days — just past the window
+    expect(relDayLabel("2026-12-31", today)).toBeNull(); // 70 days out
+    expect(relDayLabel("25.12.2026", today)).toBeNull();
+    expect(relDayLabel("", today)).toBeNull();
+    expect(relDayLabel(null, today)).toBeNull();
+    expect(relDayLabel(undefined, today)).toBeNull();
   });
 });

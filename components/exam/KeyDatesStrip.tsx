@@ -10,7 +10,7 @@
  */
 import { ExternalLink } from "lucide-react";
 import { formatDate } from "@/lib/utils";
-import { pickKeyDates, type KeyDate } from "@/lib/exam/keyDates";
+import { pickKeyDates, relDayLabel, type KeyDate } from "@/lib/exam/keyDates";
 
 export function KeyDatesStrip({
   dates, todayISO, officialWebsite, action,
@@ -27,12 +27,20 @@ export function KeyDatesStrip({
     <section aria-label="Key dates and actions" className="mb-4 rounded-lg border border-border bg-card p-3" data-testid="key-dates-strip">
       {keyDates.length > 0 && (
         <ul className="divide-y divide-border">
-          {keyDates.map((d, i) => (
-            <li key={`${d.label}-${i}`} className="flex items-baseline justify-between gap-3 py-1.5">
-              <span className="font-mono text-sm font-semibold text-gray-900 shrink-0">{formatDate(String(d.date))}</span>
-              <span className="text-sm text-gray-600 text-right">{d.label}</span>
-            </li>
-          ))}
+          {keyDates.map((d, i) => {
+            // "Today / Tomorrow / in N days" — derived from the stored date and
+            // the IST anchor; null (no badge) for far or past dates.
+            const badge = i === 0 ? relDayLabel(String(d.date), todayISO) : null;
+            return (
+              <li key={`${d.label}-${i}`} className="flex items-baseline justify-between gap-3 py-1.5">
+                <span className="flex items-center gap-2 min-w-0">
+                  <span className="font-mono text-sm font-semibold text-gray-900 shrink-0">{formatDate(String(d.date))}</span>
+                  {badge && <span className="exam-date-badge" data-testid="key-date-badge">{badge}</span>}
+                </span>
+                <span className="text-sm text-gray-600 text-right">{d.label}</span>
+              </li>
+            );
+          })}
         </ul>
       )}
       {(action || officialWebsite) && (
@@ -42,7 +50,7 @@ export function KeyDatesStrip({
               href={action.href}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center justify-center gap-1.5 rounded-lg bg-primary px-4 py-3 text-sm font-semibold text-white min-h-[48px]"
+              className="exam-btn-primary"
               data-testid="primary-action"
             >
               {action.label} <ExternalLink className="w-4 h-4" />
@@ -53,7 +61,7 @@ export function KeyDatesStrip({
               href={officialWebsite}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-primary px-4 py-3 text-sm font-semibold text-primary min-h-[48px]"
+              className="exam-btn-secondary"
               data-testid="official-website-btn"
             >
               Official website <ExternalLink className="w-4 h-4" />

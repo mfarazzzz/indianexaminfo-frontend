@@ -46,3 +46,23 @@ export function pickAttestedAction(status: string, links: AttestedLink[]): { lab
   if (!hit) return null;
   return { label: want.label, href: hit.url };
 }
+
+/**
+ * Colour-parity item 5: the mock's "Today / in N days" date badge, DERIVED from
+ * a stored ISO date and the single IST today-anchor — never invented. Only the
+ * near future gets a badge (through REL_DAY_WINDOW_DAYS); a far date or a past
+ * date returns null and renders no badge. "Tomorrow" reads as its own word so a
+ * deadline one day out is unmistakable.
+ */
+export const REL_DAY_WINDOW_DAYS = 60;
+export function relDayLabel(dateISO: string | null | undefined, todayISO: string): string | null {
+  if (!dateISO || !/^\d{4}-\d{2}-\d{2}$/.test(dateISO)) return null;
+  const a = Date.parse(`${todayISO}T00:00:00Z`);
+  const b = Date.parse(`${dateISO}T00:00:00Z`);
+  if (Number.isNaN(a) || Number.isNaN(b)) return null;
+  const days = Math.round((b - a) / 86_400_000);
+  if (days < 0 || days > REL_DAY_WINDOW_DAYS) return null;
+  if (days === 0) return "Today";
+  if (days === 1) return "Tomorrow";
+  return `in ${days} days`;
+}

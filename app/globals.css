@@ -118,6 +118,129 @@
     @apply text-gray-500 font-semibold shrink-0 mr-3;
   }
 
+  /* ── COLOUR parity with docs/design/exam-page-mock.html ───────────────────
+     The mock's :root palette, applied as scoped CSS custom properties ONLY on
+     the exam page (.exam-page wrapper + .exam-content body). Global tokens are
+     NOT touched: primary stays #1A3C6E site-wide (the mock's #1d4ed8 brand is
+     exam-page-only), while border/card/muted already equal the mock's
+     line/#E5E7EB, card/#ffffff and muted/#6b7280 values. */
+  .exam-page,
+  .exam-content {
+    --exam-ink: #1f2937;
+    --exam-muted: #6b7280;
+    --exam-line: #e5e7eb;
+    --exam-bg: #f8fafc;
+    --exam-brand: #1d4ed8;
+    --exam-ok: #047857;
+    --exam-okbg: #ecfdf5;
+    --exam-okborder: #a7f3d0;
+    --exam-warnbg: #fffbeb;
+    --exam-warnborder: #fde68a;
+    --exam-warntext: #92400e;
+    --exam-chipbg: #f1f5f9;
+    --exam-chiptext: #334155;
+    --exam-badgebg: #eef2ff;
+    --exam-badgetext: #3730a3;
+  }
+  /* 1. page background behind white cards — the cards visibly lift. */
+  .exam-page { background: var(--exam-bg); }
+
+  /* 2. links = brand blue. :where() keeps the specificity at element level, so
+     any explicit utility class (button text, muted timestamp) still wins —
+     only plain in-text links take the brand. */
+  :where(.exam-content) a { color: var(--exam-brand); }
+
+  /* mock button language: solid brand primary / white ghost secondary, 12px
+     radius, 48px minimum touch target. No greyed placeholder variant exists —
+     a button renders only with a real destination (KeyDatesStrip). */
+  .exam-btn-primary,
+  .exam-btn-secondary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.375rem;
+    min-height: 48px;
+    padding: 0.75rem 1rem;
+    border-radius: 12px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    line-height: 1.25;
+  }
+  .exam-btn-primary { background: var(--exam-brand); color: #ffffff; }
+  .exam-btn-secondary { background: #ffffff; color: var(--exam-brand); border: 1px solid var(--exam-brand); }
+
+  /* 3. status chip: neutral by default; the green "ok" treatment is reserved
+     for a genuinely positive DERIVED status (set in the component). */
+  .exam-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    background: var(--exam-chipbg);
+    color: var(--exam-chiptext);
+    border-radius: 9999px;
+    padding: 0.25rem 0.75rem;
+    font-size: 0.75rem;
+    font-weight: 500;
+  }
+  .exam-chip.is-ok { background: var(--exam-okbg); color: var(--exam-ok); font-weight: 600; }
+
+  /* 4. verified pill / unverified amber notice — mock .verified and .notice. */
+  .exam-verified-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--exam-okbg);
+    color: var(--exam-ok);
+    border: 1px solid var(--exam-okborder);
+    border-radius: 9999px;
+    padding: 5px 12px;
+    font-size: 0.8rem;
+    font-weight: 700;
+  }
+  .exam-notice-warn {
+    background: var(--exam-warnbg);
+    border: 1px solid var(--exam-warnborder);
+    color: var(--exam-warntext);
+    border-radius: 12px;
+    padding: 11px 13px;
+    font-size: 0.86rem;
+  }
+
+  /* 5. date badge (Today / in N days — derived from stored dates), imminent
+     row tint, past row muted. Mock .badge-row / .past. */
+  .exam-date-badge {
+    background: var(--exam-badgebg);
+    color: var(--exam-badgetext);
+    border-radius: 8px;
+    padding: 2px 8px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    white-space: nowrap;
+  }
+  .exam-row-imminent { background: var(--exam-badgebg); border-radius: 8px; }
+  .exam-row-past { color: var(--exam-muted); }
+
+  /* 7. Updates timeline — mock .upd: 3px brand rail, muted timestamp. */
+  .exam-upd { border-left: 3px solid var(--exam-brand); padding-left: 12px; margin: 12px 0; }
+  .exam-upd time { font-size: 0.75rem; color: var(--exam-muted); }
+
+  /* kind badges, coloured sensibly and AA-checked: provisional/revised are
+     informational, final is positive, corrigendum warns, withdrawn reads red. */
+  .exam-kind {
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    border-radius: 6px;
+    padding: 2px 7px;
+    white-space: nowrap;
+  }
+  .exam-kind.is-neutral { background: var(--exam-chipbg); color: var(--exam-chiptext); }
+  .exam-kind.is-final { background: var(--exam-okbg); color: var(--exam-ok); }
+  .exam-kind.is-revised { background: var(--exam-badgebg); color: var(--exam-badgetext); }
+  .exam-kind.is-corrigendum { background: var(--exam-warnbg); color: var(--exam-warntext); }
+  .exam-kind.is-withdrawn { background: #fef2f2; color: #b91c1c; }
+
   /* Content type badge */
   .content-type-badge {
     @apply inline-block text-xs font-semibold uppercase tracking-wide px-2 py-0.5 rounded;
