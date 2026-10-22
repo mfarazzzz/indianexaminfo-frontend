@@ -25,6 +25,7 @@ function fakeClient(fixture: Record<string, unknown[]>) {
     const chain: any = {
       select: (s: string) => { record.select = s; return chain; },
       eq: (c: string, v: unknown) => { record.filters.push([c, "eq", v]); return chain; },
+      not: (c: string, op: string, v: unknown) => { record.filters.push([c, `${op}`, v]); return chain; },
       in: () => chain,
       or: () => chain,
       order: () => chain,
@@ -57,6 +58,13 @@ describe("getExamsForCategory — status from the VIEW, not the dropped column",
     await getExamsForCategory("c1");
     const examCall = clientRef!.calls.find((c) => c.table === "exams")!;
     expect(examCall.select).not.toMatch(/\bstatus\b/);
+  });
+
+  it("excludes reference TEST rows via the slug filter", async () => {
+    clientRef = fakeClient({ exams: [], exam_derived_status: [] });
+    await getExamsForCategory("c1");
+    const examCall = clientRef!.calls.find((c) => c.table === "exams")!;
+    expect(examCall.filters).toContainEqual(["slug", "like", "zz-test-%"]);
   });
 
   it("returns rows (not the old silent []) and sources status from exam_derived_status", async () => {

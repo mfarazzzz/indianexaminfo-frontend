@@ -7,6 +7,7 @@
 import { createServerClient } from "@/lib/supabase/server";
 import { cached } from "@/lib/cache";
 import { fetchDerivedStatuses } from "@/services/examService";
+import { TEST_SLUG_LIKE } from "@/lib/testContent";
 import type { Pillar } from "@/types/exam";
 
 // ── Types ──────────────────────────────────────────────────────────────────
@@ -103,7 +104,8 @@ export async function getNavigationCategories(pillar: Pillar): Promise<Navigatio
         .from("exams")
         .select("category_id")
         .in("category_id", categoryIds)
-        .eq("is_published", true);
+        .eq("is_published", true)
+        .not("slug", "like", TEST_SLUG_LIKE);
       if (countsErr) {
         console.error(`[navigationService] getNavigationCategories(${pillar}) exam-count read failed (badges show 0):`, countsErr);
       }
@@ -156,6 +158,7 @@ export async function getExamsForCategory(
       .select("id, slug, short_name, name, is_featured, category_id, pillar, categories!category_id(slug)")
       .eq("category_id", categoryId)
       .eq("is_published", true)
+      .not("slug", "like", TEST_SLUG_LIKE)
       .order("is_featured", { ascending: false })
       .order("name")
       .limit(limit);
@@ -211,6 +214,7 @@ export async function searchExamsInPillar(
       .select("id, slug, short_name, name, is_featured, pillar, categories!category_id(slug)")
       .eq("pillar", pillar)
       .eq("is_published", true)
+      .not("slug", "like", TEST_SLUG_LIKE)
       .or(`name.ilike.%${query}%,short_name.ilike.%${query}%`)
       .order("is_featured", { ascending: false })
       .order("name")
@@ -274,6 +278,7 @@ export async function getPrebuiltNavigationCards(pillar: Pillar): Promise<Prebui
         .select("id, slug, short_name, name, is_featured, category_id")
         .in("category_id", categoryIds)
         .eq("is_published", true)
+        .not("slug", "like", TEST_SLUG_LIKE)
         .order("is_featured", { ascending: false })
         .order("name");
       if (examsErr) throw examsErr;

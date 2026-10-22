@@ -10,6 +10,7 @@ import { createServerClient } from "@/lib/supabase/server";
 import { cached } from "@/lib/cache";
 import type { ContentPost, ContentType, Pillar } from "@/types/exam";
 import { orderUpdatesForReader, tickerPool, homeBulletinPool, TICKER_CAP } from "@/lib/exam/updateFeed";
+import { excludeTest } from "@/lib/testContent";
 
 /** B2 reader rule: an update whose expiry has passed is hidden EVERYWHERE.
  *  Computed per call - never a module-level constant. */
@@ -139,7 +140,7 @@ export async function getLatestByContentType(
         .order("updated_at", { ascending: false })
         .limit(limit);
       if (error) throw error;
-      return (data ?? []).map((r: any) => mapRow(r));
+      return excludeTest((data ?? []).map((r: any) => mapRow(r)));
     } catch (err) {
       console.error("[contentPostService] getLatestByContentType failed:", err);
       return [];
@@ -159,7 +160,7 @@ export async function getContentPostsByPillar(pillar: Pillar): Promise<ContentPo
       .is("exam_id", null)
       .order("updated_at", { ascending: false });
     if (error) throw error;
-    return (data ?? []).map((r: any) => mapRow(r));
+    return excludeTest((data ?? []).map((r: any) => mapRow(r)));
   } catch (err) {
     console.error("[contentPostService] getContentPostsByPillar failed:", err);
     return [];
@@ -178,7 +179,7 @@ export async function getFeaturedContentPosts(): Promise<ContentPost[]> {
       .is("exam_id", null)
       .order("updated_at", { ascending: false });
     if (error) throw error;
-    return (data ?? []).map((r: any) => mapRow(r));
+    return excludeTest((data ?? []).map((r: any) => mapRow(r)));
   } catch (err) {
     console.error("[contentPostService] getFeaturedContentPosts failed:", err);
     return [];
@@ -198,7 +199,7 @@ export async function searchContentPosts(query: string): Promise<ContentPost[]> 
       .or(`title.ilike.%${query}%,exam_entity_name.ilike.%${query}%`)
       .limit(20);
     if (error) throw error;
-    return (data ?? []).map((r: any) => mapRow(r));
+    return excludeTest((data ?? []).map((r: any) => mapRow(r)));
   } catch (err) {
     console.error("[contentPostService] searchContentPosts failed:", err);
     return [];
@@ -218,7 +219,7 @@ export async function getLatestContentPosts(limit = 10): Promise<ContentPost[]> 
         .order("updated_at", { ascending: false })
         .limit(limit);
       if (error) throw error;
-      return (data ?? []).map((r: any) => mapRow(r));
+      return excludeTest((data ?? []).map((r: any) => mapRow(r)));
     } catch (err) {
       console.error("[contentPostService] getLatestContentPosts failed:", err);
       return [];
@@ -245,7 +246,7 @@ export async function getTickerUpdates(limit = TICKER_CAP): Promise<ContentPost[
         .order("updated_at", { ascending: false })
         .limit(limit * 2); // headroom: withdrawn-kind rows are dropped client-side
       if (error) throw error;
-      return tickerPool((data ?? []).map((r: any) => mapRow(r)), new Date().toISOString(), limit);
+      return excludeTest(tickerPool((data ?? []).map((r: any) => mapRow(r)), new Date().toISOString(), limit));
     } catch (err) {
       console.error("[contentPostService] getTickerUpdates failed:", err);
       return [];
@@ -270,7 +271,7 @@ export async function getHomeBulletin(): Promise<ContentPost[]> {
         .order("updated_at", { ascending: false })
         .limit(24);
       if (error) throw error;
-      return homeBulletinPool((data ?? []).map((r: any) => mapRow(r)), new Date().toISOString());
+      return excludeTest(homeBulletinPool((data ?? []).map((r: any) => mapRow(r)), new Date().toISOString()));
     } catch (err) {
       console.error("[contentPostService] getHomeBulletin failed:", err);
       return [];

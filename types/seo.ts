@@ -32,4 +32,9 @@ export type BuildMetadataProps = {
   updatedAt?: string;
   tags?: string[];
   noIndex?: boolean;
+  /** The record's slug. When it is a reference TEST slug (lib/testContent) the
+   *  page is forced noindex/nofollow regardless of noIndex — a test page must be
+   *  reachable by direct URL but never indexed. Optional; static hub pages omit
+   *  it and are unaffected. */
+  slug?: string;
 };

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { siteConfig } from "@/config/site";
 import { env } from "@/config/env";
+import { isTestSlug, TEST_SLUG_PREFIX } from "@/lib/testContent";
 import type { BuildMetadataProps } from "@/types/seo";
 
 const DEFAULT_OG_IMAGE = `${siteConfig.url}/api/og?title=${encodeURIComponent("IndianExamInfo — India's Most Trusted Exam Portal")}&type=default`;
@@ -18,12 +19,24 @@ export function buildExamMetadata({
   updatedAt,
   tags = [],
   noIndex = false,
+  slug,
 }: BuildMetadataProps): Metadata {
   const metaTitle = title ?? siteConfig.name;
   const metaDesc = description ?? siteConfig.description;
   const isArticle = pageType === "blog-post" || pageType === "content-type";
 
-  const robots = noIndex
+  // A reference TEST record is always noindex/nofollow, whatever the caller
+  // passed. Its page stays reachable by direct URL for the owner but must never
+  // enter the index or a crawl. Detected from the explicit slug AND from the
+  // canonical URL (a test page's own canonical always carries `/zz-test-`; a
+  // real page's never does), so no per-route wiring is required. Static hub
+  // pages pass neither → unaffected.
+  const forceNoIndex =
+    noIndex ||
+    isTestSlug(slug) ||
+    (typeof canonicalUrl === "string" && canonicalUrl.includes(`/${TEST_SLUG_PREFIX}`));
+
+  const robots = forceNoIndex
     ? { index: false, follow: false }
     : {
         index: true,

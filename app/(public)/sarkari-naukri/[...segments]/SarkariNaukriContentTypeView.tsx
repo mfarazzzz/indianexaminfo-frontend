@@ -13,6 +13,8 @@ import { formatDate, contentTypeLabel } from "@/lib/utils";
 import { safeHtml } from "@/lib/sanitize";
 import { ContentTypeDataRenderer } from "@/components/exam/ContentTypeDataRenderer";
 import { ContentModulesBlock } from "@/components/exam/EntityDetailPage";
+import { TestPageBanner } from "@/components/exam/TestPageBanner";
+import { isTestSlug } from "@/lib/testContent";
 import { SocialChannelBanner } from "@/components/layout/SocialChannelBanner";
 import { SARKARI_LABELS } from "@/lib/sarkari/labels";
 import { contentTypeHasData } from "@/lib/sectionRegistry";
@@ -107,6 +109,7 @@ export async function SarkariNaukriContentTypeView({ exam, category, slug, conte
 
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-6 mt-4">
           <main>
+            {isTestSlug(exam.slug) && <TestPageBanner />}
             <span className="content-type-badge bg-primary/10 text-primary mb-3 inline-block">{ctLabel}</span>
 
             <h1 className="font-heading font-bold text-2xl text-gray-900 mb-2 article-title">

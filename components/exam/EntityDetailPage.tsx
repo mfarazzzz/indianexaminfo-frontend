@@ -35,6 +35,8 @@ import { resolveLastUpdated } from "@/lib/exam/lastUpdated";
 import { partitionUpdates } from "@/lib/exam/updates";
 import { KeyDatesStrip } from "@/components/exam/KeyDatesStrip";
 import { QuickInfoCard, ImportantLinksCard } from "@/components/exam/ReaderInfoCards";
+import { TestPageBanner } from "@/components/exam/TestPageBanner";
+import { isTestSlug } from "@/lib/testContent";
 import { pickAttestedAction, type AttestedLink } from "@/lib/exam/keyDates";
 import { nameWithYear } from "@/lib/seo/keywords";
 import { ExternalLink, Share2, ArrowRight } from "lucide-react";
@@ -507,6 +509,10 @@ export async function EntityDetailPage({ exam, breadcrumbs, contentType, edition
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-6 mt-4">
           {/* Main */}
           <main className="exam-content">
+            {/* Reference TEST record: loud, non-dismissible honesty banner. The
+                page is reachable by direct URL (owner inspection) but is forced
+                noindex/nofollow in metadata; aggregate surfaces exclude it. */}
+            {isTestSlug(exam.slug) && <TestPageBanner />}
             {/* Status + Last Updated */}
             <div className="flex items-center gap-3 mb-2 text-sm">
               {/* Colour parity item 3: neutral chip by default; the green "ok"

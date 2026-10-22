@@ -10,6 +10,7 @@ import { createServerClient } from "@/lib/supabase/server";
 import { cached } from "@/lib/cache";
 import { env } from "@/config/env";
 import { normalizeUrl } from "@/lib/utils";
+import { excludeTest, isTestSlug, TEST_SLUG_LIKE } from "@/lib/testContent";
 import {
   contentTypeHasData,
   CONTENT_TYPE_TO_SECTION,
@@ -346,7 +347,7 @@ export async function getAllExams(): Promise<ExamEntity[]> {
       const rows = data ?? [];
       const derivedMap = await fetchDerivedStatuses(supabase, rows.map((r: any) => r.id));
       const exams = rows.map((r: any) => mapRow(r, derivedMap.get(r.id)));
-      return applyStructuredSyllabusFlags(supabase, exams);
+      return excludeTest(await applyStructuredSyllabusFlags(supabase, exams));
     } catch (err) {
       console.error("[examService] getAllExams failed:", err);
       return [];
@@ -449,7 +450,7 @@ export async function getExamsByPillar(pillar: Pillar): Promise<ExamEntity[]> {
       const rows = data ?? [];
       const derivedMap = await fetchDerivedStatuses(supabase, rows.map((r: any) => r.id));
       const exams = rows.map((r: any) => mapRow(r, derivedMap.get(r.id)));
-      return applyStructuredSyllabusFlags(supabase, exams);
+      return excludeTest(await applyStructuredSyllabusFlags(supabase, exams));
     } catch (err) {
       console.error("[examService] getExamsByPillar failed:", err);
       return [];
@@ -488,7 +489,8 @@ export async function getUniversityNavRecords(): Promise<UniversityNavRecord[]> 
           regionLabel: (r.reg?.label as string) ?? "",
         }))
         // Skip any row without a real category (can't build a valid /university-exam/{cat}/{slug} link).
-        .filter((r) => r.category);
+        // Reference TEST rows never enter the mega-menu (aggregate surface).
+        .filter((r) => r.category && !isTestSlug(r.slug));
     } catch (err) {
       console.error("[examService] getUniversityNavRecords failed:", err);
       return [];
@@ -516,7 +518,7 @@ export async function getExamsByRegion(region: string): Promise<ExamEntity[]> {
       const rows = data ?? [];
       const derivedMap = await fetchDerivedStatuses(supabase, rows.map((r: any) => r.id));
       const exams = rows.map((r: any) => mapRow(r, derivedMap.get(r.id)));
-      return applyStructuredSyllabusFlags(supabase, exams);
+      return excludeTest(await applyStructuredSyllabusFlags(supabase, exams));
     } catch (err) {
       console.error("[examService] getExamsByRegion failed:", err);
       return [];
@@ -548,7 +550,7 @@ export async function getExamsByCategory(category: string): Promise<ExamEntity[]
       const rows = data ?? [];
       const derivedMap = await fetchDerivedStatuses(supabase, rows.map((r: any) => r.id));
       const exams = rows.map((r: any) => mapRow(r, derivedMap.get(r.id)));
-      return applyStructuredSyllabusFlags(supabase, exams);
+      return excludeTest(await applyStructuredSyllabusFlags(supabase, exams));
     } catch (err) {
       // A category page does `if (!exams.length) notFound()`. Returning [] on a
       // transport failure would therefore fake a 404 for a category that may
@@ -573,7 +575,7 @@ export async function getFeaturedExams(): Promise<ExamEntity[]> {
     const rows = data ?? [];
     const derivedMap = await fetchDerivedStatuses(supabase, rows.map((r: any) => r.id));
     const exams = rows.map((r: any) => mapRow(r, derivedMap.get(r.id)));
-    return applyStructuredSyllabusFlags(supabase, exams);
+    return excludeTest(await applyStructuredSyllabusFlags(supabase, exams));
   } catch (err) {
     console.error("[examService] getFeaturedExams failed:", err);
     return [];
@@ -606,7 +608,7 @@ export async function getRelatedExams(examId: string): Promise<ExamEntity[]> {
       const rows = data ?? [];
       const derivedMap = await fetchDerivedStatuses(supabase, rows.map((r: any) => r.id));
       const exams = rows.map((r: any) => mapRow(r, derivedMap.get(r.id)));
-      return applyStructuredSyllabusFlags(supabase, exams);
+      return excludeTest(await applyStructuredSyllabusFlags(supabase, exams));
     } catch (err) {
       console.error("[examService] getRelatedExams failed:", err);
       return [];
@@ -633,7 +635,7 @@ export async function searchExams(query: string): Promise<ExamEntity[]> {
     const rows = data ?? [];
     const derivedMap = await fetchDerivedStatuses(supabase, rows.map((r: any) => r.id));
     const exams = rows.map((r: any) => mapRow(r, derivedMap.get(r.id)));
-    return applyStructuredSyllabusFlags(supabase, exams);
+    return excludeTest(await applyStructuredSyllabusFlags(supabase, exams));
   } catch (err) {
     console.error("[examService] searchExams failed:", err);
     return [];
@@ -726,7 +728,7 @@ async function loadExamsForContentType(
       supabase,
       rows.map((r: any) => mapRow(r, derivedMap.get(r.id))),
     );
-    return exams.filter((exam) => contentTypeHasData(exam as unknown as HasDataView, contentType));
+    return excludeTest(exams.filter((exam) => contentTypeHasData(exam as unknown as HasDataView, contentType)));
   } catch (err) {
     console.error("[examService] getExamsByContentType failed:", err);
     return [];
@@ -746,9 +748,11 @@ export async function getExamsByStatus(status: string): Promise<ExamEntity[]> {
     if (error) throw error;
     const rows = data ?? [];
     const derivedMap = await fetchDerivedStatuses(supabase, rows.map((r: any) => r.id));
-    return rows
-      .map((r: any) => mapRow(r, derivedMap.get(r.id)))
-      .filter((exam) => exam.status === status);
+    return excludeTest(
+      rows
+        .map((r: any) => mapRow(r, derivedMap.get(r.id)))
+        .filter((exam) => exam.status === status),
+    );
   } catch (err) {
     console.error("[examService] getExamsByStatus failed:", err);
     return [];
@@ -785,7 +789,7 @@ export async function getExamSlugsForPillar(
         slug: r.slug as string,
         category: (r.cat?.slug as string | undefined) ?? null,
       }))
-      .filter((p) => p.slug);
+      .filter((p) => p.slug && !isTestSlug(p.slug));
   } catch (err) {
     console.error(`[examService] getExamSlugsForPillar(${pillar}) failed:`, err);
     return [];
@@ -922,7 +926,8 @@ export async function getExamCountByPillar(pillar: Pillar): Promise<number> {
       const { count, error } = await supabase
         .from("exams")
         .select("id", { count: "exact", head: true })
-        .eq("pillar", pillar);
+        .eq("pillar", pillar)
+        .not("slug", "like", TEST_SLUG_LIKE);
       if (error) throw error;
       return count ?? 0;
     } catch (err) {
@@ -1040,7 +1045,7 @@ export async function getDeadlineBands(perBand = 8): Promise<DeadlineBands> {
         )
         .eq("strip_eligible", true);
       if (error) throw error;
-      const rows = data ?? [];
+      const rows = excludeTest((data ?? []) as { slug?: string }[]);
       if (rows.length === 0) return EMPTY_BANDS;
 
       // "Today" per the VIEW (IST). All rows carry the same today_ist.
@@ -1395,6 +1400,8 @@ export async function getEditionSitemapEntries(): Promise<EditionSitemapEntry[]>
       for (const r of (data ?? []) as any[]) {
         const exam = r.exam;
         if (!exam?.slug) continue;
+        // Reference TEST pages never enter the sitemap (own page is still reachable).
+        if (isTestSlug(exam.slug)) continue;
         // Draft/unpublished exams never enter the sitemap.
         if (exam.workflow_status && exam.workflow_status !== "published") continue;
         // is_current is the ONLY lifecycle authority — never year math.

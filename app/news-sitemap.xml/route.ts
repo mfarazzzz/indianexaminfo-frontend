@@ -10,6 +10,7 @@
 import { NextResponse } from "next/server";
 import { createServerClient } from "@/lib/supabase/server";
 import { siteConfig } from "@/config/site";
+import { TEST_SLUG_LIKE } from "@/lib/testContent";
 
 export const revalidate = 900; // 15 minutes
 
@@ -27,6 +28,7 @@ export async function GET() {
       .select("slug, title, published_at, content_type, tags, exam_entity_name")
       .eq("status", "published")
       .is("exam_id", null) // exam-linked updates are NOT generic news — keep them out of the news sitemap
+      .not("slug", "like", TEST_SLUG_LIKE) // reference TEST posts never enter the sitemap
       .in("content_type", NEWS_CONTENT_TYPES)
       .gte("published_at", twoDaysAgo)
       .order("published_at", { ascending: false })
