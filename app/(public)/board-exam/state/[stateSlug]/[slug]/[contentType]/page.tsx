@@ -6,6 +6,8 @@ import Link from "next/link";
 import { getExamBySlug, contentTypeAvailable, getExamSyllabus } from "@/services/examService";
 import { getContentPostsByExam, getLatestByContentType } from "@/services/contentPostService";
 import { Breadcrumb } from "@/components/layout/Breadcrumb";
+import { TestPageBanner } from "@/components/exam/TestPageBanner";
+import { isTestSlug } from "@/lib/testContent";
 import { AdSlot } from "@/components/ads/AdSlot";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { buildFAQSchema } from "@/lib/seo/structured-data";
@@ -126,6 +128,9 @@ export default async function StateBoardContentTypePage({ params }: Props) {
 
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-6 mt-4">
           <main>
+            {/* Reference TEST record: this focused content-type view does not render
+                through EntityDetailPage, so the banner is added here too. */}
+            {isTestSlug(exam.slug) && <TestPageBanner />}
             <span className="content-type-badge bg-primary/10 text-primary mb-3 inline-block">{ctLabel}</span>
 
             <h1 className="font-heading font-bold text-2xl text-gray-900 mb-2 article-title">

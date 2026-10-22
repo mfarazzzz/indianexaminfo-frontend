@@ -47,6 +47,8 @@ describe("every aggregate reader excludes reference TEST rows", () => {
     // the admission content-type route renders a focused view (not EntityDetailPage),
     // so it needs the banner too.
     expect(read("../app/(public)/admission/[category]/[slug]/[contentType]/page.tsx")).toContain("TestPageBanner");
+    // same for the board-exam state content-type route.
+    expect(read("../app/(public)/board-exam/state/[stateSlug]/[slug]/[contentType]/page.tsx")).toContain("TestPageBanner");
   });
 
   it("metadata forces noindex for test slugs (own page reachable, never indexed)", () => {
