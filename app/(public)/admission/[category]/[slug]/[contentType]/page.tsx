@@ -17,6 +17,8 @@ import { safeHtml } from "@/lib/sanitize";
 import { ContentTypeDataRenderer } from "@/components/exam/ContentTypeDataRenderer";
 import { ContentTypeModules } from "@/components/exam/ContentTypeModules";
 import { contentTypeHasData } from "@/lib/sectionRegistry";
+import { TestPageBanner } from "@/components/exam/TestPageBanner";
+import { isTestSlug } from "@/lib/testContent";
 import { isEditionYear } from "@/lib/exam/editions";
 import { buildEditionMetadata, renderEditionPage } from "@/lib/exam/editionDispatch";
 import { pillarToUrlSegment } from "@/lib/exam/pillarUrl";
@@ -145,6 +147,10 @@ export default async function EntranceContentTypePage({ params }: Props) {
           { name: exam.shortName,  href: `/admission/${category}/${slug}` },
           { name: ctLabel,         href: `/admission/${category}/${slug}/${contentType}` },
         ]} />
+
+        {/* Reference TEST record: the focused content-type view does not render
+            through EntityDetailPage, so the banner is added here too. */}
+        {isTestSlug(exam.slug) && <TestPageBanner />}
 
         {/* Persistent content module navigation — always visible */}
         {/* Tab strip — hidden when only one choice; a control offering one option
