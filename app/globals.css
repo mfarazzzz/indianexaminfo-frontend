@@ -124,8 +124,10 @@
      NOT touched: primary stays #1A3C6E site-wide (the mock's #1d4ed8 brand is
      exam-page-only), while border/card/muted already equal the mock's
      line/#E5E7EB, card/#ffffff and muted/#6b7280 values. */
-  .exam-page,
-  .exam-content {
+  /* The palette lives on :root because the home B4 card and the ticker reuse
+     the .exam-kind/.exam-chip classes OUTSIDE .exam-content. Custom properties
+     are inert until referenced - no other page's appearance changes. */
+  :root {
     --exam-ink: #1f2937;
     --exam-muted: #6b7280;
     --exam-line: #e5e7eb;

@@ -247,4 +247,10 @@ export type ContentPost = {
   verifiedBy?: string | null;
   displayOrder?: number;
   expiresAt?: string | null;
+  /** Pinned by an editor - reader-side pinned-first order, capped at 3 per section. */
+  isPinned?: boolean;
+  /** Joined exam identity (embedded select) so ticker/home cells link to the exam page. */
+  examSlug?: string | null;
+  examCategorySlug?: string | null;
+  examPillar?: string | null;
 };

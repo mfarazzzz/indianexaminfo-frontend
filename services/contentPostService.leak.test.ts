@@ -20,6 +20,7 @@ function fakeClient() {
       select: () => chain,
       eq: (c: string, v: unknown) => { filters.push([c, "eq", v]); return chain; },
       is: (c: string, v: unknown) => { filters.push([c, "is", v]); return chain; },
+      not: (c: string, op: string, v: unknown) => { filters.push([c, "not:" + op, v]); return chain; },
       in: () => chain,
       gte: () => chain,
       or: () => chain,
@@ -42,6 +43,7 @@ vi.mock("@/lib/supabase/server", () => ({ createServerClient: () => clientRef as
 import {
   getContentPostsByExam, getContentPostBySlug, getLatestByContentType,
   getContentPostsByPillar, getFeaturedContentPosts, searchContentPosts, getLatestContentPosts,
+  getTickerUpdates, getHomeBulletin,
 } from "@/services/contentPostService";
 
 const hasExamNull = () => lastFilters.some(([c, op, v]) => c === "exam_id" && op === "is" && v === null);
@@ -61,6 +63,24 @@ describe("the exam-page reader is the ONLY one that reads by exam_id", () => {
   it("getContentPostsByExam filters exam_id = <id> and does NOT exclude exam posts", async () => {
     await getContentPostsByExam("ex-123");
     expect(lastFilters.some(([c, op, v]) => c === "exam_id" && op === "eq" && v === "ex-123")).toBe(true);
+    expect(hasExamNull()).toBe(false);
+  });
+});
+
+// B3/B4 (owner decision 22 Oct): the ticker/home pools are exam-linked BY DESIGN -
+// the leak rule is the OTHER direction (exam updates must never surface in the
+// generic readers above). These two must filter exam_id NOT NULL and must never
+// carry the generic exam_id-is-null filter.
+describe("ticker/home pools are exam-linked by design", () => {
+  const hasExamNotNull = () => lastFilters.some(([c, op, v]) => c === "exam_id" && op === "not:is" && v === null);
+  it("getTickerUpdates filters exam-linked, never generic", async () => {
+    await getTickerUpdates(8);
+    expect(hasExamNotNull()).toBe(true);
+    expect(hasExamNull()).toBe(false);
+  });
+  it("getHomeBulletin filters exam-linked, never generic", async () => {
+    await getHomeBulletin();
+    expect(hasExamNotNull()).toBe(true);
     expect(hasExamNull()).toBe(false);
   });
 });

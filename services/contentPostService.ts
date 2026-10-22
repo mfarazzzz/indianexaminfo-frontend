@@ -9,6 +9,16 @@
 import { createServerClient } from "@/lib/supabase/server";
 import { cached } from "@/lib/cache";
 import type { ContentPost, ContentType, Pillar } from "@/types/exam";
+import { orderUpdatesForReader, tickerPool, homeBulletinPool, TICKER_CAP } from "@/lib/exam/updateFeed";
+
+/** B2 reader rule: an update whose expiry has passed is hidden EVERYWHERE.
+ *  Computed per call - never a module-level constant. */
+const expiryOr = () => "expires_at.is.null,expires_at.gt." + new Date().toISOString();
+
+/** The exam join for ticker/home cells: the reader link is the EXAM page,
+ *  built from the stored exam row's own slug/pillar/category - never invented. */
+const EXAM_EMBED =
+  "exam:exams!content_posts_exam_id_fkey(slug, pillar, cat:categories!exams_category_id_fkey(slug))";
 
 // ── Row mapper ───────────────────────────────────────────────────────────
 function mapRow(row: Record<string, unknown>): ContentPost {
@@ -42,6 +52,12 @@ function mapRow(row: Record<string, unknown>): ContentPost {
     verifiedBy: (row.verified_by as string) ?? null,
     displayOrder: typeof row.display_order === "number" ? row.display_order : 0,
     expiresAt: (row.expires_at as string) ?? null,
+    isPinned: (row.is_pinned as boolean) ?? false,
+    // Joined exam identity - present only on the embed selects used by the
+    // ticker/home pools (B3/B4); null elsewhere. Never invented.
+    examSlug: ((row as any).exam?.slug as string) ?? null,
+    examCategorySlug: ((row as any).exam?.cat?.slug as string) ?? null,
+    examPillar: ((row as any).exam?.pillar as string) ?? null,
   };
 }
 
@@ -59,7 +75,8 @@ export async function getContentPostsByExam(
         .from("content_posts")
         .select("*")
         .eq("exam_id", examId)
-        .eq("status", "published");
+        .eq("status", "published")
+        .or(expiryOr()); // B2: expired updates never render (withdrawn still shown - History)
 
       if (contentType) {
         query = query.eq("content_type", contentType);
@@ -67,7 +84,8 @@ export async function getContentPostsByExam(
 
       const { data, error } = await query.order("updated_at", { ascending: false });
       if (error) throw error;
-      return (data ?? []).map((r: any) => mapRow(r));
+      // B2: pinned first (reader cap 3), then newest.
+      return orderUpdatesForReader((data ?? []).map((r: any) => mapRow(r)));
     } catch (err) {
       console.error("[contentPostService] getContentPostsByExam failed:", err);
       return [];
@@ -93,6 +111,7 @@ export async function getContentPostBySlug(slug: string): Promise<ContentPost | 
       .select("*")
       .eq("slug", slug)
       .eq("status", "published")
+      .or(expiryOr())
       .is("exam_id", null) // a generic /news page never renders an exam-linked update
       .maybeSingle();
     if (error || !data) return null;
@@ -115,6 +134,7 @@ export async function getLatestByContentType(
         .select("*")
         .eq("content_type", contentType)
         .eq("status", "published")
+        .or(expiryOr())
         .is("exam_id", null) // hubs/lists show generic posts only; exam updates live on the exam page
         .order("updated_at", { ascending: false })
         .limit(limit);
@@ -135,6 +155,7 @@ export async function getContentPostsByPillar(pillar: Pillar): Promise<ContentPo
       .select("*")
       .eq("pillar", pillar)
       .eq("status", "published")
+      .or(expiryOr())
       .is("exam_id", null)
       .order("updated_at", { ascending: false });
     if (error) throw error;
@@ -153,6 +174,7 @@ export async function getFeaturedContentPosts(): Promise<ContentPost[]> {
       .select("*")
       .eq("is_featured", true)
       .eq("status", "published")
+      .or(expiryOr())
       .is("exam_id", null)
       .order("updated_at", { ascending: false });
     if (error) throw error;
@@ -171,6 +193,7 @@ export async function searchContentPosts(query: string): Promise<ContentPost[]> 
       .from("content_posts")
       .select("*")
       .eq("status", "published")
+      .or(expiryOr())
       .is("exam_id", null) // search surfaces generic posts, not an exam's update feed
       .or(`title.ilike.%${query}%,exam_entity_name.ilike.%${query}%`)
       .limit(20);
@@ -190,6 +213,7 @@ export async function getLatestContentPosts(limit = 10): Promise<ContentPost[]> 
         .from("content_posts")
         .select("*")
         .eq("status", "published")
+        .or(expiryOr())
         .is("exam_id", null) // latest/ticker/RSS show generic posts only
         .order("updated_at", { ascending: false })
         .limit(limit);
@@ -200,4 +224,56 @@ export async function getLatestContentPosts(limit = 10): Promise<ContentPost[]> 
       return [];
     }
   }, ["exams", "content-posts"], { revalidate: 900 });
+}
+
+/**
+ * B3 ticker pool: the latest PUBLISHED EXAM-LINKED updates (not withdrawn,
+ * not expired, newest first, cap 8), each joined to its exam so the cell can
+ * link to the exam page. Generic news is excluded - it has /news. Empty ->
+ * the ticker renders NOTHING (never an empty bar).
+ */
+export async function getTickerUpdates(limit = TICKER_CAP): Promise<ContentPost[]> {
+  return cached(async () => {
+    try {
+      const supabase = createServerClient();
+      const { data, error } = await supabase
+        .from("content_posts")
+        .select("*, " + EXAM_EMBED)
+        .eq("status", "published")
+        .not("exam_id", "is", null) // exam-linked BY DESIGN (the opposite of the leak rule)
+        .or(expiryOr())
+        .order("updated_at", { ascending: false })
+        .limit(limit * 2); // headroom: withdrawn-kind rows are dropped client-side
+      if (error) throw error;
+      return tickerPool((data ?? []).map((r: any) => mapRow(r)), new Date().toISOString(), limit);
+    } catch (err) {
+      console.error("[contentPostService] getTickerUpdates failed:", err);
+      return [];
+    }
+  }, ["exams", "content-posts", "ticker"], { revalidate: 600 });
+}
+
+/**
+ * B4 home pool: same eligibility as the ticker, but pinned first (reader cap
+ * 3) and filled to 6 total. Empty -> the home section renders NOTHING.
+ */
+export async function getHomeBulletin(): Promise<ContentPost[]> {
+  return cached(async () => {
+    try {
+      const supabase = createServerClient();
+      const { data, error } = await supabase
+        .from("content_posts")
+        .select("*, " + EXAM_EMBED)
+        .eq("status", "published")
+        .not("exam_id", "is", null)
+        .or(expiryOr())
+        .order("updated_at", { ascending: false })
+        .limit(24);
+      if (error) throw error;
+      return homeBulletinPool((data ?? []).map((r: any) => mapRow(r)), new Date().toISOString());
+    } catch (err) {
+      console.error("[contentPostService] getHomeBulletin failed:", err);
+      return [];
+    }
+  }, ["exams", "content-posts", "ticker"], { revalidate: 600 });
 }

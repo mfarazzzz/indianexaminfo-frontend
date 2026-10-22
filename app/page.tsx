@@ -18,6 +18,8 @@ import {
   getDeadlineBands,
   getTodayIST,
 } from "@/services/examService";
+import { getHomeBulletin } from "@/services/contentPostService";
+import { LatestUpdatesSection } from "@/components/homepage/LatestUpdatesSection";
 
 export const revalidate = 1800;
 
@@ -47,6 +49,7 @@ export default async function HomePage() {
     allExams,
     deadlineBands,
     todayISO,
+    homeUpdates,
   ] = await Promise.all([
     getExamsByPillar("government-exam"),
     getExamsByPillar("entrance-exam"),
@@ -54,6 +57,7 @@ export default async function HomePage() {
     getAllExams(),
     getDeadlineBands(50),
     getTodayIST(),
+    getHomeBulletin(),
   ]);
 
   // Exams already shown in the deadline strip (across all four bands). The sidebar
@@ -115,10 +119,11 @@ export default async function HomePage() {
           {/* Main column */}
           <div className="min-w-0 space-y-8">
 
-            {/* Track 3: "Latest updates" removed — even fixed (posts-first) it was a
-                full-width blog feed of exam_id-null posts, duplicating the Blog & News
-                section below. The deadline strip (imminent, by event) + sidebar (soonest
-                deadlines) cover the date-list need. */}
+            {/* B4 (owner decision 22 Oct): the home "Latest Updates" card - pinned
+                exam updates first (max 3), newest fill, 6 total, NOTHING when empty.
+                Generic news stays out (it has /news); the deadline strip + sidebar
+                keep their distinct roles. */}
+            <LatestUpdatesSection posts={homeUpdates} />
 
             {/* Mid-page leaderboard — hidden until a real creative is served */}
             <div className="flex justify-center empty:hidden">

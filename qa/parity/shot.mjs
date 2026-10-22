@@ -3,7 +3,7 @@ import { fileURLToPath } from "node:url";
 import { dirname, resolve } from "node:path";
 
 const dir = dirname(fileURLToPath(import.meta.url));
-const pages = ["rich", "no-dates", "no-elig", "no-links"];
+const pages = ["rich", "no-dates", "no-elig", "no-links", "bulletin", "bulletin-empty"];
 const widths = [["360", 360, 740], ["1366", 1366, 900]];
 
 const browser = await chromium.launch();

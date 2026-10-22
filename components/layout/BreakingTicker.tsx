@@ -1,36 +1,43 @@
 import Link from "next/link";
-import { getLatestContentPosts } from "@/services/contentPostService";
+import { getTickerUpdates } from "@/services/contentPostService";
 import { contentTypeLabel } from "@/lib/utils";
+import { getExamEntityHref } from "@/lib/exam/actionLinks";
 
+/**
+ * BreakingTicker.tsx — B1+B3 (owner decisions, 22 Oct): the global ticker shows
+ * the LATEST PUBLISHED EXAM-LINKED updates — not generic news (that has /news).
+ * Each cell links to the exam's own page, built from the JOINED exam row's
+ * slug/pillar/category via getExamEntityHref — the old href built from
+ * examEntityName could 404 and is gone (B1). An update whose exam join yields
+ * no slug/pillar renders NO cell: we never invent a URL.
+ *
+ * Pool rules live in lib/exam/updateFeed (published, kind != withdrawn, not
+ * expired, newest first, cap 8). A "Verified" mark appears ONLY when an editor
+ * verified that update (verified_by set). Empty pool → render NOTHING — no
+ * empty bar, ever (the old empty "LATEST UPDATE" bug).
+ */
 export async function BreakingTicker() {
-  // Priority order: result > admit-card > notification > others
-  const all = await getLatestContentPosts(20);
-  const sorted = [
-    ...all.filter((p) => p.contentType === "result"),
-    ...all.filter((p) => p.contentType === "admit-card"),
-    ...all.filter((p) => p.contentType === "notification"),
-    ...all.filter((p) => !["result", "admit-card", "notification"].includes(p.contentType)),
-  ].slice(0, 8);
-
-  // Only keep posts that can produce a visible, well-formed link. A post with a blank
-  // title or no exam-entity name would otherwise render as an empty/broken ticker cell,
-  // which is what produced the empty "LATEST UPDATE" bar on inner pages.
-  const items = sorted
-    .filter((p) => p.title?.trim() && p.examEntityName?.trim() && p.slug?.trim())
+  const posts = await getTickerUpdates(8);
+  const items = posts
+    .filter((p) => p.title?.trim() && p.examSlug && p.examPillar)
     .map((p) => ({
-      id:          p.id,
-      label:       p.title.trim(),
+      id: p.id,
+      label: p.title.trim(),
       contentType: p.contentType,
-      href:        `/${p.pillar}/${p.examEntityName.toLowerCase().replace(/\s+/g, "-")}/${p.slug}`,
+      href: getExamEntityHref({
+        pillar: p.examPillar!,
+        category: p.examCategorySlug ?? "",
+        slug: p.examSlug!,
+      }),
+      verified: !!p.verifiedBy,
     }));
 
-  // No renderable items → render nothing at all (no empty bar, no placeholder).
-  if (!items.length) return null;
+  if (items.length === 0) return null;
 
   return (
     <div
       className="bg-white border-b border-border flex items-stretch overflow-hidden h-9"
-      aria-label="Latest updates ticker"
+      aria-label="Latest exam updates"
     >
       {/* Static label */}
       <div className="bg-accent text-white font-bold text-xs uppercase tracking-wider px-3 flex items-center shrink-0 z-10 whitespace-nowrap">
@@ -53,8 +60,14 @@ export async function BreakingTicker() {
                 {contentTypeLabel(item.contentType)}
               </span>
               <span>{item.label}</span>
+              {/* Editor verification mark - only when the update carries one */}
+              {item.verified && (
+                <span className="text-[10px] font-bold uppercase tracking-wide text-emerald-700 shrink-0">
+                  Verified
+                </span>
+              )}
               {/* Separator */}
-              <span className="text-gray-300 ml-2" aria-hidden="true">▶</span>
+              <span className="text-gray-300 ml-2" aria-hidden="true">|</span>
             </Link>
           ))}
         </div>
