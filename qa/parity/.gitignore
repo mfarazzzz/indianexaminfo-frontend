@@ -1,4 +1,6 @@
 tw.css
 out-*.html
 *.png
+# run artifacts from heading-audit.mjs / crawl-test-tabs.mjs
+heading-audit.txt
 
