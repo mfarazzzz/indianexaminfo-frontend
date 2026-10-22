@@ -199,6 +199,9 @@ export function mapRow(row: Record<string, unknown>, derived?: DerivedInfo): Exa
     subcategory: (row.subcategory_slug as string) ?? (row as any).subcat?.slug ?? "",
     entityType: (row.entity_type as ExamEntity["entityType"]) ?? "exam",
     conductingBody: (row.conducting_body as string) ?? "",
+    // Stored verbatim; the Quick information card states it in plain words. An
+    // unexpected value renders the raw text, never a guess.
+    cycleFrequency: (row.cycle_frequency as string) ?? "",
     // Current edition's year LABEL, from the already-loaded current_ed (current_edition_id FK
     // join). No extra query, no edition re-selection. Drives the main-page title/H1 year so it
     // reflects the current cycle instead of the calendar year.

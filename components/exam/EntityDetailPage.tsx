@@ -34,6 +34,7 @@ import { moduleShowsInContentBlock } from "@/components/exam/contentModulesVisib
 import { resolveLastUpdated } from "@/lib/exam/lastUpdated";
 import { partitionUpdates } from "@/lib/exam/updates";
 import { KeyDatesStrip } from "@/components/exam/KeyDatesStrip";
+import { QuickInfoCard, ImportantLinksCard } from "@/components/exam/ReaderInfoCards";
 import { pickAttestedAction, type AttestedLink } from "@/lib/exam/keyDates";
 import { nameWithYear } from "@/lib/seo/keywords";
 import { ExternalLink, Share2, ArrowRight } from "lucide-react";
@@ -576,6 +577,13 @@ export async function EntityDetailPage({ exam, breadcrumbs, contentType, edition
               );
             })()}
 
+            {/* Mock gap audit (22 Oct): the two mock blocks our template did not
+                render — Quick information (facts from STORED fields only) and
+                Important links (ATTESTED urls only). Each renders NOTHING when
+                it has nothing to say; never an empty shell. MAIN PAGE ONLY. */}
+            {!contentType && <QuickInfoCard exam={exam} />}
+            {!contentType && <ImportantLinksCard exam={exam} contentPosts={contentPosts} todayISO={todayISO} />}
+
             {/* Lead block — the answer first. MAIN PAGE ONLY (a CT sub-page is already the
                 answer to one question; repeating the card there is duplication). Reads derived
                 status + shared pickDisplayDate + shared getActionLinks — nothing invented, no
@@ -717,7 +725,10 @@ export async function EntityDetailPage({ exam, breadcrumbs, contentType, edition
           </main>
 
           {/* Sidebar */}
-          <aside className="flex flex-col gap-4">
+          {/* Mock parity (@700px aside sticky): the sidebar holds position while
+              the reader scrolls the body, at the same lg breakpoint the two
+              column layout switches to. */}
+          <aside className="flex flex-col gap-4 lg:sticky lg:top-4 self-start">
             <AdSlot position="article-sidebar" size="300x250" />
 
             {/* Quick Links — hide the whole panel when it would be empty */}

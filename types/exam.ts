@@ -59,6 +59,10 @@ export type ExamEntity = {
   subcategory: string;
   entityType: "exam" | "board" | "university-admission" | "recruitment" | "university-exam";
   conductingBody: string;
+  /** exams.cycle_frequency, VERBATIM ('annual' | 'biannual' | 'irregular').
+   *  Read only to state the frequency honestly in the Quick information card;
+   *  absent/unknown → the fact row is omitted, never guessed. */
+  cycleFrequency?: string;
   officialWebsite: string;
   status: ExamStatus;
 
