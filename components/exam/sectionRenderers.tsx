@@ -13,6 +13,7 @@
 import Link from "next/link";
 import type { ExamEntity } from "@/types/exam";
 import { formatDate, formatEventDateTime, isUrgent } from "@/lib/utils";
+import { relDayLabel } from "@/lib/exam/keyDates";
 import { meaningfulFaqs } from "@/lib/sectionRegistry";
 import { Calendar } from "lucide-react";
 
@@ -43,11 +44,17 @@ const ImportantDatesSummary: SectionSummary = (exam, todayISO) => (
         // Imminent = within 7 days on the single IST anchor (todayISO). Same rule as the
         // homepage widgets and the derived-status VIEW — never the server UTC clock.
         const isImminent  = !isCancelled && !isExpected && hasDate && !!todayISO && isUrgent(d.date, todayISO, 7);
+        // Colour parity item 5: a confirmed date already past reads muted grey
+        // (history, not a deadline); the imminent row takes the mock's indigo
+        // tint + a derived "Today / Tomorrow / in N days" badge. ISO dates
+        // compare lexically, so no timezone maths happens here.
+        const isPast      = hasDate && !isExpected && !isCancelled && !isImminent && String(d.date) < String(todayISO);
+        const badge       = isImminent && hasDate ? relDayLabel(String(d.date), todayISO) : null;
         return (
           <li
             key={`${d.label}-${i}`}
             className={`flex items-start justify-between gap-3 py-2.5 ${
-              isImminent ? "bg-accent/5 -mx-2 px-2 rounded" : ""
+              isImminent ? "exam-row-imminent -mx-2 px-2" : ""
             } ${isCancelled ? "opacity-60" : ""}`}
           >
             {/* Event label (left) */}
@@ -71,9 +78,11 @@ const ImportantDatesSummary: SectionSummary = (exam, todayISO) => (
             <div className={`shrink-0 text-right text-sm font-mono ${
               isCancelled ? "text-gray-400 line-through"
               : isExpected ? "text-gray-500"
-              : isImminent ? "text-accent font-semibold"
+              : isPast ? "exam-row-past"
+              : isImminent ? "text-gray-900 font-semibold"
               : "text-gray-700"
             }`}>
+              {badge && <span className="exam-date-badge mr-2 not-italic" data-testid="date-rel-badge">{badge}</span>}
               {hasDate ? (
                 isExpected ? (
                   <span title="Tentative date — not yet officially confirmed." className="cursor-help">

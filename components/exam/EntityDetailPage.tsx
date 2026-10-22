@@ -18,7 +18,6 @@ import {
 } from "@/lib/seo/structured-data";
 import {
   formatDate,
-  statusColor,
   statusLabel,
   contentTypeLabel,
 } from "@/lib/utils";
@@ -38,6 +37,16 @@ import { KeyDatesStrip } from "@/components/exam/KeyDatesStrip";
 import { pickAttestedAction, type AttestedLink } from "@/lib/exam/keyDates";
 import { nameWithYear } from "@/lib/seo/keywords";
 import { ExternalLink, Share2, ArrowRight } from "lucide-react";
+
+/**
+ * Colour-parity item 3 (mock .chip.ok): the derived statuses that are genuinely
+ * POSITIVE for a reader — registration open, admit card out, result declared,
+ * application active. Everything else (upcoming, awaited, closed, postponed…)
+ * renders the neutral chip; we never colour-code a status we cannot derive.
+ */
+const POSITIVE_STATUSES: ReadonlySet<string> = new Set([
+  "registration-open", "admit-card-out", "result-declared", "active",
+]);
 
 type EntityDetailPageProps = {
   exam: ExamEntity;
@@ -182,6 +191,9 @@ function renderOrderedSections(
         const { active, history } = partitionUpdates(contentPosts);
         if (active.length === 0 && history.length === 0) return null;
         const KIND_LABEL: Record<string, string> = { provisional: "Provisional", final: "Final", revised: "Revised", corrigendum: "Corrigendum" };
+        // Sensible, AA-checked tones: neutral=informational, green=final,
+        // indigo=revised, amber=corrigendum (red lives in History).
+        const KIND_TONE: Record<string, string> = { provisional: "is-neutral", final: "is-final", revised: "is-revised", corrigendum: "is-corrigendum", withdrawn: "is-withdrawn" };
         return (
           <>
             {active.length > 0 && (
@@ -189,21 +201,21 @@ function renderOrderedSections(
                 <h2 className="font-heading font-semibold text-base text-gray-800 mb-3">Updates / अपडेट</h2>
                 <ul className="space-y-3">
                   {active.map(({ post, kind, verified }) => (
-                    <li key={post.id} className="border-l-2 border-primary/40 pl-3">
+                    <li key={post.id} className="exam-upd">
                       <div className="flex items-center gap-2 flex-wrap">
                         <span className="content-type-badge bg-primary/10 text-primary">{contentTypeLabel(post.contentType)}</span>
                         {kind && kind !== "withdrawn" && (
-                          <span className="text-[11px] font-medium px-1.5 py-0.5 rounded bg-gray-100 text-gray-600">{KIND_LABEL[kind] ?? kind}</span>
+                          <span className={`exam-kind ${KIND_TONE[kind] ?? "is-neutral"}`}>{KIND_LABEL[kind] ?? kind}</span>
                         )}
                         {verified && (
                           <span
-                            className="text-[11px] font-semibold px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-700"
+                            className="exam-kind is-final"
                             title="An editor confirmed this against the official notice"
                           >
                             Verified
                           </span>
                         )}
-                        <time className="text-xs text-gray-500">{formatDate(post.publishedAt || post.updatedAt)}</time>
+                        <time>{formatDate(post.publishedAt || post.updatedAt)}</time>
                       </div>
                       <p className="text-sm font-semibold text-gray-900 mt-1 leading-snug">{post.title}</p>
                       {post.excerpt && <p className="text-sm text-gray-600 mt-0.5">{post.excerpt}</p>}
@@ -220,8 +232,8 @@ function renderOrderedSections(
                     <li key={post.id} className="border-l-2 border-gray-300 pl-3">
                       <div className="flex items-center gap-2 flex-wrap">
                         <span className="content-type-badge bg-gray-100 text-gray-500">{contentTypeLabel(post.contentType)}</span>
-                        {withdrawn && <span className="text-[11px] font-medium px-1.5 py-0.5 rounded bg-rose-50 text-rose-700">Withdrawn</span>}
-                        {superseded && <span className="text-[11px] font-medium px-1.5 py-0.5 rounded bg-amber-50 text-amber-700">Superseded</span>}
+                        {withdrawn && <span className="exam-kind is-withdrawn">Withdrawn</span>}
+                        {superseded && <span className="exam-kind is-corrigendum">Superseded</span>}
                         <time className="text-xs text-gray-400">{formatDate(post.publishedAt || post.updatedAt)}</time>
                       </div>
                       <p className="text-sm text-gray-500 mt-0.5 leading-snug">{post.title}</p>
@@ -390,7 +402,10 @@ function LeadBlock({ lead }: { lead: LeadBlockData }) {
   const { headline, date, daysRemaining, action } = lead;
   return (
     <div className="mb-5 rounded-lg border border-border bg-card p-4">
-      <div className={`text-xs font-bold uppercase tracking-wide mb-1 ${statusColor(lead.status).split(" ")[0]}`}>
+      {/* Colour parity item 6 + 10: the mock's micro-label is muted uppercase
+          (.k #6b7280 = 4.83:1 on white, AA). The old statusColor text tones
+          (e.g. editorial #E8630A ≈ 3.3:1) failed AA for small text. */}
+      <div className="text-xs font-bold uppercase tracking-wide mb-1 text-gray-500">
         {headline}
       </div>
       {date ? (
@@ -485,7 +500,7 @@ export async function EntityDetailPage({ exam, breadcrumbs, contentType, edition
           carrying back + short name + status. Client component; scroll-driven. */}
       <StickyContextBar shortName={exam.shortName} status={exam.status} />
 
-      <div className="container mx-auto px-4 py-4">
+      <div className="exam-page container mx-auto px-4 py-4">
         <Breadcrumb items={breadcrumbs} />
 
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-6 mt-4">
@@ -493,11 +508,14 @@ export async function EntityDetailPage({ exam, breadcrumbs, contentType, edition
           <main className="exam-content">
             {/* Status + Last Updated */}
             <div className="flex items-center gap-3 mb-2 text-sm">
-              <span className={`status-badge ${statusColor(exam.status)}`}>
+              {/* Colour parity item 3: neutral chip by default; the green "ok"
+                  treatment ONLY for a genuinely positive DERIVED status. A status
+                  we cannot read as positive never gets a colour claim. */}
+              <span className={`exam-chip${POSITIVE_STATUSES.has(exam.status) ? " is-ok" : ""}`}>
                 {statusLabel(exam.status)}
               </span>
               {lastUpdated && (
-                <span className="text-gray-400 text-xs">
+                <span className="text-gray-500 text-xs">
                   Last Updated: {formatDate(lastUpdated)}
                 </span>
               )}
@@ -544,12 +562,12 @@ export async function EntityDetailPage({ exam, breadcrumbs, contentType, edition
                     /* S3.2/D6 #3: the verified line names the TEAM and the date —
                        never a person. It replaces the honest notice at the same
                        spot; nothing here is shown unless the record really carries
-                       flag + date + verifier. */
-                    <p className="mb-3 rounded-[12px] bg-emerald-50 border border-emerald-200 text-emerald-800 text-sm px-3 py-2" data-testid="verified-notice">
-                      Verified by {v.label} · {formatDate(v.date)}
+                       flag + date + verifier. Mock .verified: green pill. */
+                    <p className="mb-3" data-testid="verified-notice">
+                      <span className="exam-verified-pill">Verified by {v.label} · {formatDate(v.date)}</span>
                     </p>
                   ) : (
-                    <p className="mb-3 rounded-[12px] bg-amber-50 border border-amber-200 text-amber-800 text-sm px-3 py-2">
+                    <p className="exam-notice-warn mb-3">
                       {UNVERIFIED_EXAM_NOTICE}
                     </p>
                   )}
@@ -688,11 +706,10 @@ export async function EntityDetailPage({ exam, breadcrumbs, contentType, edition
                   const v = getExamVerification(exam);
                   return v.kind === "verified" ? (
                     <p>
-                      <span className="font-medium text-gray-600">Verified by:</span>{" "}
-                      {v.label} · {formatDate(v.date)}
+                      <span className="exam-verified-pill">Verified by {v.label} · {formatDate(v.date)}</span>
                     </p>
                   ) : (
-                    <p className="text-gray-400 mt-1">{UNVERIFIED_EXAM_NOTICE}</p>
+                    <p className="text-gray-500 mt-1">{UNVERIFIED_EXAM_NOTICE}</p>
                   );
                 })()}
               </div>
