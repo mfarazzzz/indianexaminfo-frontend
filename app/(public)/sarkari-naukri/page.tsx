@@ -12,6 +12,7 @@ import { buildPageKeywords, getCurrentYear } from "@/lib/seo/keywords";
 import { siteConfig } from "@/config/site";
 import { SARKARI_LABELS } from "@/lib/sarkari/labels";
 import { filterHubLinks } from "@/lib/hubs/contentHubs";
+import { latestContentDate } from "@/lib/exam/lastUpdated";
 import { SarkariNaukriList } from "@/components/sarkari-naukri/SarkariNaukriList";
 
 export const revalidate = 1800;
@@ -117,9 +118,16 @@ export default async function SarkariNaukriPage() {
           <h1 className="font-heading font-bold text-2xl text-gray-900 mb-1">
             Sarkari Naukri {YEAR} — Government Jobs & Bharti
           </h1>
-          <p className="text-sm text-gray-500 mb-4">
-            {items.length} active listings · Last updated {new Date().toLocaleDateString("en-IN")}
-          </p>
+          {/* D2 trust rule: the date is the newest listing's own publishedAt, never the build date; no trustworthy date -> show only the count. */}
+          {(() => {
+            const lu = latestContentDate(items.map((i) => i.publishedAt));
+            return (
+              <p className="text-sm text-gray-500 mb-4">
+                {items.length} active listings
+                {lu ? <>· Last updated {new Date(lu).toLocaleDateString("en-IN")}</> : null}
+              </p>
+            );
+          })()}
 
           {/* Type filters — overflow-x scrollable on mobile so the three pills never clip */}
           <div className="flex gap-2 mb-5 overflow-x-auto pb-1 scrollbar-none">

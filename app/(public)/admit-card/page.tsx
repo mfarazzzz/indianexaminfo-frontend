@@ -8,6 +8,7 @@ import { buildExamMetadata } from "@/lib/seo/metadata";
 import { CONTENT_TYPE_KEYWORDS, GLOBAL_SHORT_TAIL, getCurrentYear } from "@/lib/seo/keywords";
 import { siteConfig } from "@/config/site";
 import { formatDate, pillarLabel, getExamContentTypeHref } from "@/lib/utils";
+import { latestContentDate } from "@/lib/exam/lastUpdated";
 import { Download, Calendar } from "lucide-react";
 import { hubFor, hubHasContent, filterHubLinks } from "@/lib/hubs/contentHubs";
 
@@ -70,10 +71,16 @@ export default async function AdmitCardPage() {
           <h1 className="font-heading font-bold text-2xl text-gray-900 mb-1">
             Admit Card {new Date().getFullYear()} — Download Hall Ticket for All Exams
           </h1>
-          <p className="text-sm text-gray-500 mb-5">
-            Last Updated: {new Date().toLocaleDateString("en-IN")} ·{" "}
-            {exams.length} exams with admit cards
-          </p>
+          {/* D2 trust rule: newest real content date on the page, or omit. */}
+          {(() => {
+            const lu = latestContentDate(latestPosts.map((p) => p.updatedAt));
+            return (
+              <p className="text-sm text-gray-500 mb-5">
+                {lu ? <>Last Updated: {new Date(lu).toLocaleDateString("en-IN")} ·{" "}</> : null}
+                {exams.length} exams with admit cards
+              </p>
+            );
+          })()}
 
           {/* Filter bar */}
           <div className="flex flex-wrap gap-2 mb-5 pb-4 border-b border-border">

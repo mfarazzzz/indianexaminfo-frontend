@@ -66,3 +66,20 @@ export function examUpdatedFrom(exam: {
     verifiedAt: exam.verifiedAt,
   });
 }
+
+/**
+ * The hub/list form of the D2 rule (owner trust fix, 22 Oct): the newest REAL
+ * content date among the items a page actually lists (a published post's
+ * updatedAt, a listing's publishedAt) — or null. Callers must NEVER fall back
+ * to new Date(): the build/render date is not a content date, and printing it
+ * as "Last Updated" is a false freshness claim. Null → omit the line entirely.
+ */
+export function latestContentDate(
+  candidates: (string | null | undefined)[],
+): string | null {
+  const vals = (candidates ?? []).filter(
+    (s): s is string => typeof s === "string" && s.trim() !== "" && !Number.isNaN(Date.parse(s)),
+  );
+  if (vals.length === 0) return null;
+  return vals.sort()[vals.length - 1] ?? null;
+}

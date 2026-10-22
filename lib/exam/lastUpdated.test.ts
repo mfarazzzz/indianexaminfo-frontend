@@ -4,7 +4,7 @@
  * published post, and a verify each do; newest wins; none → null (line omitted).
  */
 import { describe, it, expect } from "vitest";
-import { resolveLastUpdated, examUpdatedFrom } from "@/lib/exam/lastUpdated";
+import { resolveLastUpdated, examUpdatedFrom, latestContentDate } from "@/lib/exam/lastUpdated";
 
 describe("resolveLastUpdated (D2)", () => {
   it("returns null when there is no trustworthy source (e.g. only the bulk/seed touch)", () => {
@@ -64,5 +64,16 @@ describe("examUpdatedFrom (entity-level, for JSON-LD)", () => {
   });
   it("a verification counts", () => {
     expect(examUpdatedFrom({ verifiedAt: "2026-10-09" })).toBe("2026-10-09");
+  });
+});
+
+describe("latestContentDate - the hub/list D2 rule (trust fix, 22 Oct)", () => {
+  it("returns the newest valid candidate date", () => {
+    expect(latestContentDate(["2026-10-01T00:00:00Z", "2026-10-18T09:00:00Z", null]))
+      .toBe("2026-10-18T09:00:00Z");
+  });
+  it("null when nothing is trustworthy - the caller must OMIT the line, never print the build date", () => {
+    expect(latestContentDate([])).toBeNull();
+    expect(latestContentDate([null, undefined, "", "   ", "not-a-date"])).toBeNull();
   });
 });

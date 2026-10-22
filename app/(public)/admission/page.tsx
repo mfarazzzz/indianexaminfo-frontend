@@ -56,9 +56,9 @@ export default async function EntranceExamPage() {
       <h1 className="font-heading font-bold text-2xl text-gray-900 mb-1">
         Admissions {YEAR} — Latest Notifications, Admit Card &amp; Result
       </h1>
-      <p className="text-sm text-gray-500 mb-5">
-        Last Updated: {new Date().toLocaleDateString("en-IN")}
-      </p>
+      {/* D2 trust rule: this page lists no dated content it could honestly
+          quote, so the "Last Updated" line is omitted entirely — the build
+          date is never presented as a content date. */}
 
       <div className="grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-6">
         <main>

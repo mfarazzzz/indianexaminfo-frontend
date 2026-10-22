@@ -36,9 +36,8 @@ export default async function BoardExamPage() {
       <h1 className="font-heading font-bold text-2xl text-gray-900 mb-1">
         Board Exam {new Date().getFullYear()} — Results, Date Sheet &amp; Admit Card
       </h1>
-      <p className="text-sm text-gray-500 mb-5">
-        Last Updated: {new Date().toLocaleDateString("en-IN")}
-      </p>
+      {/* D2 trust rule: no dated content is listed here, so the "Last
+          Updated" line is omitted — never a build date dressed as content. */}
 
       <div className="grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-6">
         <main className="space-y-8">

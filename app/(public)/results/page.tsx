@@ -8,6 +8,7 @@ import { buildExamMetadata } from "@/lib/seo/metadata";
 import { CONTENT_TYPE_KEYWORDS, GLOBAL_SHORT_TAIL, getCurrentYear } from "@/lib/seo/keywords";
 import { siteConfig } from "@/config/site";
 import { formatDate, pillarLabel, getExamContentTypeHref } from "@/lib/utils";
+import { latestContentDate } from "@/lib/exam/lastUpdated";
 import { ClipboardList, Calendar } from "lucide-react";
 import { hubFor, hubHasContent } from "@/lib/hubs/contentHubs";
 
@@ -55,9 +56,18 @@ export default async function ResultsPage() {
           <h1 className="font-heading font-bold text-2xl text-gray-900 mb-1">
             Results {new Date().getFullYear()} — Check Exam Results for All Competitive Exams
           </h1>
-          <p className="text-sm text-gray-500 mb-5">
-            Last Updated: {new Date().toLocaleDateString("en-IN")} · {exams.length} exams with results
-          </p>
+          {/* D2 trust rule: the date comes from the newest real content listed
+              on this page (a published update's updatedAt), never the build
+              date. No trustworthy date → the line is omitted, not faked. */}
+          {(() => {
+            const lu = latestContentDate(latestPosts.map((p) => p.updatedAt));
+            return (
+              <p className="text-sm text-gray-500 mb-5">
+                {lu ? <>Last Updated: {new Date(lu).toLocaleDateString("en-IN")} ·{" "}</> : null}
+                {exams.length} exams with results
+              </p>
+            );
+          })()}
 
           {latestPosts.length > 0 && (
             <section aria-label="Latest results" className="mb-6">
