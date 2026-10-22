@@ -38,7 +38,7 @@ export default async function SyllabusPage() {
         <AdSlot position="content-hub-top" size="728x90" />
       </div>
       <h1 className="font-heading font-bold text-2xl text-gray-900 mb-1">
-        Syllabus {new Date().getFullYear()} — Download PDF for All Competitive Exams
+        Syllabus / पाठ्यक्रम {new Date().getFullYear()} — Download PDF for All Competitive Exams
       </h1>
       <p className="text-sm text-gray-500 mb-5">
         Complete and updated syllabus for {exams.length}+ exams with PDF download
@@ -48,7 +48,7 @@ export default async function SyllabusPage() {
           <Link
             key={exam.id}
             href={getExamContentTypeHref(exam, "syllabus")}
-            className="p-3 bg-card border border-border rounded hover:border-primary transition-colors group"
+            className="p-3 bg-card border border-border rounded-[14px] hover:border-primary transition-colors group"
           >
             <p className="text-sm font-semibold text-gray-800 group-hover:text-primary">{exam.name}</p>
             <p className="text-xs text-gray-500 mt-1">{exam.conductingBody}</p>

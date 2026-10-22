@@ -54,7 +54,7 @@ export default async function ResultsPage() {
       <div className="grid grid-cols-1 lg:grid-cols-[1fr_280px] gap-6">
         <main>
           <h1 className="font-heading font-bold text-2xl text-gray-900 mb-1">
-            Results {new Date().getFullYear()} — Check Exam Results for All Competitive Exams
+            Results / परिणाम {new Date().getFullYear()} — Check Exam Results for All Competitive Exams
           </h1>
           {/* D2 trust rule: the date comes from the newest real content listed
               on this page (a published update's updatedAt), never the build
@@ -77,7 +77,7 @@ export default async function ResultsPage() {
                   <Link
                     key={post.id}
                     href={`/${post.pillar}/${post.examEntityName.toLowerCase().replace(/\s+/g, "-")}/${post.slug}`}
-                    className="flex items-start justify-between gap-3 p-3 bg-card border border-border rounded hover:border-primary transition-colors group"
+                    className="flex items-start justify-between gap-3 p-3 bg-card border border-border rounded-[14px] hover:border-primary transition-colors group"
                   >
                     <div className="flex items-start gap-3 flex-1 min-w-0">
                       <ClipboardList className="w-4 h-4 text-success mt-0.5 shrink-0" />
@@ -103,7 +103,7 @@ export default async function ResultsPage() {
                 <Link
                   key={exam.id}
                   href={getExamContentTypeHref(exam, "result")}
-                  className="flex items-center justify-between gap-2 p-3 bg-card border border-border rounded hover:border-primary transition-colors group text-sm"
+                  className="flex items-center justify-between gap-2 p-3 bg-card border border-border rounded-[14px] hover:border-primary transition-colors group text-sm"
                 >
                   <span className="font-medium text-gray-800 group-hover:text-primary">{exam.name}</span>
                   <span className="content-type-badge bg-success/10 text-success text-xs shrink-0">

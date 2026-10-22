@@ -38,7 +38,7 @@ export default async function StudyMaterialPage() {
         <AdSlot position="content-hub-top" size="728x90" />
       </div>
       <h1 className="font-heading font-bold text-2xl text-gray-900 mb-1">
-        Free Study Material {new Date().getFullYear()} — Notes &amp; PDFs for All Competitive Exams
+        Free Study Material / अध्ययन सामग्री {new Date().getFullYear()} — Notes &amp; PDFs for All Competitive Exams
       </h1>
       <p className="text-sm text-gray-500 mb-5">
         Topic-wise notes, formula sheets and study material for {exams.length}+ exams
@@ -48,7 +48,7 @@ export default async function StudyMaterialPage() {
           <Link
             key={exam.id}
             href={getExamContentTypeHref(exam, "study-material")}
-            className="p-3 bg-card border border-border rounded hover:border-primary transition-colors group"
+            className="p-3 bg-card border border-border rounded-[14px] hover:border-primary transition-colors group"
           >
             <p className="text-sm font-semibold text-gray-800 group-hover:text-primary">{exam.name}</p>
             <p className="text-xs text-success mt-1 font-medium">Free Material Available</p>

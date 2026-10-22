@@ -38,7 +38,7 @@ export default async function PreviousPapersPage() {
         <AdSlot position="content-hub-top" size="728x90" />
       </div>
       <h1 className="font-heading font-bold text-2xl text-gray-900 mb-1">
-        Previous Year Question Papers — Download PDF for All Exams
+        Previous Year Question Papers / पिछले प्रश्न पत्र — Download PDF for All Exams
       </h1>
       <p className="text-sm text-gray-500 mb-5">
         Year-wise solved papers for {exams.length}+ competitive exams
@@ -48,7 +48,7 @@ export default async function PreviousPapersPage() {
           <Link
             key={exam.id}
             href={getExamContentTypeHref(exam, "previous-papers")}
-            className="p-3 bg-card border border-border rounded hover:border-primary transition-colors group"
+            className="p-3 bg-card border border-border rounded-[14px] hover:border-primary transition-colors group"
           >
             <p className="text-sm font-semibold text-gray-800 group-hover:text-primary">{exam.name}</p>
             <p className="text-xs text-gray-500 mt-1">Year-wise PDFs available</p>

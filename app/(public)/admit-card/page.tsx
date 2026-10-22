@@ -69,7 +69,7 @@ export default async function AdmitCardPage() {
       <div className="grid grid-cols-1 lg:grid-cols-[1fr_280px] gap-6">
         <main>
           <h1 className="font-heading font-bold text-2xl text-gray-900 mb-1">
-            Admit Card {new Date().getFullYear()} — Download Hall Ticket for All Exams
+            Admit Card / एडमिट कार्ड {new Date().getFullYear()} — Download Hall Ticket for All Exams
           </h1>
           {/* D2 trust rule: newest real content date on the page, or omit. */}
           {(() => {
@@ -104,7 +104,7 @@ export default async function AdmitCardPage() {
                   <Link
                     key={post.id}
                     href={`/${post.pillar}/${post.examEntityName.toLowerCase().replace(/\s+/g, "-")}/${post.slug}`}
-                    className="flex items-start justify-between gap-3 p-3 bg-card border border-border rounded hover:border-primary transition-colors group"
+                    className="flex items-start justify-between gap-3 p-3 bg-card border border-border rounded-[14px] hover:border-primary transition-colors group"
                   >
                     <div className="flex items-start gap-3 flex-1 min-w-0">
                       <Download className="w-4 h-4 text-accent mt-0.5 shrink-0" />
@@ -133,7 +133,7 @@ export default async function AdmitCardPage() {
                 <Link
                   key={exam.id}
                   href={getExamContentTypeHref(exam, "admit-card")}
-                  className="flex items-center justify-between gap-2 p-3 bg-card border border-border rounded hover:border-primary transition-colors group text-sm"
+                  className="flex items-center justify-between gap-2 p-3 bg-card border border-border rounded-[14px] hover:border-primary transition-colors group text-sm"
                 >
                   <span className="font-medium text-gray-800 group-hover:text-primary">{exam.name}</span>
                   <span className="content-type-badge bg-accent/10 text-accent text-xs shrink-0">Download</span>
@@ -147,7 +147,7 @@ export default async function AdmitCardPage() {
         <aside className="flex flex-col gap-4">
           <AdSlot position="article-sidebar" size="300x250" />
 
-          <div className="bg-card border border-border rounded p-4">
+          <div className="bg-card border border-border rounded-[14px] p-4">
             <h2 className="font-heading font-semibold text-sm text-gray-800 mb-3 uppercase tracking-wide pb-2 border-b border-border">
               Other Content Types
             </h2>
