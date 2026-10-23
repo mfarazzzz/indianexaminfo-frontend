@@ -109,15 +109,52 @@ export async function getContentPostsByExam(
  * must answer with ONE source of truth, or a page can be canonical-to-main in its own
  * <link> and submitted as its own URL in the same breath.
  *
- * `ctPagesWithOwnContent` answers it for every exam in one read: the (exam, content type)
- * pairs whose page is built on a published, unexpired update that carries its own prose
- * or structured content-type data. Bounded by design — only exam-linked published posts,
+ * `ctPagesWithOwnContent` answers it for every exam in one read: which (exam, content
+ * type) pairs are built on a published, unexpired update that carries its own prose or
+ * structured content-type data. Bounded by design — only exam-linked published posts,
  * 27 rows today — and the sitemap revalidates hourly. If that set ever grows large, the
  * fix is a count/flag RPC rather than dropping the rule.
+ *
+ * It returns a PLAIN object, not a Map: `cached()` wraps `unstable_cache`, which
+ * serialises its result, and a Map comes back as an empty object — the `.get()` call
+ * then throws at build time. Plain data across a cache boundary, always. (That is what
+ * `ownContentByExam` and its test exist to guarantee.)
  */
-export async function ctPagesWithOwnContent(): Promise<Map<string, Set<string>>> {
+export interface OwnContentRow {
+  exam_id?: string | null;
+  content_type?: string | null;
+  content?: string | null;
+  content_type_data?: unknown;
+}
+
+/**
+ * The pure half of `ctPagesWithOwnContent`, split out so the cache-boundary contract is
+ * testable: the value it returns must survive JSON serialisation (which is exactly what
+ * `unstable_cache` does to it) and still be readable by the sitemap. A Map passes a
+ * type check and fails at build — this is the guard against that.
+ */
+export function ownContentByExam(rows: readonly OwnContentRow[]): Record<string, string[]> {
+  const byExam: Record<string, Set<string>> = {};
+  for (const row of rows ?? []) {
+    const examId = typeof row?.exam_id === "string" ? row.exam_id : "";
+    const ct = typeof row?.content_type === "string" ? row.content_type : "";
+    if (!examId || !ct) continue;
+    const content = typeof row.content === "string" ? row.content : "";
+    const dataCol = row.content_type_data;
+    const hasData = !!dataCol && typeof dataCol === "object" && !Array.isArray(dataCol)
+      && Object.keys(dataCol as object).length > 0;
+    // A notice with neither a body nor structured data shows the reader nothing the
+    // main page does not already show — it cannot make the page self-canonical.
+    if (!content.trim() && !hasData) continue;
+    (byExam[examId] ??= new Set<string>()).add(ct);
+  }
+  const out: Record<string, string[]> = {};
+  for (const [k, v] of Object.entries(byExam)) out[k] = [...v];
+  return out;
+}
+
+export async function ctPagesWithOwnContent(): Promise<Record<string, string[]>> {
   return cached(async () => {
-    const byExam = new Map<string, Set<string>>();
     try {
       const supabase = createServerClient();
       const { data, error } = await supabase
@@ -127,25 +164,12 @@ export async function ctPagesWithOwnContent(): Promise<Map<string, Set<string>>>
         .not("exam_id", "is", null)
         .or(expiryOr());
       if (error) throw error;
-      for (const row of (data ?? []) as Array<Record<string, unknown>>) {
-        const examId = row.exam_id as string;
-        const ct = row.content_type as string;
-        const content = (row.content as string) ?? "";
-        const dataCol = row.content_type_data;
-        const hasData = !!dataCol && typeof dataCol === "object" && !Array.isArray(dataCol)
-          && Object.keys(dataCol as object).length > 0;
-        if (!examId || !ct) continue;
-        if (!content.trim() && !hasData) continue;   // nothing the main page does not show
-        const set = byExam.get(examId) ?? new Set<string>();
-        set.add(ct);
-        byExam.set(examId, set);
-      }
-      return byExam;
+      return ownContentByExam((data ?? []) as OwnContentRow[]);
     } catch (err) {
       // Fail OPEN to self-canonical: a failed read must not silently strip live URLs
       // from the sitemap; the route's own metadata (which has the post) still decides.
       console.error("[contentPostService] ctPagesWithOwnContent failed:", err);
-      return byExam;
+      return {};
     }
   }, ["exams", "content-posts", "content-posts:own-content"], { revalidate: 3600 });
 }

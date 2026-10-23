@@ -8,6 +8,7 @@ import Link from "next/link";
 import { getExamBySlug, contentTypeAvailable, getExamSyllabus } from "@/services/examService";
 import { getContentPostsByExam, getLatestByContentType } from "@/services/contentPostService";
 import { ctCanonicalUrl } from "@/lib/seo/canonicalOwnership";
+import { contentTypeHasData } from "@/lib/sectionRegistry";
 import { Breadcrumb } from "@/components/layout/Breadcrumb";
 import { TestPageBanner } from "@/components/exam/TestPageBanner";
 import { isTestSlug } from "@/lib/testContent";
@@ -265,23 +266,33 @@ export default async function StateBoardContentTypePage({ params }: Props) {
                 </ul>
               </div>
             )}
-            <div className="bg-card border border-border rounded p-4">
-              <h2 className="font-heading font-semibold text-sm text-gray-800 mb-3 pb-2 border-b border-border uppercase tracking-wide">
-                More for {exam.shortName}
-              </h2>
-              <ul className="space-y-1.5 text-sm">
-                {(["result","date-sheet","admit-card","syllabus"] as ContentType[])
-                  .filter((ct) => ct !== contentType)
-                  .map((ct) => (
+            {(() => {
+              // Track 1 parity (found by the live check, 23 Oct): this box used to hardcode
+              // result / date-sheet / admit-card / syllabus, so it printed links the route
+              // then 404s — /date-sheet and /syllabus are not pages this record has. List
+              // ONLY content types that resolve, through the same contentTypeHasData gate as
+              // the tab strip, and render no box when nothing else resolves.
+              const moreFor = (["result", "admit-card", "syllabus"] as ContentType[])
+                .filter((ct) => ct !== contentType && contentTypeHasData(exam, ct));
+              if (moreFor.length === 0) return null;
+              return (
+              <div className="bg-card border border-border rounded p-4">
+                <h2 className="font-heading font-semibold text-sm text-gray-800 mb-3 pb-2 border-b border-border uppercase tracking-wide">
+                  More for {exam.shortName}
+                </h2>
+                <ul className="space-y-1.5 text-sm">
+                  {moreFor.map((ct) => (
                     <li key={ct}>
-                      <Link href={`/board-exam/state/${stateSlug}/${slug}/${ct}`}
+                      <Link href={`/board-exam/state/${exam.category}/${slug}/${ct}`}
                             className="text-gray-700 hover:text-primary hover:underline">
                         {exam.shortName} {contentTypeLabel(ct)}
                       </Link>
                     </li>
                   ))}
               </ul>
-            </div>
+              </div>
+              );
+            })()}
             <AdSlot position="article-sidebar-2" size="300x250" />
           </aside>
         </div>

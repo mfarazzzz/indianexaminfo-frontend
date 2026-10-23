@@ -173,10 +173,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     // (lib/seo/canonicalOwnership). Submitting a URL that points elsewhere makes the
     // sitemap contradict the page, so a non-self-canonical copy stays out — the main
     // page is submitted instead, and the CT URL remains reachable for anyone who has it.
-    const own = ctOwnContent.get(exam.id as string);
+    const own = ctOwnContent[exam.id as string];
+    const ownSet = own ? new Set(own) : undefined;
     const ctPages: MetadataRoute.Sitemap = CT_FLAGS
       .filter(({ ct }) => contentTypeHasData(exam as unknown as HasDataView, ct))
-      .filter(({ ct }) => ctCanonicalVerdict({ contentType: ct, update: own?.has(ct) ? { content: "x" } : null }).selfCanonical)
+      .filter(({ ct }) => ctCanonicalVerdict({ contentType: ct, update: ownSet?.has(ct) ? { content: "x" } : null }).selfCanonical)
       .map(({ ct }) => ({
         url: ctUrl(exam, ct),
         lastModified: lastMod,

@@ -4,4 +4,6 @@ out-*.html
 # run artifacts from heading-audit.mjs / crawl-test-tabs.mjs
 heading-audit.txt
 seo-audit.txt
+apex-check.txt
+live-check.txt
 
