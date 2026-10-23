@@ -1,5 +1,5 @@
 import Link from "next/link";
-import type { ExamEntity, ContentType } from "@/types/exam";
+import type { ExamEntity, ContentType, ContentPost } from "@/types/exam";
 import { getContentPostsByExam } from "@/services/contentPostService";
 import { getRelatedExams, getExamResources, getExamSyllabus, getTodayIST, type ExamResourceRow } from "@/services/examService";
 import { ResourceLibrary } from "@/components/exam/ResourceLibrary";
@@ -124,6 +124,7 @@ function orderedMainSections(
   exam: ExamEntity,
   hasStructuredSyllabusFlag: boolean,
   todayISO: string,
+  updates: ContentPost[],
 ): RenderedSection[] {
   const view = buildHasDataView(exam, hasStructuredSyllabusFlag);
   const built = mainSectionsForPillar(exam.pillar as Pillar)
@@ -131,7 +132,10 @@ function orderedMainSections(
     .filter((s) => hasData(view, s.slug))
     .map((s): RenderedSection | null => {
       const Render = SECTION_SUMMARY_RENDERERS[s.slug];
-      const node = Render ? Render(exam, todayISO) : null;
+      // The context carries the exam's own updates so Important Dates can show
+      // "was X, now Y" from a published corrigendum (P1 item 2). The dates themselves
+      // still come only from the edition timeline.
+      const node = Render ? Render(exam, { todayISO, updates }) : null;
       return node ? { slug: s.slug, node } : null;
     });
   return built.filter((x): x is RenderedSection => x !== null);
@@ -442,7 +446,7 @@ export async function EntityDetailPage({ exam, breadcrumbs, contentType, edition
   // The main-page sections are computed ONCE (P1 item 9): the body renders them and the
   // "On this page" chips list is derived from the very same slugs, so a chip can only ever
   // point at a section that is actually on the page.
-  const bodySections = orderedMainSections(exam, hasStructuredSyllabusFlag, todayISO);
+  const bodySections = orderedMainSections(exam, hasStructuredSyllabusFlag, todayISO, contentPosts as ContentPost[]);
 
   // Item 5: the subscribe box appears ONCE. When a date is not yet announced it sits inside
   // the body after Important Dates (see renderOrderedSections); otherwise the single bottom

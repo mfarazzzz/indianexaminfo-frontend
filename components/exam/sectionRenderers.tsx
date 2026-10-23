@@ -11,21 +11,43 @@
  * not a redesign. `Detail` renderers arrive in Slice 2.
  */
 import Link from "next/link";
-import type { ExamEntity } from "@/types/exam";
+import type { ExamEntity, ContentPost } from "@/types/exam";
 import { formatDate, formatEventDateTime, isUrgent } from "@/lib/utils";
 import { relDayLabel } from "@/lib/exam/keyDates";
 import { meaningfulFaqs } from "@/lib/sectionRegistry";
 import { sectionHeading, sectionHeadingEn } from "@/lib/exam/sectionHeadings";
 import { ageLimitOwnsTheFact } from "@/lib/exam/sectionOwnership";
+import { deriveDateChanges, dateChangeSentence } from "@/lib/exam/dateChange";
 import { Calendar } from "lucide-react";
 
-/** A section summary component receives the exam and the single IST "today"
- *  anchor (from getTodayIST) and returns the section JSX (or null). todayISO is
- *  optional so renderers that don't classify past/future can ignore it. */
-export type SectionSummary = (exam: ExamEntity, todayISO?: string) => React.ReactNode;
+/**
+ * A section summary component receives the exam plus a context, and returns the
+ * section JSX (or null). The context is usually just the IST "today" anchor (from
+ * getTodayIST) as a string — every existing call site does that — but a section may
+ * also need the exam's reader-live updates to EXPLAIN a date it is showing (Important
+ * Dates, P1 item 2). Updates are never a schedule source: the edition timeline stays
+ * the only one, and a bare string keeps working unchanged.
+ */
+export interface SectionContext {
+  todayISO?: string;
+  /** The exam's own updates, as loaded for the page (already filtered to published). */
+  updates?: ContentPost[];
+}
+export type SectionSummary = (exam: ExamEntity, ctx?: string | SectionContext) => React.ReactNode;
+
+/** Normalise the legacy string form and the context form to one shape. */
+function ctxOf(arg?: string | SectionContext): { todayISO: string; updates: ContentPost[] } {
+  const c = typeof arg === "string" ? { todayISO: arg } : (arg ?? {});
+  return { todayISO: c.todayISO ?? "", updates: c.updates ?? [] };
+}
 
 // ── Important Dates (column) ──────────────────────────────────────────────────
-const ImportantDatesSummary: SectionSummary = (exam, todayISO) => (
+const ImportantDatesSummary: SectionSummary = (exam, arg) => {
+  const { todayISO, updates } = ctxOf(arg);
+  // The edition timeline is the schedule; a corrigendum/revised notice only EXPLAINS a
+  // row that moved (P1 item 2). No notice, no note — and never a second date.
+  const changes = deriveDateChanges(exam.dates, updates ?? [], todayISO);
+  return (
   <section aria-label="Important dates" className="mb-5">
     <h2 className="font-heading font-semibold text-base text-gray-800 mb-3 flex items-center gap-2">
       <Calendar className="w-4 h-4 text-primary" />
@@ -55,10 +77,11 @@ const ImportantDatesSummary: SectionSummary = (exam, todayISO) => (
         return (
           <li
             key={`${d.label}-${i}`}
-            className={`flex items-start justify-between gap-3 py-2.5 ${
+            className={`flex flex-col gap-1 py-2.5 ${
               isImminent ? "exam-row-imminent -mx-2 px-2" : ""
             } ${isCancelled ? "opacity-60" : ""}`}
           >
+          <div className="flex items-start justify-between gap-3">
             {/* Event label (left) */}
             <div className="min-w-0 flex-1">
               <span className={`text-sm font-medium ${isCancelled ? "text-gray-400 line-through" : "text-gray-800"}`}>
@@ -98,12 +121,26 @@ const ImportantDatesSummary: SectionSummary = (exam, todayISO) => (
                 <span className="text-[11px] font-normal not-italic text-gray-400">To be announced</span>
               )}
             </div>
-          </li>
+          </div>
+          {/* "was X, now Y" — only when a reader-live corrigendum/revised notice carried a
+              different date for THIS row (both values exist and differ). */}
+          {(() => {
+            const key = String(d.type ?? "").trim().toLowerCase() || String(d.label ?? "").trim().toLowerCase();
+            const change = changes.get(key);
+            if (!change) return null;
+            return (
+              <p className="text-[11px] text-gray-500 mt-1" data-testid={`date-change-${key}`}>
+                {dateChangeSentence(change, formatDate)}
+              </p>
+            );
+          })()}
+        </li>
         );
       })}
     </ul>
   </section>
-);
+  );
+};
 
 // ── Eligibility (column) ──────────────────────────────────────────────────────
 // One heading for the concept (P1 item 6, 23 Oct): the ordered loop renders this
