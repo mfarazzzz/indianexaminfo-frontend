@@ -1,6 +1,7 @@
 import type { NextConfig } from "next";
 import { execSync } from "child_process";
 import { RETIRE_REDIRECTS } from "./config/retireRedirects";
+import { apexHostRedirects } from "./config/apexRedirect";
 
 /**
  * Build-time git stamp — baked in at build so "which commit is deployed?" is
@@ -113,6 +114,14 @@ const nextConfig: NextConfig = {
 
   async redirects() {
     return [
+      // ── Bare-domain → www (host canonicalisation, owner Oct 2026).
+      // apex `indianexaminfo.com/*` (incl. /sitemap.xml, /robots.txt, query kept)
+      // 308s to the canonical www origin in ONE hop. Placed FIRST so it wins
+      // before any path rule; matches the apex host only, so www, localhost and
+      // preview hosts are untouched and the jump cannot loop (post-redirect host
+      // is www, which the rule no longer matches). Shape + invariants in
+      // config/apexRedirect.ts, covered by config/apexRedirect.test.ts.
+      ...apexHostRedirects(),
       // ── Retire duplicate exam pages → one canonical page per exam (owner, Oct 2026).
       // Data lives in config/retireRedirects.ts so a unit test can prove the
       // invariants (every destination is a published winner; no chain/loop).
