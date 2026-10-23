@@ -35,6 +35,9 @@ import { resolveLastUpdated } from "@/lib/exam/lastUpdated";
 import { deriveHeroLine, POSITIVE_STATUSES } from "@/lib/exam/heroLine";
 import { partitionUpdates } from "@/lib/exam/updates";
 import { KeyDatesStrip } from "@/components/exam/KeyDatesStrip";
+import { LatestUpdates } from "@/components/exam/LatestUpdates";
+import { OnThisPageChips } from "@/components/exam/OnThisPage";
+import { buildOnThisPage, sectionAnchorId } from "@/lib/exam/onThisPage";
 import { QuickInfoCard, ImportantLinksCard } from "@/components/exam/ReaderInfoCards";
 import { TestPageBanner } from "@/components/exam/TestPageBanner";
 import { isTestSlug } from "@/lib/testContent";
@@ -111,15 +114,38 @@ function buildHasDataView(exam: ExamEntity, hasStructuredSyllabus: boolean): Has
 // standalone pieces that were previously legacy-branch-only (SyllabusSection, ContentModules,
 // ResourceLibrary, content-posts). This is feature-complete parity with the old legacy body,
 // so the gate can widen to all pillars and the legacy branch can be deleted.
-function renderOrderedSections(
+/**
+ * The ordered main-page sections, computed ONCE. Each entry is a section that has data
+ * AND whose renderer actually painted something (a renderer returning null is absent).
+ * The body and the "On this page" chips (P1 item 9) both read this list, so a chip can
+ * never point at a section that is not on the page.
+ */
+function orderedMainSections(
   exam: ExamEntity,
   hasStructuredSyllabusFlag: boolean,
+  todayISO: string,
+): RenderedSection[] {
+  const view = buildHasDataView(exam, hasStructuredSyllabusFlag);
+  const built = mainSectionsForPillar(exam.pillar as Pillar)
+    .filter((s) => (s.slug === "key-highlights" ? SHOW_KEY_HIGHLIGHTS : true))
+    .filter((s) => hasData(view, s.slug))
+    .map((s): RenderedSection | null => {
+      const Render = SECTION_SUMMARY_RENDERERS[s.slug];
+      const node = Render ? Render(exam, todayISO) : null;
+      return node ? { slug: s.slug, node } : null;
+    });
+  return built.filter((x): x is RenderedSection => x !== null);
+}
+
+/** A main-page section that actually painted: its registry slug + its JSX. */
+type RenderedSection = { slug: string; node: NonNullable<React.ReactNode> };
+
+function renderOrderedSections(
+  exam: ExamEntity,
+  sections: RenderedSection[],
   resources: ExamResourceRow[],
   contentPosts: Awaited<ReturnType<typeof getContentPostsByExam>>,
-  todayISO: string,
 ): React.ReactNode {
-  const view = buildHasDataView(exam, hasStructuredSyllabusFlag);
-
   // Item 5: does this record have a date the reader would want to be alerted about — one that
   // is not yet announced (expected/tba) or has no date value? If so, the subscribe box is placed
   // right after Important Dates with "we'll tell you when it lands". If not, it falls to the
@@ -128,24 +154,14 @@ function renderOrderedSections(
     (d) => d.state === "expected" || d.state === "tba" || !d.date || d.date.trim() === "",
   );
 
-  const orderedSections = mainSectionsForPillar(exam.pillar as Pillar)
-    .filter((s) => (s.slug === "key-highlights" ? SHOW_KEY_HIGHLIGHTS : true))
-    .filter((s) => hasData(view, s.slug))
-    .map((s) => {
-      const Render = SECTION_SUMMARY_RENDERERS[s.slug];
-      const node = Render ? Render(exam, todayISO) : null;
-      if (!node) return null;
-      // Attach the contextual subscribe box immediately after Important Dates.
-      if (s.slug === "important-dates" && hasAwaitingDate) {
-        return (
-          <div key={s.slug}>
-            {node}
-            <SocialChannelBanner variant="awaiting-date" />
-          </div>
-        );
-      }
-      return <div key={s.slug}>{node}</div>;
-    });
+  const orderedSections = sections.map(({ slug, node }) => (
+    // The id is the jump target for the "On this page" chips (P1 item 9); scroll-mt keeps
+    // the heading clear of the sticky chip row when the browser lands on it.
+    <div key={slug} id={sectionAnchorId(slug)} className="scroll-mt-24">
+      {node}
+      {slug === "important-dates" && hasAwaitingDate && <SocialChannelBanner variant="awaiting-date" />}
+    </div>
+  ));
 
   return (
     <>
@@ -184,7 +200,7 @@ function renderOrderedSections(
         return (
           <>
             {active.length > 0 && (
-              <section aria-label="Updates" className="mb-5">
+              <section aria-label="Updates" id="updates" className="mb-5 scroll-mt-20">
                 <h2 className="font-heading font-semibold text-base text-gray-800 mb-3">{sectionHeading("updates")}</h2>
                 <ul className="space-y-3">
                   {active.map(({ post, kind, verified }) => (
@@ -417,6 +433,17 @@ export async function EntityDetailPage({ exam, breadcrumbs, contentType, edition
   // of the page uses. The component only formats it.
   const hero = deriveHeroLine(exam, todayISO);
 
+  // P1 item 8: the compact "latest updates" list under the key-dates strip and the full
+  // timeline further down are THE SAME partition of the same query result, so the two can
+  // never disagree about what is live (published, unexpired, not withdrawn, not superseded,
+  // pinned first — orderUpdatesForReader already ran in getContentPostsByExam).
+  const { active: activeUpdates } = partitionUpdates(contentPosts);
+
+  // The main-page sections are computed ONCE (P1 item 9): the body renders them and the
+  // "On this page" chips list is derived from the very same slugs, so a chip can only ever
+  // point at a section that is actually on the page.
+  const bodySections = orderedMainSections(exam, hasStructuredSyllabusFlag, todayISO);
+
   // Item 5: the subscribe box appears ONCE. When a date is not yet announced it sits inside
   // the body after Important Dates (see renderOrderedSections); otherwise the single bottom
   // banner covers it. This flag keeps the two mutually exclusive.
@@ -547,6 +574,9 @@ export async function EntityDetailPage({ exam, breadcrumbs, contentType, edition
                     </p>
                   )}
                   <KeyDatesStrip dates={exam.dates} todayISO={todayISO} officialWebsite={exam.officialWebsite} action={pickAttestedAction(exam.status, links)} />
+                  {/* P1 item 8: newest three live updates, right where the reader is looking
+                      for "what changed". Renders nothing when the exam has no live update. */}
+                  <LatestUpdates active={activeUpdates} allHref="#updates" />
                 </>
               );
             })()}
@@ -638,8 +668,19 @@ export async function EntityDetailPage({ exam, breadcrumbs, contentType, edition
               renderFocusedContentType(exam, contentType, syllabus, todayISO)
             ) : (
               <>
+                {/* P1 item 9: jump row for the sections that rendered on this page. */}
+                <OnThisPageChips
+                  items={buildOnThisPage({
+                    renderedSlugs: bodySections.map((s) => s.slug),
+                    hasUpdates: activeUpdates.length > 0,
+                    syllabusHref: availableContentTypes.includes("syllabus")
+                      ? getContentTypeHref(exam, "syllabus")
+                      : null,
+                  })}
+                />
+
                 {/* MAIN PAGE — the one ordered, registry-driven body for all five pillars. */}
-                {renderOrderedSections(exam, hasStructuredSyllabusFlag, resources, contentPosts, todayISO)}
+                {renderOrderedSections(exam, bodySections, resources, contentPosts)}
 
                 {/* Bottom banner ONLY when the contextual (awaiting-date) one did not render,
                     so the subscribe box is shown exactly once per page. */}
