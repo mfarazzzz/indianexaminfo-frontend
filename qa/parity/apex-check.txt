@@ -1,0 +1,18 @@
+[APEX] /sarkari-naukri/rajasthan-home-guard  final=https://indianexaminfo.com/sarkari-naukri/rajasthan-home-guard  status=404
+  chain: https://indianexaminfo.com/sarkari-naukri/rajasthan-home-guard -> 404
+  canonical: (not read)  
+[APEX] /university-exam/state-university/mdu-rohtak-exam  final=https://indianexaminfo.com/university-exam/state-university/mdu-rohtak-exam  status=200
+  chain: https://indianexaminfo.com/university-exam/state-university/mdu-rohtak-exam -> 200
+  canonical: https://www.indianexaminfo.com/university-exam/state-university/mdu-rohtak-exam  (www)
+[APEX] /board-exam/state/maharashtra-board/maharashtra-hsc  final=https://indianexaminfo.com/board-exam/state/maharashtra-board/maharashtra-hsc  status=200
+  chain: https://indianexaminfo.com/board-exam/state/maharashtra-board/maharashtra-hsc -> 200
+  canonical: https://www.indianexaminfo.com/board-exam/state/maharashtra-board/maharashtra-hsc  (www)
+[WWW] /sarkari-naukri/rajasthan-home-guard  final=https://www.indianexaminfo.com/sarkari-naukri/rajasthan-home-guard  status=404
+  chain: https://www.indianexaminfo.com/sarkari-naukri/rajasthan-home-guard -> 404
+  canonical: (not read)  
+[WWW] /university-exam/state-university/mdu-rohtak-exam  final=https://www.indianexaminfo.com/university-exam/state-university/mdu-rohtak-exam  status=200
+  chain: https://www.indianexaminfo.com/university-exam/state-university/mdu-rohtak-exam -> 200
+  canonical: https://www.indianexaminfo.com/university-exam/state-university/mdu-rohtak-exam  (www)
+[WWW] /board-exam/state/maharashtra-board/maharashtra-hsc  final=https://www.indianexaminfo.com/board-exam/state/maharashtra-board/maharashtra-hsc  status=200
+  chain: https://www.indianexaminfo.com/board-exam/state/maharashtra-board/maharashtra-hsc -> 200
+  canonical: https://www.indianexaminfo.com/board-exam/state/maharashtra-board/maharashtra-hsc  (www)
