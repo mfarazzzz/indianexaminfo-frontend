@@ -70,6 +70,7 @@ export const SECTION_HEADINGS: Record<string, HeadingPair> = {
 
   // ── Page furniture with a section heading ──────────────────────────────────
   "updates":         { en: "Updates",            hi: "अपडेट" },
+  "latest-updates":  { en: "Latest Updates",     hi: "नए अपडेट" },
   "history":         { en: "History",            hi: "इतिहास" },
   "related-exams":   { en: "Related Exams",      hi: "संबंधित परीक्षाएँ" },
   "resources":       { en: "Resources & Downloads", hi: "संसाधन और डाउनलोड" },

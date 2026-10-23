@@ -35,7 +35,7 @@ export function LatestUpdates({
   return (
     <section aria-label="Latest updates" className="mb-4 rounded-lg border border-border bg-card p-3" data-testid="latest-updates">
       <div className="flex items-center justify-between gap-3 mb-2">
-        <h2 className="font-heading font-semibold text-sm text-gray-800">{sectionHeading("updates")}</h2>
+        <h2 className="font-heading font-semibold text-sm text-gray-800">{sectionHeading("latest-updates")}</h2>
         <Link href={allHref} prefetch={false} className="text-xs font-medium text-primary hover:underline whitespace-nowrap">
           All updates
         </Link>

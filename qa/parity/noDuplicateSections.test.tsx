@@ -185,6 +185,20 @@ describe("P1 item 11 — one bilingual heading convention, from one config", () 
     expect(renderBody(makeExam())).toContain(sectionHeading("faqs"));
   });
 
+  it("no two concepts share a heading string (two blocks with one title is the same defect)", () => {
+    const seen = new Map<string, string>();
+    const clashes: string[] = [];
+    for (const [slug, pair] of Object.entries(SECTION_HEADINGS)) {
+      const text = `${pair.en}${HEADING_SEPARATOR}${pair.hi}`;
+      const prev = seen.get(text);
+      if (prev) clashes.push(`"${text}" used by ${prev} and ${slug}`);
+      seen.set(text, slug);
+    }
+    expect(clashes, clashes.join("\n")).toEqual([]);
+    // the compact Latest updates block must not repeat the timeline's title
+    expect(sectionHeading("latest-updates")).not.toBe(sectionHeading("updates"));
+  });
+
   it("headings the page prints all follow `English / हिन्दी`", () => {
     const html = renderBody(makeExam());
     const offenders = h2s(html).filter((h) => !HEADING_TO_SLUG.has(h));

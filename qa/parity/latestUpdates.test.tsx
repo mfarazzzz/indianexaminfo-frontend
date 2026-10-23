@@ -62,7 +62,9 @@ describe("LatestUpdates", () => {
     expect(html).not.toContain("Old notice"); // superseded lives in History, not in "latest"
   });
 
-  it("uses the shared heading config, so the label matches the timeline below it", () => {
-    expect(render(many)).toContain(sectionHeading("updates"));
+  it("has its OWN heading, so it never repeats the timeline heading lower on the page", () => {
+    const html = render(many);
+    expect(html).toContain(sectionHeading("latest-updates"));
+    expect(html).not.toContain(sectionHeading("updates")); // the full timeline owns that one
   });
 });
