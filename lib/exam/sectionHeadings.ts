@@ -66,7 +66,7 @@ export const SECTION_HEADINGS: Record<string, HeadingPair> = {
   "exam-pattern":       { en: "Exam Pattern",       hi: "परीक्षा पैटर्न" },
   "revaluation":        { en: "Revaluation",        hi: "पुनर्मूल्यांकन" },
   "rechecking":         { en: "Rechecking",         hi: "पुनः जाँच" },
-  "practical-exam":     { en: "Practical Exams",    hi: "व्यावहारिक परीक्षाएँ" },
+  "practical-exams":    { en: "Practical Exams",    hi: "व्यावहारिक परीक्षाएँ" },
 
   // ── Page furniture with a section heading ──────────────────────────────────
   "updates":         { en: "Updates",            hi: "अपडेट" },

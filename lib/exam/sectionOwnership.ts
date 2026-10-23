@@ -30,13 +30,22 @@ import type { ExamEntity } from "@/types/exam";
 export type SectionOwner = "loop" | "tab" | "block";
 
 /**
- * Editorial modules with NO registry section whose home is a content-type tab, not
- * the main page: `exam-pattern` rides the syllabus tab, `date-sheet` is its own tab
- * (a board/university concept the registry never adopted). The registry cannot
- * answer for them, so the answer is stated here — and the ownership test below
- * fails if one of them is ever registered, because then the registry must decide.
+ * Editorial modules with NO registry section whose home is a content-type TAB (they are
+ * reachable on a tab sub-page): `exam-pattern` rides the syllabus tab (CT_TO_MODULES).
+ * The registry cannot answer for them, so the answer is stated here — and the ownership
+ * test fails if one is ever registered, because then the registry must decide.
+ *
+ * `date-sheet` is DELIBERATELY NOT here. It has no registry section and is intentionally
+ * absent from CONTENT_TYPE_TO_SECTION (adding it there caused recruitment records with
+ * admit-card content to sprout a Date Sheet tab). So no /date-sheet route can ever light,
+ * and if the block also skipped it (the old behaviour) a board/university editor's Date
+ * Sheet had ZERO reader surface — orphaned content. Treating it as a plain block module
+ * puts it on the main page, which is the only honest surface until a registry section +
+ * CT bridge is agreed (that change touches the CMS sectionRegistry mirror, so it is
+ * deferred and reported, not done silently). Revaluation / practical-exams already land
+ * here for the same reason: main-page block, no tab.
  */
-export const TAB_SURFACE_MODULES = new Set(["exam-pattern", "date-sheet"]);
+export const TAB_SURFACE_MODULES = new Set(["exam-pattern"]);
 
 export function mainPageOwner(moduleSlug: string, pillar: Pillar | string): SectionOwner {
   const key = canonicalSectionSlug(moduleSlug);

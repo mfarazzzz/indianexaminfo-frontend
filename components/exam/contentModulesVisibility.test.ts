@@ -29,9 +29,22 @@ describe("main page — one heading per concept", () => {
   });
 
   it("reference material lives on its own tab, not on the main page", () => {
-    for (const slug of ["news", "answer-key", "previous-papers", "study-material", "exam-pattern", "date-sheet"]) {
+    for (const slug of ["news", "answer-key", "previous-papers", "study-material", "exam-pattern"]) {
       expect(mainPageOwner(slug, GOVT), slug).toBe("tab");
       expect(moduleShowsInContentBlock(slug, ENABLED, false, GOVT), slug).toBe(false);
+    }
+  });
+
+  it("a module with NO routable tab renders on the main page — never orphaned (P1 item 13)", () => {
+    // date-sheet is intentionally absent from CONTENT_TYPE_TO_SECTION, so no /date-sheet
+    // route can light. If the block skipped it too, an editor's Date Sheet was invisible
+    // everywhere. It now renders as a main-page section.
+    expect(mainPageOwner("date-sheet", "board-exam")).toBe("block");
+    expect(moduleShowsInContentBlock("date-sheet", [...ENABLED, "date-sheet"], false, "board-exam")).toBe(true);
+    // same for the CMS-rail concepts that have no reader tab yet
+    for (const slug of ["revaluation", "practical-exams"]) {
+      expect(mainPageOwner(slug, "university-exam"), slug).toBe("block");
+      expect(moduleShowsInContentBlock(slug, [...ENABLED, slug], false, "university-exam"), slug).toBe(true);
     }
   });
 

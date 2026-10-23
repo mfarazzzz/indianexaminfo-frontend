@@ -844,6 +844,95 @@ const StudyMaterialModule: ModuleRenderer = (d) => {
 };
 
 /**
+ * Date Sheet — the board/university subject-wise timetable. Field keys mirror
+ * indianexaminfo-cms/src/config/moduleRegistry.ts `date-sheet` EXACTLY
+ * (examStartDate, examEndDate, dateSheetPdfUrl, schedule[{date,subject}],
+ * reportingTime, centreGuidelines).
+ *
+ * Why a dedicated renderer (P1 item 13, 23 Oct): the module has no registry section and
+ * is deliberately absent from CONTENT_TYPE_TO_SECTION, so no /date-sheet route can light;
+ * and the generic fallback only reads body/content/description — so a board editor's
+ * Date Sheet (marked REQUIRED for the board type in the CMS) printed NOTHING anywhere.
+ * It now has one home: this section on the main page.
+ */
+const DateSheetModule: ModuleRenderer = (d) => {
+  if (!d) return null;
+  const start = str(d.examStartDate), end = str(d.examEndDate);
+  const pdf = str(d.dateSheetPdfUrl), time = str(d.reportingTime);
+  // The CMS field is centreGuidelines; older records wrote plain prose. Show whichever
+  // exists rather than silently dropping an editor's text.
+  const guide = safeHtml(d.centreGuidelines) || safeHtml(d.body) || safeHtml(d.content) || safeHtml(d.description);
+  const schedule = rows(d.schedule);
+  if (!start && !end && schedule.length === 0 && !pdf && !time && !guide) return null;
+  return (
+    <section aria-label="Date sheet" className="mb-5">
+      <h2 className="font-heading font-semibold text-base text-gray-800 mb-3">{sectionHeading("date-sheet")}</h2>
+      {(start || end || time) && (
+        <dl className="text-sm text-gray-700 space-y-1">
+          {start && <div><dt className="inline font-medium text-gray-800">Starts: </dt><dd className="inline">{formatDate(start)}</dd></div>}
+          {end && <div><dt className="inline font-medium text-gray-800">Ends: </dt><dd className="inline">{formatDate(end)}</dd></div>}
+          {time && <div><dt className="inline font-medium text-gray-800">Reporting time: </dt><dd className="inline">{time}</dd></div>}
+        </dl>
+      )}
+      {schedule.length > 0 && (
+        <div className="overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0 mt-3">
+          <table className="min-w-[320px] w-full text-sm">
+            <caption className="sr-only">Subject-wise exam timetable</caption>
+            <thead><tr className="text-left text-gray-500"><th scope="col" className="py-1 pr-4">Date</th><th scope="col" className="py-1">Subject / Paper</th></tr></thead>
+            <tbody>
+              {schedule.map((r, i) => (
+                <tr key={i} className="border-t border-gray-100">
+                  <td className="py-1.5 pr-4 font-mono text-gray-700">{str(r.date) ? formatDate(str(r.date)!) : "—"}</td>
+                  <td className="py-1.5 text-gray-800">{str(r.subject) ?? "—"}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+      {guide && <div className="article-body text-sm mt-3" dangerouslySetInnerHTML={{ __html: guide }} />}
+      {pdf && (
+        <div className="mt-2">
+          <a href={pdf} target="_blank" rel="noopener noreferrer nofollow" className="text-primary hover:underline text-sm font-medium">Download the date sheet</a>
+        </div>
+      )}
+    </section>
+  );
+};
+
+/**
+ * Revaluation / back paper — field keys mirror the CMS moduleRegistry `revaluation`
+ * (revalType, applicationStart, applicationEnd, applyUrl, feePerPaper, examDate,
+ * resultDate, instructions). Same story as date-sheet: no registry section, no reader
+ * tab, so without this the editor's dates were invisible.
+ */
+const RevaluationModule: ModuleRenderer = (d) => {
+  if (!d) return null;
+  const type = str(d.revalType), from = str(d.applicationStart), to = str(d.applicationEnd);
+  const url = str(d.applyUrl), fee = strOrNum(d.feePerPaper), exam = str(d.examDate);
+  const result = str(d.resultDate);
+  const instructions = safeHtml(d.instructions) || safeHtml(d.body) || safeHtml(d.content) || safeHtml(d.description);
+  if (!type && !from && !to && !url && !fee && !exam && !result && !instructions) return null;
+  const label: Record<string, string> = { revaluation: "Revaluation", rechecking: "Rechecking / retotalling", "back-paper": "Back paper / supplementary", improvement: "Improvement exam" };
+  return (
+    <section aria-label="Revaluation" className="mb-5">
+      <h2 className="font-heading font-semibold text-base text-gray-800 mb-2">{sectionHeading("revaluation")}</h2>
+      <dl className="text-sm text-gray-700 space-y-1">
+        {type && <div><dt className="inline font-medium text-gray-800">Type: </dt><dd className="inline">{label[type] ?? type}</dd></div>}
+        {(from || to) && <div><dt className="inline font-medium text-gray-800">Apply: </dt><dd className="inline">{from ? formatDate(from) : "—"}{to ? ` to ${formatDate(to)}` : ""}</dd></div>}
+        {fee && <div><dt className="inline font-medium text-gray-800">Fee per paper: </dt><dd className="inline">₹{fee}</dd></div>}
+        {exam && <div><dt className="inline font-medium text-gray-800">Exam: </dt><dd className="inline">{formatDate(exam)}</dd></div>}
+        {result && <div><dt className="inline font-medium text-gray-800">Result: </dt><dd className="inline">{formatDate(result)}</dd></div>}
+      </dl>
+      {instructions && <div className="article-body text-sm mt-2" dangerouslySetInnerHTML={{ __html: instructions }} />}
+      {url && (
+        <a href={url} target="_blank" rel="noopener noreferrer nofollow" className="inline-block mt-2 text-primary hover:underline text-sm font-medium">Apply for revaluation</a>
+      )}
+    </section>
+  );
+};
+
+/**
  * slug → module renderer, keyed by content_modules slug. THE single home for each structured
  * module's markup. Both render paths delegate here (see ModuleRenderer doc above), so the main
  * page, the focused CT view, and the bespoke CT tab pages render byte-identical output — no
@@ -860,6 +949,10 @@ export const MODULE_RENDERERS: Record<string, ModuleRenderer> = {
   "exam-pattern": ExamPatternModule,
   "previous-papers": PreviousPapersModule,
   "study-material": StudyMaterialModule,
+  // P1 item 13: board/university modules that have NO reader tab. Without a renderer here
+  // their stored fields printed nothing at all.
+  "date-sheet": DateSheetModule,
+  revaluation: RevaluationModule,
 };
 
 /** Wrap a ModuleRenderer as a SectionSummary: read the module data by slug from the exam. */
