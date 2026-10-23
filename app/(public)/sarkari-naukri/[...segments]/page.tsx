@@ -22,6 +22,7 @@ import { isEditionYear, buildEditionContext } from "@/lib/exam/editions";
 import { categoryBreadcrumbLabel, categoryMismatch } from "@/lib/exam/categoryCanonical";
 import { buildEditionMetadata, renderEditionPage } from "@/lib/exam/editionDispatch";
 import { getContentPostsByExam, getLatestByContentType } from "@/services/contentPostService";
+import { ctCanonicalUrl } from "@/lib/seo/canonicalOwnership";
 import { examUpdatedFrom } from "@/lib/exam/lastUpdated";
 import { EntityDetailPage } from "@/components/exam/EntityDetailPage";
 import { ExamListRow } from "@/components/exam/ExamListRow";
@@ -145,12 +146,20 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     const exam = await getExamBySlug(slug);
     if (!exam || !SERVED_PILLARS.has(exam.pillar) || !exam.category) return {};
     const year = getCurrentYear();
+    // Canonical ownership (P1 item 14): self-canonical only when this page shows what the
+    // main exam page does not; otherwise the main page is named.
+    const mainUrl = `${siteConfig.url}/sarkari-naukri/${exam.category}/${slug}`;
+    const ctPosts = await getContentPostsByExam(exam.id, contentType as ContentType, exam.slug);
+    const { canonical } = ctCanonicalUrl(
+      { contentType, update: ctPosts[0] ?? null },
+      { self: `${mainUrl}/${contentType}`, main: mainUrl },
+    );
     return buildExamMetadata({
       pageType: "content-type",
       title: buildSEOTitle(exam.shortName, contentType, year),
       description: buildMetaDescription(exam.name, contentType as ContentType, "", year),
       keywords: buildPageKeywords({ pageType: "content-type", pillar: "government-exam", examSlug: slug, contentType: contentType as ContentType }),
-      canonicalUrl: `${siteConfig.url}/sarkari-naukri/${exam.category}/${slug}/${contentType}`,
+      canonicalUrl: canonical,
       updatedAt: examUpdatedFrom(exam) ?? undefined,
     });
   }

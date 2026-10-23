@@ -7,6 +7,7 @@ import { notFound, permanentRedirect } from "next/navigation";
 import Link from "next/link";
 import { getExamBySlug, contentTypeAvailable, getExamSyllabus } from "@/services/examService";
 import { getContentPostsByExam, getLatestByContentType } from "@/services/contentPostService";
+import { ctCanonicalUrl } from "@/lib/seo/canonicalOwnership";
 import { Breadcrumb } from "@/components/layout/Breadcrumb";
 import { TestPageBanner } from "@/components/exam/TestPageBanner";
 import { isTestSlug } from "@/lib/testContent";
@@ -54,12 +55,20 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   const year = getCurrentYear();
   const ct = contentType as ContentType;
+  // Canonical ownership (P1 item 14) — same rule as every other pillar: self-canonical
+  // only when this page shows something the main exam page does not.
+  const mainUrl = `${siteConfig.url}${canonicalBase}`;
+  const posts = await getContentPostsByExam(exam.id, ct, exam.slug);
+  const { canonical } = ctCanonicalUrl(
+    { contentType: ct, update: posts[0] ?? null },
+    { self: `${mainUrl}/${contentType}`, main: mainUrl },
+  );
   return buildExamMetadata({
     pageType: "content-type",
     title: buildSEOTitle(exam.shortName, contentType, year),
     description: buildMetaDescription(exam.name, ct, "", year),
     keywords: buildPageKeywords({ pageType: "content-type", pillar: "board-exam", examSlug: slug, contentType: ct }),
-    canonicalUrl: `${siteConfig.url}${canonicalBase}/${contentType}`,
+    canonicalUrl: canonical,
   });
 }
 

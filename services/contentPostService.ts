@@ -104,6 +104,52 @@ export async function getContentPostsByExam(
   ], { revalidate: 600 });
 }
 
+/**
+ * Canonical ownership for content-type pages (P1 item 14). The route and the sitemap
+ * must answer with ONE source of truth, or a page can be canonical-to-main in its own
+ * <link> and submitted as its own URL in the same breath.
+ *
+ * `ctPagesWithOwnContent` answers it for every exam in one read: the (exam, content type)
+ * pairs whose page is built on a published, unexpired update that carries its own prose
+ * or structured content-type data. Bounded by design — only exam-linked published posts,
+ * 27 rows today — and the sitemap revalidates hourly. If that set ever grows large, the
+ * fix is a count/flag RPC rather than dropping the rule.
+ */
+export async function ctPagesWithOwnContent(): Promise<Map<string, Set<string>>> {
+  return cached(async () => {
+    const byExam = new Map<string, Set<string>>();
+    try {
+      const supabase = createServerClient();
+      const { data, error } = await supabase
+        .from("content_posts")
+        .select("exam_id, content_type, content, content_type_data")
+        .eq("status", "published")
+        .not("exam_id", "is", null)
+        .or(expiryOr());
+      if (error) throw error;
+      for (const row of (data ?? []) as Array<Record<string, unknown>>) {
+        const examId = row.exam_id as string;
+        const ct = row.content_type as string;
+        const content = (row.content as string) ?? "";
+        const dataCol = row.content_type_data;
+        const hasData = !!dataCol && typeof dataCol === "object" && !Array.isArray(dataCol)
+          && Object.keys(dataCol as object).length > 0;
+        if (!examId || !ct) continue;
+        if (!content.trim() && !hasData) continue;   // nothing the main page does not show
+        const set = byExam.get(examId) ?? new Set<string>();
+        set.add(ct);
+        byExam.set(examId, set);
+      }
+      return byExam;
+    } catch (err) {
+      // Fail OPEN to self-canonical: a failed read must not silently strip live URLs
+      // from the sitemap; the route's own metadata (which has the post) still decides.
+      console.error("[contentPostService] ctPagesWithOwnContent failed:", err);
+      return byExam;
+    }
+  }, ["exams", "content-posts", "content-posts:own-content"], { revalidate: 3600 });
+}
+
 export async function getContentPostBySlug(slug: string): Promise<ContentPost | null> {
   try {
     const supabase = createServerClient();

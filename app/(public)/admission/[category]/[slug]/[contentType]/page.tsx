@@ -6,6 +6,7 @@ import { notFound, permanentRedirect } from "next/navigation";
 import { getExamBySlug, contentTypeAvailable, getExamSyllabus } from "@/services/examService";
 import { SyllabusSection } from "@/components/exam/SyllabusSection";
 import { getContentPostsByExam, getLatestByContentType } from "@/services/contentPostService";
+import { ctCanonicalUrl } from "@/lib/seo/canonicalOwnership";
 import { Breadcrumb } from "@/components/layout/Breadcrumb";
 import { AdSlot } from "@/components/ads/AdSlot";
 import { JsonLd } from "@/components/seo/JsonLd";
@@ -68,12 +69,22 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!exam || !exam.category) return {};
   const ct = contentType as ContentType;
   const year = getCurrentYear();
+  // Canonical ownership (P1 item 14): this page is self-canonical only when it shows what
+  // the main exam page does not — the notice's own body / structured data, or a section
+  // the main page never renders. Otherwise the main page is named and this URL stays a
+  // reachable copy instead of a competing one.
+  const mainUrl = `${siteConfig.url}/admission/${exam.category}/${slug}`;
+  const posts = await getContentPostsByExam(exam.id, ct, exam.slug);
+  const { canonical } = ctCanonicalUrl(
+    { contentType: ct, update: posts[0] ?? null },
+    { self: `${mainUrl}/${contentType}`, main: mainUrl },
+  );
   return buildExamMetadata({
     pageType: "content-type",
     title: buildSEOTitle(exam.shortName, contentType, year),
     description: buildMetaDescription(exam.name, ct, "", year),
     keywords: buildPageKeywords({ pageType: "content-type", pillar: exam.pillar, examSlug: slug, contentType: ct }),
-    canonicalUrl: `${siteConfig.url}/admission/${exam.category}/${slug}/${contentType}`,
+    canonicalUrl: canonical,
     updatedAt: examUpdatedFrom(exam) ?? undefined,
   });
 }

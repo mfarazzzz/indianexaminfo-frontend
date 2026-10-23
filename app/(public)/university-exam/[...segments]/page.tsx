@@ -8,6 +8,7 @@ import { notFound, permanentRedirect } from "next/navigation";
 import Link from "next/link";
 import { getExamBySlug, getExamsByCategory, contentTypeAvailable, getExamEditionsForSwitcher, getExamSlugsForPillar } from "@/services/examService";
 import { getContentPostsByExam } from "@/services/contentPostService";
+import { ctCanonicalUrl } from "@/lib/seo/canonicalOwnership";
 import { EntityDetailPage } from "@/components/exam/EntityDetailPage";
 import { buildExamMetadata } from "@/lib/seo/metadata";
 import { examUpdateSeo } from "@/lib/seo/examUpdateMeta";
@@ -94,11 +95,19 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       });
     }
     const contentType = seg3;
+    // Canonical ownership (P1 item 14): self-canonical only when this page shows what the
+    // main exam page does not; otherwise the main page is named.
+    const mainUrl = `${siteConfig.url}/university-exam/${exam.category}/${slug}`;
+    const ctPosts = await getContentPostsByExam(exam.id, contentType as ContentType, exam.slug);
+    const { canonical } = ctCanonicalUrl(
+      { contentType, update: ctPosts[0] ?? null },
+      { self: `${mainUrl}/${contentType}`, main: mainUrl },
+    );
     return buildExamMetadata({
       pageType: "content-type",
       title: buildSEOTitle(exam.shortName, contentType, getCurrentYear()),
       description: buildMetaDescription(exam.name, contentType as ContentType, "", getCurrentYear()),
-      canonicalUrl: `${siteConfig.url}/university-exam/${exam.category}/${slug}/${contentType}`,
+      canonicalUrl: canonical,
       updatedAt: examUpdatedFrom(exam) ?? undefined,
     });
   }

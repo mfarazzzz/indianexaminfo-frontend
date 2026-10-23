@@ -9,6 +9,8 @@ import {
 import { getRegionsWithRecords } from "@/services/regionService";
 import { HIGH_PRIORITY_SLUGS } from "@/lib/seo/keywords";
 import { contentTypeHasData, type HasDataView } from "@/lib/sectionRegistry";
+import { ctPagesWithOwnContent } from "@/services/contentPostService";
+import { ctCanonicalVerdict } from "@/lib/seo/canonicalOwnership";
 import { pillarToUrlSegment } from "@/lib/exam/pillarUrl";
 import { CONTENT_HUBS, resolveHubPresence } from "@/lib/hubs/contentHubs";
 import type { ContentType } from "@/types/exam";
@@ -94,13 +96,15 @@ const CT_FLAGS: { ct: ContentType; flag: string }[] = [
 ];
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const [exams, blogPosts, cmsPages, sarkariEntries, regionsWithRecords, editionEntries] = await Promise.all([
+  const [exams, blogPosts, cmsPages, sarkariEntries, regionsWithRecords, editionEntries, ctOwnContent] = await Promise.all([
     getAllExams(),
     getAllBlogPosts(),
     getAllPublishedPages(),
     getSarkariNaukriSitemapEntries(),
     getRegionsWithRecords(),
     getEditionSitemapEntries(),
+    // Canonical ownership (P1 item 14): which CT pages carry their own update content.
+    ctPagesWithOwnContent(),
   ]);
   const now = new Date();
 
@@ -163,8 +167,16 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     // Step 2 (b): CT sub-page URLs are emitted iff the section has data — the
     // SAME registry gate that drives tabs and route 404s. Prevents ~1,900 empty
     // sub-pages from being submitted to search (see REBUILD_PLAN Step 2).
+    //
+    // P1 item 14 adds the second gate: a CT URL is submitted ONLY when it is
+    // self-canonical under the same rule the page's own <link rel="canonical"> uses
+    // (lib/seo/canonicalOwnership). Submitting a URL that points elsewhere makes the
+    // sitemap contradict the page, so a non-self-canonical copy stays out — the main
+    // page is submitted instead, and the CT URL remains reachable for anyone who has it.
+    const own = ctOwnContent.get(exam.id as string);
     const ctPages: MetadataRoute.Sitemap = CT_FLAGS
       .filter(({ ct }) => contentTypeHasData(exam as unknown as HasDataView, ct))
+      .filter(({ ct }) => ctCanonicalVerdict({ contentType: ct, update: own?.has(ct) ? { content: "x" } : null }).selfCanonical)
       .map(({ ct }) => ({
         url: ctUrl(exam, ct),
         lastModified: lastMod,
