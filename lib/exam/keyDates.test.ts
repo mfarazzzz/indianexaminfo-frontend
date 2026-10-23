@@ -1,29 +1,39 @@
 /**
- * keyDates.test.ts — 4a (2d) logic. pickKeyDates prefers soonest-upcoming then
- * most-recent-past, skipping undated rows; pickAttestedAction returns a button
- * ONLY when an attested URL matches the status action (never a placeholder).
+ * keyDates.test.ts — 4a (2d) logic + P1 item 12. pickKeyDates returns ONLY the dates
+ * still to come, soonest first (chronological, never a reverse-ordered history list);
+ * pickAttestedAction returns a button ONLY when an attested URL matches the status
+ * action (never a placeholder).
  */
 import { describe, it, expect } from "vitest";
 import { pickKeyDates, pickAttestedAction, relDayLabel, REL_DAY_WINDOW_DAYS } from "./keyDates";
 
 describe("pickKeyDates", () => {
   const today = "2026-10-20";
-  it("returns soonest-upcoming first, capped at the limit", () => {
+  it("returns soonest-upcoming first, chronological, capped at the limit", () => {
     const out = pickKeyDates([
       { label: "Result", date: "2026-12-01" },
       { label: "Exam", date: "2026-10-25" },
       { label: "Admit", date: "2026-10-17" },
       { label: "City", date: "2026-10-12" },
     ], today, 3);
-    expect(out.map((d) => d.label)).toEqual(["Exam", "Result", "Admit"]);
+    // past rows (Admit, City) are NOT shown, so the list can never read backwards
+    expect(out.map((d) => d.label)).toEqual(["Exam", "Result"]);
   });
   it("skips rows with no date (never a blank/TBA filler)", () => {
     const out = pickKeyDates([{ label: "Answer key", date: "" }, { label: "Exam", date: "2026-10-25" }], today);
     expect(out.map((d) => d.label)).toEqual(["Exam"]);
   });
-  it("falls back to recent past dates so the strip is not empty when nothing is upcoming", () => {
+  it("a record with nothing to come gets NO rows (P1 item 12: no past-date stack)", () => {
     const out = pickKeyDates([{ label: "Notification", date: "2026-04-01" }, { label: "Applied", date: "2026-03-01" }], today, 2);
-    expect(out.map((d) => d.label)).toEqual(["Notification", "Applied"]);
+    expect(out).toEqual([]);
+  });
+  it("rows are ascending by date whenever more than one is shown", () => {
+    const out = pickKeyDates([
+      { label: "Result", date: "2026-12-01" },
+      { label: "Exam", date: "2026-10-25" },
+      { label: "Apply ends", date: "2026-11-10" },
+    ], today, 3);
+    expect(out.map((d) => d.date)).toEqual(["2026-10-25", "2026-11-10", "2026-12-01"]);
   });
 });
 

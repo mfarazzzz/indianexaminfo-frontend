@@ -18,7 +18,6 @@ import {
 } from "@/lib/seo/structured-data";
 import {
   formatDate,
-  statusLabel,
   contentTypeLabel,
 } from "@/lib/utils";
 import {
@@ -27,13 +26,13 @@ import {
   UNVERIFIED_EXAM_NOTICE,
 } from "@/lib/exam/detailView";
 import { contentTypeHasData, hasData, mainSectionsForPillar, CONTENT_TYPE_TO_SECTION, type HasDataView, type Pillar } from "@/lib/sectionRegistry";
-import { getLeadBlock, type LeadBlock as LeadBlockData } from "@/lib/exam/actionLinks";
 import { pillarToUrlSegment } from "@/lib/exam/pillarUrl";
 import { SECTION_SUMMARY_RENDERERS, MODULE_RENDERERS } from "@/components/exam/sectionRenderers";
 import { moduleShowsInContentBlock } from "@/components/exam/contentModulesVisibility";
 import { hasDataViewOf } from "@/lib/exam/sectionOwnership";
 import { sectionHeading } from "@/lib/exam/sectionHeadings";
 import { resolveLastUpdated } from "@/lib/exam/lastUpdated";
+import { deriveHeroLine, POSITIVE_STATUSES } from "@/lib/exam/heroLine";
 import { partitionUpdates } from "@/lib/exam/updates";
 import { KeyDatesStrip } from "@/components/exam/KeyDatesStrip";
 import { QuickInfoCard, ImportantLinksCard } from "@/components/exam/ReaderInfoCards";
@@ -42,16 +41,6 @@ import { isTestSlug } from "@/lib/testContent";
 import { pickAttestedAction, type AttestedLink } from "@/lib/exam/keyDates";
 import { nameWithYear } from "@/lib/seo/keywords";
 import { ExternalLink, Share2, ArrowRight } from "lucide-react";
-
-/**
- * Colour-parity item 3 (mock .chip.ok): the derived statuses that are genuinely
- * POSITIVE for a reader — registration open, admit card out, result declared,
- * application active. Everything else (upcoming, awaited, closed, postponed…)
- * renders the neutral chip; we never colour-code a status we cannot derive.
- */
-const POSITIVE_STATUSES: ReadonlySet<string> = new Set([
-  "registration-open", "admit-card-out", "result-declared", "active",
-]);
 
 type EntityDetailPageProps = {
   exam: ExamEntity;
@@ -393,42 +382,9 @@ function OtherEditionBanner({
   );
 }
 
-/** Lead block — renders the derived LeadBlock descriptor. Formatting only; every value comes
- *  from getLeadBlock (status headline, shared pickDisplayDate, shared top gated action). When
- *  there is no action the date stands alone; when there is no date the headline stands alone. */
-function LeadBlock({ lead }: { lead: LeadBlockData }) {
-  const { headline, date, daysRemaining, action } = lead;
-  return (
-    <div className="mb-5 rounded-lg border border-border bg-card p-4">
-      {/* Colour parity item 6 + 10: the mock's micro-label is muted uppercase
-          (.k #6b7280 = 4.83:1 on white, AA). The old statusColor text tones
-          (e.g. editorial #E8630A ≈ 3.3:1) failed AA for small text. */}
-      <div className="text-xs font-bold uppercase tracking-wide mb-1 text-gray-500">
-        {headline}
-      </div>
-      {date ? (
-        <p className="text-sm text-gray-800">
-          <span className="text-gray-500">{date.label}: </span>
-          <span className="font-semibold">{formatDate(date.date)}</span>
-          {daysRemaining != null && (
-            <span className="text-accent font-medium"> · in {daysRemaining} day{daysRemaining === 1 ? "" : "s"}</span>
-          )}
-        </p>
-      ) : (
-        <p className="text-sm text-gray-500">Date not announced yet.</p>
-      )}
-      {action && (
-        <Link
-          href={action.href}
-          prefetch={false}
-          className="mt-3 inline-flex items-center gap-1.5 rounded bg-primary px-4 py-2 text-sm font-semibold text-white hover:bg-primary-700 transition-colors focus:ring-2 focus:ring-primary/50 focus:outline-none"
-        >
-          {action.label} <ArrowRight className="w-3.5 h-3.5" />
-        </Link>
-      )}
-    </div>
-  );
-}
+/** LeadBlock JSX was removed here (P1 item 7): the derived status + the state-relevant
+ *  date + the single attested action are now printed once — in the subtitle under the
+ *  H1 and in the key-dates strip. getLeadBlock() stays the ONE derivation both use. */
 
 export async function EntityDetailPage({ exam, breadcrumbs, contentType, editionContext }: EntityDetailPageProps) {
   const [contentPosts, relatedExams, resources, syllabus, todayISO] = await Promise.all([
@@ -455,6 +411,11 @@ export async function EntityDetailPage({ exam, breadcrumbs, contentType, edition
   // so the tab can't show while the page 404s.
   const hasStructuredSyllabusFlag = syllabus.subjects.length > 0;
   const hasDataView = buildHasDataView(exam, hasStructuredSyllabusFlag);
+
+  // The title line + subtitle (P1 item 7): name, derived status and the ONE date that
+  // matters, all derived in lib/exam/heroLine.ts from the same pickDisplayDate the rest
+  // of the page uses. The component only formats it.
+  const hero = deriveHeroLine(exam, todayISO);
 
   // Item 5: the subscribe box appears ONCE. When a date is not yet announced it sits inside
   // the body after Important Dates (see renderOrderedSections); otherwise the single bottom
@@ -508,20 +469,43 @@ export async function EntityDetailPage({ exam, breadcrumbs, contentType, edition
                 page is reachable by direct URL (owner inspection) but is forced
                 noindex/nofollow in metadata; aggregate surfaces exclude it. */}
             {isTestSlug(exam.slug) && <TestPageBanner />}
-            {/* Status + Last Updated */}
-            <div className="flex items-center gap-3 mb-2 text-sm">
-              {/* Colour parity item 3: neutral chip by default; the green "ok"
-                  treatment ONLY for a genuinely positive DERIVED status. A status
-                  we cannot read as positive never gets a colour claim. */}
-              <span className={`exam-chip${POSITIVE_STATUSES.has(exam.status) ? " is-ok" : ""}`}>
-                {statusLabel(exam.status)}
-              </span>
-              {lastUpdated && (
-                <span className="text-gray-500 text-xs">
-                  Last Updated: {formatDate(lastUpdated)}
-                </span>
-              )}
-            </div>
+
+            {/* Main-page H1 — only on the main page (no contentType). On a CT sub-page the
+                focused body renders its own CT-specific H1. On a NON-CURRENT edition page, label
+                the cycle by its year (the year is a label).
+                P1 item 7 (23 Oct): the H1 is the exam's OWN NAME. It used to end in
+                "— Notification, Eligibility & Apply" on every record, including ones whose
+                result was already declared; that sentence is marketing, not information, and
+                the status it claims can be false. The status now lives in the line below. */}
+            {!contentType && (
+              <h1 className="font-heading font-bold text-[1.35rem] min-[700px]:text-[1.7rem] text-gray-900 mb-1 article-title">
+                {editionContext && !editionContext.editions.some((e) => e.isCurrent && e.year === editionContext.viewingYear)
+                  ? `${exam.name} ${editionContext.viewingYear}`
+                  : hero.title}
+              </h1>
+            )}
+
+            {/* Subtitle — the derived status and the ONE date that matters for it, plus a
+                Last Updated we can stand behind (mock .row under the h1). Every value comes
+                from deriveHeroLine(), which reuses the shared pickDisplayDate/getLeadBlock
+                derivation, so this line can never disagree with the strip or the dates list. */}
+            {!contentType && (
+              <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mb-3 text-sm" data-testid="exam-subtitle">
+                <span className={`exam-chip${hero.isPositive ? " is-ok" : ""}`}>{hero.status}</span>
+                {hero.date && (
+                  <span className="text-gray-600">
+                    <span className="font-medium text-gray-800">{hero.date.label}:</span>{" "}
+                    <span className="font-mono">{formatDate(hero.date.value)}</span>
+                    {hero.daysRemaining != null && (
+                      <span className="text-accent font-medium"> · in {hero.daysRemaining} day{hero.daysRemaining === 1 ? "" : "s"}</span>
+                    )}
+                  </span>
+                )}
+                {lastUpdated && (
+                  <span className="text-gray-500 text-xs">Last Updated: {formatDate(lastUpdated)}</span>
+                )}
+              </div>
+            )}
 
             {/* Other-edition banner — ONLY when viewing a NON-CURRENT edition at its year URL.
                 Suppressed on the main page (where viewingYear === the current cycle's year). */}
@@ -536,17 +520,6 @@ export async function EntityDetailPage({ exam, breadcrumbs, contentType, edition
                 />
               );
             })()}
-
-            {/* Main-page H1 — only on the main page (no contentType). On a CT sub-page the
-                focused body renders its own CT-specific H1. On a NON-CURRENT edition page, label
-                the cycle by its year (the year is a label). */}
-            {!contentType && (
-              <h1 className="font-heading font-bold text-[1.35rem] min-[700px]:text-[1.7rem] text-gray-900 mb-3 article-title">
-                {editionContext && !editionContext.editions.some((e) => e.isCurrent && e.year === editionContext.viewingYear)
-                  ? `${exam.name} ${editionContext.viewingYear} — Cycle Details`
-                  : `${nameWithYear(exam.name, exam.currentEditionYear)} — Notification, Eligibility & Apply`}
-              </h1>
-            )}
 
             {/* 4a (2d): mobile-first — right under the title, the honest unverified
                 notice (when not editor-verified) then the Key-dates strip (next 2-3
@@ -585,11 +558,10 @@ export async function EntityDetailPage({ exam, breadcrumbs, contentType, edition
             {!contentType && <QuickInfoCard exam={exam} />}
             {!contentType && <ImportantLinksCard exam={exam} contentPosts={contentPosts} todayISO={todayISO} />}
 
-            {/* Lead block — the answer first. MAIN PAGE ONLY (a CT sub-page is already the
-                answer to one question; repeating the card there is duplication). Reads derived
-                status + shared pickDisplayDate + shared getActionLinks — nothing invented, no
-                button where no page exists, date stands alone when there is no action. */}
-            {!contentType && <LeadBlock lead={getLeadBlock(exam, todayISO)} />}
+            {/* The old "answer first" lead card is gone (P1 item 7): its headline was the
+                derived status, its date was the same pickDisplayDate the subtitle shows, and
+                its button was the same attested action the strip already carries — so with the
+                subtitle in place the card only repeated the top of the page. */}
 
             {/* Cycle switcher (year pills) — main page and edition pages, when >1 cycle exists. */}
             {editionContext && (

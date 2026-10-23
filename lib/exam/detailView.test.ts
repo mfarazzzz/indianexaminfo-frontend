@@ -91,7 +91,12 @@ describe('source scan — the false verification claim cannot return to the deta
   });
 
   it('renders the badge label from the shared statusLabel, not the raw enum', () => {
-    expect(src).toContain('statusLabel(exam.status)');
+    // P1 item 7 (23 Oct): the status label is derived in lib/exam/heroLine.ts and the page
+    // prints the result, so the guard follows the derivation instead of the call site.
+    expect(src).toContain('hero.status');
     expect(src).not.toContain('exam.status.replace(/-/g, " ")');
+    const hero = readFileSync(fileURLToPath(new URL('./heroLine.ts', import.meta.url)), 'utf8');
+    expect(hero).toContain('statusLabel(exam.status)');
+    expect(hero).not.toContain('exam.status.replace(/-/g, " ")');
   });
 });

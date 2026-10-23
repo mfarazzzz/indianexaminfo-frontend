@@ -1,9 +1,8 @@
 /**
  * keyDates.ts — 4a (2d) mobile-first strip logic. Pure + testable.
  *
- *  • pickKeyDates: the next 2-3 dates a reader actually cares about — upcoming
- *    confirmed dates soonest-first, then the most recent past ones so the strip
- *    is never empty when the record has dates. A row with no date is skipped
+ *  • pickKeyDates: the dates still to come — future-dated rows, soonest first, so the
+ *    strip is chronological and never a history list. A row with no date is skipped
  *    (never a blank/"TBA" filler).
  *  • pickAttestedAction: a primary Download/Apply button ONLY when an ATTESTED
  *    URL exists (a real link stored on one of the exam's published updates whose
@@ -16,12 +15,19 @@ export interface AttestedLink { label: string; url: string }
 
 const isFuture = (date: string, todayISO: string): boolean => date >= todayISO;
 
-/** Upcoming first (soonest), then most-recent-past; skip undated rows. */
+/**
+ * The dates a reader can still ACT on: future-dated rows only, soonest first
+ * (chronological). A record with nothing left to come gets NO rows — its history is
+ * stated once in the subtitle under the title and listed in full in the Important
+ * Dates section, not as a reverse-ordered stack at the top of the page
+ * (P1 item 12, reference-page review 23 Oct). Undated rows are skipped — never a
+ * blank/"TBA" filler.
+ */
 export function pickKeyDates(dates: KeyDate[], todayISO: string, limit = 3): KeyDate[] {
-  const dated = (dates ?? []).filter((d) => d.date && String(d.date).trim());
-  const upcoming = dated.filter((d) => isFuture(String(d.date), todayISO)).sort((a, b) => String(a.date).localeCompare(String(b.date)));
-  const past = dated.filter((d) => !isFuture(String(d.date), todayISO)).sort((a, b) => String(b.date).localeCompare(String(a.date)));
-  return [...upcoming, ...past].slice(0, limit);
+  return (dates ?? [])
+    .filter((d) => d.date && String(d.date).trim() && isFuture(String(d.date), todayISO))
+    .sort((a, b) => String(a.date).localeCompare(String(b.date)))
+    .slice(0, limit);
 }
 
 /** The action word implied by the derived status (or null for a status with no
