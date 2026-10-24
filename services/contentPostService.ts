@@ -174,6 +174,48 @@ export async function ctPagesWithOwnContent(): Promise<Record<string, string[]>>
   }, ["exams", "content-posts", "content-posts:own-content"], { revalidate: 3600 });
 }
 
+/**
+ * Trustworthy freshness for the sitemap (owner reader-trust fix, 23 Oct). The newest
+ * PUBLISHED, UNEXPIRED exam-linked update's `updated_at`, per exam — one of the three
+ * sources lib/exam/lastUpdated#resolveLastUpdated weighs (a published update IS a real
+ * change). Bounded like ctPagesWithOwnContent (only exam-linked published rows). Returns
+ * a PLAIN object (never a Map) so it survives the cache boundary, mapping
+ * exam_id → updated_at strings.
+ */
+export interface PostDateRow { exam_id?: string | null; updated_at?: string | null }
+
+export function postDatesByExam(rows: readonly PostDateRow[]): Record<string, string[]> {
+  const out: Record<string, string[]> = {};
+  for (const r of rows ?? []) {
+    const id = typeof r?.exam_id === "string" ? r.exam_id : "";
+    const ts = typeof r?.updated_at === "string" ? r.updated_at : "";
+    if (!id || !ts.trim()) continue;
+    (out[id] ??= []).push(ts);
+  }
+  return out;
+}
+
+export async function examPostUpdatedAts(): Promise<Record<string, string[]>> {
+  return cached(async () => {
+    try {
+      const supabase = createServerClient();
+      const { data, error } = await supabase
+        .from("content_posts")
+        .select("exam_id, updated_at")
+        .eq("status", "published")
+        .not("exam_id", "is", null)
+        .or(expiryOr());
+      if (error) throw error;
+      return postDatesByExam((data ?? []) as PostDateRow[]);
+    } catch (err) {
+      // Fail open to "no post date": a failed read means the trustworthy rule simply
+      // leans on the edition/verified sources, and omits lastmod if none — never a lie.
+      console.error("[contentPostService] examPostUpdatedAts failed:", err);
+      return {};
+    }
+  }, ["exams", "content-posts", "content-posts:exam-updated-ats"], { revalidate: 3600 });
+}
+
 export async function getContentPostBySlug(slug: string): Promise<ContentPost | null> {
   try {
     const supabase = createServerClient();

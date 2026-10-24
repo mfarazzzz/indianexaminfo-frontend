@@ -298,14 +298,22 @@ const CT_TO_FLAG: Partial<Record<ContentType, keyof ExamEntity>> = {
 // Split into named pieces so the content-hub select (HUB_SELECT below) can add
 // the ONE store the presence rule reads without every other list query paying
 // for the jsonb blob.
+// The S3.2 verification columns (is_verified + verified_at + verified_by) and the
+// edition's own updated_at/updated_by are here so the LIST path resolves the SAME
+// trustworthy freshness/verification the detail page does: mapRow folds them into
+// exam.verified / verifiedAt / editionUpdatedAt / editionUpdatedBy. Required by the
+// sitemap's honest lastmod (lib/exam/lastUpdated) and the home deadline bands'
+// "not yet verified" marker. Scalars only — never the content_modules blob.
 const LIST_SCALAR_COLUMNS = `
   id, slug, name, short_name, pillar, region, entity_type, is_featured,
   updated_at, tags, search_keywords,
+  is_verified, verified_at, verified_by,
   cat:categories!category_id(slug), subcat:categories!subcategory_id(slug)
 `;
 
 const LIST_EDITION_COLUMNS = `
     id, year, edition_label, status, important_dates, vacancy,
+    updated_at, updated_by,
     has_admit_card, has_result, has_answer_key, has_syllabus,
     has_application, has_notification, has_cutoff
 `;
@@ -968,6 +976,10 @@ export type DeadlineBandItem = {
   derivedStatus: string;
   /** The single date this band is about (ISO yyyy-mm-dd). */
   date: string;
+  /** All-three verification (is_verified + verified_at + verified_by), same
+   *  predicate the exam page uses (mapRow.verified). False → the row shows the
+   *  muted "check official notice" marker. */
+  verified: boolean;
 };
 
 export type DeadlineBands = {
@@ -1065,17 +1077,24 @@ export async function getDeadlineBands(perBand = 8): Promise<DeadlineBands> {
         (chunk) =>
           supabase
             .from("exams")
-            .select("id, name, short_name, cat:categories!category_id(slug)")
+            .select("id, name, short_name, is_verified, verified_at, verified_by, cat:categories!category_id(slug)")
             .in("id", chunk),
         ids,
       );
       if (examRowsErr) throw examRowsErr;
-      const examMap = new Map<string, { name: string; short_name: string; category_slug: string | null }>();
+      const examMap = new Map<string, { name: string; short_name: string; category_slug: string | null; verified: boolean }>();
       for (const e of examRows ?? []) {
+        // The same all-three predicate the exam page (mapRow) uses — a flag without
+        // a verifier id or a date is NOT a verification a reader may trust.
+        const verified =
+          Boolean((e as any).is_verified) &&
+          !!((e as any).verified_by ?? "").toString().trim() &&
+          !!((e as any).verified_at ?? "").toString().trim();
         examMap.set((e as any).id, {
           name: (e as any).name,
           short_name: (e as any).short_name,
           category_slug: (e as any).cat?.slug ?? null,
+          verified,
         });
       }
 
@@ -1090,6 +1109,7 @@ export async function getDeadlineBands(perBand = 8): Promise<DeadlineBands> {
           category: meta?.category_slug ?? "",
           derivedStatus: (r.derived_status as string) ?? "upcoming",
           date,
+          verified: meta?.verified ?? false,
         };
       };
       const byDateAsc = (a: DeadlineBandItem, b: DeadlineBandItem) => a.date.localeCompare(b.date);

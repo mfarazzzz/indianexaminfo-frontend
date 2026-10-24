@@ -9,10 +9,11 @@ import {
 import { getRegionsWithRecords } from "@/services/regionService";
 import { HIGH_PRIORITY_SLUGS } from "@/lib/seo/keywords";
 import { contentTypeHasData, type HasDataView } from "@/lib/sectionRegistry";
-import { ctPagesWithOwnContent } from "@/services/contentPostService";
+import { ctPagesWithOwnContent, examPostUpdatedAts } from "@/services/contentPostService";
 import { ctCanonicalVerdict } from "@/lib/seo/canonicalOwnership";
 import { pillarToUrlSegment } from "@/lib/exam/pillarUrl";
-import { CONTENT_HUBS, resolveHubPresence } from "@/lib/hubs/contentHubs";
+import { CONTENT_HUBS, resolveHubPresence, resolveHubLatestDates } from "@/lib/hubs/contentHubs";
+import { resolveLastUpdated, latestContentDate } from "@/lib/exam/lastUpdated";
 import type { ContentType } from "@/types/exam";
 
 const BASE = siteConfig.url;
@@ -31,6 +32,34 @@ function ctPriority(slug: string, isHighValue: boolean): number {
 }
 
 type SitemapExam = { pillar: string; category: string; slug: string };
+
+/**
+ * Honest <lastmod> (owner reader-trust fix, 23 Oct). The live sitemap stamped EVERY URL
+ * with the build/now time — a false freshness claim to Google. Every lastmod here comes
+ * from a REAL content date or the key is OMITTED entirely; the build time / "now" is never
+ * used.
+ *   • exam URLs → the D2 trustworthy rule (lib/exam/lastUpdated#resolveLastUpdated): the
+ *     newest of a HUMAN edition edit, a published update, or a verification.
+ *   • hub URLs → the newest trustworthy date among the rows the hub lists.
+ *   • static / landing / list pages → omitted (no single honest content date).
+ * Returning null means "omit"; callers spread `lm(...)` which adds the key only when set.
+ */
+function examTrustworthyIso(
+  exam: { editionUpdatedAt?: string | null; editionUpdatedBy?: string | null; verifiedAt?: string | null },
+  postDates: string[],
+): string | null {
+  return resolveLastUpdated({
+    editionUpdatedAt: exam.editionUpdatedAt ?? null,
+    editionUpdatedBy: exam.editionUpdatedBy ?? null,
+    verifiedAt: exam.verifiedAt ?? null,
+    postUpdatedAts: postDates,
+  });
+}
+
+/** `lastModified` ONLY when there is a real date — never a fabricated/now timestamp. */
+function lm(iso: string | null | undefined): { lastModified: Date } | Record<string, never> {
+  return iso ? { lastModified: new Date(iso) } : {};
+}
 
 /**
  * Category slugs whose URLs must never enter the sitemap.
@@ -96,7 +125,7 @@ const CT_FLAGS: { ct: ContentType; flag: string }[] = [
 ];
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const [exams, blogPosts, cmsPages, sarkariEntries, regionsWithRecords, editionEntries, ctOwnContent] = await Promise.all([
+  const [exams, blogPosts, cmsPages, sarkariEntries, regionsWithRecords, editionEntries, ctOwnContent, postDates] = await Promise.all([
     getAllExams(),
     getAllBlogPosts(),
     getAllPublishedPages(),
@@ -105,8 +134,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     getEditionSitemapEntries(),
     // Canonical ownership (P1 item 14): which CT pages carry their own update content.
     ctPagesWithOwnContent(),
+    // Trustworthy freshness: newest published update date per exam (one resolveLastUpdated source).
+    examPostUpdatedAts(),
   ]);
-  const now = new Date();
 
   // ── Content-type hubs ────────────────────────────
   // Submitted ONLY while a hub actually renders a record — the SAME one rule
@@ -114,7 +144,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // homepage strip, menus and sidebars. An empty hub leaves the sitemap and
   // re-enters automatically the day it gains content (mirrors the board-exam
   // suppression precedent below). Structural dead ends are never present.
-  const hubPresence = await resolveHubPresence();
+  // lastmod = the newest trustworthy content date among the rows the hub lists, or omitted.
+  const [hubPresence, hubDates] = await Promise.all([resolveHubPresence(), resolveHubLatestDates()]);
   const hubFreq: Partial<Record<string, MetadataRoute.Sitemap[number]["changeFrequency"]>> = {
     "/admit-card": "hourly", "/results": "hourly", "/answer-key": "hourly",
     "/syllabus": "daily", "/date-sheet": "daily", "/previous-papers": "weekly",
@@ -129,37 +160,39 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     .filter((h) => hubPresence[h.href])
     .map((h) => ({
       url: `${BASE}${h.href}`,
-      lastModified: now,
+      ...lm(hubDates[h.href]),
       changeFrequency: hubFreq[h.href] ?? "weekly",
       priority: hubPriority[h.href] ?? 0.7,
     }));
 
   // ── Static pages ─────────────────────────────────
+  // No single honest content date → lastmod omitted entirely (never the build time).
   const staticPages: MetadataRoute.Sitemap = [
-    { url: BASE,                        lastModified: now, changeFrequency: "daily",   priority: 1.0 },
-    { url: `${BASE}/sarkari-naukri`,    lastModified: now, changeFrequency: "daily",   priority: 0.9 },
-    { url: `${BASE}/admission`,         lastModified: now, changeFrequency: "daily",   priority: 0.9 },
+    { url: BASE,                        changeFrequency: "daily",   priority: 1.0 },
+    { url: `${BASE}/sarkari-naukri`,    changeFrequency: "daily",   priority: 0.9 },
+    { url: `${BASE}/admission`,         changeFrequency: "daily",   priority: 0.9 },
   // ── Board & University section ──────────────────────────────
   // Pillar has 0 rows currently. Suppress its pages from the
   // sitemap until we actually populate it. The hub page itself
   // stays (it renders a placeholder UX) but the non-existent
   // boards don't belong in the sitemap.
-  // { url: `${BASE}/board-exam`, lastModified: now, changeFrequency: "daily", priority: 0.9 },
-    { url: `${BASE}/blog`,              lastModified: now, changeFrequency: "daily",   priority: 0.7 },
-    { url: `${BASE}/about`,             lastModified: now, changeFrequency: "monthly", priority: 0.3 },
-    { url: `${BASE}/contact`,           lastModified: now, changeFrequency: "monthly", priority: 0.3 },
-    { url: `${BASE}/privacy-policy`,    lastModified: now, changeFrequency: "monthly", priority: 0.3 },
-    { url: `${BASE}/disclaimer`,        lastModified: now, changeFrequency: "monthly", priority: 0.3 },
+  // { url: `${BASE}/board-exam`, changeFrequency: "daily", priority: 0.9 },
+    { url: `${BASE}/blog`,              changeFrequency: "daily",   priority: 0.7 },
+    { url: `${BASE}/about`,             changeFrequency: "monthly", priority: 0.3 },
+    { url: `${BASE}/contact`,           changeFrequency: "monthly", priority: 0.3 },
+    { url: `${BASE}/privacy-policy`,    changeFrequency: "monthly", priority: 0.3 },
+    { url: `${BASE}/disclaimer`,        changeFrequency: "monthly", priority: 0.3 },
   ];
 
   // ── Exam entity pages + content-type sub-pages ───
   const examPages: MetadataRoute.Sitemap = exams.filter(isSitemapEligible).flatMap((exam) => {
     const isHigh = HIGH_PRIORITY_SLUGS.has(exam.slug);
-    const lastMod = new Date(exam.lastUpdated);
+    // Honest lastmod from the D2 trustworthy rule; omitted when no trustworthy source.
+    const lmIso = examTrustworthyIso(exam, postDates[exam.id as string] ?? []);
 
     const base: MetadataRoute.Sitemap[number] = {
       url: examUrl(exam),
-      lastModified: lastMod,
+      ...lm(lmIso),
       changeFrequency: "weekly",
       priority: isHigh ? 0.9 : 0.8,
     };
@@ -180,7 +213,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       .filter(({ ct }) => ctCanonicalVerdict({ contentType: ct, update: ownSet?.has(ct) ? { content: "x" } : null }).selfCanonical)
       .map(({ ct }) => ({
         url: ctUrl(exam, ct),
-        lastModified: lastMod,
+        ...lm(lmIso),
         changeFrequency: ctFreq(ct),
         priority: ctPriority(exam.slug, isHigh),
       }));
@@ -194,29 +227,37 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // 404). The URL is the exam's canonical URL + /{year}; we reuse examUrl() (one URL builder,
   // DB-derived) rather than constructing a year URL by hand. Editions whose exam is not
   // sitemap-eligible (no category, legacy-redirect category) are skipped for the same reason
-  // their main page is.
-  const examBySlug = new Map(exams.map((e) => [e.slug, e as unknown as SitemapExam]));
+  // their main page is. lastmod = the exam's trustworthy date, or omitted.
+  const examBySlug = new Map(exams.map((e) => [e.slug, e]));
   const editionPages: MetadataRoute.Sitemap = editionEntries.flatMap((ed) => {
     const exam = examBySlug.get(ed.slug);
     if (!exam || !isSitemapEligible(exam)) return [];
+    const lmIso = examTrustworthyIso(exam, postDates[exam.id as string] ?? []);
     return [{
       url: `${examUrl(exam)}/${ed.year}`,
-      lastModified: now,
+      ...lm(lmIso),
       changeFrequency: "weekly" as const,
       priority: 0.6,
     }];
   });
 
   // ── Blog section pages ────────────────────────────
+  // lastmod = the newest post updatedAt in that section (a real content date); omitted
+  // when the section has no posts.
+  const bySection = new Map<string, string[]>();
+  for (const post of blogPosts) {
+    (bySection.get(post.section) ?? bySection.set(post.section, []).get(post.section)!).push(post.updatedAt);
+  }
   const blogSections = ["education-news","exam-prep","career-guidance","scholarship","study-abroad","edtech","student-life","opinion"];
   const blogSectionPages: MetadataRoute.Sitemap = blogSections.map((s) => ({
     url: `${BASE}/blog/${s}`,
-    lastModified: now,
+    ...lm(latestContentDate(bySection.get(s) ?? [])),
     changeFrequency: "daily" as const,
     priority: 0.7,
   }));
 
   // ── Blog post pages ───────────────────────────────
+  // A post's own updated_at is a real content date — keep it.
   const blogPostPages: MetadataRoute.Sitemap = blogPosts.map((post) => ({
     url: `${BASE}/blog/${post.section}/${post.slug}`,
     lastModified: new Date(post.updatedAt),
@@ -237,6 +278,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   // ── Sarkari Naukri job detail pages ──────────────
   // The whole sarkari_naukri corpus was previously absent from the sitemap.
+  // entry.updatedAt is the record's stored content date — a real date, keep it.
   const sarkariPages: MetadataRoute.Sitemap = sarkariEntries.map((entry) => ({
     url: `${BASE}/sarkari-naukri/${entry.slug}`,
     lastModified: new Date(entry.updatedAt),
@@ -245,51 +287,55 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   }));
 
   // ── Sarkari Naukri hubs + state pages ────────────
+  // These are LISTING pages with no single assembled trustworthy date → lastmod omitted.
   const sarkariHubPages: MetadataRoute.Sitemap = [
-    { url: `${BASE}/sarkari-naukri/exam`,   lastModified: now, changeFrequency: "daily" as const, priority: 0.85 },
-    { url: `${BASE}/sarkari-naukri/bharti`, lastModified: now, changeFrequency: "daily" as const, priority: 0.85 },
-    { url: `${BASE}/resources`,             lastModified: now, changeFrequency: "monthly" as const, priority: 0.4 },
+    { url: `${BASE}/sarkari-naukri/exam`,   changeFrequency: "daily" as const, priority: 0.85 },
+    { url: `${BASE}/sarkari-naukri/bharti`, changeFrequency: "daily" as const, priority: 0.85 },
+    { url: `${BASE}/resources`,             changeFrequency: "monthly" as const, priority: 0.4 },
   ];
 
   // State/UT pages: only regions that actually have records (exams by region OR
   // vacancies by state). getRegionsWithRecords already excludes all-india and
-  // empty regions, so no empty state page is ever submitted.
+  // empty regions, so no empty state page is ever submitted. Listing pages → omit.
   const sarkariStatePages: MetadataRoute.Sitemap = regionsWithRecords.map((r) => ({
     url: `${BASE}/sarkari-naukri/state/${r.slug}`,
-    lastModified: now,
     changeFrequency: "daily" as const,
     priority: 0.7,
   }));
 
-  // Plus the all-states index itself.
+  // Plus the all-states index itself (listing → omit).
   const stateIndexPage: MetadataRoute.Sitemap = [
-    { url: `${BASE}/sarkari-naukri/state`, lastModified: now, changeFrequency: "daily" as const, priority: 0.6 },
+    { url: `${BASE}/sarkari-naukri/state`, changeFrequency: "daily" as const, priority: 0.6 },
   ];
 
   // ── Blog tag pages ───────────────────────────────
   // Mirrors the noIndex rule in blog/tag/[tag]/page.tsx (needs 3+ posts).
-  const tagCounts = new Map<string, number>();
+  // lastmod = newest post updatedAt carrying that tag (a real content date).
+  const tagDates = new Map<string, string[]>();
   for (const post of blogPosts) {
     for (const tag of post.tags ?? []) {
-      tagCounts.set(tag, (tagCounts.get(tag) ?? 0) + 1);
+      (tagDates.get(tag) ?? tagDates.set(tag, []).get(tag)!).push(post.updatedAt);
     }
   }
-  const blogTagPages: MetadataRoute.Sitemap = Array.from(tagCounts.entries())
-    .filter(([, count]) => count >= 3)
-    .map(([tag]) => ({
+  const blogTagPages: MetadataRoute.Sitemap = Array.from(tagDates.entries())
+    .filter(([, dates]) => dates.length >= 3)
+    .map(([tag, dates]) => ({
       url: `${BASE}/blog/tag/${encodeURIComponent(tag)}`,
-      lastModified: now,
+      ...lm(latestContentDate(dates)),
       changeFrequency: "weekly" as const,
       priority: 0.5,
     }));
 
   // ── Blog author pages ────────────────────────────
-  const authorSlugs = new Set(
-    blogPosts.map((p) => p.author?.slug).filter((s): s is string => Boolean(s))
-  );
-  const blogAuthorPages: MetadataRoute.Sitemap = Array.from(authorSlugs).map((slug) => ({
+  // lastmod = newest post updatedAt by that author (a real content date).
+  const authorDates = new Map<string, string[]>();
+  for (const post of blogPosts) {
+    const a = post.author?.slug;
+    if (a) (authorDates.get(a) ?? authorDates.set(a, []).get(a)!).push(post.updatedAt);
+  }
+  const blogAuthorPages: MetadataRoute.Sitemap = Array.from(authorDates.keys()).map((slug) => ({
     url: `${BASE}/blog/author/${slug}`,
-    lastModified: now,
+    ...lm(latestContentDate(authorDates.get(slug) ?? [])),
     changeFrequency: "weekly" as const,
     priority: 0.4,
   }));

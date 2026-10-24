@@ -28,6 +28,7 @@
 import type { ContentType } from "@/types/exam";
 import { getExamsByContentType } from "@/services/examService";
 import { getLatestByContentType } from "@/services/contentPostService";
+import { examUpdatedFrom, latestContentDate } from "@/lib/exam/lastUpdated";
 
 export interface ContentHub {
   /** Public URL of the hub, e.g. "/admit-card". */
@@ -86,6 +87,32 @@ export async function hubHasContent(hub: ContentHub): Promise<boolean> {
 export async function resolveHubPresence(): Promise<Record<string, boolean>> {
   const entries = await Promise.all(
     CONTENT_HUBS.map(async (h) => [h.href, await hubHasContent(h)] as const),
+  );
+  return Object.fromEntries(entries);
+}
+
+/**
+ * The newest TRUSTWORTHY content date among the items each hub actually lists — the
+ * hub form of the D2 rule the hub pages themselves print (lib/exam/lastUpdated,
+ * used by /admit-card etc). Built from the SAME two cached reads hubHasContent uses
+ * (the exams carrying the section + the latest posts of that type), so "has a date
+ * here" is literally "the page shows that row". null → the sitemap OMITS <lastmod>
+ * for that hub (never a build/now timestamp). Present-but-no-trustworthy-date stays
+ * present (the URL is still submitted) with no lastmod.
+ */
+export async function resolveHubLatestDates(): Promise<Record<string, string | null>> {
+  const entries = await Promise.all(
+    CONTENT_HUBS.map(async (h) => {
+      const [exams, latest] = await Promise.all([
+        getExamsByContentType(h.contentType),
+        getLatestByContentType(h.contentType, 50),
+      ]);
+      const dates = [
+        ...exams.map((e) => examUpdatedFrom(e)),
+        ...latest.map((p) => p.updatedAt),
+      ];
+      return [h.href, latestContentDate(dates)] as const;
+    }),
   );
   return Object.fromEntries(entries);
 }

@@ -54,9 +54,10 @@ export async function GET() {
     // Content posts
     for (const post of posts ?? []) {
       const url = `${BASE}/sarkari-naukri/${post.slug}`;
-      const pubDate = post.published_at
-        ? new Date(post.published_at).toISOString()
-        : new Date().toISOString();
+      // Never stamp a news entry with the build time. publication_date is required by
+      // the Google News spec, so a row lacking a real published_at is DROPPED, not faked.
+      if (!post.published_at) continue;
+      const pubDate = new Date(post.published_at).toISOString();
       const keywords = Array.isArray(post.tags) ? post.tags.slice(0, 10).join(", ") : "";
       const title = escapeXml(post.title);
 
@@ -78,9 +79,9 @@ export async function GET() {
     // Sarkari Naukri items
     for (const item of sarkariItems ?? []) {
       const url = `${BASE}/sarkari-naukri/${item.slug}`;
-      const pubDate = item.published_at
-        ? new Date(item.published_at).toISOString()
-        : new Date().toISOString();
+      // Same rule: drop a row with no real publication date rather than fake it with now.
+      if (!item.published_at) continue;
+      const pubDate = new Date(item.published_at).toISOString();
       const keywords = Array.isArray(item.tags) ? item.tags.slice(0, 10).join(", ") : "";
       const title = escapeXml(item.title);
 
