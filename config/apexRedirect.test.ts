@@ -25,10 +25,10 @@ import {
 const NEXT_CONFIG = readFileSync(resolve(__dirname, "..", "next.config.ts"), "utf8");
 const rules = apexHostRedirects();
 
-/** Compile a Next source pattern into a RegExp + named `path` capture, for `:path*` only. */
+/** Compile a Next source pattern into a RegExp with a positional `path` capture, for `:path*` only. */
 function compileSource(source: string): RegExp {
   expect(source, "test only understands the :path* form").toBe("/:path*");
-  return /^\/(?<path>.*)$/; // ":path*" => zero or more chars, so `/` (empty) matches too
+  return /^\/(.*)$/; // ":path*" => zero or more chars, so `/` (empty) matches too
 }
 
 describe("apex redirect — emitted config shape", () => {
@@ -87,7 +87,7 @@ describe("apex redirect — path coverage", () => {
     (path) => {
       const m = re.exec(path);
       expect(m, `${path} should match source`).not.toBeNull();
-      const location = rules[0].destination.replace(":path*", m!.groups!.path);
+      const location = rules[0].destination.replace(":path*", m![1]);
       expect(location.startsWith(`${WWW_ORIGIN}/`)).toBe(true);
     },
   );
