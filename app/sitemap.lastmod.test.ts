@@ -12,6 +12,7 @@
  * and omit when they have none. Nothing here touches the network: every service is mocked.
  */
 import { describe, it, expect, vi, beforeEach } from "vitest";
+import type { MetadataRoute } from "next";
 
 vi.mock("@/services/examService", () => ({
   getAllExams: vi.fn(),
@@ -57,8 +58,8 @@ beforeEach(() => {
   ] as never);
 });
 
-const byUrl = (urls: { url: string }[] & { lastModified?: Date }[]) =>
-  new Map((urls as unknown as { url: string; lastModified?: Date }[]).map((e) => [e.url, e]));
+const byUrl = (urls: MetadataRoute.Sitemap) =>
+  new Map(urls.map((e) => [e.url, e]));
 
 describe("sitemap lastmod — honest, never the build time", () => {
   it("exam URL: a human edition edit sets lastmod; system/no source omits it", async () => {
@@ -92,7 +93,7 @@ describe("sitemap lastmod — honest, never the build time", () => {
     const before = Date.now();
     const urls = await sitemap();
     const after = Date.now();
-    for (const e of urls as unknown as { lastModified?: Date }[]) {
+    for (const e of urls) {
       if (!e.lastModified) continue;
       const t = new Date(e.lastModified).getTime();
       // A lastmod that falls inside the build window is the forbidden "now".
