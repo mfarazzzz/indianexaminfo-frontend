@@ -4,6 +4,7 @@ import { formatDate, isUrgent, isClosingSoon, isFutureOrToday, getExamEntityHref
 import { AdSlot } from "@/components/ads/AdSlot";
 import { cn } from "@/lib/utils";
 import { pillarToUrlSegment } from "@/lib/exam/pillarUrl";
+import { UNVERIFIED_MARKER } from "@/lib/exam/unverifiedMarker";
 import type { ExamEntity } from "@/types/exam";
 
 const trending = [
@@ -18,6 +19,42 @@ const trending = [
   { label: "Agniveer Army 2025",        href: "/sarkari-naukri/defence/agniveer-army" },
   { label: "CAT 2025",                  href: `/${pillarToUrlSegment("entrance-exam")}/mba/cat` },
 ];
+
+/**
+ * The sidebar "Important dates" rows — a pure, testable selector. Uses the exam's FULL
+ * name (readers need the whole title, and it wraps) and carries `verified` (the all-three
+ * predicate, from mapRow) so each row can show the muted "check official notice" marker.
+ * Excludes exams already shown in the deadline strip; soonest first; capped at 12.
+ */
+export type ImportantDateRow = {
+  examName: string; href: string; event: string; date: string;
+  verified: boolean; isUrgent: boolean; isClosingSoon: boolean;
+};
+
+export function buildImportantDateRows(
+  exams: ExamEntity[],
+  todayISO: string,
+  stripExamIds: readonly string[],
+): ImportantDateRow[] {
+  const stripSet = new Set(stripExamIds);
+  return exams
+    .filter((e) => !stripSet.has(e.id))
+    .flatMap((e) =>
+      e.dates
+        .filter((d) => isFutureOrToday(d.date, todayISO))
+        .map((d) => ({
+          examName: e.name,
+          href: getExamEntityHref(e),
+          event: d.label,
+          date: d.date,
+          verified: e.verified === true,
+          isUrgent: isUrgent(d.date, todayISO, 7),
+          isClosingSoon: isClosingSoon(d.date, todayISO, 30),
+        })),
+    )
+    .sort((a, b) => a.date.localeCompare(b.date))
+    .slice(0, 12);
+}
 
 export async function HomeSidebar({
   exams: examsProp,
@@ -36,23 +73,7 @@ export async function HomeSidebar({
 
   // Important dates is the single sidebar date-discovery list. Exclude every exam
   // already shown in the deadline strip so imminent items are not repeated.
-  const stripSet = new Set(stripExamIds ?? []);
-  const importantDates = exams
-    .filter((e) => !stripSet.has(e.id))
-    .flatMap((e) =>
-      e.dates
-        .filter((d) => isFutureOrToday(d.date, todayISO))
-        .map((d) => ({
-          examName: e.shortName,
-          href: getExamEntityHref(e),
-          event: d.label,
-          date: d.date,
-          isUrgent: isUrgent(d.date, todayISO, 7),
-          isClosingSoon: isClosingSoon(d.date, todayISO, 30),
-        }))
-    )
-    .sort((a, b) => a.date.localeCompare(b.date))
-    .slice(0, 12);
+  const importantDates = buildImportantDateRows(exams, todayISO, stripExamIds ?? []);
 
   return (
     <aside className="flex flex-col gap-5">
@@ -73,7 +94,10 @@ export async function HomeSidebar({
               className="flex items-start justify-between gap-2 px-3 py-2 hover:bg-gray-50 transition-colors group"
             >
               <div className="min-w-0">
-                <p className="text-xs font-semibold text-gray-800 group-hover:text-primary truncate">{row.examName}</p>
+                <p className="text-xs font-semibold text-gray-800 group-hover:text-primary break-words">{row.examName}</p>
+                {!row.verified && (
+                  <p className="text-[10px] font-medium text-gray-400 break-words" title={UNVERIFIED_MARKER}>{UNVERIFIED_MARKER}</p>
+                )}
                 <p className="text-xs text-gray-500">{row.event}</p>
               </div>
               <span

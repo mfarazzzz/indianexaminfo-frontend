@@ -16,6 +16,7 @@
 import Link from "next/link";
 import type { DeadlineBands, DeadlineBandItem } from "@/services/examService";
 import { formatDate, getExamEntityHref, daysUntil, cn } from "@/lib/utils";
+import { UNVERIFIED_MARKER } from "@/lib/exam/unverifiedMarker";
 
 type Props = { bands: DeadlineBands };
 
@@ -73,9 +74,17 @@ function Row({ item, dateLabel }: { item: DeadlineBandItem; dateLabel: string })
         prefetch={false}
         className="block py-1 group"
       >
-        <span className="block text-[13px] font-semibold text-gray-800 group-hover:text-primary leading-snug">
-          {item.shortName}
+        <span className="block text-[13px] font-semibold text-gray-800 group-hover:text-primary leading-snug break-words">
+          {item.name}
         </span>
+        {/* Reader-trust (owner, 23 Oct): an exam the editors have not verified (all-three
+            predicate) carries a muted nudge to check the official notice. Verified rows
+            show nothing. */}
+        {!item.verified && (
+          <span className="mt-0.5 block text-[11px] font-medium text-gray-400 break-words" title={UNVERIFIED_MARKER}>
+            {UNVERIFIED_MARKER}
+          </span>
+        )}
         <span className="block text-[11px] text-gray-500 leading-snug">
           <span className="text-gray-400">{dateLabel}: </span>
           <span className="font-medium text-gray-600">{formatDate(item.date)}</span>
@@ -124,8 +133,19 @@ export function DeadlineStrip({ bands }: Props) {
   // Left-border tint reuses the band's existing colour (closing = red, exams = orange, …).
   const leadBorder = lead?.band.border ?? "border-border";
 
+  // Item (c): the cards must FILL the available width — never leave a big empty area to
+  // the right. The desktop column count equals the number of visible bands (1–4), so each
+  // card stretches to 1fr; a single band spans the full row (no half-width card). Content
+  // is never fabricated — a band only exists because the data put rows in it.
+  const colCls =
+    visible.length >= 4 ? "lg:grid-cols-4"
+    : visible.length === 3 ? "lg:grid-cols-3"
+    : visible.length === 2 ? "lg:grid-cols-2"
+    : ""; // 1 band → base grid-cols-1, full width
+  const smColCls = visible.length >= 2 ? "sm:grid-cols-2" : "";
+
   const Grid = (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3">
+    <div className={cn("grid grid-cols-1", smColCls, colCls, "gap-2 sm:gap-3")}>
       {visible.map((band) => {
         const items = bands[band.key];
         return (
@@ -167,9 +187,14 @@ export function DeadlineStrip({ bands }: Props) {
                     <span className="text-[11px] text-gray-500">+{overflow} more this week</span>
                   )}
                 </div>
-                <span className="block text-sm font-semibold text-gray-900 leading-snug mt-0.5 truncate">
-                  {lead.item.shortName}
+                <span className="block text-sm font-semibold text-gray-900 leading-snug mt-0.5 break-words">
+                  {lead.item.name}
                 </span>
+                {!lead.item.verified && (
+                  <span className="block text-[11px] font-medium text-gray-400 mt-0.5 break-words" title={UNVERIFIED_MARKER}>
+                    {UNVERIFIED_MARKER}
+                  </span>
+                )}
                 <span className="block text-[12px] text-gray-500">
                   {lead.band.dateLabel} {formatDate(lead.item.date)} · <span className="font-medium text-gray-700">{daysPhrase(lead.days)}</span>
                 </span>
