@@ -128,7 +128,7 @@ export default function RootLayout({
         <BreakingTicker />
         <HeaderWithMenu />
 
-        <main id="main-content" className="flex-1 animate-fade-in" tabIndex={-1}>
+        <main id="main-content" className="flex-1" tabIndex={-1}>
           {children}
         </main>
 
