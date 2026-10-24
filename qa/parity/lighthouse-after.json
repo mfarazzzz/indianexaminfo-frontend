@@ -1,0 +1,146 @@
+[
+  {
+    "name": "home",
+    "url": "http://localhost:3002/",
+    "n": 3,
+    "lcpMs": 3650,
+    "tbtMs": 1088,
+    "cls": 0,
+    "totalKB": 597,
+    "requests": 33,
+    "jsKB": 156,
+    "fontCount": 3,
+    "fontKB": 177,
+    "perfScore": 0.64,
+    "topImages": [
+      {
+        "url": "/icon.svg",
+        "kb": 2,
+        "mime": "image/svg+xml"
+      }
+    ],
+    "lcpImage": {
+      "url": ""
+    }
+  },
+  {
+    "name": "sarkari-exam (ssc-cgl)",
+    "url": "http://localhost:3002/sarkari-naukri/ssc/ssc-cgl",
+    "n": 3,
+    "lcpMs": 4029,
+    "tbtMs": 358,
+    "cls": 0.028,
+    "totalKB": 471,
+    "requests": 24,
+    "jsKB": 146,
+    "fontCount": 4,
+    "fontKB": 261,
+    "perfScore": 0.71,
+    "topImages": [
+      {
+        "url": "/icon.svg",
+        "kb": 2,
+        "mime": "image/svg+xml"
+      }
+    ],
+    "lcpImage": {
+      "url": ""
+    }
+  },
+  {
+    "name": "entrance (jee-main)",
+    "url": "http://localhost:3002/admission/engineering/jee-main",
+    "n": 3,
+    "lcpMs": 4019,
+    "tbtMs": 167,
+    "cls": 0.014,
+    "totalKB": 472,
+    "requests": 24,
+    "jsKB": 144,
+    "fontCount": 4,
+    "fontKB": 261,
+    "perfScore": 0.8,
+    "topImages": [
+      {
+        "url": "/icon.svg",
+        "kb": 2,
+        "mime": "image/svg+xml"
+      }
+    ],
+    "lcpImage": {
+      "url": ""
+    }
+  },
+  {
+    "name": "board (up-board-class-10)",
+    "url": "http://localhost:3002/board-exam/state/up-board/up-board-class-10",
+    "n": 3,
+    "lcpMs": 3519,
+    "tbtMs": 131,
+    "cls": 0.072,
+    "totalKB": 384,
+    "requests": 23,
+    "jsKB": 144,
+    "fontCount": 3,
+    "fontKB": 177,
+    "perfScore": 0.85,
+    "topImages": [
+      {
+        "url": "/icon.svg",
+        "kb": 2,
+        "mime": "image/svg+xml"
+      }
+    ],
+    "lcpImage": {
+      "url": ""
+    }
+  },
+  {
+    "name": "hub (/results)",
+    "url": "http://localhost:3002/results",
+    "n": 3,
+    "lcpMs": 3084,
+    "tbtMs": 131,
+    "cls": 0.002,
+    "totalKB": 408,
+    "requests": 29,
+    "jsKB": 147,
+    "fontCount": 2,
+    "fontKB": 145,
+    "perfScore": 0.91,
+    "topImages": [
+      {
+        "url": "/icon.svg",
+        "kb": 2,
+        "mime": "image/svg+xml"
+      }
+    ],
+    "lcpImage": {
+      "url": ""
+    }
+  },
+  {
+    "name": "article (blog)",
+    "url": "http://localhost:3002/blog/exam-prep/clat-2026-preparation-strategy",
+    "n": 3,
+    "lcpMs": 3270,
+    "tbtMs": 613,
+    "cls": 0,
+    "totalKB": 388,
+    "requests": 26,
+    "jsKB": 147,
+    "fontCount": 2,
+    "fontKB": 145,
+    "perfScore": 0.8,
+    "topImages": [
+      {
+        "url": "/icon.svg",
+        "kb": 2,
+        "mime": "image/svg+xml"
+      }
+    ],
+    "lcpImage": {
+      "url": ""
+    }
+  }
+]

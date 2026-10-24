@@ -1,0 +1,32 @@
+LIGHTHOUSE after (2026-10-24T18:18:06.118Z)  mobile slow-4G + 4x CPU, median of 3
+
+home  [http://localhost:3002/]  (n=3)
+  LCP=3650ms  TBT=1088ms  CLS=0  perf=0.64
+  total=597KB  requests=33  JS=156KB  fonts=3 req / 177KB
+  LCP element: 
+  largest images: 2KB svg+xml /icon.svg
+sarkari-exam (ssc-cgl)  [http://localhost:3002/sarkari-naukri/ssc/ssc-cgl]  (n=3)
+  LCP=4029ms  TBT=358ms  CLS=0.028  perf=0.71
+  total=471KB  requests=24  JS=146KB  fonts=4 req / 261KB
+  LCP element: 
+  largest images: 2KB svg+xml /icon.svg
+entrance (jee-main)  [http://localhost:3002/admission/engineering/jee-main]  (n=3)
+  LCP=4019ms  TBT=167ms  CLS=0.014  perf=0.8
+  total=472KB  requests=24  JS=144KB  fonts=4 req / 261KB
+  LCP element: 
+  largest images: 2KB svg+xml /icon.svg
+board (up-board-class-10)  [http://localhost:3002/board-exam/state/up-board/up-board-class-10]  (n=3)
+  LCP=3519ms  TBT=131ms  CLS=0.072  perf=0.85
+  total=384KB  requests=23  JS=144KB  fonts=3 req / 177KB
+  LCP element: 
+  largest images: 2KB svg+xml /icon.svg
+hub (/results)  [http://localhost:3002/results]  (n=3)
+  LCP=3084ms  TBT=131ms  CLS=0.002  perf=0.91
+  total=408KB  requests=29  JS=147KB  fonts=2 req / 145KB
+  LCP element: 
+  largest images: 2KB svg+xml /icon.svg
+article (blog)  [http://localhost:3002/blog/exam-prep/clat-2026-preparation-strategy]  (n=3)
+  LCP=3270ms  TBT=613ms  CLS=0  perf=0.8
+  total=388KB  requests=26  JS=147KB  fonts=2 req / 145KB
+  LCP element: 
+  largest images: 2KB svg+xml /icon.svg
