@@ -35,19 +35,13 @@ export function buildOrganizationSchema() {
 }
 
 export function buildWebSiteSchema() {
+  // WebSite only. The SearchAction "sitelinks search box" was retired by Google
+  // (owner batch 2, Phase B) — emitting it produces no rich result, so it is gone.
   return {
     "@context": "https://schema.org",
     "@type": "WebSite",
     name: siteConfig.name,
     url: SITE_URL,
-    potentialAction: {
-      "@type": "SearchAction",
-      target: {
-        "@type": "EntryPoint",
-        urlTemplate: `${SITE_URL}/search?q={search_term_string}`,
-      },
-      "query-input": "required name=search_term_string",
-    },
   };
 }
 
@@ -86,26 +80,18 @@ export function buildFAQSchema(faqs: { question: string; answer: string }[]) {
 }
 
 export function buildHowToSchema(name: string, steps: unknown) {
-  // 4b: HowTo markup ONLY when there are real, stored steps — never for empty,
-  // never invented. Each step is a plain string the editor authored from the notice.
-  const real = (Array.isArray(steps) ? steps : []).map((s) => String(s).trim()).filter(Boolean);
-  if (real.length === 0) return null;
-  return {
-    "@context": "https://schema.org",
-    "@type": "HowTo",
-    name,
-    itemListElement: real.map((text, i) => ({
-      "@type": "HowToStep",
-      position: i + 1,
-      text,
-    })),
-  };
+  // REMOVED (owner batch 2, Phase B): Google retired HowTo rich results (2023), so
+  // this markup earned nothing. Kept as a null-returning stub ONLY so any lingering
+  // import fails safe; the EntityDetailPage call site is deleted. Do not reintroduce.
+  void name; void steps;
+  return null;
 }
 
 export function buildArticleSchema(
   post: BlogPost | ContentPost,
   url: string,
-  authorUrl: string
+  authorUrl: string,
+  type: "Article" | "NewsArticle" = "Article",
 ) {
   const isBlogPost = "author" in post && typeof (post as BlogPost).author === "object";
   const authorName = isBlogPost
@@ -117,7 +103,7 @@ export function buildArticleSchema(
 
   return {
     "@context": "https://schema.org",
-    "@type": "Article",
+    "@type": type,
     headline: post.title,
     description: post.excerpt,
     image: post.featuredImage,
@@ -272,13 +258,10 @@ export function buildSarkariJobPostingSchema(
     datePosted,
     validThrough,
     ...(item.vacancyCount && { totalJobOpenings: item.vacancyCount }),
-    ...(item.payScale && {
-      baseSalary: {
-        "@type": "MonetaryAmount",
-        currency: "INR",
-        value: { "@type": "QuantitativeValue", value: item.payScale },
-      },
-    }),
+    // baseSalary REMOVED (owner batch 2, Phase B): payScale is free text (e.g.
+    // "₹25,500 - ₹81,100"), which is not a valid MonetaryAmount — inventing a
+    // numeric salary from it would be a false JobPosting field. Only a real, typed
+    // amount may ever be emitted here; there is none.
     ...(item.eligibility && { educationRequirements: item.eligibility }),
     ...(item.applicationUrl && { directApply: false, url: item.applicationUrl }),
     applicantLocationRequirements: {

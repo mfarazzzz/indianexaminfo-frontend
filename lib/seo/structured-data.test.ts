@@ -2,6 +2,9 @@ import { describe, it, expect } from "vitest";
 import {
   buildJobPostingSchema,
   buildSarkariJobPostingSchema,
+  buildHowToSchema,
+  buildWebSiteSchema,
+  buildArticleSchema,
 } from "@/lib/seo/structured-data";
 import type { ExamEntity, ExamStatus } from "@/types/exam";
 import type { SarkariNaukriItem } from "@/services/sarkariNaukriService";
@@ -345,5 +348,44 @@ describe("buildSarkariJobPostingSchema", () => {
       today,
     );
     expect(schema).toBeNull();
+  });
+
+  it("NEVER emits baseSalary even when payScale is free text (Phase B)", () => {
+    const schema = buildSarkariJobPostingSchema(
+      vacancy({
+        notificationDate: "2026-09-01",
+        applicationStartDate: "2026-09-05",
+        applicationEndDate: "2026-10-31",
+        verifiedAt: "2026-09-02T00:00:00Z",
+        officialNotificationUrl: "https://ssc.nic.in/je-2026.pdf",
+        payScale: "₹25,500 - ₹81,100 (Level-6)",
+      }),
+      url,
+      today,
+    );
+    expect(schema).not.toBeNull();
+    expect((schema as Record<string, unknown>).baseSalary).toBeUndefined();
+    expect(JSON.stringify(schema)).not.toContain("MonetaryAmount");
+  });
+});
+
+// ── Phase B (owner batch 2): retired rich-result types are gone ──────────────
+describe("Phase B — retired emitters removed", () => {
+  it("buildHowToSchema always returns null (HowTo rich results retired by Google)", () => {
+    expect(buildHowToSchema("x", ["a", "b", "c"])).toBeNull();
+    expect(buildHowToSchema("x", [])).toBeNull();
+  });
+
+  it("buildWebSiteSchema carries no SearchAction / potentialAction", () => {
+    const s = buildWebSiteSchema() as Record<string, unknown>;
+    expect(s["@type"]).toBe("WebSite");
+    expect(s.potentialAction).toBeUndefined();
+    expect(JSON.stringify(s)).not.toContain("SearchAction");
+  });
+
+  it("buildArticleSchema emits Article by default and NewsArticle when asked", () => {
+    const post = { title: "T", excerpt: "e", publishedAt: "2026-01-01", updatedAt: "2026-01-02", author: { name: "A", slug: "a" } } as never;
+    expect((buildArticleSchema(post, "u", "au") as Record<string, unknown>)["@type"]).toBe("Article");
+    expect((buildArticleSchema(post, "u", "au", "NewsArticle") as Record<string, unknown>)["@type"]).toBe("NewsArticle");
   });
 });

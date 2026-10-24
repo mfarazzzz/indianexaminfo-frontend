@@ -73,7 +73,7 @@ export default async function NewsArticlePage({ params }: Props) {
 
   return (
     <>
-      <JsonLd data={buildArticleSchema(post, articleUrl, authorUrl)} />
+      <JsonLd data={buildArticleSchema(post, articleUrl, authorUrl, "NewsArticle")} />
       {post.faqs && post.faqs.length > 0 && <JsonLd data={buildFAQSchema(post.faqs)} />}
 
       <div className="bg-editorial-bg min-h-screen">
