@@ -28,7 +28,7 @@ export default async function PrivacyPolicyPage() {
       <h1 className="font-heading font-bold text-2xl text-gray-900 mt-4 mb-2">
         {page?.title ?? "Privacy Policy"}
       </h1>
-      <p className="text-xs text-gray-400 mb-6">Last updated: June 1, 2025</p>
+      <p className="text-xs text-gray-400 mb-6">Last updated: October 24, 2026</p>
 
       {page?.content ? (
         <div
@@ -39,18 +39,30 @@ export default async function PrivacyPolicyPage() {
         <div className="space-y-6 text-sm text-gray-700 leading-relaxed">
           <section>
             <h2 className="font-heading font-bold text-base text-gray-900 mb-2">1. Information We Collect</h2>
-            <p>IndianExamInfo collects minimal data to provide our services. When you visit our website, we may collect: browsing data via Google Analytics (page views, session duration, device type), search queries entered on our site, and any information you voluntarily provide via our contact form.</p>
-            <p className="mt-2">We do not collect names, email addresses, or personal identifiers unless you explicitly submit them through our contact form.</p>
+            <p>IndianExamInfo collects the minimum needed to answer you. The only data we
+              actively gather is what <em>you choose to submit</em> through our contact form or the
+              &ldquo;Report an error&rdquo; sheet: an optional name, email and/or phone, your message,
+              and the page you reported. We do not ask for, or store, anything beyond that.</p>
+            <p className="mt-2">We do <strong>not</strong> currently load any analytics or advertising
+              scripts by default. If analytics is enabled in future, it will load <strong>only after
+              you accept the on-screen consent notice</strong>, and it will record anonymised usage
+              (the page path and device type) — never your name, email, phone or the text of a form
+              you submit. Choosing &ldquo;Decline&rdquo; keeps the whole site working and loads nothing.</p>
           </section>
 
           <section>
-            <h2 className="font-heading font-bold text-base text-gray-900 mb-2">2. Cookies</h2>
-            <p>We use cookies for: Google Analytics (anonymous usage statistics), recently viewed exams (stored locally in your browser), and advertising cookies from Google AdSense. You can disable cookies in your browser settings, though some features may not function properly.</p>
+            <h2 className="font-heading font-bold text-base text-gray-900 mb-2">2. Cookies &amp; Local Storage</h2>
+            <p>We do not set tracking cookies by default. A few things are stored locally in your own
+              browser (not on our servers): your analytics-consent choice, and a short
+              &ldquo;recently viewed&rdquo; list to speed up navigation. You can clear these in your
+              browser settings at any time.</p>
           </section>
 
           <section>
             <h2 className="font-heading font-bold text-base text-gray-900 mb-2">3. Advertising</h2>
-            <p>IndianExamInfo uses Google AdSense to display advertisements. Google may use cookies to show personalized ads based on your browsing history. You can opt out of personalized advertising at <a href="https://adssettings.google.com" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">adssettings.google.com</a>.</p>
+            <p>IndianExamInfo does <strong>not</strong> currently serve Google AdSense or any other
+              personalised advertising, and does not sell your data. If advertising is ever added,
+              this policy will be updated and a consent notice shown before any ad script loads.</p>
           </section>
 
           <section>

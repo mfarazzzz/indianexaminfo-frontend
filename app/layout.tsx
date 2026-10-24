@@ -7,6 +7,8 @@ import { HeaderWithMenu } from "@/components/layout/HeaderWithMenu";
 import { Footer } from "@/components/layout/Footer";
 import { BreakingTicker } from "@/components/layout/BreakingTicker";
 import { JsonLd } from "@/components/seo/JsonLd";
+import { GATag } from "@/components/analytics/GATag";
+import { ConsentBanner } from "@/components/analytics/ConsentBanner";
 import { buildOrganizationSchema, buildWebSiteSchema } from "@/lib/seo/structured-data";
 import { siteConfig } from "@/config/site";
 import { env } from "@/config/env";
@@ -133,6 +135,12 @@ export default function RootLayout({
         </main>
 
         <Footer />
+
+        {/* Analytics: consent-gated, default OFF. Nothing loads unless a real GA_ID
+            is set AND the reader accepted; with NEXT_PUBLIC_CONSENT_BANNER unset the
+            banner never shows and the site is unchanged. */}
+        <GATag />
+        <ConsentBanner />
       </body>
     </html>
   );

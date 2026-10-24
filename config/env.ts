@@ -77,6 +77,10 @@ export const env = {
   SUPABASE_ANON_KEY: readEnv("NEXT_PUBLIC_SUPABASE_ANON_KEY", process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY),
   REVALIDATE_TOKEN:  process.env.REVALIDATE_TOKEN ?? "",   // server-only
   GA_ID:             process.env.NEXT_PUBLIC_GA_ID ?? "",
+  // Consent banner master switch. Default OFF: with it off the banner never shows
+  // and analytics never loads (the site behaves exactly as before). The owner turns
+  // it on only once a real GA_ID is set. "1"/"true" (case-insensitive) enable it.
+  CONSENT_BANNER:    /^(1|true)$/i.test(process.env.NEXT_PUBLIC_CONSENT_BANNER ?? ""),
   GSC_VERIFY:        process.env.NEXT_PUBLIC_GSC_VERIFY ?? "",
   /**
    * BUILD_PRERENDER_LIMIT — how many records each dynamic route prerenders at
