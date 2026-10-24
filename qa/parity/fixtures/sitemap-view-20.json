@@ -1,0 +1,22 @@
+[
+  { "id": "f01", "pillar": "government-exam", "contentModules": { "overview": { "body": "<p>about</p>" } } },
+  { "id": "f02", "pillar": "government-exam", "contentModules": { "admit-card": { "body": "<p>download</p>" } } },
+  { "id": "f03", "pillar": "government-exam", "contentModules": { "result": { "checkLink": "https://x" } } },
+  { "id": "f04", "pillar": "government-exam", "contentModules": { "application-process": { "steps": [{ "title": "s1" }] } } },
+  { "id": "f05", "pillar": "government-exam", "contentModules": { "news": { "items": [{ "title": "update" }] } } },
+  { "id": "f06", "pillar": "government-exam", "contentModules": { "answer-key": { "body": "<p>key</p>" } } },
+  { "id": "f07", "pillar": "government-exam", "contentModules": { "cut-off": { "releaseDate": "2026-01-01" } } },
+  { "id": "f08", "pillar": "government-exam", "contentModules": { "previous-papers": { "papers": [{ "title": "p" }] } } },
+  { "id": "f09", "pillar": "government-exam", "contentModules": { "study-material": { "materials": [{ "title": "m" }] } } },
+  { "id": "f10", "pillar": "government-exam", "hasStructuredSyllabus": true },
+  { "id": "f11", "pillar": "government-exam", "contentModules": {} },
+  { "id": "f12", "pillar": "government-exam", "contentModules": { "overview": { "body": "", "summary": "  " } } },
+  { "id": "f13", "pillar": "government-exam", "contentModules": { "_config": { "enabledModules": ["news"] }, "overview": { "body": "<p>present but disabled</p>" } } },
+  { "id": "f14", "pillar": "board-exam", "contentModules": { "overview": { "body": "<p>board</p>" } } },
+  { "id": "f15", "pillar": "board-exam", "contentModules": { "admit-card": { "body": "<p>hall ticket</p>" } } },
+  { "id": "f16", "pillar": "board-exam", "contentModules": { "answer-key": { "body": "<p>not applicable to board</p>" } } },
+  { "id": "f17", "pillar": "entrance-exam", "contentModules": { "overview": { "body": "<p>entrance</p>" } } },
+  { "id": "f18", "pillar": "university-exam", "contentModules": { "overview": { "body": "<p>university</p>" } } },
+  { "id": "f19", "pillar": "government-exam", "contentModules": { "result": { "statistics": "<p>90% qualified</p>" } } },
+  { "id": "f20", "pillar": "government-exam", "contentModules": { "news": { "items": [] } } }
+]
