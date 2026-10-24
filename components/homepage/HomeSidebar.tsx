@@ -96,7 +96,7 @@ export async function HomeSidebar({
               <div className="min-w-0">
                 <p className="text-xs font-semibold text-gray-800 group-hover:text-primary break-words">{row.examName}</p>
                 {!row.verified && (
-                  <p className="text-[10px] font-medium text-gray-400 break-words" title={UNVERIFIED_MARKER}>{UNVERIFIED_MARKER}</p>
+                  <p className="text-[10px] font-medium text-gray-500 break-words" title={UNVERIFIED_MARKER}>{UNVERIFIED_MARKER}</p>
                 )}
                 <p className="text-xs text-gray-500">{row.event}</p>
               </div>

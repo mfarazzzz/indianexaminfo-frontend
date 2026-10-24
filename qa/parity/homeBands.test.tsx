@@ -19,7 +19,7 @@ import { existsSync, mkdirSync, writeFileSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { DeadlineStrip } from "@/components/homepage/DeadlineStrip";
 import { buildImportantDateRows } from "@/components/homepage/HomeSidebar";
-import { UNVERIFIED_MARKER } from "@/lib/exam/unverifiedMarker";
+import { UNVERIFIED_MARKER, BAND_UNVERIFIED_CAPTION } from "@/lib/exam/unverifiedMarker";
 import type { DeadlineBands, DeadlineBandItem } from "@/services/examService";
 import type { ExamEntity } from "@/types/exam";
 
@@ -45,12 +45,22 @@ describe("DeadlineStrip — full name + unverified marker + width fill", () => {
     expect(html).not.toContain(">UP Police<"); // short name is no longer the visible label
   });
 
-  it("(b) the marker appears ONLY on unverified rows", () => {
-    const unverified = renderStrip(bands({ closingSoon: [bandItem({ verified: false })] }));
-    expect(unverified).toContain(UNVERIFIED_MARKER);
+  it("(b) an ALL-unverified band shows ONE caption and NO per-row marker", () => {
+    const html = renderStrip(bands({ closingSoon: [bandItem({ verified: false }), bandItem({ examId: "z", verified: false })] }));
+    expect(html).toContain(BAND_UNVERIFIED_CAPTION);
+    expect(html).not.toContain(UNVERIFIED_MARKER);
+  });
 
-    const verified = renderStrip(bands({ closingSoon: [bandItem({ verified: true })] }));
-    expect(verified).not.toContain(UNVERIFIED_MARKER);
+  it("(b) a MIXED band keeps the per-row marker on unverified rows and shows no caption", () => {
+    const html = renderStrip(bands({ closingSoon: [bandItem({ examId: "v", verified: true }), bandItem({ examId: "u", verified: false })] }));
+    expect(html).toContain(UNVERIFIED_MARKER);
+    expect(html).not.toContain(BAND_UNVERIFIED_CAPTION);
+  });
+
+  it("(b) an ALL-verified band shows neither marker nor caption", () => {
+    const html = renderStrip(bands({ closingSoon: [bandItem({ verified: true }), bandItem({ examId: "w", verified: true })] }));
+    expect(html).not.toContain(UNVERIFIED_MARKER);
+    expect(html).not.toContain(BAND_UNVERIFIED_CAPTION);
   });
 
   it("(c) desktop columns track the number of visible bands (fill the width, no empty tail)", () => {
@@ -103,14 +113,28 @@ if (process.env.PARITY_HTML === "1") {
     const doc = (body: string) =>
       `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>${css}</style></head><body style="font-family:system-ui,sans-serif;color:#1f2937">${body}</body></html>`;
 
-    const strip = bands({
+    const wrap = (b: DeadlineBands) => `<div class="container mx-auto px-4 py-4">${renderStrip(b)}</div>`;
+    const allUnverified = bands({
       closingSoon: [
         bandItem({ examId: "1", name: "Uttar Pradesh Police Constable Recruitment 2026", shortName: "UP Police", date: "2026-10-28", verified: false }),
-        bandItem({ examId: "2", name: "SSC CGL Combined Graduate Level Exam", shortName: "SSC CGL", date: "2026-10-30", verified: true }),
+        bandItem({ examId: "2", name: "Bihar Police 12th Pass Recruitment 2026", shortName: "Bihar Police", date: "2026-10-30", verified: false }),
       ],
-      resultsOut: [bandItem({ examId: "3", name: "NEET UG 2026 Result", shortName: "NEET", date: "2026-10-22", verified: false })],
     });
-    writeFileSync(resolve(OUT, "out-homebands.html"), doc(`<div class="container mx-auto px-4 py-4">${renderStrip(strip)}</div>`));
+    const mixed = bands({
+      closingSoon: [
+        bandItem({ examId: "3", name: "SSC CGL Combined Graduate Level Exam", shortName: "SSC CGL", date: "2026-10-30", verified: true }),
+        bandItem({ examId: "4", name: "NEET UG 2026 Application Form", shortName: "NEET", date: "2026-10-28", verified: false }),
+      ],
+    });
+    const allVerified = bands({
+      closingSoon: [
+        bandItem({ examId: "5", name: "IBPS PO Probationary Officer Recruitment", shortName: "IBPS PO", date: "2026-10-29", verified: true }),
+        bandItem({ examId: "6", name: "UPSC Civil Services Examination", shortName: "UPSC CSE", date: "2026-10-31", verified: true }),
+      ],
+    });
+    writeFileSync(resolve(OUT, "out-bands-allunverified.html"), doc(wrap(allUnverified)));
+    writeFileSync(resolve(OUT, "out-bands-mixed.html"), doc(wrap(mixed)));
+    writeFileSync(resolve(OUT, "out-bands-allverified.html"), doc(wrap(allVerified)));
 
     const rows = buildImportantDateRows(
       [
@@ -125,7 +149,9 @@ if (process.env.PARITY_HTML === "1") {
     writeFileSync(resolve(OUT, "out-sidebar.html"), doc(
       `<div class="container mx-auto px-4 py-6"><div class="grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-6"><div class="min-w-0"></div><aside class="flex flex-col gap-5"><div class="bg-white border rounded-lg shadow-sm overflow-hidden"><div class="px-3 py-2.5 border-b"><h2 class="font-bold text-sm">Important dates</h2></div><div>${sidebarRows}</div></div></aside></div></div>`,
     ));
-    expect(existsSync(resolve(OUT, "out-homebands.html"))).toBe(true);
+    expect(existsSync(resolve(OUT, "out-bands-allunverified.html"))).toBe(true);
+    expect(existsSync(resolve(OUT, "out-bands-mixed.html"))).toBe(true);
+    expect(existsSync(resolve(OUT, "out-bands-allverified.html"))).toBe(true);
     expect(existsSync(resolve(OUT, "out-sidebar.html"))).toBe(true);
   });
 }

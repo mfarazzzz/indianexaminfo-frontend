@@ -7,7 +7,7 @@ import { fileURLToPath } from "node:url";
 import { dirname, resolve } from "node:path";
 
 const dir = dirname(fileURLToPath(import.meta.url));
-const cases = ["homebands", "sidebar"];
+const cases = ["bands-allunverified", "bands-mixed", "bands-allverified", "sidebar"];
 const widths = [["360", 360, 740], ["1366", 1366, 900]];
 
 const browser = await chromium.launch();

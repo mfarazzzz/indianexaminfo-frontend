@@ -16,7 +16,7 @@
 import Link from "next/link";
 import type { DeadlineBands, DeadlineBandItem } from "@/services/examService";
 import { formatDate, getExamEntityHref, daysUntil, cn } from "@/lib/utils";
-import { UNVERIFIED_MARKER } from "@/lib/exam/unverifiedMarker";
+import { UNVERIFIED_MARKER, BAND_UNVERIFIED_CAPTION } from "@/lib/exam/unverifiedMarker";
 
 type Props = { bands: DeadlineBands };
 
@@ -62,7 +62,7 @@ const BANDS: BandDef[] = [
   },
 ];
 
-function Row({ item, dateLabel }: { item: DeadlineBandItem; dateLabel: string }) {
+function Row({ item, dateLabel, showMarker }: { item: DeadlineBandItem; dateLabel: string; showMarker: boolean }) {
   const href = getExamEntityHref({ pillar: item.pillar, category: item.category, slug: item.slug });
   return (
     <li>
@@ -77,11 +77,12 @@ function Row({ item, dateLabel }: { item: DeadlineBandItem; dateLabel: string })
         <span className="block text-[13px] font-semibold text-gray-800 group-hover:text-primary leading-snug break-words">
           {item.name}
         </span>
-        {/* Reader-trust (owner, 23 Oct): an exam the editors have not verified (all-three
-            predicate) carries a muted nudge to check the official notice. Verified rows
-            show nothing. */}
-        {!item.verified && (
-          <span className="mt-0.5 block text-[11px] font-medium text-gray-400 break-words" title={UNVERIFIED_MARKER}>
+        {/* Reader-trust (owner, 23–24 Oct): a per-row marker on an unverified row, but only
+            in a MIXED band — when EVERY row of the band is unverified the band shows one
+            caption instead (showMarker=false). Verified rows never show it. text-gray-500 on
+            white = 4.84:1 (>= 4.5:1). */}
+        {showMarker && !item.verified && (
+          <span className="mt-0.5 block text-[11px] font-medium text-gray-500 break-words" title={UNVERIFIED_MARKER}>
             {UNVERIFIED_MARKER}
           </span>
         )}
@@ -132,6 +133,9 @@ export function DeadlineStrip({ bands }: Props) {
     : `${n} days left`;
   // Left-border tint reuses the band's existing colour (closing = red, exams = orange, …).
   const leadBorder = lead?.band.border ?? "border-border";
+  // The mobile lead belongs to a band: if that band is entirely unverified it shows the
+  // ONE caption (not a per-row marker), matching the desktop card rule.
+  const leadAllUnverified = lead ? bands[lead.band.key].every((i) => !i.verified) : false;
 
   // Item (c): the cards must FILL the available width — never leave a big empty area to
   // the right. The desktop column count equals the number of visible bands (1–4), so each
@@ -148,6 +152,10 @@ export function DeadlineStrip({ bands }: Props) {
     <div className={cn("grid grid-cols-1", smColCls, colCls, "gap-2 sm:gap-3")}>
       {visible.map((band) => {
         const items = bands[band.key];
+        // Owner polish (24 Oct): if EVERY row of this band is unverified, say it ONCE as a
+        // caption under the title and drop the per-row markers. A mixed band keeps per-row
+        // markers on its unverified rows; an all-verified band shows neither.
+        const allUnverified = items.length > 0 && items.every((i) => !i.verified);
         return (
           <div
             key={band.key}
@@ -157,10 +165,15 @@ export function DeadlineStrip({ bands }: Props) {
               <h3 className={cn("text-[13px] font-bold leading-tight", band.title_c)}>
                 {band.title}
               </h3>
+              {allUnverified && (
+                <p className="mt-1 text-[11px] font-medium text-gray-500 break-words" title={BAND_UNVERIFIED_CAPTION}>
+                  {BAND_UNVERIFIED_CAPTION}
+                </p>
+              )}
             </div>
             <ul className="divide-y divide-black/5">
               {items.map((item) => (
-                <Row key={`${band.key}-${item.examId}`} item={item} dateLabel={band.dateLabel} />
+                <Row key={`${band.key}-${item.examId}`} item={item} dateLabel={band.dateLabel} showMarker={!allUnverified} />
               ))}
             </ul>
           </div>
@@ -190,11 +203,15 @@ export function DeadlineStrip({ bands }: Props) {
                 <span className="block text-sm font-semibold text-gray-900 leading-snug mt-0.5 break-words">
                   {lead.item.name}
                 </span>
-                {!lead.item.verified && (
-                  <span className="block text-[11px] font-medium text-gray-400 mt-0.5 break-words" title={UNVERIFIED_MARKER}>
+                {leadAllUnverified ? (
+                  <span className="block text-[11px] font-medium text-gray-500 mt-0.5 break-words" title={BAND_UNVERIFIED_CAPTION}>
+                    {BAND_UNVERIFIED_CAPTION}
+                  </span>
+                ) : !lead.item.verified ? (
+                  <span className="block text-[11px] font-medium text-gray-500 mt-0.5 break-words" title={UNVERIFIED_MARKER}>
                     {UNVERIFIED_MARKER}
                   </span>
-                )}
+                ) : null}
                 <span className="block text-[12px] text-gray-500">
                   {lead.band.dateLabel} {formatDate(lead.item.date)} · <span className="font-medium text-gray-700">{daysPhrase(lead.days)}</span>
                 </span>
