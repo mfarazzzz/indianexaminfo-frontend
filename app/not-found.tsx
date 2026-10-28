@@ -4,7 +4,7 @@ import { pillarToUrlSegment } from "@/lib/exam/pillarUrl";
 import { filterHubLinks } from "@/lib/hubs/contentHubs";
 
 export const metadata: Metadata = {
-  title: "Page Not Found — IndianExamInfo",
+  title: "Page Not Found",   // K2: the layout template adds "| IndianExamInfo"
   robots: { index: false },
 };
 

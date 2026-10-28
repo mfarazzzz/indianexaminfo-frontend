@@ -6,6 +6,23 @@ import type { BuildMetadataProps } from "@/types/seo";
 
 const DEFAULT_OG_IMAGE = `${siteConfig.url}/api/og?title=${encodeURIComponent("IndianExamInfo — India's Most Trusted Exam Portal")}&type=default`;
 
+/**
+ * K2 — the layout's `title.template` ("%s | IndianExamInfo") is the ONLY place the brand
+ * suffix is added, so a builder that was handed a title which already ends in it produced
+ * "<page> | IndianExamInfo | IndianExamInfo" — measured live on an edition page: "UP Board
+ * Class 10 (High School) 2026 — Cycle Details | IndianExamInfo | IndianExamInfo".
+ * Two sources made that possible: a hard-coded suffix in lib/exam/editionDispatch.tsx and
+ * any CMS-authored `seo_title` that arrives with the brand already appended (line 93 below
+ * passes seo_title straight through). Rather than trust every caller, the suffix is removed
+ * here once, and re-appended only by the template. A brand inside the sentence ("…
+ * IndianExamInfo says…") is untouched: only a trailing delimiter + brand is stripped.
+ */
+const TRAILING_BRAND = /\s*[|\-–—:]\s*IndianExamInfo\s*$/i;
+export function stripBrandSuffix(title: string): string {
+  const out = title.replace(TRAILING_BRAND, "").trimEnd();
+  return out === "" ? title.trim() : out;   // never blank a title down to nothing
+}
+
 export function buildExamMetadata({
   pageType,
   title,
@@ -21,7 +38,8 @@ export function buildExamMetadata({
   noIndex = false,
   slug,
 }: BuildMetadataProps): Metadata {
-  const metaTitle = title ?? siteConfig.name;
+  // K2: the brand suffix belongs to the layout template, not to the caller.
+  const metaTitle = stripBrandSuffix(title ?? siteConfig.name);
   const metaDesc = description ?? siteConfig.description;
   const isArticle = pageType === "blog-post" || pageType === "content-type";
 

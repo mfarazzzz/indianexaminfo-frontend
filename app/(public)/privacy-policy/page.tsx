@@ -12,7 +12,7 @@ export async function generateMetadata(): Promise<Metadata> {
   const page = await getPageBySlug("privacy-policy");
   return buildExamMetadata({
     pageType: "static",
-    title: page?.metaTitle ?? "Privacy Policy — IndianExamInfo",
+    title: page?.metaTitle ?? "Privacy Policy",   // K2: the template adds the brand suffix
     description: page?.metaDescription ?? "IndianExamInfo privacy policy. How we collect, use and protect your data when you use our exam information portal.",
     keywords: ["privacy policy indianexaminfo", "data protection", ...GLOBAL_SHORT_TAIL.slice(0, 3)],
     canonicalUrl: `${siteConfig.url}/privacy-policy`,

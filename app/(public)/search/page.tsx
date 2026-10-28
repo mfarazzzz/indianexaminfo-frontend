@@ -15,7 +15,7 @@ import { Search, Briefcase, GraduationCap, Newspaper, FileText } from "lucide-re
 
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = {
-  title: "Search — IndianExamInfo",
+  title: "Search",   // K2: the layout template adds the brand suffix (page is noindex anyway)
   description: "Search government jobs, entrance exams, board results, admit cards, news and resources.",
   robots: { index: false, follow: false },
 };

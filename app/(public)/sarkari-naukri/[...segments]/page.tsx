@@ -63,7 +63,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     if (item) {
       return buildExamMetadata({
         pageType: "exam-entity",
-        title: item.seoTitle ?? `${item.title} — IndianExamInfo`,
+        title: item.seoTitle ?? item.title,   // K2: the template adds the brand suffix
         description: item.seoDescription ?? `${item.title}. ${item.organization}. Check status, dates, eligibility and apply online.`,
         canonicalUrl: `${siteConfig.url}/sarkari-naukri/${slug}`,
       });

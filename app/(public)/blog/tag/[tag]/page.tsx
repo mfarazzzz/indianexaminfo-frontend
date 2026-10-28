@@ -20,7 +20,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   return buildExamMetadata({
     pageType: "static",
-    title: `#${tag} — Articles & Guides | IndianExamInfo`,
+    title: `#${tag} — Articles & Guides`,   // K2: the template adds the brand suffix
     description: `All articles tagged with ${tag} on IndianExamInfo. Expert guides, news and preparation tips.`,
     keywords: [tag, `${tag} exam`, `${tag} preparation`, ...GLOBAL_SHORT_TAIL.slice(0, 3)],
     canonicalUrl: `${siteConfig.url}/blog/tag/${tag}`,

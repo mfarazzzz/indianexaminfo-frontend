@@ -87,7 +87,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!meta) return {};
   return buildExamMetadata({
     pageType: "blog-section",
-    title: `${meta.label} — News & Blog | IndianExamInfo`,
+    title: `${meta.label} — News & Blog`,   // K2: the template adds the brand suffix
     description: meta.description,
     keywords: [meta.label.toLowerCase(), "news", "education", ...GLOBAL_SHORT_TAIL.slice(0, 4)],
     canonicalUrl: `${siteConfig.url}/news/${section}`,

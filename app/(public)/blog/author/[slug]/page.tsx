@@ -28,7 +28,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!author) return {};
   return buildExamMetadata({
     pageType: "static",
-    title: `${author.name} — ${author.designation} | IndianExamInfo`,
+    // K2: no brand suffix here — app/layout.tsx's title.template appends it exactly once.
+    title: `${author.name} — ${author.designation}`,
     description: `Articles by ${author.name}, ${author.designation}. ${author.bio.slice(0, 120)}`,
     keywords: [...author.specialization.map(s => s.toLowerCase()), ...GLOBAL_SHORT_TAIL.slice(0, 4)],
     canonicalUrl: `${siteConfig.url}/blog/author/${slug}`,

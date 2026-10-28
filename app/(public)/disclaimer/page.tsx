@@ -12,7 +12,7 @@ export async function generateMetadata(): Promise<Metadata> {
   const page = await getPageBySlug("disclaimer");
   return buildExamMetadata({
     pageType: "static",
-    title: page?.metaTitle ?? "Disclaimer — IndianExamInfo",
+    title: page?.metaTitle ?? "Disclaimer",   // K2: the template adds the brand suffix
     description: page?.metaDescription ?? "IndianExamInfo disclaimer. We are not affiliated with any government body. Information is for guidance only — always verify from official sources.",
     keywords: ["indianexaminfo disclaimer", "not affiliated government", ...GLOBAL_SHORT_TAIL.slice(0, 3)],
     canonicalUrl: `${siteConfig.url}/disclaimer`,

@@ -97,7 +97,9 @@ export async function buildEditionMetadata(
 
   return buildExamMetadata({
     pageType: "exam-entity",
-    title: `${resolved.exam.name} ${year} — Cycle Details | IndianExamInfo`,
+    // K2: no brand suffix here — the layout's "%s | IndianExamInfo" template adds it, and
+    // writing it in both places produced "… | IndianExamInfo | IndianExamInfo".
+    title: `${resolved.exam.name} ${year} — Cycle Details`,
     description: `${resolved.exam.name} ${year} cycle: dates, vacancy, result and cutoff for that edition. For the current cycle see the main ${resolved.exam.shortName} page.`,
     canonicalUrl: absoluteBasePath, // canonical → MAIN page, never self
     noIndex: true, // non-current edition pages are supporting detail, not indexable
