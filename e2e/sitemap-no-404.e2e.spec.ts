@@ -50,12 +50,35 @@ test("every sitemap URL resolves (no 404, no 5xx)", async ({ request }) => {
     for (const r of res) if (r.status >= 400 || r.status < 0) failures.push(r);
   }
 
+  // A -1 here has meant a cold ISR render exceeding 30 s on a page that answers 200 in well
+  // under a second when warm (measured: /board-exam/state/up-board/up-board-class-10/2026).
+  // The assertion is about what the ROUTER answers, so anything that did not answer at all
+  // gets ONE serial retry with a generous timeout before it is counted.
+  const retried: { url: string; status: number }[] = [];
+  for (const f of failures.filter((f) => f.status < 0)) {
+    try {
+      const r = await request.get(f.url, { maxRedirects: 5, timeout: 120_000 });
+      retried.push({ url: f.url, status: r.status() });
+    } catch {
+      retried.push({ url: f.url, status: -1 });
+    }
+  }
+
+  const answered = [...failures.filter((f) => f.status >= 0), ...retried.filter((r) => r.status >= 0)];
+  const stillUnanswered = retried.filter((r) => r.status < 0);
+
   // Documented, owner-approved exceptions (comma-separated pathnames) — empty by default.
   const allow = new Set((process.env.SITEMAP_404_ALLOWLIST || "").split(",").map((s) => s.trim()).filter(Boolean));
-  const unexpected = failures.filter((f) => !allow.has(new URL(f.url).pathname));
+  const unexpected = answered.filter((f) => !allow.has(new URL(f.url).pathname));
 
   expect(
     unexpected,
-    `${unexpected.length} sitemap URL(s) the router 404s:\n${unexpected.map((f) => `  ${f.status}  ${f.url}`).join("\n")}`,
+    `${unexpected.length} sitemap URL(s) the router answered with 4xx/5xx:\n${unexpected.map((f) => `  ${f.status}  ${f.url}`).join("\n")}`,
+  ).toEqual([]);
+
+  // A page that never answers within 120 s is reported, not silently passed.
+  expect(
+    stillUnanswered,
+    `${stillUnanswered.length} sitemap URL(s) never answered (transport error or >120 s render):\n${stillUnanswered.map((f) => f.url).join("\n")}`,
   ).toEqual([]);
 });

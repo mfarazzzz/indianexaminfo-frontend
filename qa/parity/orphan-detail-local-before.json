@@ -1,0 +1,1426 @@
+[
+  {
+    "url": "/sarkari-naukri/upsc/upsc-nda",
+    "verdict": "LINKED-FROM-A-HUB",
+    "hubStatus": "200",
+    "ownHub": "/sarkari-naukri/upsc",
+    "ownHubStatus": "200",
+    "hubs": "/sarkari-naukri/upsc /sarkari-naukri/bharti /sarkari-naukri/exam /sarkari-naukri"
+  },
+  {
+    "url": "/sarkari-naukri/ssc/ssc-chsl",
+    "verdict": "LINKED-FROM-A-HUB",
+    "hubStatus": "200",
+    "ownHub": "/sarkari-naukri/ssc",
+    "ownHubStatus": "200",
+    "hubs": "/sarkari-naukri/ssc /sarkari-naukri/bharti /sarkari-naukri/exam /sarkari-naukri"
+  },
+  {
+    "url": "/sarkari-naukri/upsc/upsc-cse",
+    "verdict": "LINKED-FROM-A-HUB",
+    "hubStatus": "200",
+    "ownHub": "/sarkari-naukri/upsc",
+    "ownHubStatus": "200",
+    "hubs": "/sarkari-naukri/upsc /sarkari-naukri/bharti /sarkari-naukri/exam /sarkari-naukri"
+  },
+  {
+    "url": "/sarkari-naukri/ssc/ssc-mts",
+    "verdict": "LINKED-FROM-A-HUB",
+    "hubStatus": "200",
+    "ownHub": "/sarkari-naukri/ssc",
+    "ownHubStatus": "200",
+    "hubs": "/sarkari-naukri/ssc /sarkari-naukri/bharti /sarkari-naukri/exam /sarkari-naukri"
+  },
+  {
+    "url": "/sarkari-naukri/upsc/upsc-cds",
+    "verdict": "LINKED-FROM-A-HUB",
+    "hubStatus": "200",
+    "ownHub": "/sarkari-naukri/upsc",
+    "ownHubStatus": "200",
+    "hubs": "/sarkari-naukri/upsc /sarkari-naukri/bharti /sarkari-naukri/exam /sarkari-naukri"
+  },
+  {
+    "url": "/sarkari-naukri/ssc/ssc-selection-post",
+    "verdict": "LINKED-FROM-A-HUB",
+    "hubStatus": "200",
+    "ownHub": "/sarkari-naukri/ssc",
+    "ownHubStatus": "200",
+    "hubs": "/sarkari-naukri/ssc /sarkari-naukri/bharti /sarkari-naukri/exam /sarkari-naukri"
+  },
+  {
+    "url": "/sarkari-naukri/upsc/upsc-ese",
+    "verdict": "LINKED-FROM-A-HUB",
+    "hubStatus": "200",
+    "ownHub": "/sarkari-naukri/upsc",
+    "ownHubStatus": "200",
+    "hubs": "/sarkari-naukri/upsc /sarkari-naukri/bharti /sarkari-naukri/exam /sarkari-naukri"
+  },
+  {
+    "url": "/sarkari-naukri/upsc/upsc-cms",
+    "verdict": "LINKED-FROM-A-HUB",
+    "hubStatus": "200",
+    "ownHub": "/sarkari-naukri/upsc",
+    "ownHubStatus": "200",
+    "hubs": "/sarkari-naukri/upsc /sarkari-naukri/bharti /sarkari-naukri/exam /sarkari-naukri"
+  },
+  {
+    "url": "/sarkari-naukri/ssc/ssc-si-capf",
+    "verdict": "LINKED-FROM-A-HUB",
+    "hubStatus": "200",
+    "ownHub": "/sarkari-naukri/ssc",
+    "ownHubStatus": "200",
+    "hubs": "/sarkari-naukri/ssc /sarkari-naukri/bharti /sarkari-naukri/exam /sarkari-naukri"
+  },
+  {
+    "url": "/sarkari-naukri/lic-ado-2026-prelims-result",
+    "verdict": "NOT-LINKED-BY-ANY-HUB",
+    "hubStatus": "200",
+    "ownHub": "/sarkari-naukri/bharti",
+    "ownHubStatus": "200",
+    "hubs": "/sarkari-naukri/bharti /sarkari-naukri/exam /sarkari-naukri"
+  },
+  {
+    "url": "/sarkari-naukri/rbi-assistant-2026-prelims-result",
+    "verdict": "NOT-LINKED-BY-ANY-HUB",
+    "hubStatus": "200",
+    "ownHub": "/sarkari-naukri/bharti",
+    "ownHubStatus": "200",
+    "hubs": "/sarkari-naukri/bharti /sarkari-naukri/exam /sarkari-naukri"
+  },
+  {
+    "url": "/sarkari-naukri/nabard-grade-a-2026-prelims-result",
+    "verdict": "NOT-LINKED-BY-ANY-HUB",
+    "hubStatus": "200",
+    "ownHub": "/sarkari-naukri/bharti",
+    "ownHubStatus": "200",
+    "hubs": "/sarkari-naukri/bharti /sarkari-naukri/exam /sarkari-naukri"
+  },
+  {
+    "url": "/sarkari-naukri/drdo-ceptam-2026-result",
+    "verdict": "NOT-LINKED-BY-ANY-HUB",
+    "hubStatus": "200",
+    "ownHub": "/sarkari-naukri/bharti",
+    "ownHubStatus": "200",
+    "hubs": "/sarkari-naukri/bharti /sarkari-naukri/exam /sarkari-naukri"
+  },
+  {
+    "url": "/sarkari-naukri/csir-net-june-2026-result",
+    "verdict": "NOT-LINKED-BY-ANY-HUB",
+    "hubStatus": "200",
+    "ownHub": "/sarkari-naukri/bharti",
+    "ownHubStatus": "200",
+    "hubs": "/sarkari-naukri/bharti /sarkari-naukri/exam /sarkari-naukri"
+  },
+  {
+    "url": "/sarkari-naukri/sail-mt-2026-result",
+    "verdict": "NOT-LINKED-BY-ANY-HUB",
+    "hubStatus": "200",
+    "ownHub": "/sarkari-naukri/bharti",
+    "ownHubStatus": "200",
+    "hubs": "/sarkari-naukri/bharti /sarkari-naukri/exam /sarkari-naukri"
+  },
+  {
+    "url": "/sarkari-naukri/up-block-development-office-clerk-2026",
+    "verdict": "NOT-LINKED-BY-ANY-HUB",
+    "hubStatus": "200",
+    "ownHub": "/sarkari-naukri/bharti",
+    "ownHubStatus": "200",
+    "hubs": "/sarkari-naukri/bharti /sarkari-naukri/exam /sarkari-naukri"
+  },
+  {
+    "url": "/sarkari-naukri/mp-police-constable-driver-2026",
+    "verdict": "NOT-LINKED-BY-ANY-HUB",
+    "hubStatus": "200",
+    "ownHub": "/sarkari-naukri/bharti",
+    "ownHubStatus": "200",
+    "hubs": "/sarkari-naukri/bharti /sarkari-naukri/exam /sarkari-naukri"
+  },
+  {
+    "url": "/sarkari-naukri/ctet-july-2026-result",
+    "verdict": "NOT-LINKED-BY-ANY-HUB",
+    "hubStatus": "200",
+    "ownHub": "/sarkari-naukri/bharti",
+    "ownHubStatus": "200",
+    "hubs": "/sarkari-naukri/bharti /sarkari-naukri/exam /sarkari-naukri"
+  },
+  {
+    "url": "/sarkari-naukri/up-sichai-vibhag-tubewell-operator-2026",
+    "verdict": "NOT-LINKED-BY-ANY-HUB",
+    "hubStatus": "200",
+    "ownHub": "/sarkari-naukri/bharti",
+    "ownHubStatus": "200",
+    "hubs": "/sarkari-naukri/bharti /sarkari-naukri/exam /sarkari-naukri"
+  },
+  {
+    "url": "/sarkari-naukri/hpcl-engineer-2026-result",
+    "verdict": "NOT-LINKED-BY-ANY-HUB",
+    "hubStatus": "200",
+    "ownHub": "/sarkari-naukri/bharti",
+    "ownHubStatus": "200",
+    "hubs": "/sarkari-naukri/bharti /sarkari-naukri/exam /sarkari-naukri"
+  },
+  {
+    "url": "/sarkari-naukri/rajasthan-gds-bharti-2026-jodhpur-division",
+    "verdict": "NOT-LINKED-BY-ANY-HUB",
+    "hubStatus": "200",
+    "ownHub": "/sarkari-naukri/bharti",
+    "ownHubStatus": "200",
+    "hubs": "/sarkari-naukri/bharti /sarkari-naukri/exam /sarkari-naukri"
+  },
+  {
+    "url": "/sarkari-naukri/rajasthan-medical-college-group-d-2026",
+    "verdict": "NOT-LINKED-BY-ANY-HUB",
+    "hubStatus": "200",
+    "ownHub": "/sarkari-naukri/bharti",
+    "ownHubStatus": "200",
+    "hubs": "/sarkari-naukri/bharti /sarkari-naukri/exam /sarkari-naukri"
+  },
+  {
+    "url": "/sarkari-naukri/up-health-dept-ward-boy-2026-all-districts",
+    "verdict": "NOT-LINKED-BY-ANY-HUB",
+    "hubStatus": "200",
+    "ownHub": "/sarkari-naukri/bharti",
+    "ownHubStatus": "200",
+    "hubs": "/sarkari-naukri/bharti /sarkari-naukri/exam /sarkari-naukri"
+  },
+  {
+    "url": "/sarkari-naukri/up-basic-shiksha-parishad-peon-2026",
+    "verdict": "NOT-LINKED-BY-ANY-HUB",
+    "hubStatus": "200",
+    "ownHub": "/sarkari-naukri/bharti",
+    "ownHubStatus": "200",
+    "hubs": "/sarkari-naukri/bharti /sarkari-naukri/exam /sarkari-naukri"
+  },
+  {
+    "url": "/sarkari-naukri/up-anganwadi-bharti-2026-faizabad-ayodhya-division",
+    "verdict": "NOT-LINKED-BY-ANY-HUB",
+    "hubStatus": "200",
+    "ownHub": "/sarkari-naukri/bharti",
+    "ownHubStatus": "200",
+    "hubs": "/sarkari-naukri/bharti /sarkari-naukri/exam /sarkari-naukri"
+  },
+  {
+    "url": "/sarkari-naukri/jharkhand-forest-guard-2026",
+    "verdict": "NOT-LINKED-BY-ANY-HUB",
+    "hubStatus": "200",
+    "ownHub": "/sarkari-naukri/bharti",
+    "ownHubStatus": "200",
+    "hubs": "/sarkari-naukri/bharti /sarkari-naukri/exam /sarkari-naukri"
+  },
+  {
+    "url": "/sarkari-naukri/rajasthan-patwari-bharti-2026-jaipur-division",
+    "verdict": "NOT-LINKED-BY-ANY-HUB",
+    "hubStatus": "200",
+    "ownHub": "/sarkari-naukri/bharti",
+    "ownHubStatus": "200",
+    "hubs": "/sarkari-naukri/bharti /sarkari-naukri/exam /sarkari-naukri"
+  },
+  {
+    "url": "/sarkari-naukri/haryana-patwari-bharti-2026",
+    "verdict": "NOT-LINKED-BY-ANY-HUB",
+    "hubStatus": "200",
+    "ownHub": "/sarkari-naukri/bharti",
+    "ownHubStatus": "200",
+    "hubs": "/sarkari-naukri/bharti /sarkari-naukri/exam /sarkari-naukri"
+  },
+  {
+    "url": "/sarkari-naukri/rajasthan-mgnrega-mate-bharti-2026",
+    "verdict": "NOT-LINKED-BY-ANY-HUB",
+    "hubStatus": "200",
+    "ownHub": "/sarkari-naukri/bharti",
+    "ownHubStatus": "200",
+    "hubs": "/sarkari-naukri/bharti /sarkari-naukri/exam /sarkari-naukri"
+  },
+  {
+    "url": "/sarkari-naukri/rajasthan-forest-guard-vanrakshak-2026",
+    "verdict": "NOT-LINKED-BY-ANY-HUB",
+    "hubStatus": "200",
+    "ownHub": "/sarkari-naukri/bharti",
+    "ownHubStatus": "200",
+    "hubs": "/sarkari-naukri/bharti /sarkari-naukri/exam /sarkari-naukri"
+  },
+  {
+    "url": "/sarkari-naukri/esic-nursing-officer-2026-result",
+    "verdict": "NOT-LINKED-BY-ANY-HUB",
+    "hubStatus": "200",
+    "ownHub": "/sarkari-naukri/bharti",
+    "ownHubStatus": "200",
+    "hubs": "/sarkari-naukri/bharti /sarkari-naukri/exam /sarkari-naukri"
+  },
+  {
+    "url": "/sarkari-naukri/up-primary-school-sahayak-clerk-2026",
+    "verdict": "NOT-LINKED-BY-ANY-HUB",
+    "hubStatus": "200",
+    "ownHub": "/sarkari-naukri/bharti",
+    "ownHubStatus": "200",
+    "hubs": "/sarkari-naukri/bharti /sarkari-naukri/exam /sarkari-naukri"
+  },
+  {
+    "url": "/sarkari-naukri/up-gram-panchayat-vikas-adhikari-2026-azamgarh",
+    "verdict": "NOT-LINKED-BY-ANY-HUB",
+    "hubStatus": "200",
+    "ownHub": "/sarkari-naukri/bharti",
+    "ownHubStatus": "200",
+    "hubs": "/sarkari-naukri/bharti /sarkari-naukri/exam /sarkari-naukri"
+  },
+  {
+    "url": "/sarkari-naukri/up-anganwadi-worker-helper-bharti-2026-lucknow",
+    "verdict": "NOT-LINKED-BY-ANY-HUB",
+    "hubStatus": "200",
+    "ownHub": "/sarkari-naukri/bharti",
+    "ownHubStatus": "200",
+    "hubs": "/sarkari-naukri/bharti /sarkari-naukri/exam /sarkari-naukri"
+  },
+  {
+    "url": "/sarkari-naukri/up-anganwadi-bharti-2026-agra-division",
+    "verdict": "NOT-LINKED-BY-ANY-HUB",
+    "hubStatus": "200",
+    "ownHub": "/sarkari-naukri/bharti",
+    "ownHubStatus": "200",
+    "hubs": "/sarkari-naukri/bharti /sarkari-naukri/exam /sarkari-naukri"
+  },
+  {
+    "url": "/sarkari-naukri/up-tehsil-office-peon-clerk-2026",
+    "verdict": "NOT-LINKED-BY-ANY-HUB",
+    "hubStatus": "200",
+    "ownHub": "/sarkari-naukri/bharti",
+    "ownHubStatus": "200",
+    "hubs": "/sarkari-naukri/bharti /sarkari-naukri/exam /sarkari-naukri"
+  },
+  {
+    "url": "/sarkari-naukri/haryana-gram-sachiv-bharti-2026",
+    "verdict": "NOT-LINKED-BY-ANY-HUB",
+    "hubStatus": "200",
+    "ownHub": "/sarkari-naukri/bharti",
+    "ownHubStatus": "200",
+    "hubs": "/sarkari-naukri/bharti /sarkari-naukri/exam /sarkari-naukri"
+  },
+  {
+    "url": "/sarkari-naukri/uttarakhand-forest-guard-2026",
+    "verdict": "NOT-LINKED-BY-ANY-HUB",
+    "hubStatus": "200",
+    "ownHub": "/sarkari-naukri/bharti",
+    "ownHubStatus": "200",
+    "hubs": "/sarkari-naukri/bharti /sarkari-naukri/exam /sarkari-naukri"
+  },
+  {
+    "url": "/sarkari-naukri/bihar-asha-bharti-2026-muzaffarpur",
+    "verdict": "NOT-LINKED-BY-ANY-HUB",
+    "hubStatus": "200",
+    "ownHub": "/sarkari-naukri/bharti",
+    "ownHubStatus": "200",
+    "hubs": "/sarkari-naukri/bharti /sarkari-naukri/exam /sarkari-naukri"
+  },
+  {
+    "url": "/sarkari-naukri/up-zila-panchayat-data-entry-operator-2026",
+    "verdict": "NOT-LINKED-BY-ANY-HUB",
+    "hubStatus": "200",
+    "ownHub": "/sarkari-naukri/bharti",
+    "ownHubStatus": "200",
+    "hubs": "/sarkari-naukri/bharti /sarkari-naukri/exam /sarkari-naukri"
+  },
+  {
+    "url": "/sarkari-naukri/up-gram-panchayat-vikas-adhikari-2026-sultanpur",
+    "verdict": "NOT-LINKED-BY-ANY-HUB",
+    "hubStatus": "200",
+    "ownHub": "/sarkari-naukri/bharti",
+    "ownHubStatus": "200",
+    "hubs": "/sarkari-naukri/bharti /sarkari-naukri/exam /sarkari-naukri"
+  },
+  {
+    "url": "/sarkari-naukri/up-shiksha-mitra-samayojan-2026",
+    "verdict": "NOT-LINKED-BY-ANY-HUB",
+    "hubStatus": "200",
+    "ownHub": "/sarkari-naukri/bharti",
+    "ownHubStatus": "200",
+    "hubs": "/sarkari-naukri/bharti /sarkari-naukri/exam /sarkari-naukri"
+  },
+  {
+    "url": "/sarkari-naukri/up-nagar-nigam-safai-karmi-2026-kanpur",
+    "verdict": "NOT-LINKED-BY-ANY-HUB",
+    "hubStatus": "200",
+    "ownHub": "/sarkari-naukri/bharti",
+    "ownHubStatus": "200",
+    "hubs": "/sarkari-naukri/bharti /sarkari-naukri/exam /sarkari-naukri"
+  },
+  {
+    "url": "/sarkari-naukri/up-govt-school-cook-helper-mdm-2026",
+    "verdict": "NOT-LINKED-BY-ANY-HUB",
+    "hubStatus": "200",
+    "ownHub": "/sarkari-naukri/bharti",
+    "ownHubStatus": "200",
+    "hubs": "/sarkari-naukri/bharti /sarkari-naukri/exam /sarkari-naukri"
+  },
+  {
+    "url": "/sarkari-naukri/up-district-education-office-peon-2026",
+    "verdict": "NOT-LINKED-BY-ANY-HUB",
+    "hubStatus": "200",
+    "ownHub": "/sarkari-naukri/bharti",
+    "ownHubStatus": "200",
+    "hubs": "/sarkari-naukri/bharti /sarkari-naukri/exam /sarkari-naukri"
+  },
+  {
+    "url": "/sarkari-naukri/mp-anganwadi-bharti-2026-gwalior-chambal",
+    "verdict": "NOT-LINKED-BY-ANY-HUB",
+    "hubStatus": "200",
+    "ownHub": "/sarkari-naukri/bharti",
+    "ownHubStatus": "200",
+    "hubs": "/sarkari-naukri/bharti /sarkari-naukri/exam /sarkari-naukri"
+  },
+  {
+    "url": "/sarkari-naukri/maharashtra-gram-sevak-2026-vidarbha",
+    "verdict": "NOT-LINKED-BY-ANY-HUB",
+    "hubStatus": "200",
+    "ownHub": "/sarkari-naukri/bharti",
+    "ownHubStatus": "200",
+    "hubs": "/sarkari-naukri/bharti /sarkari-naukri/exam /sarkari-naukri"
+  },
+  {
+    "url": "/sarkari-naukri/rrb-ntpc-ug-2026-result",
+    "verdict": "NOT-LINKED-BY-ANY-HUB",
+    "hubStatus": "200",
+    "ownHub": "/sarkari-naukri/bharti",
+    "ownHubStatus": "200",
+    "hubs": "/sarkari-naukri/bharti /sarkari-naukri/exam /sarkari-naukri"
+  },
+  {
+    "url": "/sarkari-naukri/bihar-anganwadi-bharti-2026-vaishali",
+    "verdict": "NOT-LINKED-BY-ANY-HUB",
+    "hubStatus": "200",
+    "ownHub": "/sarkari-naukri/bharti",
+    "ownHubStatus": "200",
+    "hubs": "/sarkari-naukri/bharti /sarkari-naukri/exam /sarkari-naukri"
+  },
+  {
+    "url": "/sarkari-naukri/up-gds-bharti-2026-varanasi-circle",
+    "verdict": "NOT-LINKED-BY-ANY-HUB",
+    "hubStatus": "200",
+    "ownHub": "/sarkari-naukri/bharti",
+    "ownHubStatus": "200",
+    "hubs": "/sarkari-naukri/bharti /sarkari-naukri/exam /sarkari-naukri"
+  },
+  {
+    "url": "/sarkari-naukri/madhya-pradesh-forest-guard-field-2026-hoshangabad",
+    "verdict": "NOT-LINKED-BY-ANY-HUB",
+    "hubStatus": "200",
+    "ownHub": "/sarkari-naukri/bharti",
+    "ownHubStatus": "200",
+    "hubs": "/sarkari-naukri/bharti /sarkari-naukri/exam /sarkari-naukri"
+  },
+  {
+    "url": "/sarkari-naukri/up-gramin-dak-sevak-bharti-2026",
+    "verdict": "NOT-LINKED-BY-ANY-HUB",
+    "hubStatus": "200",
+    "ownHub": "/sarkari-naukri/bharti",
+    "ownHubStatus": "200",
+    "hubs": "/sarkari-naukri/bharti /sarkari-naukri/exam /sarkari-naukri"
+  },
+  {
+    "url": "/sarkari-naukri/up-nhm-community-health-officer-2026",
+    "verdict": "NOT-LINKED-BY-ANY-HUB",
+    "hubStatus": "200",
+    "ownHub": "/sarkari-naukri/bharti",
+    "ownHubStatus": "200",
+    "hubs": "/sarkari-naukri/bharti /sarkari-naukri/exam /sarkari-naukri"
+  },
+  {
+    "url": "/sarkari-naukri/rrb-section-controller-2026-result",
+    "verdict": "NOT-LINKED-BY-ANY-HUB",
+    "hubStatus": "200",
+    "ownHub": "/sarkari-naukri/bharti",
+    "ownHubStatus": "200",
+    "hubs": "/sarkari-naukri/bharti /sarkari-naukri/exam /sarkari-naukri"
+  },
+  {
+    "url": "/sarkari-naukri/bihar-anganwadi-bharti-2026-bhagalpur",
+    "verdict": "NOT-LINKED-BY-ANY-HUB",
+    "hubStatus": "200",
+    "ownHub": "/sarkari-naukri/bharti",
+    "ownHubStatus": "200",
+    "hubs": "/sarkari-naukri/bharti /sarkari-naukri/exam /sarkari-naukri"
+  },
+  {
+    "url": "/sarkari-naukri/up-gramin-dak-sevak-2026-agra-division",
+    "verdict": "NOT-LINKED-BY-ANY-HUB",
+    "hubStatus": "200",
+    "ownHub": "/sarkari-naukri/bharti",
+    "ownHubStatus": "200",
+    "hubs": "/sarkari-naukri/bharti /sarkari-naukri/exam /sarkari-naukri"
+  },
+  {
+    "url": "/sarkari-naukri/up-asha-bharti-2026-agra-division",
+    "verdict": "NOT-LINKED-BY-ANY-HUB",
+    "hubStatus": "200",
+    "ownHub": "/sarkari-naukri/bharti",
+    "ownHubStatus": "200",
+    "hubs": "/sarkari-naukri/bharti /sarkari-naukri/exam /sarkari-naukri"
+  },
+  {
+    "url": "/sarkari-naukri/up-bal-vikas-supervisor-2026",
+    "verdict": "NOT-LINKED-BY-ANY-HUB",
+    "hubStatus": "200",
+    "ownHub": "/sarkari-naukri/bharti",
+    "ownHubStatus": "200",
+    "hubs": "/sarkari-naukri/bharti /sarkari-naukri/exam /sarkari-naukri"
+  },
+  {
+    "url": "/sarkari-naukri/up-asha-worker-bharti-2026-varanasi",
+    "verdict": "NOT-LINKED-BY-ANY-HUB",
+    "hubStatus": "200",
+    "ownHub": "/sarkari-naukri/bharti",
+    "ownHubStatus": "200",
+    "hubs": "/sarkari-naukri/bharti /sarkari-naukri/exam /sarkari-naukri"
+  },
+  {
+    "url": "/sarkari-naukri/up-anganwadi-bharti-2026-meerut-division",
+    "verdict": "NOT-LINKED-BY-ANY-HUB",
+    "hubStatus": "200",
+    "ownHub": "/sarkari-naukri/bharti",
+    "ownHubStatus": "200",
+    "hubs": "/sarkari-naukri/bharti /sarkari-naukri/exam /sarkari-naukri"
+  },
+  {
+    "url": "/sarkari-naukri/mp-nagar-palika-various-post-2026-bhopal",
+    "verdict": "NOT-LINKED-BY-ANY-HUB",
+    "hubStatus": "200",
+    "ownHub": "/sarkari-naukri/bharti",
+    "ownHubStatus": "200",
+    "hubs": "/sarkari-naukri/bharti /sarkari-naukri/exam /sarkari-naukri"
+  },
+  {
+    "url": "/sarkari-naukri/up-anganwadi-bharti-2026-kanpur-division",
+    "verdict": "NOT-LINKED-BY-ANY-HUB",
+    "hubStatus": "200",
+    "ownHub": "/sarkari-naukri/bharti",
+    "ownHubStatus": "200",
+    "hubs": "/sarkari-naukri/bharti /sarkari-naukri/exam /sarkari-naukri"
+  },
+  {
+    "url": "/sarkari-naukri/up-district-court-peon-2026-kanpur",
+    "verdict": "NOT-LINKED-BY-ANY-HUB",
+    "hubStatus": "200",
+    "ownHub": "/sarkari-naukri/bharti",
+    "ownHubStatus": "200",
+    "hubs": "/sarkari-naukri/bharti /sarkari-naukri/exam /sarkari-naukri"
+  },
+  {
+    "url": "/sarkari-naukri/ssc-selection-post-xiv-result",
+    "verdict": "NOT-LINKED-BY-ANY-HUB",
+    "hubStatus": "200",
+    "ownHub": "/sarkari-naukri/bharti",
+    "ownHubStatus": "200",
+    "hubs": "/sarkari-naukri/bharti /sarkari-naukri/exam /sarkari-naukri"
+  },
+  {
+    "url": "/sarkari-naukri/up-gram-panchayat-sahayak-bharti-2026",
+    "verdict": "NOT-LINKED-BY-ANY-HUB",
+    "hubStatus": "200",
+    "ownHub": "/sarkari-naukri/bharti",
+    "ownHubStatus": "200",
+    "hubs": "/sarkari-naukri/bharti /sarkari-naukri/exam /sarkari-naukri"
+  },
+  {
+    "url": "/sarkari-naukri/mp-asha-worker-bharti-2026-jabalpur",
+    "verdict": "NOT-LINKED-BY-ANY-HUB",
+    "hubStatus": "200",
+    "ownHub": "/sarkari-naukri/bharti",
+    "ownHubStatus": "200",
+    "hubs": "/sarkari-naukri/bharti /sarkari-naukri/exam /sarkari-naukri"
+  },
+  {
+    "url": "/sarkari-naukri/up-district-hospital-ward-boy-2026-gorakhpur",
+    "verdict": "NOT-LINKED-BY-ANY-HUB",
+    "hubStatus": "200",
+    "ownHub": "/sarkari-naukri/bharti",
+    "ownHubStatus": "200",
+    "hubs": "/sarkari-naukri/bharti /sarkari-naukri/exam /sarkari-naukri"
+  },
+  {
+    "url": "/sarkari-naukri/ssc-steno-2026-result",
+    "verdict": "NOT-LINKED-BY-ANY-HUB",
+    "hubStatus": "200",
+    "ownHub": "/sarkari-naukri/bharti",
+    "ownHubStatus": "200",
+    "hubs": "/sarkari-naukri/bharti /sarkari-naukri/exam /sarkari-naukri"
+  },
+  {
+    "url": "/sarkari-naukri/bihar-asha-bharti-2026-darbhanga",
+    "verdict": "NOT-LINKED-BY-ANY-HUB",
+    "hubStatus": "200",
+    "ownHub": "/sarkari-naukri/bharti",
+    "ownHubStatus": "200",
+    "hubs": "/sarkari-naukri/bharti /sarkari-naukri/exam /sarkari-naukri"
+  },
+  {
+    "url": "/sarkari-naukri/ibps-so-2026-prelims-result",
+    "verdict": "NOT-LINKED-BY-ANY-HUB",
+    "hubStatus": "200",
+    "ownHub": "/sarkari-naukri/bharti",
+    "ownHubStatus": "200",
+    "hubs": "/sarkari-naukri/bharti /sarkari-naukri/exam /sarkari-naukri"
+  },
+  {
+    "url": "/sarkari-naukri/mp-nagar-nigam-indore-safai-karmi-2026",
+    "verdict": "NOT-LINKED-BY-ANY-HUB",
+    "hubStatus": "200",
+    "ownHub": "/sarkari-naukri/bharti",
+    "ownHubStatus": "200",
+    "hubs": "/sarkari-naukri/bharti /sarkari-naukri/exam /sarkari-naukri"
+  },
+  {
+    "url": "/sarkari-naukri/up-gramin-dak-sevak-2026-gorakhpur-division",
+    "verdict": "NOT-LINKED-BY-ANY-HUB",
+    "hubStatus": "200",
+    "ownHub": "/sarkari-naukri/bharti",
+    "ownHubStatus": "200",
+    "hubs": "/sarkari-naukri/bharti /sarkari-naukri/exam /sarkari-naukri"
+  },
+  {
+    "url": "/sarkari-naukri/ibps-clerk-2026-prelims-result",
+    "verdict": "NOT-LINKED-BY-ANY-HUB",
+    "hubStatus": "200",
+    "ownHub": "/sarkari-naukri/bharti",
+    "ownHubStatus": "200",
+    "hubs": "/sarkari-naukri/bharti /sarkari-naukri/exam /sarkari-naukri"
+  },
+  {
+    "url": "/sarkari-naukri/up-asha-bharti-2026-gorakhpur-division",
+    "verdict": "NOT-LINKED-BY-ANY-HUB",
+    "hubStatus": "200",
+    "ownHub": "/sarkari-naukri/bharti",
+    "ownHubStatus": "200",
+    "hubs": "/sarkari-naukri/bharti /sarkari-naukri/exam /sarkari-naukri"
+  },
+  {
+    "url": "/sarkari-naukri/bihar-anganwadi-sevika-sahayika-2026-patna",
+    "verdict": "NOT-LINKED-BY-ANY-HUB",
+    "hubStatus": "200",
+    "ownHub": "/sarkari-naukri/bharti",
+    "ownHubStatus": "200",
+    "hubs": "/sarkari-naukri/bharti /sarkari-naukri/exam /sarkari-naukri"
+  },
+  {
+    "url": "/sarkari-naukri/bihar-district-court-peon-2026-muzaffarpur",
+    "verdict": "NOT-LINKED-BY-ANY-HUB",
+    "hubStatus": "200",
+    "ownHub": "/sarkari-naukri/bharti",
+    "ownHubStatus": "200",
+    "hubs": "/sarkari-naukri/bharti /sarkari-naukri/exam /sarkari-naukri"
+  },
+  {
+    "url": "/sarkari-naukri/sbi-so-2026-result",
+    "verdict": "NOT-LINKED-BY-ANY-HUB",
+    "hubStatus": "200",
+    "ownHub": "/sarkari-naukri/bharti",
+    "ownHubStatus": "200",
+    "hubs": "/sarkari-naukri/bharti /sarkari-naukri/exam /sarkari-naukri"
+  },
+  {
+    "url": "/sarkari-naukri/up-roadways-driver-conductor-2026",
+    "verdict": "NOT-LINKED-BY-ANY-HUB",
+    "hubStatus": "200",
+    "ownHub": "/sarkari-naukri/bharti",
+    "ownHubStatus": "200",
+    "hubs": "/sarkari-naukri/bharti /sarkari-naukri/exam /sarkari-naukri"
+  },
+  {
+    "url": "/sarkari-naukri/bihar-hospital-group-d-2026-all-districts",
+    "verdict": "NOT-LINKED-BY-ANY-HUB",
+    "hubStatus": "200",
+    "ownHub": "/sarkari-naukri/bharti",
+    "ownHubStatus": "200",
+    "hubs": "/sarkari-naukri/bharti /sarkari-naukri/exam /sarkari-naukri"
+  },
+  {
+    "url": "/sarkari-naukri/bihar-gramin-dak-sevak-2026-muzaffarpur-div",
+    "verdict": "NOT-LINKED-BY-ANY-HUB",
+    "hubStatus": "200",
+    "ownHub": "/sarkari-naukri/bharti",
+    "ownHubStatus": "200",
+    "hubs": "/sarkari-naukri/bharti /sarkari-naukri/exam /sarkari-naukri"
+  },
+  {
+    "url": "/sarkari-naukri/bihar-nhm-lab-technician-2026",
+    "verdict": "NOT-LINKED-BY-ANY-HUB",
+    "hubStatus": "200",
+    "ownHub": "/sarkari-naukri/bharti",
+    "ownHubStatus": "200",
+    "hubs": "/sarkari-naukri/bharti /sarkari-naukri/exam /sarkari-naukri"
+  },
+  {
+    "url": "/sarkari-naukri/up-chc-phc-staff-nurse-2026-bareilly",
+    "verdict": "NOT-LINKED-BY-ANY-HUB",
+    "hubStatus": "200",
+    "ownHub": "/sarkari-naukri/bharti",
+    "ownHubStatus": "200",
+    "hubs": "/sarkari-naukri/bharti /sarkari-naukri/exam /sarkari-naukri"
+  },
+  {
+    "url": "/sarkari-naukri/up-asha-bharti-2026-lucknow-division",
+    "verdict": "NOT-LINKED-BY-ANY-HUB",
+    "hubStatus": "200",
+    "ownHub": "/sarkari-naukri/bharti",
+    "ownHubStatus": "200",
+    "hubs": "/sarkari-naukri/bharti /sarkari-naukri/exam /sarkari-naukri"
+  },
+  {
+    "url": "/sarkari-naukri/upsc-capf-ac-2026-result",
+    "verdict": "NOT-LINKED-BY-ANY-HUB",
+    "hubStatus": "200",
+    "ownHub": "/sarkari-naukri/bharti",
+    "ownHubStatus": "200",
+    "hubs": "/sarkari-naukri/bharti /sarkari-naukri/exam /sarkari-naukri"
+  },
+  {
+    "url": "/sarkari-naukri/uttarakhand-patwari-lekhpal-bharti-2026",
+    "verdict": "NOT-LINKED-BY-ANY-HUB",
+    "hubStatus": "200",
+    "ownHub": "/sarkari-naukri/bharti",
+    "ownHubStatus": "200",
+    "hubs": "/sarkari-naukri/bharti /sarkari-naukri/exam /sarkari-naukri"
+  },
+  {
+    "url": "/sarkari-naukri/up-aanganwadi-mini-centre-sahayika-2026-bareilly",
+    "verdict": "NOT-LINKED-BY-ANY-HUB",
+    "hubStatus": "200",
+    "ownHub": "/sarkari-naukri/bharti",
+    "ownHubStatus": "200",
+    "hubs": "/sarkari-naukri/bharti /sarkari-naukri/exam /sarkari-naukri"
+  },
+  {
+    "url": "/sarkari-naukri/up-jal-nigam-fitter-plumber-2026",
+    "verdict": "NOT-LINKED-BY-ANY-HUB",
+    "hubStatus": "200",
+    "ownHub": "/sarkari-naukri/bharti",
+    "ownHubStatus": "200",
+    "hubs": "/sarkari-naukri/bharti /sarkari-naukri/exam /sarkari-naukri"
+  },
+  {
+    "url": "/sarkari-naukri/bihar-anganwadi-bharti-2026-east-champaran",
+    "verdict": "NOT-LINKED-BY-ANY-HUB",
+    "hubStatus": "200",
+    "ownHub": "/sarkari-naukri/bharti",
+    "ownHubStatus": "200",
+    "hubs": "/sarkari-naukri/bharti /sarkari-naukri/exam /sarkari-naukri"
+  },
+  {
+    "url": "/sarkari-naukri/up-nagar-palika-clerk-peon-2026-moradabad",
+    "verdict": "NOT-LINKED-BY-ANY-HUB",
+    "hubStatus": "200",
+    "ownHub": "/sarkari-naukri/bharti",
+    "ownHubStatus": "200",
+    "hubs": "/sarkari-naukri/bharti /sarkari-naukri/exam /sarkari-naukri"
+  },
+  {
+    "url": "/sarkari-naukri/rajasthan-nagar-palika-safai-karmi-2026-jaipur",
+    "verdict": "NOT-LINKED-BY-ANY-HUB",
+    "hubStatus": "200",
+    "ownHub": "/sarkari-naukri/bharti",
+    "ownHubStatus": "200",
+    "hubs": "/sarkari-naukri/bharti /sarkari-naukri/exam /sarkari-naukri"
+  },
+  {
+    "url": "/sarkari-naukri/rajasthan-district-court-peon-2026-jaipur",
+    "verdict": "NOT-LINKED-BY-ANY-HUB",
+    "hubStatus": "200",
+    "ownHub": "/sarkari-naukri/bharti",
+    "ownHubStatus": "200",
+    "hubs": "/sarkari-naukri/bharti /sarkari-naukri/exam /sarkari-naukri"
+  },
+  {
+    "url": "/sarkari-naukri/up-csc-vle-operator-2026",
+    "verdict": "NOT-LINKED-BY-ANY-HUB",
+    "hubStatus": "200",
+    "ownHub": "/sarkari-naukri/bharti",
+    "ownHubStatus": "200",
+    "hubs": "/sarkari-naukri/bharti /sarkari-naukri/exam /sarkari-naukri"
+  },
+  {
+    "url": "/sarkari-naukri/rajasthan-gramin-vikas-adhikari-2026",
+    "verdict": "NOT-LINKED-BY-ANY-HUB",
+    "hubStatus": "200",
+    "ownHub": "/sarkari-naukri/bharti",
+    "ownHubStatus": "200",
+    "hubs": "/sarkari-naukri/bharti /sarkari-naukri/exam /sarkari-naukri"
+  },
+  {
+    "url": "/sarkari-naukri/bihar-anganwadi-bharti-2026-darbhanga",
+    "verdict": "NOT-LINKED-BY-ANY-HUB",
+    "hubStatus": "200",
+    "ownHub": "/sarkari-naukri/bharti",
+    "ownHubStatus": "200",
+    "hubs": "/sarkari-naukri/bharti /sarkari-naukri/exam /sarkari-naukri"
+  },
+  {
+    "url": "/sarkari-naukri/rajasthan-nhm-cho-bharti-2026",
+    "verdict": "NOT-LINKED-BY-ANY-HUB",
+    "hubStatus": "200",
+    "ownHub": "/sarkari-naukri/bharti",
+    "ownHubStatus": "200",
+    "hubs": "/sarkari-naukri/bharti /sarkari-naukri/exam /sarkari-naukri"
+  },
+  {
+    "url": "/sarkari-naukri/up-home-guard-bharti-2026-all-districts",
+    "verdict": "NOT-LINKED-BY-ANY-HUB",
+    "hubStatus": "200",
+    "ownHub": "/sarkari-naukri/bharti",
+    "ownHubStatus": "200",
+    "hubs": "/sarkari-naukri/bharti /sarkari-naukri/exam /sarkari-naukri"
+  },
+  {
+    "url": "/sarkari-naukri/ibps-rrb-clerk-2026-prelims-result",
+    "verdict": "NOT-LINKED-BY-ANY-HUB",
+    "hubStatus": "200",
+    "ownHub": "/sarkari-naukri/bharti",
+    "ownHubStatus": "200",
+    "hubs": "/sarkari-naukri/bharti /sarkari-naukri/exam /sarkari-naukri"
+  },
+  {
+    "url": "/sarkari-naukri/up-sahkari-gram-vikas-bank-clerk-2026",
+    "verdict": "NOT-LINKED-BY-ANY-HUB",
+    "hubStatus": "200",
+    "ownHub": "/sarkari-naukri/bharti",
+    "ownHubStatus": "200",
+    "hubs": "/sarkari-naukri/bharti /sarkari-naukri/exam /sarkari-naukri"
+  },
+  {
+    "url": "/sarkari-naukri/up-nagar-nigam-sweeper-driver-2026-meerut",
+    "verdict": "NOT-LINKED-BY-ANY-HUB",
+    "hubStatus": "200",
+    "ownHub": "/sarkari-naukri/bharti",
+    "ownHubStatus": "200",
+    "hubs": "/sarkari-naukri/bharti /sarkari-naukri/exam /sarkari-naukri"
+  },
+  {
+    "url": "/sarkari-naukri/rajasthan-pwd-work-charged-2026",
+    "verdict": "NOT-LINKED-BY-ANY-HUB",
+    "hubStatus": "200",
+    "ownHub": "/sarkari-naukri/bharti",
+    "ownHubStatus": "200",
+    "hubs": "/sarkari-naukri/bharti /sarkari-naukri/exam /sarkari-naukri"
+  },
+  {
+    "url": "/sarkari-naukri/up-district-court-peon-2026-varanasi",
+    "verdict": "NOT-LINKED-BY-ANY-HUB",
+    "hubStatus": "200",
+    "ownHub": "/sarkari-naukri/bharti",
+    "ownHubStatus": "200",
+    "hubs": "/sarkari-naukri/bharti /sarkari-naukri/exam /sarkari-naukri"
+  },
+  {
+    "url": "/sarkari-naukri/up-district-court-stenographer-2026-meerut",
+    "verdict": "NOT-LINKED-BY-ANY-HUB",
+    "hubStatus": "200",
+    "ownHub": "/sarkari-naukri/bharti",
+    "ownHubStatus": "200",
+    "hubs": "/sarkari-naukri/bharti /sarkari-naukri/exam /sarkari-naukri"
+  },
+  {
+    "url": "/sarkari-naukri/up-district-court-peon-bharti-2026-allahabad",
+    "verdict": "NOT-LINKED-BY-ANY-HUB",
+    "hubStatus": "200",
+    "ownHub": "/sarkari-naukri/bharti",
+    "ownHubStatus": "200",
+    "hubs": "/sarkari-naukri/bharti /sarkari-naukri/exam /sarkari-naukri"
+  },
+  {
+    "url": "/sarkari-naukri/up-gramin-dak-sevak-2026-kanpur-division",
+    "verdict": "NOT-LINKED-BY-ANY-HUB",
+    "hubStatus": "200",
+    "ownHub": "/sarkari-naukri/bharti",
+    "ownHubStatus": "200",
+    "hubs": "/sarkari-naukri/bharti /sarkari-naukri/exam /sarkari-naukri"
+  },
+  {
+    "url": "/sarkari-naukri/rrb-paramedical-2026-result",
+    "verdict": "NOT-LINKED-BY-ANY-HUB",
+    "hubStatus": "200",
+    "ownHub": "/sarkari-naukri/bharti",
+    "ownHubStatus": "200",
+    "hubs": "/sarkari-naukri/bharti /sarkari-naukri/exam /sarkari-naukri"
+  },
+  {
+    "url": "/sarkari-naukri/rrb-je-2026-cbt1-result",
+    "verdict": "NOT-LINKED-BY-ANY-HUB",
+    "hubStatus": "200",
+    "ownHub": "/sarkari-naukri/bharti",
+    "ownHubStatus": "200",
+    "hubs": "/sarkari-naukri/bharti /sarkari-naukri/exam /sarkari-naukri"
+  },
+  {
+    "url": "/sarkari-naukri/rajasthan-patwari-bharti-2026-jodhpur-division",
+    "verdict": "NOT-LINKED-BY-ANY-HUB",
+    "hubStatus": "200",
+    "ownHub": "/sarkari-naukri/bharti",
+    "ownHubStatus": "200",
+    "hubs": "/sarkari-naukri/bharti /sarkari-naukri/exam /sarkari-naukri"
+  },
+  {
+    "url": "/sarkari-naukri/rrb-alp-2026-cbt2-result",
+    "verdict": "NOT-LINKED-BY-ANY-HUB",
+    "hubStatus": "200",
+    "ownHub": "/sarkari-naukri/bharti",
+    "ownHubStatus": "200",
+    "hubs": "/sarkari-naukri/bharti /sarkari-naukri/exam /sarkari-naukri"
+  },
+  {
+    "url": "/sarkari-naukri/up-pashu-chikitsa-sahayak-2026",
+    "verdict": "NOT-LINKED-BY-ANY-HUB",
+    "hubStatus": "200",
+    "ownHub": "/sarkari-naukri/bharti",
+    "ownHubStatus": "200",
+    "hubs": "/sarkari-naukri/bharti /sarkari-naukri/exam /sarkari-naukri"
+  },
+  {
+    "url": "/sarkari-naukri/upsc-cds-1-2026-result",
+    "verdict": "NOT-LINKED-BY-ANY-HUB",
+    "hubStatus": "200",
+    "ownHub": "/sarkari-naukri/bharti",
+    "ownHubStatus": "200",
+    "hubs": "/sarkari-naukri/bharti /sarkari-naukri/exam /sarkari-naukri"
+  },
+  {
+    "url": "/sarkari-naukri/up-animal-husbandry-stockman-2026",
+    "verdict": "NOT-LINKED-BY-ANY-HUB",
+    "hubStatus": "200",
+    "ownHub": "/sarkari-naukri/bharti",
+    "ownHubStatus": "200",
+    "hubs": "/sarkari-naukri/bharti /sarkari-naukri/exam /sarkari-naukri"
+  },
+  {
+    "url": "/sarkari-naukri/up-collector-office-peon-bharti-2026-lucknow",
+    "verdict": "NOT-LINKED-BY-ANY-HUB",
+    "hubStatus": "200",
+    "ownHub": "/sarkari-naukri/bharti",
+    "ownHubStatus": "200",
+    "hubs": "/sarkari-naukri/bharti /sarkari-naukri/exam /sarkari-naukri"
+  },
+  {
+    "url": "/sarkari-naukri/sbi-clerk-2026-prelims-result",
+    "verdict": "NOT-LINKED-BY-ANY-HUB",
+    "hubStatus": "200",
+    "ownHub": "/sarkari-naukri/bharti",
+    "ownHubStatus": "200",
+    "hubs": "/sarkari-naukri/bharti /sarkari-naukri/exam /sarkari-naukri"
+  },
+  {
+    "url": "/sarkari-naukri/up-revenue-department-amin-2026",
+    "verdict": "NOT-LINKED-BY-ANY-HUB",
+    "hubStatus": "200",
+    "ownHub": "/sarkari-naukri/bharti",
+    "ownHubStatus": "200",
+    "hubs": "/sarkari-naukri/bharti /sarkari-naukri/exam /sarkari-naukri"
+  },
+  {
+    "url": "/sarkari-naukri/up-anganwadi-bharti-2026-prayagraj-division",
+    "verdict": "NOT-LINKED-BY-ANY-HUB",
+    "hubStatus": "200",
+    "ownHub": "/sarkari-naukri/bharti",
+    "ownHubStatus": "200",
+    "hubs": "/sarkari-naukri/bharti /sarkari-naukri/exam /sarkari-naukri"
+  },
+  {
+    "url": "/sarkari-naukri/haryana-gram-sachiv-panchayat-2026-all-dist",
+    "verdict": "NOT-LINKED-BY-ANY-HUB",
+    "hubStatus": "200",
+    "ownHub": "/sarkari-naukri/bharti",
+    "ownHubStatus": "200",
+    "hubs": "/sarkari-naukri/bharti /sarkari-naukri/exam /sarkari-naukri"
+  },
+  {
+    "url": "/sarkari-naukri/up-jila-panchayat-lekhpal-2026",
+    "verdict": "NOT-LINKED-BY-ANY-HUB",
+    "hubStatus": "200",
+    "ownHub": "/sarkari-naukri/bharti",
+    "ownHubStatus": "200",
+    "hubs": "/sarkari-naukri/bharti /sarkari-naukri/exam /sarkari-naukri"
+  },
+  {
+    "url": "/sarkari-naukri/up-revenue-kanungo-2026",
+    "verdict": "NOT-LINKED-BY-ANY-HUB",
+    "hubStatus": "200",
+    "ownHub": "/sarkari-naukri/bharti",
+    "ownHubStatus": "200",
+    "hubs": "/sarkari-naukri/bharti /sarkari-naukri/exam /sarkari-naukri"
+  },
+  {
+    "url": "/sarkari-naukri/niacl-ao-2026-prelims-result",
+    "verdict": "NOT-LINKED-BY-ANY-HUB",
+    "hubStatus": "200",
+    "ownHub": "/sarkari-naukri/bharti",
+    "ownHubStatus": "200",
+    "hubs": "/sarkari-naukri/bharti /sarkari-naukri/exam /sarkari-naukri"
+  },
+  {
+    "url": "/sarkari-naukri/up-anganwadi-bharti-2026-gorakhpur-division",
+    "verdict": "NOT-LINKED-BY-ANY-HUB",
+    "hubStatus": "200",
+    "ownHub": "/sarkari-naukri/bharti",
+    "ownHubStatus": "200",
+    "hubs": "/sarkari-naukri/bharti /sarkari-naukri/exam /sarkari-naukri"
+  },
+  {
+    "url": "/sarkari-naukri/up-electric-helper-2026-dvvnl",
+    "verdict": "NOT-LINKED-BY-ANY-HUB",
+    "hubStatus": "200",
+    "ownHub": "/sarkari-naukri/bharti",
+    "ownHubStatus": "200",
+    "hubs": "/sarkari-naukri/bharti /sarkari-naukri/exam /sarkari-naukri"
+  },
+  {
+    "url": "/sarkari-naukri/ibps-rrb-po-2026-prelims-result",
+    "verdict": "NOT-LINKED-BY-ANY-HUB",
+    "hubStatus": "200",
+    "ownHub": "/sarkari-naukri/bharti",
+    "ownHubStatus": "200",
+    "hubs": "/sarkari-naukri/bharti /sarkari-naukri/exam /sarkari-naukri"
+  },
+  {
+    "url": "/sarkari-naukri/up-electric-helper-2026-pvvnl",
+    "verdict": "NOT-LINKED-BY-ANY-HUB",
+    "hubStatus": "200",
+    "ownHub": "/sarkari-naukri/bharti",
+    "ownHubStatus": "200",
+    "hubs": "/sarkari-naukri/bharti /sarkari-naukri/exam /sarkari-naukri"
+  },
+  {
+    "url": "/sarkari-naukri/up-gramin-dak-sevak-2026-lucknow-division",
+    "verdict": "NOT-LINKED-BY-ANY-HUB",
+    "hubStatus": "200",
+    "ownHub": "/sarkari-naukri/bharti",
+    "ownHubStatus": "200",
+    "hubs": "/sarkari-naukri/bharti /sarkari-naukri/exam /sarkari-naukri"
+  },
+  {
+    "url": "/sarkari-naukri/rajasthan-anganwadi-bharti-2026-udaipur",
+    "verdict": "NOT-LINKED-BY-ANY-HUB",
+    "hubStatus": "200",
+    "ownHub": "/sarkari-naukri/bharti",
+    "ownHubStatus": "200",
+    "hubs": "/sarkari-naukri/bharti /sarkari-naukri/exam /sarkari-naukri"
+  },
+  {
+    "url": "/sarkari-naukri/up-pwd-road-roller-operator-2026",
+    "verdict": "NOT-LINKED-BY-ANY-HUB",
+    "hubStatus": "200",
+    "ownHub": "/sarkari-naukri/bharti",
+    "ownHubStatus": "200",
+    "hubs": "/sarkari-naukri/bharti /sarkari-naukri/exam /sarkari-naukri"
+  },
+  {
+    "url": "/sarkari-naukri/rajasthan-school-lab-assistant-2026",
+    "verdict": "NOT-LINKED-BY-ANY-HUB",
+    "hubStatus": "200",
+    "ownHub": "/sarkari-naukri/bharti",
+    "ownHubStatus": "200",
+    "hubs": "/sarkari-naukri/bharti /sarkari-naukri/exam /sarkari-naukri"
+  },
+  {
+    "url": "/sarkari-naukri/rajasthan-home-guard-bharti-2026",
+    "verdict": "NOT-LINKED-BY-ANY-HUB",
+    "hubStatus": "200",
+    "ownHub": "/sarkari-naukri/bharti",
+    "ownHubStatus": "200",
+    "hubs": "/sarkari-naukri/bharti /sarkari-naukri/exam /sarkari-naukri"
+  },
+  {
+    "url": "/sarkari-naukri/haryana-police-constable-driver-2026",
+    "verdict": "NOT-LINKED-BY-ANY-HUB",
+    "hubStatus": "200",
+    "ownHub": "/sarkari-naukri/bharti",
+    "ownHubStatus": "200",
+    "hubs": "/sarkari-naukri/bharti /sarkari-naukri/exam /sarkari-naukri"
+  },
+  {
+    "url": "/sarkari-naukri/rajasthan-nagar-palika-safai-2026-udaipur",
+    "verdict": "NOT-LINKED-BY-ANY-HUB",
+    "hubStatus": "200",
+    "ownHub": "/sarkari-naukri/bharti",
+    "ownHubStatus": "200",
+    "hubs": "/sarkari-naukri/bharti /sarkari-naukri/exam /sarkari-naukri"
+  },
+  {
+    "url": "/sarkari-naukri/up-electric-helper-2026-mvvnl",
+    "verdict": "NOT-LINKED-BY-ANY-HUB",
+    "hubStatus": "200",
+    "ownHub": "/sarkari-naukri/bharti",
+    "ownHubStatus": "200",
+    "hubs": "/sarkari-naukri/bharti /sarkari-naukri/exam /sarkari-naukri"
+  },
+  {
+    "url": "/sarkari-naukri/up-gram-panchayat-rozgar-sahayak-2026-jaunpur",
+    "verdict": "NOT-LINKED-BY-ANY-HUB",
+    "hubStatus": "200",
+    "ownHub": "/sarkari-naukri/bharti",
+    "ownHubStatus": "200",
+    "hubs": "/sarkari-naukri/bharti /sarkari-naukri/exam /sarkari-naukri"
+  },
+  {
+    "url": "/sarkari-naukri/ssc-cpo-2026-paper1-result",
+    "verdict": "NOT-LINKED-BY-ANY-HUB",
+    "hubStatus": "200",
+    "ownHub": "/sarkari-naukri/bharti",
+    "ownHubStatus": "200",
+    "hubs": "/sarkari-naukri/bharti /sarkari-naukri/exam /sarkari-naukri"
+  },
+  {
+    "url": "/sarkari-naukri/up-krishi-vibhag-gram-pravidhik-2026",
+    "verdict": "NOT-LINKED-BY-ANY-HUB",
+    "hubStatus": "200",
+    "ownHub": "/sarkari-naukri/bharti",
+    "ownHubStatus": "200",
+    "hubs": "/sarkari-naukri/bharti /sarkari-naukri/exam /sarkari-naukri"
+  },
+  {
+    "url": "/sarkari-naukri/up-district-court-peon-2026-lucknow",
+    "verdict": "NOT-LINKED-BY-ANY-HUB",
+    "hubStatus": "200",
+    "ownHub": "/sarkari-naukri/bharti",
+    "ownHubStatus": "200",
+    "hubs": "/sarkari-naukri/bharti /sarkari-naukri/exam /sarkari-naukri"
+  },
+  {
+    "url": "/sarkari-naukri/up-police-driver-constable-2026",
+    "verdict": "NOT-LINKED-BY-ANY-HUB",
+    "hubStatus": "200",
+    "ownHub": "/sarkari-naukri/bharti",
+    "ownHubStatus": "200",
+    "hubs": "/sarkari-naukri/bharti /sarkari-naukri/exam /sarkari-naukri"
+  },
+  {
+    "url": "/sarkari-naukri/up-swasthya-vibhag-dresser-2026",
+    "verdict": "NOT-LINKED-BY-ANY-HUB",
+    "hubStatus": "200",
+    "ownHub": "/sarkari-naukri/bharti",
+    "ownHubStatus": "200",
+    "hubs": "/sarkari-naukri/bharti /sarkari-naukri/exam /sarkari-naukri"
+  },
+  {
+    "url": "/sarkari-naukri/up-ration-dealer-salesman-2026",
+    "verdict": "NOT-LINKED-BY-ANY-HUB",
+    "hubStatus": "200",
+    "ownHub": "/sarkari-naukri/bharti",
+    "ownHubStatus": "200",
+    "hubs": "/sarkari-naukri/bharti /sarkari-naukri/exam /sarkari-naukri"
+  },
+  {
+    "url": "/sarkari-naukri/ssc-je-2026-paper1-result",
+    "verdict": "NOT-LINKED-BY-ANY-HUB",
+    "hubStatus": "200",
+    "ownHub": "/sarkari-naukri/bharti",
+    "ownHubStatus": "200",
+    "hubs": "/sarkari-naukri/bharti /sarkari-naukri/exam /sarkari-naukri"
+  },
+  {
+    "url": "/sarkari-naukri/rajasthan-hospital-attendant-bharti-2026",
+    "verdict": "NOT-LINKED-BY-ANY-HUB",
+    "hubStatus": "200",
+    "ownHub": "/sarkari-naukri/bharti",
+    "ownHubStatus": "200",
+    "hubs": "/sarkari-naukri/bharti /sarkari-naukri/exam /sarkari-naukri"
+  },
+  {
+    "url": "/sarkari-naukri/ssc-chsl-2026-tier1-result",
+    "verdict": "NOT-LINKED-BY-ANY-HUB",
+    "hubStatus": "200",
+    "ownHub": "/sarkari-naukri/bharti",
+    "ownHubStatus": "200",
+    "hubs": "/sarkari-naukri/bharti /sarkari-naukri/exam /sarkari-naukri"
+  },
+  {
+    "url": "/sarkari-naukri/rajasthan-anganwadi-bharti-2026-ajmer",
+    "verdict": "NOT-LINKED-BY-ANY-HUB",
+    "hubStatus": "200",
+    "ownHub": "/sarkari-naukri/bharti",
+    "ownHubStatus": "200",
+    "hubs": "/sarkari-naukri/bharti /sarkari-naukri/exam /sarkari-naukri"
+  },
+  {
+    "url": "/sarkari-naukri/ssc-jht-2026-paper1-result",
+    "verdict": "NOT-LINKED-BY-ANY-HUB",
+    "hubStatus": "200",
+    "ownHub": "/sarkari-naukri/bharti",
+    "ownHubStatus": "200",
+    "hubs": "/sarkari-naukri/bharti /sarkari-naukri/exam /sarkari-naukri"
+  },
+  {
+    "url": "/sarkari-naukri/ssc-mts-2026-result",
+    "verdict": "NOT-LINKED-BY-ANY-HUB",
+    "hubStatus": "200",
+    "ownHub": "/sarkari-naukri/bharti",
+    "ownHubStatus": "200",
+    "hubs": "/sarkari-naukri/bharti /sarkari-naukri/exam /sarkari-naukri"
+  },
+  {
+    "url": "/sarkari-naukri/madhya-pradesh-patwari-halka-2026-sagar",
+    "verdict": "NOT-LINKED-BY-ANY-HUB",
+    "hubStatus": "200",
+    "ownHub": "/sarkari-naukri/bharti",
+    "ownHubStatus": "200",
+    "hubs": "/sarkari-naukri/bharti /sarkari-naukri/exam /sarkari-naukri"
+  },
+  {
+    "url": "/sarkari-naukri/up-swasthya-vibhag-ambulance-driver-2026",
+    "verdict": "NOT-LINKED-BY-ANY-HUB",
+    "hubStatus": "200",
+    "ownHub": "/sarkari-naukri/bharti",
+    "ownHubStatus": "200",
+    "hubs": "/sarkari-naukri/bharti /sarkari-naukri/exam /sarkari-naukri"
+  },
+  {
+    "url": "/sarkari-naukri/upsc-ifos-2026-prelims-result",
+    "verdict": "NOT-LINKED-BY-ANY-HUB",
+    "hubStatus": "200",
+    "ownHub": "/sarkari-naukri/bharti",
+    "ownHubStatus": "200",
+    "hubs": "/sarkari-naukri/bharti /sarkari-naukri/exam /sarkari-naukri"
+  },
+  {
+    "url": "/sarkari-naukri/bihar-forest-guard-vanpal-2026",
+    "verdict": "NOT-LINKED-BY-ANY-HUB",
+    "hubStatus": "200",
+    "ownHub": "/sarkari-naukri/bharti",
+    "ownHubStatus": "200",
+    "hubs": "/sarkari-naukri/bharti /sarkari-naukri/exam /sarkari-naukri"
+  },
+  {
+    "url": "/sarkari-naukri/rajasthan-gds-bharti-2026",
+    "verdict": "NOT-LINKED-BY-ANY-HUB",
+    "hubStatus": "200",
+    "ownHub": "/sarkari-naukri/bharti",
+    "ownHubStatus": "200",
+    "hubs": "/sarkari-naukri/bharti /sarkari-naukri/exam /sarkari-naukri"
+  },
+  {
+    "url": "/sarkari-naukri/up-anganwadi-bharti-2026-varanasi-division",
+    "verdict": "NOT-LINKED-BY-ANY-HUB",
+    "hubStatus": "200",
+    "ownHub": "/sarkari-naukri/bharti",
+    "ownHubStatus": "200",
+    "hubs": "/sarkari-naukri/bharti /sarkari-naukri/exam /sarkari-naukri"
+  },
+  {
+    "url": "/sarkari-naukri/rajasthan-jal-sansthan-pump-operator-2026",
+    "verdict": "NOT-LINKED-BY-ANY-HUB",
+    "hubStatus": "200",
+    "ownHub": "/sarkari-naukri/bharti",
+    "ownHubStatus": "200",
+    "hubs": "/sarkari-naukri/bharti /sarkari-naukri/exam /sarkari-naukri"
+  },
+  {
+    "url": "/sarkari-naukri/mp-gds-bharti-2026-jabalpur-division",
+    "verdict": "NOT-LINKED-BY-ANY-HUB",
+    "hubStatus": "200",
+    "ownHub": "/sarkari-naukri/bharti",
+    "ownHubStatus": "200",
+    "hubs": "/sarkari-naukri/bharti /sarkari-naukri/exam /sarkari-naukri"
+  },
+  {
+    "url": "/sarkari-naukri/rajasthan-vidyut-vibhag-helper-2026",
+    "verdict": "NOT-LINKED-BY-ANY-HUB",
+    "hubStatus": "200",
+    "ownHub": "/sarkari-naukri/bharti",
+    "ownHubStatus": "200",
+    "hubs": "/sarkari-naukri/bharti /sarkari-naukri/exam /sarkari-naukri"
+  },
+  {
+    "url": "/sarkari-naukri/rajasthan-chc-pharmacist-bharti-2026",
+    "verdict": "NOT-LINKED-BY-ANY-HUB",
+    "hubStatus": "200",
+    "ownHub": "/sarkari-naukri/bharti",
+    "ownHubStatus": "200",
+    "hubs": "/sarkari-naukri/bharti /sarkari-naukri/exam /sarkari-naukri"
+  },
+  {
+    "url": "/sarkari-naukri/rajasthan-gramin-dak-sevak-2026-jaipur-division",
+    "verdict": "NOT-LINKED-BY-ANY-HUB",
+    "hubStatus": "200",
+    "ownHub": "/sarkari-naukri/bharti",
+    "ownHubStatus": "200",
+    "hubs": "/sarkari-naukri/bharti /sarkari-naukri/exam /sarkari-naukri"
+  },
+  {
+    "url": "/sarkari-naukri/up-electricity-dept-lineman-2026",
+    "verdict": "NOT-LINKED-BY-ANY-HUB",
+    "hubStatus": "200",
+    "ownHub": "/sarkari-naukri/bharti",
+    "ownHubStatus": "200",
+    "hubs": "/sarkari-naukri/bharti /sarkari-naukri/exam /sarkari-naukri"
+  },
+  {
+    "url": "/sarkari-naukri/up-swasthya-vibhag-pharmacist-2026",
+    "verdict": "NOT-LINKED-BY-ANY-HUB",
+    "hubStatus": "200",
+    "ownHub": "/sarkari-naukri/bharti",
+    "ownHubStatus": "200",
+    "hubs": "/sarkari-naukri/bharti /sarkari-naukri/exam /sarkari-naukri"
+  },
+  {
+    "url": "/sarkari-naukri/rajasthan-phed-pump-operator-2026",
+    "verdict": "NOT-LINKED-BY-ANY-HUB",
+    "hubStatus": "200",
+    "ownHub": "/sarkari-naukri/bharti",
+    "ownHubStatus": "200",
+    "hubs": "/sarkari-naukri/bharti /sarkari-naukri/exam /sarkari-naukri"
+  },
+  {
+    "url": "/sarkari-naukri/up-nyayalaya-process-server-2026",
+    "verdict": "NOT-LINKED-BY-ANY-HUB",
+    "hubStatus": "200",
+    "ownHub": "/sarkari-naukri/bharti",
+    "ownHubStatus": "200",
+    "hubs": "/sarkari-naukri/bharti /sarkari-naukri/exam /sarkari-naukri"
+  },
+  {
+    "url": "/sarkari-naukri/rrb-technician-2026-result",
+    "verdict": "NOT-LINKED-BY-ANY-HUB",
+    "hubStatus": "200",
+    "ownHub": "/sarkari-naukri/bharti",
+    "ownHubStatus": "200",
+    "hubs": "/sarkari-naukri/bharti /sarkari-naukri/exam /sarkari-naukri"
+  },
+  {
+    "url": "/sarkari-naukri/rajasthan-hospital-sweeper-2026",
+    "verdict": "NOT-LINKED-BY-ANY-HUB",
+    "hubStatus": "200",
+    "ownHub": "/sarkari-naukri/bharti",
+    "ownHubStatus": "200",
+    "hubs": "/sarkari-naukri/bharti /sarkari-naukri/exam /sarkari-naukri"
+  },
+  {
+    "url": "/sarkari-naukri/rajasthan-pashu-paricharak-2026",
+    "verdict": "NOT-LINKED-BY-ANY-HUB",
+    "hubStatus": "200",
+    "ownHub": "/sarkari-naukri/bharti",
+    "ownHubStatus": "200",
+    "hubs": "/sarkari-naukri/bharti /sarkari-naukri/exam /sarkari-naukri"
+  },
+  {
+    "url": "/sarkari-naukri/up-district-hospital-lab-technician-2026",
+    "verdict": "NOT-LINKED-BY-ANY-HUB",
+    "hubStatus": "200",
+    "ownHub": "/sarkari-naukri/bharti",
+    "ownHubStatus": "200",
+    "hubs": "/sarkari-naukri/bharti /sarkari-naukri/exam /sarkari-naukri"
+  },
+  {
+    "url": "/sarkari-naukri/bihar-gds-bharti-2026",
+    "verdict": "NOT-LINKED-BY-ANY-HUB",
+    "hubStatus": "200",
+    "ownHub": "/sarkari-naukri/bharti",
+    "ownHubStatus": "200",
+    "hubs": "/sarkari-naukri/bharti /sarkari-naukri/exam /sarkari-naukri"
+  },
+  {
+    "url": "/sarkari-naukri/upsc-ese-2026-prelims-result",
+    "verdict": "NOT-LINKED-BY-ANY-HUB",
+    "hubStatus": "200",
+    "ownHub": "/sarkari-naukri/bharti",
+    "ownHubStatus": "200",
+    "hubs": "/sarkari-naukri/bharti /sarkari-naukri/exam /sarkari-naukri"
+  },
+  {
+    "url": "/sarkari-naukri/up-mgnrega-rozgar-sevak-2026",
+    "verdict": "NOT-LINKED-BY-ANY-HUB",
+    "hubStatus": "200",
+    "ownHub": "/sarkari-naukri/bharti",
+    "ownHubStatus": "200",
+    "hubs": "/sarkari-naukri/bharti /sarkari-naukri/exam /sarkari-naukri"
+  },
+  {
+    "url": "/sarkari-naukri/mp-district-court-peon-group-d-2026-gwalior",
+    "verdict": "NOT-LINKED-BY-ANY-HUB",
+    "hubStatus": "200",
+    "ownHub": "/sarkari-naukri/bharti",
+    "ownHubStatus": "200",
+    "hubs": "/sarkari-naukri/bharti /sarkari-naukri/exam /sarkari-naukri"
+  },
+  {
+    "url": "/sarkari-naukri/up-district-collectorate-driver-2026",
+    "verdict": "NOT-LINKED-BY-ANY-HUB",
+    "hubStatus": "200",
+    "ownHub": "/sarkari-naukri/bharti",
+    "ownHubStatus": "200",
+    "hubs": "/sarkari-naukri/bharti /sarkari-naukri/exam /sarkari-naukri"
+  },
+  {
+    "url": "/sarkari-naukri/maharashtra-zp-group-d-2026-aurangabad",
+    "verdict": "NOT-LINKED-BY-ANY-HUB",
+    "hubStatus": "200",
+    "ownHub": "/sarkari-naukri/bharti",
+    "ownHubStatus": "200",
+    "hubs": "/sarkari-naukri/bharti /sarkari-naukri/exam /sarkari-naukri"
+  },
+  {
+    "url": "/sarkari-naukri/up-district-hospital-anm-staff-nurse-2026-agra",
+    "verdict": "NOT-LINKED-BY-ANY-HUB",
+    "hubStatus": "200",
+    "ownHub": "/sarkari-naukri/bharti",
+    "ownHubStatus": "200",
+    "hubs": "/sarkari-naukri/bharti /sarkari-naukri/exam /sarkari-naukri"
+  },
+  {
+    "url": "/sarkari-naukri/bihar-police-constable-driver-2026",
+    "verdict": "NOT-LINKED-BY-ANY-HUB",
+    "hubStatus": "200",
+    "ownHub": "/sarkari-naukri/bharti",
+    "ownHubStatus": "200",
+    "hubs": "/sarkari-naukri/bharti /sarkari-naukri/exam /sarkari-naukri"
+  },
+  {
+    "url": "/sarkari-naukri/sebi-grade-a-2026-phase1-result",
+    "verdict": "NOT-LINKED-BY-ANY-HUB",
+    "hubStatus": "200",
+    "ownHub": "/sarkari-naukri/bharti",
+    "ownHubStatus": "200",
+    "hubs": "/sarkari-naukri/bharti /sarkari-naukri/exam /sarkari-naukri"
+  },
+  {
+    "url": "/sarkari-naukri/mp-electricity-lineman-2026",
+    "verdict": "NOT-LINKED-BY-ANY-HUB",
+    "hubStatus": "200",
+    "ownHub": "/sarkari-naukri/bharti",
+    "ownHubStatus": "200",
+    "hubs": "/sarkari-naukri/bharti /sarkari-naukri/exam /sarkari-naukri"
+  },
+  {
+    "url": "/sarkari-naukri/mp-home-guard-bharti-2026",
+    "verdict": "NOT-LINKED-BY-ANY-HUB",
+    "hubStatus": "200",
+    "ownHub": "/sarkari-naukri/bharti",
+    "ownHubStatus": "200",
+    "hubs": "/sarkari-naukri/bharti /sarkari-naukri/exam /sarkari-naukri"
+  },
+  {
+    "url": "/sarkari-naukri/up-swachh-bharat-mission-coordinator-2026",
+    "verdict": "NOT-LINKED-BY-ANY-HUB",
+    "hubStatus": "200",
+    "ownHub": "/sarkari-naukri/bharti",
+    "ownHubStatus": "200",
+    "hubs": "/sarkari-naukri/bharti /sarkari-naukri/exam /sarkari-naukri"
+  },
+  {
+    "url": "/sarkari-naukri/up-gds-bharti-2026-bareilly-division",
+    "verdict": "NOT-LINKED-BY-ANY-HUB",
+    "hubStatus": "200",
+    "ownHub": "/sarkari-naukri/bharti",
+    "ownHubStatus": "200",
+    "hubs": "/sarkari-naukri/bharti /sarkari-naukri/exam /sarkari-naukri"
+  },
+  {
+    "url": "/sarkari-naukri/rajasthan-police-constable-driver-2026",
+    "verdict": "NOT-LINKED-BY-ANY-HUB",
+    "hubStatus": "200",
+    "ownHub": "/sarkari-naukri/bharti",
+    "ownHubStatus": "200",
+    "hubs": "/sarkari-naukri/bharti /sarkari-naukri/exam /sarkari-naukri"
+  },
+  {
+    "url": "/sarkari-naukri/mp-nhm-lab-technician-2026-all-districts",
+    "verdict": "NOT-LINKED-BY-ANY-HUB",
+    "hubStatus": "200",
+    "ownHub": "/sarkari-naukri/bharti",
+    "ownHubStatus": "200",
+    "hubs": "/sarkari-naukri/bharti /sarkari-naukri/exam /sarkari-naukri"
+  }
+]

@@ -393,6 +393,14 @@ export async function getExamBySlug(
       const slugsToTry = [...new Set(legacySlugs)];
 
       let data: any = null;
+      // A Supabase error is NOT "there is no such exam". It used to be read that way
+      // (`if (!error && result)` then fall through to `return null`), so one Cloudflare
+      // 522/525 blip or an oversized request answered a REAL, published exam page with a
+      // 404 — measured 2026-10-28: five /admission/... URLs from the sitemap came back 404
+      // during a cold crawl and 200 minutes later, with the records published the whole
+      // time. The same rule getExamsByCategory already follows: a genuine miss 404s, a
+      // transport failure surfaces as a retryable error and is never a fake 404.
+      let transportFailure: unknown = null;
 
       for (const s of slugsToTry) {
         let query = supabase
@@ -412,7 +420,8 @@ export async function getExamBySlug(
         }
 
         const { data: result, error } = await query.maybeSingle();
-        if (!error && result) {
+        if (error) { transportFailure = error; continue; }
+        if (result) {
           data = result;
           break;
         }
@@ -438,18 +447,29 @@ export async function getExamBySlug(
         }
 
         const { data: result, error } = await query.maybeSingle();
-        if (!error && result) {
+        if (error) {
+          transportFailure = error;
+        } else if (result) {
           data = result;
         }
       }
 
-      if (!data) return null;
+      if (!data) {
+        if (transportFailure) {
+          console.error("[examService] getExamBySlug(" + slug + "): Supabase read failed, refusing to answer 404:", transportFailure);
+          throw transportFailure;
+        }
+        return null;   // every attempt was a clean miss — this record really is not there
+      }
       // Fetch derived status in parallel with the map — single record, one row
       const derivedMap = await fetchDerivedStatuses(supabase, [(data as any).id]);
       return mapRow(data as Record<string, unknown>, derivedMap.get((data as any).id));
     } catch (err) {
       console.error("[examService] getExamBySlug failed:", err);
-      return null;
+      // Rethrown on purpose (same rule as getExamsByCategory): swallowing it here turned a
+      // read failure into a 404 for a page whose record exists, and the 404 is what a
+      // crawler remembers. A 5xx is retried; a 404 makes Google drop the URL.
+      throw err;
     }
   }, ["exams", `exam:${slug}`], { revalidate: 60 }); // 1 min — short TTL so content module changes appear quickly
 }

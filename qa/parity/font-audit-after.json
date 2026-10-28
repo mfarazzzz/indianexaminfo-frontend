@@ -1,0 +1,490 @@
+[
+  {
+    "name": "home",
+    "path": "/",
+    "fonts": [
+      {
+        "file": "e4af272ccee01ff0-s.p.woff2",
+        "kb": 47.3,
+        "family": "Inter",
+        "weight": "100 900",
+        "style": "normal",
+        "display": "swap",
+        "subset": "other(10 ranges)",
+        "range": "U+0-FF, U+131"
+      },
+      {
+        "file": "558ca1a6aa3cb55e-s.p.woff2",
+        "kb": 30.6,
+        "family": "JetBrains Mono",
+        "weight": "600",
+        "style": "normal",
+        "display": "swap",
+        "subset": "other(10 ranges)",
+        "range": "U+0-FF, U+131"
+      },
+      {
+        "file": "d8eaaef4aa8085a5-s.p.woff2",
+        "kb": 47.8,
+        "family": "Merriweather",
+        "weight": "700",
+        "style": "normal",
+        "display": "swap",
+        "subset": "other(10 ranges)",
+        "range": "U+0-FF, U+131"
+      }
+    ],
+    "totalKB": 125.7,
+    "usage": {
+      "Inter": {
+        "count": 795,
+        "withText": 405,
+        "weights": {
+          "400": 223,
+          "500": 80,
+          "600": 97,
+          "700": 5
+        },
+        "samples": [
+          "a.sr-only w=400 \"Skip to main content\" [above-fold]",
+          "span.hidden w=500 \"India's Most Trusted Exam Informat\" [above-fold]",
+          "span.hidden w=400 \"WhatsApp\" [above-fold]"
+        ]
+      },
+      "Merriweather": {
+        "count": 56,
+        "withText": 52,
+        "weights": {
+          "400": 2,
+          "600": 28,
+          "700": 22
+        },
+        "samples": [
+          "span.font-heading w=700 \"IndianExamInfo\" [above-fold]",
+          "h1.sr-only w=400 \"IndianExamInfo — India's Most Trus\" [above-fold]",
+          "h3.text-[13px] w=700 \"Application closing soon\" [above-fold]"
+        ]
+      },
+      "JetBrains Mono": {
+        "count": 12,
+        "withText": 12,
+        "weights": {
+          "500": 12
+        },
+        "samples": [
+          "span.shrink-0 w=500 \"30 Oct 2026\"",
+          "span.shrink-0 w=500 \"1 Nov 2026\"",
+          "span.shrink-0 w=500 \"1 Nov 2026\""
+        ]
+      }
+    },
+    "declaredUnused": [
+      "Merriweather Fallback",
+      "Inter Fallback",
+      "JetBrains Mono Fallback"
+    ],
+    "facesCount": 27
+  },
+  {
+    "name": "exam (ssc-cgl)",
+    "path": "/sarkari-naukri/ssc/ssc-cgl",
+    "fonts": [
+      {
+        "file": "e4af272ccee01ff0-s.p.woff2",
+        "kb": 47.3,
+        "family": "Inter",
+        "weight": "100 900",
+        "style": "normal",
+        "display": "swap",
+        "subset": "other(10 ranges)",
+        "range": "U+0-FF, U+131"
+      },
+      {
+        "file": "558ca1a6aa3cb55e-s.p.woff2",
+        "kb": 30.6,
+        "family": "JetBrains Mono",
+        "weight": "600",
+        "style": "normal",
+        "display": "swap",
+        "subset": "other(10 ranges)",
+        "range": "U+0-FF, U+131"
+      },
+      {
+        "file": "d8eaaef4aa8085a5-s.p.woff2",
+        "kb": 47.8,
+        "family": "Merriweather",
+        "weight": "700",
+        "style": "normal",
+        "display": "swap",
+        "subset": "other(10 ranges)",
+        "range": "U+0-FF, U+131"
+      },
+      {
+        "file": "8e9860b6e62d6359-s.woff2",
+        "kb": 83.3,
+        "family": "Inter",
+        "weight": "100 900",
+        "style": "normal",
+        "display": "swap",
+        "subset": "vietnamese",
+        "range": "U+100-2BA, U+2BD-2C5"
+      }
+    ],
+    "totalKB": 209,
+    "usage": {
+      "Inter": {
+        "count": 462,
+        "withText": 196,
+        "weights": {
+          "400": 140,
+          "500": 25,
+          "600": 28,
+          "700": 3
+        },
+        "samples": [
+          "a.sr-only w=400 \"Skip to main content\" [above-fold]",
+          "span.hidden w=500 \"India's Most Trusted Exam Informat\" [above-fold]",
+          "span.hidden w=400 \"WhatsApp\" [above-fold]"
+        ]
+      },
+      "Merriweather": {
+        "count": 30,
+        "withText": 25,
+        "weights": {
+          "600": 21,
+          "700": 4
+        },
+        "samples": [
+          "span.font-heading w=700 \"IndianExamInfo\" [above-fold]",
+          "h1.font-heading w=700 \"SSC Combined Graduate Level 2026\" [above-fold]",
+          "h2.font-heading w=600 \"Quick Information / त्वरित जानकारी\" [above-fold]"
+        ]
+      },
+      "JetBrains Mono": {
+        "count": 4,
+        "withText": 4,
+        "weights": {
+          "400": 4
+        },
+        "samples": [
+          "span.font-mono w=400 \"15 Jun 2026\" [above-fold]",
+          "div.shrink-0 w=400 \"15 Jun 2026\"",
+          "div.shrink-0 w=400 \"15 Jul 2026\""
+        ]
+      }
+    },
+    "declaredUnused": [
+      "Merriweather Fallback",
+      "Inter Fallback",
+      "JetBrains Mono Fallback"
+    ],
+    "facesCount": 27
+  },
+  {
+    "name": "entrance (jee-main)",
+    "path": "/admission/engineering/jee-main",
+    "fonts": [
+      {
+        "file": "e4af272ccee01ff0-s.p.woff2",
+        "kb": 47.3,
+        "family": "Inter",
+        "weight": "100 900",
+        "style": "normal",
+        "display": "swap",
+        "subset": "other(10 ranges)",
+        "range": "U+0-FF, U+131"
+      },
+      {
+        "file": "d8eaaef4aa8085a5-s.p.woff2",
+        "kb": 47.8,
+        "family": "Merriweather",
+        "weight": "700",
+        "style": "normal",
+        "display": "swap",
+        "subset": "other(10 ranges)",
+        "range": "U+0-FF, U+131"
+      },
+      {
+        "file": "558ca1a6aa3cb55e-s.p.woff2",
+        "kb": 30.6,
+        "family": "JetBrains Mono",
+        "weight": "600",
+        "style": "normal",
+        "display": "swap",
+        "subset": "other(10 ranges)",
+        "range": "U+0-FF, U+131"
+      },
+      {
+        "file": "8e9860b6e62d6359-s.woff2",
+        "kb": 83.3,
+        "family": "Inter",
+        "weight": "100 900",
+        "style": "normal",
+        "display": "swap",
+        "subset": "vietnamese",
+        "range": "U+100-2BA, U+2BD-2C5"
+      }
+    ],
+    "totalKB": 209,
+    "usage": {
+      "Inter": {
+        "count": 491,
+        "withText": 195,
+        "weights": {
+          "400": 136,
+          "500": 24,
+          "600": 32,
+          "700": 3
+        },
+        "samples": [
+          "a.sr-only w=400 \"Skip to main content\" [above-fold]",
+          "span.hidden w=500 \"India's Most Trusted Exam Informat\" [above-fold]",
+          "span.hidden w=400 \"WhatsApp\" [above-fold]"
+        ]
+      },
+      "Merriweather": {
+        "count": 30,
+        "withText": 25,
+        "weights": {
+          "600": 21,
+          "700": 4
+        },
+        "samples": [
+          "span.font-heading w=700 \"IndianExamInfo\" [above-fold]",
+          "h1.font-heading w=700 \"Joint Entrance Examination Main 20\" [above-fold]",
+          "h2.font-heading w=600 \"Quick Information / त्वरित जानकारी\" [above-fold]"
+        ]
+      },
+      "JetBrains Mono": {
+        "count": 8,
+        "withText": 8,
+        "weights": {
+          "400": 8
+        },
+        "samples": [
+          "span.font-mono w=400 \"16 Feb 2026\" [above-fold]",
+          "div.shrink-0 w=400 \"15 Oct 2025\"",
+          "div.shrink-0 w=400 \"21 Jan 2026\""
+        ]
+      }
+    },
+    "declaredUnused": [
+      "Merriweather Fallback",
+      "Inter Fallback",
+      "JetBrains Mono Fallback"
+    ],
+    "facesCount": 27
+  },
+  {
+    "name": "board (up-board-class-10)",
+    "path": "/board-exam/state/up-board/up-board-class-10",
+    "fonts": [
+      {
+        "file": "e4af272ccee01ff0-s.p.woff2",
+        "kb": 47.3,
+        "family": "Inter",
+        "weight": "100 900",
+        "style": "normal",
+        "display": "swap",
+        "subset": "other(10 ranges)",
+        "range": "U+0-FF, U+131"
+      },
+      {
+        "file": "d8eaaef4aa8085a5-s.p.woff2",
+        "kb": 47.8,
+        "family": "Merriweather",
+        "weight": "700",
+        "style": "normal",
+        "display": "swap",
+        "subset": "other(10 ranges)",
+        "range": "U+0-FF, U+131"
+      },
+      {
+        "file": "558ca1a6aa3cb55e-s.p.woff2",
+        "kb": 30.6,
+        "family": "JetBrains Mono",
+        "weight": "600",
+        "style": "normal",
+        "display": "swap",
+        "subset": "other(10 ranges)",
+        "range": "U+0-FF, U+131"
+      }
+    ],
+    "totalKB": 125.7,
+    "usage": {
+      "Inter": {
+        "count": 350,
+        "withText": 135,
+        "weights": {
+          "400": 101,
+          "500": 17,
+          "600": 17
+        },
+        "samples": [
+          "a.sr-only w=400 \"Skip to main content\" [above-fold]",
+          "span.hidden w=500 \"India's Most Trusted Exam Informat\" [above-fold]",
+          "span.hidden w=400 \"WhatsApp\" [above-fold]"
+        ]
+      },
+      "Merriweather": {
+        "count": 20,
+        "withText": 15,
+        "weights": {
+          "600": 11,
+          "700": 4
+        },
+        "samples": [
+          "span.font-heading w=700 \"IndianExamInfo\" [above-fold]",
+          "h1.font-heading w=700 \"UP Board Class 10 (High School) 20\" [above-fold]",
+          "h2.font-heading w=600 \"Quick Information / त्वरित जानकारी\" [above-fold]"
+        ]
+      },
+      "JetBrains Mono": {
+        "count": 7,
+        "withText": 7,
+        "weights": {
+          "400": 4,
+          "600": 3
+        },
+        "samples": [
+          "span.font-mono w=400 \"5 Feb 2027\" [above-fold]",
+          "span.font-mono w=600 \"5 Feb 2027\" [above-fold]",
+          "span.font-mono w=600 \"8 Feb 2027\" [above-fold]"
+        ]
+      }
+    },
+    "declaredUnused": [
+      "Merriweather Fallback",
+      "Inter Fallback",
+      "JetBrains Mono Fallback"
+    ],
+    "facesCount": 27
+  },
+  {
+    "name": "hub (/results)",
+    "path": "/results",
+    "fonts": [
+      {
+        "file": "e4af272ccee01ff0-s.p.woff2",
+        "kb": 47.3,
+        "family": "Inter",
+        "weight": "100 900",
+        "style": "normal",
+        "display": "swap",
+        "subset": "other(10 ranges)",
+        "range": "U+0-FF, U+131"
+      },
+      {
+        "file": "d8eaaef4aa8085a5-s.p.woff2",
+        "kb": 47.8,
+        "family": "Merriweather",
+        "weight": "700",
+        "style": "normal",
+        "display": "swap",
+        "subset": "other(10 ranges)",
+        "range": "U+0-FF, U+131"
+      }
+    ],
+    "totalKB": 95.1,
+    "usage": {
+      "Inter": {
+        "count": 205,
+        "withText": 79,
+        "weights": {
+          "400": 61,
+          "500": 7,
+          "600": 11
+        },
+        "samples": [
+          "a.sr-only w=400 \"Skip to main content\" [above-fold]",
+          "span.hidden w=500 \"India's Most Trusted Exam Informat\" [above-fold]",
+          "span.hidden w=400 \"WhatsApp\" [above-fold]"
+        ]
+      },
+      "Merriweather": {
+        "count": 9,
+        "withText": 9,
+        "weights": {
+          "600": 5,
+          "700": 4
+        },
+        "samples": [
+          "span.font-heading w=700 \"IndianExamInfo\" [above-fold]",
+          "h1.font-heading w=700 \"Results / परिणाम 2026 — Check Exam\" [above-fold]",
+          "h2.font-heading w=600 \"All Exam Results 2026\" [above-fold]"
+        ]
+      }
+    },
+    "declaredUnused": [
+      "Merriweather Fallback",
+      "Inter Fallback",
+      "JetBrains Mono",
+      "JetBrains Mono Fallback"
+    ],
+    "facesCount": 27
+  },
+  {
+    "name": "blog article",
+    "path": "/blog/exam-prep/clat-2026-preparation-strategy",
+    "fonts": [
+      {
+        "file": "e4af272ccee01ff0-s.p.woff2",
+        "kb": 47.3,
+        "family": "Inter",
+        "weight": "100 900",
+        "style": "normal",
+        "display": "swap",
+        "subset": "other(10 ranges)",
+        "range": "U+0-FF, U+131"
+      },
+      {
+        "file": "d8eaaef4aa8085a5-s.p.woff2",
+        "kb": 47.8,
+        "family": "Merriweather",
+        "weight": "700",
+        "style": "normal",
+        "display": "swap",
+        "subset": "other(10 ranges)",
+        "range": "U+0-FF, U+131"
+      }
+    ],
+    "totalKB": 95.1,
+    "usage": {
+      "Inter": {
+        "count": 358,
+        "withText": 156,
+        "weights": {
+          "400": 131,
+          "500": 4,
+          "600": 11,
+          "700": 10
+        },
+        "samples": [
+          "a.sr-only w=400 \"Skip to main content\" [above-fold]",
+          "span.hidden w=500 \"India's Most Trusted Exam Informat\" [above-fold]",
+          "span.hidden w=400 \"WhatsApp\" [above-fold]"
+        ]
+      },
+      "Merriweather": {
+        "count": 28,
+        "withText": 25,
+        "weights": {
+          "600": 11,
+          "700": 14
+        },
+        "samples": [
+          "span.font-heading w=700 \"IndianExamInfo\" [above-fold]",
+          "h1.font-heading w=700 \"CLAT 2026 Preparation Guide: How t\" [above-fold]",
+          "h2. w=700 \"CLAT 2026: Strategy for Top NLU Ad\""
+        ]
+      }
+    },
+    "declaredUnused": [
+      "Merriweather Fallback",
+      "Inter Fallback",
+      "JetBrains Mono",
+      "JetBrains Mono Fallback"
+    ],
+    "facesCount": 27
+  }
+]

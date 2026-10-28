@@ -1,0 +1,370 @@
+[
+  {
+    "name": "home",
+    "url": "http://localhost:3002/",
+    "n": 3,
+    "lcpMs": 4369,
+    "tbtMs": 77,
+    "cls": 0,
+    "totalKB": 556,
+    "requests": 34,
+    "jsKB": 161,
+    "fontCount": 3,
+    "fontKB": 129,
+    "perfScore": 0.83,
+    "topImages": [
+      {
+        "url": "/icon.svg",
+        "kb": 2,
+        "mime": "image/svg+xml"
+      }
+    ],
+    "lcpElement": {
+      "label": "Competitive exams (SSC, Banking, Railway) and direct recruitment acros",
+      "selector": "div.container > div.grid > div.flex > p.text-xs"
+    },
+    "fonts": [
+      {
+        "url": "/_next/static/media/e4af272ccee01ff0-s.p.woff2",
+        "kb": 48
+      },
+      {
+        "url": "/_next/static/media/d8eaaef4aa8085a5-s.p.woff2",
+        "kb": 49
+      },
+      {
+        "url": "/_next/static/media/558ca1a6aa3cb55e-s.p.woff2",
+        "kb": 32
+      }
+    ],
+    "shiftNodes": [],
+    "longTasks": [
+      {
+        "duration": 400,
+        "url": "/"
+      },
+      {
+        "duration": 116,
+        "url": "/_next/static/chunks/4bd1b696-f785427dddbba9fb.js"
+      },
+      {
+        "duration": 72,
+        "url": "Unattributable"
+      },
+      {
+        "duration": 71,
+        "url": "/_next/static/chunks/1255-dc3ddf72a1dc71a7.js"
+      },
+      {
+        "duration": 56,
+        "url": "/_next/static/chunks/1255-dc3ddf72a1dc71a7.js"
+      },
+      {
+        "duration": 51,
+        "url": "/_next/static/chunks/webpack-d7f628a034423667.js"
+      }
+    ]
+  },
+  {
+    "name": "sarkari-exam (ssc-cgl)",
+    "url": "http://localhost:3002/sarkari-naukri/ssc/ssc-cgl",
+    "n": 3,
+    "lcpMs": 3737,
+    "tbtMs": 75,
+    "cls": 0.028,
+    "totalKB": 429,
+    "requests": 25,
+    "jsKB": 151,
+    "fontCount": 4,
+    "fontKB": 214,
+    "perfScore": 0.86,
+    "topImages": [
+      {
+        "url": "/icon.svg",
+        "kb": 2,
+        "mime": "image/svg+xml"
+      }
+    ],
+    "lcpElement": {
+      "label": "Compiled from the official notification. Not yet verified by our edito",
+      "selector": "div.exam-page > div.grid > main.exam-content > p.exam-notice-warn"
+    },
+    "fonts": [
+      {
+        "url": "/_next/static/media/e4af272ccee01ff0-s.p.woff2",
+        "kb": 48
+      },
+      {
+        "url": "/_next/static/media/d8eaaef4aa8085a5-s.p.woff2",
+        "kb": 49
+      },
+      {
+        "url": "/_next/static/media/558ca1a6aa3cb55e-s.p.woff2",
+        "kb": 32
+      },
+      {
+        "url": "/_next/static/media/8e9860b6e62d6359-s.woff2",
+        "kb": 84
+      }
+    ],
+    "shiftNodes": [],
+    "longTasks": [
+      {
+        "duration": 365,
+        "url": "/sarkari-naukri/ssc/ssc-cgl"
+      },
+      {
+        "duration": 104,
+        "url": "/_next/static/chunks/4bd1b696-f785427dddbba9fb.js"
+      },
+      {
+        "duration": 61,
+        "url": "Unattributable"
+      },
+      {
+        "duration": 54,
+        "url": "/_next/static/chunks/1255-dc3ddf72a1dc71a7.js"
+      }
+    ]
+  },
+  {
+    "name": "entrance (jee-main)",
+    "url": "http://localhost:3002/admission/engineering/jee-main",
+    "n": 3,
+    "lcpMs": 3744,
+    "tbtMs": 78,
+    "cls": 0.013,
+    "totalKB": 430,
+    "requests": 25,
+    "jsKB": 150,
+    "fontCount": 4,
+    "fontKB": 214,
+    "perfScore": 0.86,
+    "topImages": [
+      {
+        "url": "/icon.svg",
+        "kb": 2,
+        "mime": "image/svg+xml"
+      }
+    ],
+    "lcpElement": {
+      "label": "Joint Entrance Examination Main 2026",
+      "selector": "div.exam-page > div.grid > main.exam-content > h1.font-heading"
+    },
+    "fonts": [
+      {
+        "url": "/_next/static/media/e4af272ccee01ff0-s.p.woff2",
+        "kb": 48
+      },
+      {
+        "url": "/_next/static/media/d8eaaef4aa8085a5-s.p.woff2",
+        "kb": 49
+      },
+      {
+        "url": "/_next/static/media/558ca1a6aa3cb55e-s.p.woff2",
+        "kb": 32
+      },
+      {
+        "url": "/_next/static/media/8e9860b6e62d6359-s.woff2",
+        "kb": 84
+      }
+    ],
+    "shiftNodes": [],
+    "longTasks": [
+      {
+        "duration": 400,
+        "url": "/admission/engineering/jee-main"
+      },
+      {
+        "duration": 139,
+        "url": "/_next/static/chunks/4bd1b696-f785427dddbba9fb.js"
+      },
+      {
+        "duration": 64,
+        "url": "/admission/engineering/jee-main"
+      },
+      {
+        "duration": 57,
+        "url": "Unattributable"
+      },
+      {
+        "duration": 56,
+        "url": "/_next/static/chunks/1255-dc3ddf72a1dc71a7.js"
+      }
+    ]
+  },
+  {
+    "name": "board (up-board-class-10)",
+    "url": "http://localhost:3002/board-exam/state/up-board/up-board-class-10",
+    "n": 3,
+    "lcpMs": 3129,
+    "tbtMs": 54,
+    "cls": 0.012,
+    "totalKB": 341,
+    "requests": 24,
+    "jsKB": 150,
+    "fontCount": 3,
+    "fontKB": 129,
+    "perfScore": 0.92,
+    "topImages": [
+      {
+        "url": "/icon.svg",
+        "kb": 2,
+        "mime": "image/svg+xml"
+      }
+    ],
+    "lcpElement": {
+      "label": "UP Board Class 10 (High School) 2027",
+      "selector": "div.exam-page > div.grid > main.exam-content > h1.font-heading"
+    },
+    "fonts": [
+      {
+        "url": "/_next/static/media/e4af272ccee01ff0-s.p.woff2",
+        "kb": 48
+      },
+      {
+        "url": "/_next/static/media/d8eaaef4aa8085a5-s.p.woff2",
+        "kb": 49
+      },
+      {
+        "url": "/_next/static/media/558ca1a6aa3cb55e-s.p.woff2",
+        "kb": 32
+      }
+    ],
+    "shiftNodes": [],
+    "longTasks": [
+      {
+        "duration": 456,
+        "url": "/board-exam/state/up-board/up-board-class-10"
+      },
+      {
+        "duration": 190,
+        "url": "/_next/static/chunks/1255-dc3ddf72a1dc71a7.js"
+      },
+      {
+        "duration": 65,
+        "url": "Unattributable"
+      },
+      {
+        "duration": 54,
+        "url": "/_next/static/chunks/1255-dc3ddf72a1dc71a7.js"
+      }
+    ]
+  },
+  {
+    "name": "hub (/results)",
+    "url": "http://localhost:3002/results",
+    "n": 3,
+    "lcpMs": 2900,
+    "tbtMs": 36,
+    "cls": 0.001,
+    "totalKB": 365,
+    "requests": 30,
+    "jsKB": 153,
+    "fontCount": 2,
+    "fontKB": 97,
+    "perfScore": 0.94,
+    "topImages": [
+      {
+        "url": "/icon.svg",
+        "kb": 2,
+        "mime": "image/svg+xml"
+      }
+    ],
+    "lcpElement": {
+      "label": "Results / परिणाम 2026 — Check Exam Results for All Competitive Exams",
+      "selector": "div.container > div.grid > main > h1.font-heading"
+    },
+    "fonts": [
+      {
+        "url": "/_next/static/media/e4af272ccee01ff0-s.p.woff2",
+        "kb": 48
+      },
+      {
+        "url": "/_next/static/media/d8eaaef4aa8085a5-s.p.woff2",
+        "kb": 49
+      }
+    ],
+    "shiftNodes": [],
+    "longTasks": [
+      {
+        "duration": 224,
+        "url": "/results"
+      },
+      {
+        "duration": 128,
+        "url": "/_next/static/chunks/4bd1b696-f785427dddbba9fb.js"
+      },
+      {
+        "duration": 60,
+        "url": "Unattributable"
+      },
+      {
+        "duration": 55,
+        "url": "/_next/static/chunks/1255-dc3ddf72a1dc71a7.js"
+      }
+    ]
+  },
+  {
+    "name": "article (blog)",
+    "url": "http://localhost:3002/blog/exam-prep/clat-2026-preparation-strategy",
+    "n": 3,
+    "lcpMs": 2790,
+    "tbtMs": 115,
+    "cls": 0,
+    "totalKB": 346,
+    "requests": 27,
+    "jsKB": 152,
+    "fontCount": 2,
+    "fontKB": 97,
+    "perfScore": 0.85,
+    "topImages": [
+      {
+        "url": "/icon.svg",
+        "kb": 2,
+        "mime": "image/svg+xml"
+      }
+    ],
+    "lcpElement": {
+      "label": "Complete CLAT 2026 preparation guide with section-wise strategy for En",
+      "selector": "div.container > div.grid > main > p.text-lg"
+    },
+    "fonts": [
+      {
+        "url": "/_next/static/media/e4af272ccee01ff0-s.p.woff2",
+        "kb": 48
+      },
+      {
+        "url": "/_next/static/media/d8eaaef4aa8085a5-s.p.woff2",
+        "kb": 49
+      }
+    ],
+    "shiftNodes": [],
+    "longTasks": [
+      {
+        "duration": 460,
+        "url": "/blog/exam-prep/clat-2026-preparation-strategy"
+      },
+      {
+        "duration": 160,
+        "url": "/_next/static/chunks/4bd1b696-f785427dddbba9fb.js"
+      },
+      {
+        "duration": 76,
+        "url": "/blog/exam-prep/clat-2026-preparation-strategy"
+      },
+      {
+        "duration": 66,
+        "url": "/blog/exam-prep/clat-2026-preparation-strategy"
+      },
+      {
+        "duration": 63,
+        "url": "Unattributable"
+      },
+      {
+        "duration": 61,
+        "url": "/_next/static/chunks/1255-dc3ddf72a1dc71a7.js"
+      }
+    ]
+  }
+]

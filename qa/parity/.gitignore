@@ -6,4 +6,12 @@ heading-audit.txt
 seo-audit.txt
 apex-check.txt
 live-check.txt
+# transient Lighthouse per-run dumps (the summarised lighthouse-<label>.* are kept)
+_lh_tmp_*.json
+# scratch output of which-char.mjs (the font-audit-* reports are kept)
+which-char-out.txt
+# server / build transcripts from this batch (the summarised reports are kept)
+*.log
+*.err
+*.err.txt
 

@@ -1,0 +1,85 @@
+CRAWL HYGIENE — http://localhost:3002/sitemap.xml  (2026-10-28T15:30:37.017Z)  [fetched via http://localhost:3002, identity compared on pathname]
+sitemap URLs: 793   crawled: 793
+
+STATUS DISTRIBUTION: {"200":788,"404":5}
+
+NON-200 URLS: 5
+  404  https://www.indianexaminfo.com/admission/university-entrance/christ-cuet  -> http://localhost:3002/admission/university-entrance/christ-cuet
+  404  https://www.indianexaminfo.com/admission/management/ibsat  -> http://localhost:3002/admission/management/ibsat
+  404  https://www.indianexaminfo.com/admission/university-entrance/amu-entrance  -> http://localhost:3002/admission/university-entrance/amu-entrance
+  404  https://www.indianexaminfo.com/admission/law/ilicat  -> http://localhost:3002/admission/law/ilicat
+  404  https://www.indianexaminfo.com/admission/design/nid-dat  -> http://localhost:3002/admission/design/nid-dat
+
+REDIRECT CHAINS > 1 hop: 0
+
+ORPHANS (200, no inbound from any other sitemap page): 161
+  https://www.indianexaminfo.com/resources
+  https://www.indianexaminfo.com/sarkari-naukri/rbi-assistant-2026-prelims-result
+  https://www.indianexaminfo.com/sarkari-naukri/nabard-grade-a-2026-prelims-result
+  https://www.indianexaminfo.com/sarkari-naukri/drdo-ceptam-2026-result
+  https://www.indianexaminfo.com/sarkari-naukri/csir-net-june-2026-result
+  https://www.indianexaminfo.com/sarkari-naukri/up-block-development-office-clerk-2026
+  https://www.indianexaminfo.com/sarkari-naukri/mp-police-constable-driver-2026
+  https://www.indianexaminfo.com/sarkari-naukri/ctet-july-2026-result
+  https://www.indianexaminfo.com/sarkari-naukri/up-sichai-vibhag-tubewell-operator-2026
+  https://www.indianexaminfo.com/sarkari-naukri/rajasthan-gds-bharti-2026-jodhpur-division
+  https://www.indianexaminfo.com/sarkari-naukri/rajasthan-medical-college-group-d-2026
+  https://www.indianexaminfo.com/sarkari-naukri/up-health-dept-ward-boy-2026-all-districts
+  https://www.indianexaminfo.com/sarkari-naukri/up-basic-shiksha-parishad-peon-2026
+  https://www.indianexaminfo.com/sarkari-naukri/up-anganwadi-bharti-2026-faizabad-ayodhya-division
+  https://www.indianexaminfo.com/sarkari-naukri/jharkhand-forest-guard-2026
+  https://www.indianexaminfo.com/sarkari-naukri/rajasthan-patwari-bharti-2026-jaipur-division
+  https://www.indianexaminfo.com/sarkari-naukri/haryana-patwari-bharti-2026
+  https://www.indianexaminfo.com/sarkari-naukri/rajasthan-mgnrega-mate-bharti-2026
+  https://www.indianexaminfo.com/sarkari-naukri/rajasthan-forest-guard-vanrakshak-2026
+  https://www.indianexaminfo.com/sarkari-naukri/esic-nursing-officer-2026-result
+  https://www.indianexaminfo.com/sarkari-naukri/up-primary-school-sahayak-clerk-2026
+  https://www.indianexaminfo.com/sarkari-naukri/up-gram-panchayat-vikas-adhikari-2026-azamgarh
+  https://www.indianexaminfo.com/sarkari-naukri/up-anganwadi-worker-helper-bharti-2026-lucknow
+  https://www.indianexaminfo.com/sarkari-naukri/up-anganwadi-bharti-2026-agra-division
+  https://www.indianexaminfo.com/sarkari-naukri/up-tehsil-office-peon-clerk-2026
+  https://www.indianexaminfo.com/sarkari-naukri/haryana-gram-sachiv-bharti-2026
+  https://www.indianexaminfo.com/sarkari-naukri/uttarakhand-forest-guard-2026
+  https://www.indianexaminfo.com/sarkari-naukri/bihar-asha-bharti-2026-muzaffarpur
+  https://www.indianexaminfo.com/sarkari-naukri/up-zila-panchayat-data-entry-operator-2026
+  https://www.indianexaminfo.com/sarkari-naukri/up-gram-panchayat-vikas-adhikari-2026-sultanpur
+
+SOFT-404 — empty-banner pages (explicit no-content message): 0
+
+SOFT-404 — very-low main text (<600B; card-heavy hubs can be legit): 27
+  main=536B banner=false  https://www.indianexaminfo.com/admit-card
+  main=386B banner=false  https://www.indianexaminfo.com/results
+  main=513B banner=false  https://www.indianexaminfo.com/sarkari-naukri/state
+  main=321B banner=false  https://www.indianexaminfo.com/admission/defence-entrance
+  main=202B banner=false  https://www.indianexaminfo.com/admission/teaching-and-education
+  main=209B banner=false  https://www.indianexaminfo.com/sarkari-naukri/cooperative-recruitment
+  main=452B banner=false  https://www.indianexaminfo.com/sarkari-naukri/defence-direct-recruitment
+  main=280B banner=false  https://www.indianexaminfo.com/sarkari-naukri/health
+  main=556B banner=false  https://www.indianexaminfo.com/sarkari-naukri/insurance
+  main=322B banner=false  https://www.indianexaminfo.com/sarkari-naukri/judiciary
+  main=400B banner=false  https://www.indianexaminfo.com/sarkari-naukri/judiciary-recruitment
+  main=524B banner=false  https://www.indianexaminfo.com/sarkari-naukri/police-paramilitary
+  main=385B banner=false  https://www.indianexaminfo.com/sarkari-naukri/postal-recruitment
+  main=485B banner=false  https://www.indianexaminfo.com/sarkari-naukri/power-utility-recruitment
+  main=305B banner=false  https://www.indianexaminfo.com/sarkari-naukri/social-welfare-recruitment
+  main=288B banner=false  https://www.indianexaminfo.com/sarkari-naukri/transport-recruitment
+  main=596B banner=false  https://www.indianexaminfo.com/sarkari-naukri/state/kerala
+  main=544B banner=false  https://www.indianexaminfo.com/sarkari-naukri/state/delhi
+  main=469B banner=false  https://www.indianexaminfo.com/blog/education-news
+  main=485B banner=false  https://www.indianexaminfo.com/blog/career-guidance
+  main=224B banner=false  https://www.indianexaminfo.com/blog/scholarship
+  main=228B banner=false  https://www.indianexaminfo.com/blog/study-abroad
+  main=210B banner=false  https://www.indianexaminfo.com/blog/edtech
+  main=229B banner=false  https://www.indianexaminfo.com/blog/student-life
+  main=211B banner=false  https://www.indianexaminfo.com/blog/opinion
+  main=231B banner=false  https://www.indianexaminfo.com/sarkari-naukri/state/chandigarh
+  main=225B banner=false  https://www.indianexaminfo.com/sarkari-naukri/state/jammu-kashmir
+
+DUPLICATE <title> groups: 1
+  x2  "CDS 2026 Exam - IMA, AFA, NA, OTA | IndianExamInfo"  e.g. https://www.indianexaminfo.com/admission/defence-entrance/cds, https://www.indianexaminfo.com/sarkari-naukri/upsc/upsc-cds
+
+DUPLICATE meta description groups: 1
+  x2  "CDS 2026 for Indian Military Academy, Air Force Academy, Naval Academy, OTA."  e.g. https://www.indianexaminfo.com/admission/defence-entrance/cds, https://www.indianexaminfo.com/sarkari-naukri/upsc/upsc-cds
+
+CANONICAL MISMATCHES (canonical != own final URL): 1
+  https://www.indianexaminfo.com/board-exam/state/up-board/up-board-class-10/2026  canonical=https://www.indianexaminfo.com/board-exam/state/up-board/up-board-class-10

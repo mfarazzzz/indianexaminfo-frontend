@@ -1,0 +1,56 @@
+FONT AUDIT before — http://localhost:3002  2026-10-28T14:38:29.071Z
+
+home  [/]   3 font file(s), 173.2 KB, 32 @font-face rules declared
+    47.3 KB  Inter                      w=100 900   normal other(10 ranges) display=swap   e4af272ccee01ff0-s.p.woff2         used by 404 text el(s)
+                       range=U+0-FF, U+131   e.g. a.sr-only w=400 "Skip to main content" [above-fold]
+    30.6 KB  JetBrains Mono             w=600       normal other(10 ranges) display=swap   558ca1a6aa3cb55e-s.p.woff2         used by 12 text el(s)
+                       range=U+0-FF, U+131   e.g. span.shrink-0 w=500 "30 Oct 2026"
+    95.3 KB  Merriweather               w=700       normal other(10 ranges) display=swap   1f3fe8c6df3d47c1-s.p.woff2         used by 52 text el(s)
+                       range=U+0-FF, U+131   e.g. span.font-heading w=700 "IndianExamInfo" [above-fold]
+  DECLARED BUT UNUSED ON THIS PAGE: Merriweather Fallback, Inter Fallback, JetBrains Mono Fallback
+
+exam (ssc-cgl)  [/sarkari-naukri/ssc/ssc-cgl]   4 font file(s), 256.5 KB, 32 @font-face rules declared
+    47.3 KB  Inter                      w=100 900   normal other(10 ranges) display=swap   e4af272ccee01ff0-s.p.woff2         used by 180 text el(s)
+                       range=U+0-FF, U+131   e.g. a.sr-only w=400 "Skip to main content" [above-fold]
+    95.3 KB  Merriweather               w=700       normal other(10 ranges) display=swap   1f3fe8c6df3d47c1-s.p.woff2         used by 23 text el(s)
+                       range=U+0-FF, U+131   e.g. span.font-heading w=700 "IndianExamInfo" [above-fold]
+    30.6 KB  JetBrains Mono             w=600       normal other(10 ranges) display=swap   558ca1a6aa3cb55e-s.p.woff2         used by 4 text el(s)
+                       range=U+0-FF, U+131   e.g. span.font-mono w=400 "15 Jun 2026" [above-fold]
+    83.3 KB  Inter                      w=100 900   normal vietnamese   display=swap   8e9860b6e62d6359-s.woff2           used by 180 text el(s)
+                       range=U+100-2BA, U+2BD-2C5   e.g. a.sr-only w=400 "Skip to main content" [above-fold]
+  DECLARED BUT UNUSED ON THIS PAGE: Merriweather Fallback, Inter Fallback, JetBrains Mono Fallback
+
+entrance (jee-main)  [/admission/engineering/jee-main]   4 font file(s), 256.5 KB, 32 @font-face rules declared
+    47.3 KB  Inter                      w=100 900   normal other(10 ranges) display=swap   e4af272ccee01ff0-s.p.woff2         used by 191 text el(s)
+                       range=U+0-FF, U+131   e.g. a.sr-only w=400 "Skip to main content" [above-fold]
+    95.3 KB  Merriweather               w=700       normal other(10 ranges) display=swap   1f3fe8c6df3d47c1-s.p.woff2         used by 23 text el(s)
+                       range=U+0-FF, U+131   e.g. span.font-heading w=700 "IndianExamInfo" [above-fold]
+    30.6 KB  JetBrains Mono             w=600       normal other(10 ranges) display=swap   558ca1a6aa3cb55e-s.p.woff2         used by 8 text el(s)
+                       range=U+0-FF, U+131   e.g. span.font-mono w=400 "16 Feb 2026" [above-fold]
+    83.3 KB  Inter                      w=100 900   normal vietnamese   display=swap   8e9860b6e62d6359-s.woff2           used by 191 text el(s)
+                       range=U+100-2BA, U+2BD-2C5   e.g. a.sr-only w=400 "Skip to main content" [above-fold]
+  DECLARED BUT UNUSED ON THIS PAGE: Merriweather Fallback, Inter Fallback, JetBrains Mono Fallback
+
+board (up-board-class-10)  [/board-exam/state/up-board/up-board-class-10]   3 font file(s), 173.2 KB, 32 @font-face rules declared
+    47.3 KB  Inter                      w=100 900   normal other(10 ranges) display=swap   e4af272ccee01ff0-s.p.woff2         used by 135 text el(s)
+                       range=U+0-FF, U+131   e.g. a.sr-only w=400 "Skip to main content" [above-fold]
+    95.3 KB  Merriweather               w=700       normal other(10 ranges) display=swap   1f3fe8c6df3d47c1-s.p.woff2         used by 15 text el(s)
+                       range=U+0-FF, U+131   e.g. span.font-heading w=700 "IndianExamInfo" [above-fold]
+    30.6 KB  JetBrains Mono             w=600       normal other(10 ranges) display=swap   558ca1a6aa3cb55e-s.p.woff2         used by 7 text el(s)
+                       range=U+0-FF, U+131   e.g. span.font-mono w=400 "5 Feb 2027" [above-fold]
+  DECLARED BUT UNUSED ON THIS PAGE: Merriweather Fallback, Inter Fallback, JetBrains Mono Fallback
+
+hub (/results)  [/results]   2 font file(s), 142.6 KB, 32 @font-face rules declared
+    47.3 KB  Inter                      w=100 900   normal other(10 ranges) display=swap   e4af272ccee01ff0-s.p.woff2         used by 79 text el(s)
+                       range=U+0-FF, U+131   e.g. a.sr-only w=400 "Skip to main content" [above-fold]
+    95.3 KB  Merriweather               w=700       normal other(10 ranges) display=swap   1f3fe8c6df3d47c1-s.p.woff2         used by 9 text el(s)
+                       range=U+0-FF, U+131   e.g. span.font-heading w=700 "IndianExamInfo" [above-fold]
+  DECLARED BUT UNUSED ON THIS PAGE: Merriweather Fallback, Inter Fallback, JetBrains Mono, JetBrains Mono Fallback
+
+blog article  [/blog/exam-prep/clat-2026-preparation-strategy]   2 font file(s), 142.6 KB, 32 @font-face rules declared
+    47.3 KB  Inter                      w=100 900   normal other(10 ranges) display=swap   e4af272ccee01ff0-s.p.woff2         used by 156 text el(s)
+                       range=U+0-FF, U+131   e.g. a.sr-only w=400 "Skip to main content" [above-fold]
+    95.3 KB  Merriweather               w=700       normal other(10 ranges) display=swap   1f3fe8c6df3d47c1-s.p.woff2         used by 25 text el(s)
+                       range=U+0-FF, U+131   e.g. span.font-heading w=700 "IndianExamInfo" [above-fold]
+  DECLARED BUT UNUSED ON THIS PAGE: Merriweather Fallback, Inter Fallback, JetBrains Mono, JetBrains Mono Fallback
+

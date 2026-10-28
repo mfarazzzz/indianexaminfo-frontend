@@ -1,0 +1,94 @@
+[
+  {
+    "path": "/sarkari-naukri/ssc/ssc-cgl",
+    "total": 0,
+    "shifts": []
+  },
+  {
+    "path": "/board-exam/state/up-board/up-board-class-10",
+    "total": 0,
+    "shifts": []
+  },
+  {
+    "path": "/",
+    "total": 0.0173,
+    "shifts": [
+      {
+        "score": 0.017338,
+        "time": 2973,
+        "sources": [
+          {
+            "sel": "section.py-6",
+            "text": "Sarkari NaukriGovernment jobs & recruitm",
+            "from": [
+              388,
+              352,
+              360
+            ],
+            "to": [
+              372,
+              368,
+              360
+            ]
+          },
+          {
+            "sel": "div.order-1.sm:order-none",
+            "text": "Filter by categoryAll ExamsSarkari Naukr",
+            "from": [
+              254,
+              134,
+              360
+            ],
+            "to": [
+              238,
+              134,
+              360
+            ]
+          },
+          {
+            "sel": "span.block.text-[11px]",
+            "text": "Verify with the official notice / आधिकार",
+            "from": [
+              176,
+              33,
+              278
+            ],
+            "to": [
+              160,
+              33,
+              279
+            ]
+          },
+          {
+            "sel": "span.block.text-sm",
+            "text": "ECCE Educator-Rampur",
+            "from": [
+              155,
+              19,
+              279
+            ],
+            "to": [
+              139,
+              19,
+              278
+            ]
+          },
+          {
+            "sel": "span.block.text-[12px]",
+            "text": "Last date 30 Oct 2026 · 2 days left",
+            "from": [
+              209,
+              18,
+              278
+            ],
+            "to": [
+              193,
+              18,
+              278
+            ]
+          }
+        ]
+      }
+    ]
+  }
+]

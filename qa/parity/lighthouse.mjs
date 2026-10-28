@@ -43,7 +43,21 @@ function runOnce(url, tmp) {
   const jsBytes = reqs.filter((x) => x.resourceType === "Script").reduce((s, x) => s + (x.transferSize || 0), 0);
   const fontReqs = reqs.filter((x) => x.resourceType === "Font");
   const imgReqs = reqs.filter((x) => x.resourceType === "Image").sort((x, y) => (y.transferSize || 0) - (x.transferSize || 0));
-  const lcpEl = a["largest-contentful-paint-element"]?.details?.items?.[0]?.items?.[0];
+  const lcpNode = a["largest-contentful-paint-element"]?.details?.items?.[0]?.items?.[0]?.node;
+  // WHAT actually moved (F5): Lighthouse reports every shifting node with its own CLS contribution.
+  const shiftNodes = (a["layout-shift-elements"]?.details?.items ?? [])
+    .map((i) => ({
+      score: Number((i.score || 0).toFixed(5)),
+      selector: i.node?.selector || "",
+      label: (i.node?.nodeLabel || "").slice(0, 70),
+      snippet: (i.node?.snippet || "").slice(0, 120),
+      paintLocation: i.node?.boundingRect ? `${Math.round(i.node.boundingRect.top)}px top, ${Math.round(i.node.boundingRect.height)}px h` : "",
+    }))
+    .sort((x, y) => y.score - x.score);
+  // WHAT blocked the main thread (F7): long tasks with their script and duration.
+  const longTasks = (a["long-tasks"]?.details?.items ?? [])
+    .map((t) => ({ duration: Math.round(t.duration || 0), url: (t.url || "").replace(/^https?:\/\/[^/]+/, "").slice(0, 70) }))
+    .sort((x, y) => y.duration - x.duration);
   return {
     lcp: a["largest-contentful-paint"].numericValue,
     tbt: a["total-blocking-time"].numericValue,
@@ -51,8 +65,11 @@ function runOnce(url, tmp) {
     totalBytes: a["total-byte-weight"].numericValue,
     requests: reqs.length, jsBytes,
     fontCount: fontReqs.length, fontBytes: fontReqs.reduce((s, x) => s + (x.transferSize || 0), 0),
+    fonts: fontReqs.map((f) => ({ url: (f.url || "").replace(/^https?:\/\/[^/]+/, ""), kb: kb(f.transferSize || 0) })),
+    imgCount: imgReqs.length, imgBytes: imgReqs.reduce((s, x) => s + (x.transferSize || 0), 0),
     topImages: imgReqs.slice(0, 3).map((x) => ({ url: (x.url || "").replace(/^https?:\/\/[^/]+/, "").slice(0, 60), kb: kb(x.transferSize || 0), mime: x.mimeType || "" })),
-    lcpImage: lcpEl ? { url: (lcpEl.url || "").replace(/^https?:\/\/[^/]+/, "").slice(0, 60) } : null,
+    lcpElement: lcpNode ? { label: (lcpNode.nodeLabel || "").slice(0, 70), selector: lcpNode.selector || "" } : null,
+    shiftNodes, longTasks,
     score: j.categories?.performance?.score ?? 0,
   };
 }
@@ -81,7 +98,11 @@ for (const [name, path] of TARGETS) {
     fontKB: kb(median(runs.map((r) => r.fontBytes))),
     perfScore: Number(median(runs.map((r) => r.score)).toFixed(2)),
     topImages: runs[Math.floor(runs.length / 2)].topImages,
-    lcpImage: runs[Math.floor(runs.length / 2)].lcpImage,
+    lcpElement: runs[Math.floor(runs.length / 2)].lcpElement,
+    fonts: runs[Math.floor(runs.length / 2)].fonts,
+    // The middle run's trace is representative; the shifts are deterministic enough to name.
+    shiftNodes: runs.map((r) => r.shiftNodes).sort((x, y) => y.length - x.length)[0],
+    longTasks: runs.map((r) => r.longTasks).sort((x, y) => y.length - x.length)[0],
   };
   out.push(med);
   console.log(`${med.name.padEnd(28)} LCP=${med.lcpMs}ms TBT=${med.tbtMs}ms CLS=${med.cls} total=${med.totalKB}KB req=${med.requests} js=${med.jsKB}KB fonts=${med.fontCount}/${med.fontKB}KB score=${med.perfScore}`);
@@ -94,8 +115,13 @@ for (const m of out) {
     `${m.name}  [${m.url}]  (n=${m.n})\n` +
     `  LCP=${m.lcpMs}ms  TBT=${m.tbtMs}ms  CLS=${m.cls}  perf=${m.perfScore}\n` +
     `  total=${m.totalKB}KB  requests=${m.requests}  JS=${m.jsKB}KB  fonts=${m.fontCount} req / ${m.fontKB}KB\n` +
-    `  LCP element: ${m.lcpImage ? m.lcpImage.url : "(non-image)"}\n` +
-    `  largest images: ${m.topImages.map((i) => `${i.kb}KB ${i.mime.replace("image/", "")} ${i.url}`).join("  |  ")}`,
+    `  LCP element: ${m.lcpElement ? `${m.lcpElement.selector} "${m.lcpElement.label}"` : "(unknown)"}\n` +
+    `  largest images: ${m.topImages.map((i) => `${i.kb}KB ${i.mime.replace("image/", "")} ${i.url}`).join("  |  ")}\n` +
+    `  font files: ${(m.fonts || []).map((f) => `${f.kb}KB ${f.url.split("/").pop()}`).join("  |  ")}\n` +
+    `  layout shifts (${(m.shiftNodes || []).reduce((s, x) => s + x.score, 0).toFixed(3)} total):\n` +
+    (m.shiftNodes || []).slice(0, 6).map((s) => `    ${s.score}  ${s.selector}  [${s.paintLocation}]  "${s.label}"`).join("\n") + "\n" +
+    `  longest tasks:\n` +
+    (m.longTasks || []).slice(0, 4).map((t) => `    ${t.duration}ms  ${t.url}`).join("\n"),
   );
 }
 const report = lines.join("\n");

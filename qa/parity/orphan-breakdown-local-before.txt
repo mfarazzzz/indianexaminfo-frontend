@@ -1,0 +1,40 @@
+ORPHAN BREAKDOWN — orphans-local-before.txt (179 urls) vs http://localhost:3002  2026-10-28T14:26:38.970Z
+
+BY URL TEMPLATE:
+   169  sarkari-naukri/{job-slug} (vacancy detail)
+     9  sarkari-naukri/{category}/{exam-slug} (exam detail)
+     1  resources (static hub)
+
+BY PILLAR:
+   178  sarkari-naukri
+     1  (other)
+
+BY CATEGORY SEGMENT (record pages only):
+     5  sarkari-naukri/upsc
+     4  sarkari-naukri/ssc
+
+BY SLUG TAIL (record pages):
+   145  notification/vacancy
+    23  result
+    11  prelims-result
+
+WHY UNLINKED (checked against the hub pages themselves):
+   169  NOT-LINKED-BY-ANY-HUB
+     9  LINKED-FROM-A-HUB
+
+15 EXAMPLES:
+  /sarkari-naukri/upsc/upsc-nda   [LINKED-FROM-A-HUB] ownHub=/sarkari-naukri/upsc(200)
+  /sarkari-naukri/ssc/ssc-chsl   [LINKED-FROM-A-HUB] ownHub=/sarkari-naukri/ssc(200)
+  /sarkari-naukri/upsc/upsc-cse   [LINKED-FROM-A-HUB] ownHub=/sarkari-naukri/upsc(200)
+  /sarkari-naukri/ssc/ssc-mts   [LINKED-FROM-A-HUB] ownHub=/sarkari-naukri/ssc(200)
+  /sarkari-naukri/upsc/upsc-cds   [LINKED-FROM-A-HUB] ownHub=/sarkari-naukri/upsc(200)
+  /sarkari-naukri/ssc/ssc-selection-post   [LINKED-FROM-A-HUB] ownHub=/sarkari-naukri/ssc(200)
+  /sarkari-naukri/upsc/upsc-ese   [LINKED-FROM-A-HUB] ownHub=/sarkari-naukri/upsc(200)
+  /sarkari-naukri/upsc/upsc-cms   [LINKED-FROM-A-HUB] ownHub=/sarkari-naukri/upsc(200)
+  /sarkari-naukri/ssc/ssc-si-capf   [LINKED-FROM-A-HUB] ownHub=/sarkari-naukri/ssc(200)
+  /sarkari-naukri/lic-ado-2026-prelims-result   [NOT-LINKED-BY-ANY-HUB] ownHub=/sarkari-naukri/bharti(200)
+  /sarkari-naukri/rbi-assistant-2026-prelims-result   [NOT-LINKED-BY-ANY-HUB] ownHub=/sarkari-naukri/bharti(200)
+  /sarkari-naukri/nabard-grade-a-2026-prelims-result   [NOT-LINKED-BY-ANY-HUB] ownHub=/sarkari-naukri/bharti(200)
+  /sarkari-naukri/drdo-ceptam-2026-result   [NOT-LINKED-BY-ANY-HUB] ownHub=/sarkari-naukri/bharti(200)
+  /sarkari-naukri/csir-net-june-2026-result   [NOT-LINKED-BY-ANY-HUB] ownHub=/sarkari-naukri/bharti(200)
+  /sarkari-naukri/sail-mt-2026-result   [NOT-LINKED-BY-ANY-HUB] ownHub=/sarkari-naukri/bharti(200)

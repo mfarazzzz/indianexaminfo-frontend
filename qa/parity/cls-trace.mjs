@@ -9,7 +9,7 @@
 // Read-only against a running build. No network throttling here (Lighthouse does that);
 // this answers WHICH, Lighthouse answers HOW MUCH.
 //
-//   node qa/parity/cls-trace.mjs [http://localhost:3002] [/path …]
+//   CPU_THROTTLE=4 NET_KBPS=1600 node qa/parity/cls-trace.mjs [http://localhost:3002] [/path …]
 import { chromium } from "@playwright/test";
 import { writeFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
@@ -46,21 +46,40 @@ new PerformanceObserver((list) => {
 }).observe({ type: "layout-shift", buffered: true });
 `;
 
+// CPU_THROTTLE=4 reproduces the Lighthouse mobile condition (4x CPU) on a fast machine.
+// Without it the swap finishes before the observer can catch the shift, and a page whose
+// SIMULATED CLS is 0.028 looks perfectly still — this is how the shifting element gets
+// named instead of guessed.
+const CPU_THROTTLE = Number(process.env.CPU_THROTTLE || 0);
+const NET_KBPS = Number(process.env.NET_KBPS || 0);      // kb/s per direction, 0 = off
+
 const browser = await launch();
 const report = [];
 for (const path of PATHS) {
   const ctx = await browser.newContext({ viewport: { width: 360, height: 740 } });
   const page = await ctx.newPage();
   await page.addInitScript(OBSERVER);
-  await page.goto(BASE + path, { waitUntil: "load", timeout: 60_000 });
-  await page.waitForTimeout(6000);           // let late-loading strips/ads settle
+  if (CPU_THROTTLE > 0 || NET_KBPS > 0) {
+    const cdp = await ctx.newCDPSession(page);
+    if (CPU_THROTTLE > 0) await cdp.send("Emulation.setCPUThrottlingRate", { rate: CPU_THROTTLE });
+    if (NET_KBPS > 0) await cdp.send("Network.emulateNetworkConditions", {
+      offline: false, latency: 150,
+      downloadThroughput: (NET_KBPS * 1024) / 8, uploadThroughput: (NET_KBPS * 1024) / 8,
+    });
+  }
+  await page.goto(BASE + path, { waitUntil: "load", timeout: 180_000 });
+  await page.waitForTimeout(8000);           // let late-loading strips/ads settle
   const shifts = await page.evaluate(async () => {
     await document.fonts.ready;
     return window.__shifts;
   });
+  const lcp = await page.evaluate(() => {
+    const e = performance.getEntriesByType("largest-contentful-paint").slice(-1)[0];
+    return e ? Math.round(e.startTime) : 0;
+  });
   const total = shifts.reduce((s, x) => s + x.score, 0);
   report.push({ path, total: Number(total.toFixed(4)), shifts });
-  console.log(`\n${path}  CLS(from observer)=${total.toFixed(4)}  shift entries=${shifts.length}`);
+  console.log(`\n${path}  CLS(from observer)=${total.toFixed(4)}  shift entries=${shifts.length}  LCP=${lcp}ms (cpu ${CPU_THROTTLE || 1}x, net ${NET_KBPS || "unthrottled"})`);
   for (const s of shifts.sort((a, b) => b.score - a.score).slice(0, 8)) {
     console.log(`  ${s.score.toFixed(5)} @${s.time}ms  ${s.sources.map((x) => `${x.sel} "[${x.text}]" top ${x.from[0]}->${x.to[0]} h ${x.from[1]}->${x.to[1]}`).join(" ; ")}`);
   }

@@ -10,15 +10,34 @@
 //   • duplicate <title> and duplicate meta-description groups (count + 10 examples);
 //   • canonical mismatches — canonical != own final URL.
 // Politeness: max 4 concurrent, 250ms spacing, GET only, no auth, no writes to the site.
-// Nothing is POSTed anywhere; results are printed and written to crawl-hygiene.txt.
+// Nothing is POSTed anywhere; results are printed and written to crawl-hygiene.txt
+// (or crawl-hygiene-<label>.txt when --out= is used).
 //
-//   node qa/parity/crawl-hygiene.mjs [sitemapUrl]
+// LOCAL MODE (owner batch 3, F1/F2/F4): point the crawl at a production build running
+// on localhost without crawling the live site twice:
+//
+//   node qa/parity/crawl-hygiene.mjs http://localhost:3002/sitemap.xml --rewrite-origin=http://localhost:3002 --label=local
+//
+// --rewrite-origin=<o>  rewrites every <loc> host to <o> before fetching (the sitemap
+//                       itself always emits absolute PRODUCTION URLs, because siteConfig.url
+//                       is baked at build time, so a local crawl needs the host swapped).
+//                       With it set, identity comparisons (canonical vs final URL) are made
+//                       on the PATHNAME, because a local page legitimately carries the
+//                       production canonical origin.
+// --label=<name>        tags the output file so a local run cannot overwrite the live report.
 import { writeFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, resolve } from "node:path";
 
 const dir = dirname(fileURLToPath(import.meta.url));
-const SITEMAP = process.argv[2] || "https://www.indianexaminfo.com/sitemap.xml";
+const argv = process.argv.slice(2);
+const flag = (name) => (argv.find((a) => a.startsWith(`--${name}=`) || a === `--${name}`) || "").split("=")[1] || "";
+const positional = argv.filter((a) => !a.startsWith("--"));
+const SITEMAP = positional[0] || "https://www.indianexaminfo.com/sitemap.xml";
+const REWRITE_ORIGIN = flag("rewrite-origin");   // "" = crawl the host as written
+const LABEL = flag("label") || "";
+const PATH_ONLY = Boolean(REWRITE_ORIGIN);       // origin differs from the page's canonical origin
+const OUT_FILE = LABEL ? `crawl-hygiene-${LABEL}.txt` : "crawl-hygiene.txt";
 const UA = "Mozilla/5.0 (compatible; iei-crawl-hygiene/1.0; read-only QA)";
 const MAX_CONCURRENCY = 4;
 const SPACING_MS = 250;
@@ -30,6 +49,35 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 function norm(u) {
   try { const x = new URL(u, SITEMAP); return x.origin + x.pathname.replace(/\/+$/, "") || x.origin; }
   catch { return u; }
+}
+
+/**
+ * Identity key used for every comparison. In local mode the fetched page lives on
+ * localhost while its canonical tag carries the production origin, so only the PATHNAME
+ * can be compared; the origin is compared by the fact that the sitemap itself was served
+ * by the build under test.
+ */
+function ident(u) {
+  if (!PATH_ONLY) return norm(u);
+  try { const x = new URL(u, SITEMAP); return x.pathname.replace(/\/+$/, "") || "/"; }
+  catch { return u; }
+}
+
+/** Swap the host of a sitemap <loc> for the host actually being crawled (--rewrite-origin). */
+function toCrawlUrl(loc) {
+  if (!REWRITE_ORIGIN) return loc;
+  try { const x = new URL(loc, SITEMAP); const base = new URL(REWRITE_ORIGIN); x.protocol = base.protocol; x.host = base.host; return x.toString(); }
+  catch { return loc; }
+}
+
+/** True when an href on `pageUrl` points back at the site being crawled (same host). */
+function isInternalHref(href, pageUrl) {
+  if (/^(mailto:|tel:|javascript:|#)/i.test(href)) return false;
+  if (!/^(https?:)?\/\//.test(href)) return true; // relative → always internal
+  try {
+    const h = new URL(href, pageUrl).hostname;
+    return h === new URL(pageUrl).hostname || h === new URL(SITEMAP).hostname;
+  } catch { return false; }
 }
 
 /** Follow redirects by hand so the hop count is visible. Returns {final, status, hops, body}. */
@@ -66,8 +114,9 @@ await new Promise((done) => {
   const next = () => {
     if (i >= urls.length) { if (active === 0) done(); return; }
     const url = urls[i++]; active++;
+    const fetchUrl = toCrawlUrl(url);
     (async () => {
-      const c = await getChain(url);
+      const c = await getChain(fetchUrl);
       const body = c.body || "";
       const title = (body.match(titleRe) || [])[1]?.trim() || "";
       const canon = (body.match(canonRe) || [])[1]?.trim() || "";
@@ -75,9 +124,8 @@ await new Promise((done) => {
       const links = new Set();
       for (const m of body.matchAll(anchorRe)) {
         const href = m[1];
-        if (/^(https?:)?\/\//.test(href) && !href.startsWith(new URL(url).origin)) continue; // external
-        if (/^(mailto:|tel:|javascript:|#)/i.test(href)) continue;
-        try { links.add(norm(new URL(href, url).toString())); } catch { /* ignore bad href */ }
+        if (!isInternalHref(href, fetchUrl)) continue;
+        try { links.add(ident(new URL(href, fetchUrl).toString())); } catch { /* ignore bad href */ }
       }
       results.set(url, { ...c, title, canon, desc, links, mainLen: stripTags((body.match(mainRe) || [])[1] ?? body).length });
       setTimeout(() => { active--; next(); }, SPACING_MS);
@@ -89,37 +137,39 @@ await new Promise((done) => {
 // 3. Analyse.
 const statusDist = {};
 const chains = [];
+const nonOk = [];
 const canonicalMismatch = [];
 const bannerHits = [];
 const lowText = [];
 const titles = new Map(), descs = new Map();
-const inbound = new Map(); // norm(url) -> count of OTHER sitemap pages linking to it
-const normOf = new Map(); // norm(url) -> original sitemap url (for sitemap urls only)
-for (const u of urls) normOf.set(norm(u), u);
-for (const u of urls) inbound.set(norm(u), 0);
+const inbound = new Map(); // ident(url) -> count of OTHER sitemap pages linking to it
+for (const u of urls) inbound.set(ident(u), 0);
 
 for (const [u, r] of results) {
   statusDist[r.status] = (statusDist[r.status] || 0) + 1;
+  if (r.status !== 200) nonOk.push({ u, status: r.status, final: r.final, hops: r.hops });
   if (typeof r.hops === "number" && r.hops > 1) chains.push({ u, hops: r.hops, final: r.final });
   if (r.status === 200) {
-    if (r.canon && norm(r.canon) !== norm(r.final)) canonicalMismatch.push({ u, canonical: r.canon, final: r.final });
+    if (r.canon && ident(r.canon) !== ident(r.final)) canonicalMismatch.push({ u, canonical: r.canon, final: r.final });
     const banner = EMPTY_BANNERS.some((re) => re.test(r.body || ""));
     if (banner) bannerHits.push({ u, mainLen: r.mainLen });
     if (r.mainLen < 600) lowText.push({ u, mainLen: r.mainLen, banner });
     if (r.title) { (titles.get(r.title) || titles.set(r.title, []).get(r.title)).push(u); }
     if (r.desc) { (descs.get(r.desc) || descs.set(r.desc, []).get(r.desc)).push(u); }
-    for (const l of r.links) { if (inbound.has(l) && norm(l) !== norm(u)) inbound.set(l, inbound.get(l) + 1); }
+    for (const l of r.links) { if (inbound.has(l) && l !== ident(u)) inbound.set(l, inbound.get(l) + 1); }
   }
 }
 const dupTitles = [...titles.entries()].filter(([, v]) => v.length > 1).sort((a, b) => b[1].length - a[1].length);
 const dupDescs = [...descs.entries()].filter(([, v]) => v.length > 1).sort((a, b) => b[1].length - a[1].length);
-const orphans = urls.filter((u) => (inbound.get(norm(u)) || 0) === 0 && results.get(u)?.status === 200);
+const orphans = urls.filter((u) => (inbound.get(ident(u)) || 0) === 0 && results.get(u)?.status === 200);
 
 const lines = [];
 const P = (s) => { lines.push(s); };
-P(`CRAWL HYGIENE — ${SITEMAP}  (${new Date().toISOString()})`);
+P(`CRAWL HYGIENE — ${SITEMAP}  (${new Date().toISOString()})${REWRITE_ORIGIN ? `  [fetched via ${REWRITE_ORIGIN}, identity compared on pathname]` : ""}`);
 P(`sitemap URLs: ${urls.length}   crawled: ${results.size}`);
 P(`\nSTATUS DISTRIBUTION: ${JSON.stringify(statusDist)}`);
+P(`\nNON-200 URLS: ${nonOk.length}`);
+for (const s of nonOk.slice(0, 30)) P(`  ${s.status}  ${s.u}${s.final && s.final !== s.u ? `  -> ${s.final}` : ""}`);
 P(`\nREDIRECT CHAINS > 1 hop: ${chains.length}`);
 for (const c of chains.slice(0, 20)) P(`  ${c.hops} hops  ${c.u}  ->  ${c.final}`);
 P(`\nORPHANS (200, no inbound from any other sitemap page): ${orphans.length}`);
@@ -137,5 +187,9 @@ for (const m of canonicalMismatch.slice(0, 30)) P(`  ${m.u}  canonical=${m.canon
 
 const report = lines.join("\n");
 console.log(report);
-writeFileSync(resolve(dir, "crawl-hygiene.txt"), report + "\n");
+writeFileSync(resolve(dir, OUT_FILE), report + "\n");
+if (orphans.length > 30) {
+  // Machine-readable full orphan list for the F4 breakdown (never truncated).
+  writeFileSync(resolve(dir, `orphans-${LABEL || "live"}.txt`), orphans.join("\n") + "\n");
+}
 P("");
