@@ -16,6 +16,7 @@ import { CONTENT_HUBS, resolveHubPresence, resolveHubLatestDates } from "@/lib/h
 import { resolveLastUpdated, latestContentDate } from "@/lib/exam/lastUpdated";
 import { isRoutableAuthorSlug } from "@/data/authors";
 import { isTestSlug } from "@/lib/testContent";
+import { getContentTypesByExam } from "@/services/contentTypesService";
 import type { ContentType } from "@/types/exam";
 
 const BASE = siteConfig.url;
@@ -233,6 +234,21 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${BASE}/disclaimer`,        changeFrequency: "monthly", priority: 0.3 },
   ];
 
+  // ── Content-type data gate: the view when it answers, the old rule when it does not ──
+  // getAllExams() omits exam_editions.content_modules, so contentTypeHasData() can only
+  // ever say "no" for an editorial section on this path — that is the blind spot
+  // public.exam_content_types_with_data (migration 20261028165448) exists to close: the
+  // SAME evaluator runs inside Postgres and returns one small text[] per exam.
+  // It is an optimisation, never a dependency: a missing RPC or a read failure yields
+  // null and the gate below reverts to the previous behaviour, and an exam the view simply
+  // has no row for also falls back rather than losing every sub-page silently.
+  const contentTypesFromView = await getContentTypesByExam(exams.map((e) => e.id as string));
+  const ctHasData = (exam: { id?: unknown; slug?: string }, ct: ContentType): boolean => {
+    const fromView = contentTypesFromView?.[exam.id as string];
+    if (Array.isArray(fromView)) return fromView.includes(ct);
+    return contentTypeHasData(exam as unknown as HasDataView, ct);
+  };
+
   // ── Exam entity pages + content-type sub-pages ───
   const examPages: MetadataRoute.Sitemap = exams.filter(isSitemapEligible).flatMap((exam) => {
     const isHigh = HIGH_PRIORITY_SLUGS.has(exam.slug);
@@ -258,7 +274,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     const own = ctOwnContent[exam.id as string];
     const ownSet = own ? new Set(own) : undefined;
     const ctPages: MetadataRoute.Sitemap = CT_FLAGS
-      .filter(({ ct }) => contentTypeHasData(exam as unknown as HasDataView, ct))
+      .filter(({ ct }) => ctHasData(exam, ct))
       .filter(({ ct }) => ctCanonicalVerdict({ contentType: ct, update: ownSet?.has(ct) ? { content: "x" } : null }).selfCanonical)
       .map(({ ct }) => ({
         url: ctUrl(exam, ct),

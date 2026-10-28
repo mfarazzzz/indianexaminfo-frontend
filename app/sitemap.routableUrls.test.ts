@@ -76,6 +76,9 @@ vi.mock("@/services/contentPostService", () => ({
   ctPagesWithOwnContent: vi.fn(async () => ({ e1: ["result"] })),
   examPostUpdatedAts: vi.fn(async () => ({})),
 }));
+// The J1b content-type view gate: these fixtures exercise the FALLBACK path (no view), so
+// the generator must not reach for the network. The answered path is app/sitemap.ctgate.test.ts.
+vi.mock("@/services/contentTypesService", () => ({ getContentTypesByExam: vi.fn(async () => null) }));
 vi.mock("@/lib/hubs/contentHubs", () => ({
   CONTENT_HUBS: [{ href: "/results", label: "Results", contentType: "result" }],
   resolveHubPresence: vi.fn(async () => ({ "/results": true })),

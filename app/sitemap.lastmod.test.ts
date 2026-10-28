@@ -22,6 +22,9 @@ vi.mock("@/services/blogService", () => ({ getAllBlogPosts: vi.fn(async () => []
 vi.mock("@/services/pageService", () => ({ getAllPublishedPages: vi.fn(async () => []) }));
 vi.mock("@/services/sarkariNaukriService", () => ({ getSarkariNaukriSitemapEntries: vi.fn(async () => []) }));
 vi.mock("@/services/regionService", () => ({ getRegionsWithRecords: vi.fn(async () => []) }));
+// No content-type view in these fixtures (the J1b fallback path): the lastmod rule under
+// test is independent of it, and the generator must not reach for the network here.
+vi.mock("@/services/contentTypesService", () => ({ getContentTypesByExam: vi.fn(async () => null) }));
 vi.mock("@/services/contentPostService", () => ({
   ctPagesWithOwnContent: vi.fn(async () => ({})),
   examPostUpdatedAts: vi.fn(async () => ({ b1: ["2026-10-05T00:00:00Z"] } as Record<string, string[]>)),

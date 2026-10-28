@@ -84,7 +84,7 @@ test("2 — Decline: nothing analytics-related is requested, before or after a n
   await page.waitForTimeout(3_000);           // an afterInteractive script would have fired by now
 
   expect(hits, `Decline must load nothing; saw: ${hits.join(", ")}`).toEqual([]);
-  expect(await page.evaluate((k) => localStorage.getItem(k), STORAGE_KEY)).toBe("denied");
+  expect(await page.evaluate((k: string) => localStorage.getItem(k), STORAGE_KEY)).toBe("denied");
 
   // The decision survives a navigation, the banner never comes back, and still nothing loads.
   await page.goto(`${BASE}/results`, { waitUntil: "load" });
@@ -111,7 +111,7 @@ test("3 — Accept: gtag/js for THIS id is fetched and a page_view hit follows",
     `expected gtag/js?id=${GA_ID}; saw: ${hits.join(", ")}`).toBe(true);
   expect(hits.some((u) => /\/g\/collect/.test(u) && /(^|[&?])en=page_view(&|$|%26)/.test(decodeURIComponent(u)) || /%22page_view%22/.test(u)),
     `expected a page_view collect hit; saw: ${hits.join(", ")}`).toBe(true);
-  expect(await page.evaluate((k) => localStorage.getItem(k), STORAGE_KEY)).toBe("granted");
+  expect(await page.evaluate((k: string) => localStorage.getItem(k), STORAGE_KEY)).toBe("granted");
   await ctx.close();
 });
 
