@@ -34,13 +34,29 @@ vi.mock("@/services/examService", () => ({
       id: "e8", slug: "du-cuet", name: "CUET", pillar: "university-exam", category: "state-university",
       dates: [],
     },
-    // A category whose ROWS are withheld (legacy) — its hub must not appear either.
+    // K3 — banking rows are NO LONGER withheld as a class; the hub has a submitted child again.
     {
       id: "e3", slug: "ibps-po", name: "IBPS PO", pillar: "government-exam", category: "banking", dates: [],
     },
-    // A category whose hub URL is a 308 — never submitted as a page.
+    // A category whose hub 308s — neither the hub nor its rows are submitted.
     {
       id: "e4", slug: "up-police", name: "UP Police", pillar: "government-exam", category: "state-government-jobs", dates: [],
+    },
+    // K3 — the RETIRE losers: published records whose URL the router answers with a 308. They
+    // must never be submitted, and their content-type children must go with them.
+    {
+      id: "e9", slug: "cds", name: "CDS (entrance twin)", pillar: "entrance-exam", category: "defence-entrance",
+      hasNotification: true, dates: [],
+    },
+    {
+      id: "e10", slug: "nta-ugc-net", name: "UGC NET (twin)", pillar: "government-exam", category: "teaching", dates: [],
+    },
+    // K3 — the WINNERS on the slugs that used to be withheld wholesale.
+    {
+      id: "e11", slug: "cds-exam", name: "CDS", pillar: "government-exam", category: "defence", dates: [],
+    },
+    {
+      id: "e12", slug: "rpf-constable", name: "RPF Constable", pillar: "government-exam", category: "railways", dates: [],
     },
     // A reference TEST record must never reach the sitemap.
     {
@@ -65,10 +81,13 @@ vi.mock("@/services/pageService", () => ({
   ]),
 }));
 vi.mock("@/services/sarkariNaukriService", () => ({
-  // The source service does NOT drop test rows — the generator has to.
+  // The source service does NOT drop test rows — the generator has to. Nor does it know the
+  // redirect table: `upsc-cds` below is a real vacancy row whose URL 308s (E3), so the
+  // sitemap's last gate has to catch a FLAT url too, not just the category form.
   getSarkariNaukriSitemapEntries: vi.fn(async () => [
     { slug: "up-police-constable-2026", updatedAt: "2026-10-03T00:00:00Z" },
     { slug: "zz-test-vacancy-2026", updatedAt: "2026-10-03T00:00:00Z" },
+    { slug: "upsc-cds", updatedAt: "2026-10-03T00:00:00Z" },
   ]),
 }));
 vi.mock("@/services/regionService", () => ({ getRegionsWithRecords: vi.fn(async () => []) }));
@@ -85,9 +104,11 @@ vi.mock("@/lib/hubs/contentHubs", () => ({
   resolveHubLatestDates: vi.fn(async () => ({ "/results": null })),
 }));
 
-import sitemap, { ROUTABLE_CMS_PAGE_PATHS } from "@/app/sitemap";
+import sitemap, { ROUTABLE_CMS_PAGE_PATHS, submitted } from "@/app/sitemap";
 import { authors } from "@/data/authors";
 import { siteConfig } from "@/config/site";
+import { pathIsRedirectSource } from "@/config/redirects";
+import { RETIRE_REDIRECTS } from "@/config/retireRedirects";
 
 const BASE = siteConfig.url;
 let urls: MetadataRoute.Sitemap;
@@ -152,17 +173,28 @@ describe("category hubs are submitted where the hub really renders (F4)", () => 
     expect(paths).toContain("/admission/medical");
   });
 
-  it("never submits a hub that 308s or whose rows are all withheld", () => {
+  it("never submits a hub whose own URL 308s", () => {
     expect(paths).not.toContain("/sarkari-naukri/state-government-jobs");
     expect(paths).not.toContain("/sarkari-naukri/central-government-jobs");
-    expect(paths).not.toContain("/sarkari-naukri/banking"); // its exam rows are withheld → no submitted exam backs the hub
   });
 
-  it("does not submit the board / university hubs while their pages carry the root canonical", () => {
-    expect(paths.some((p) => p.startsWith("/board-exam/state/up-board"))).toBe(true); // the exam itself
+  it("K3 — the withheld-as-a-class categories are submitted again", () => {
+    // Batch 3 withheld banking/railways/defence/teaching wholesale as a conservative choice.
+    // The owner's K3 decision removes it: these hubs render a real self-canonical listing and
+    // the retire WINNERS live on these slugs, so withholding them hid the better page.
+    expect(paths).toContain("/sarkari-naukri/banking");
+    expect(paths).toContain("/sarkari-naukri/banking/ibps-po");
+    expect(paths).toContain("/sarkari-naukri/defence/cds-exam");
+    expect(paths).toContain("/sarkari-naukri/railways/rpf-constable");
+    expect(paths).toContain("/sarkari-naukri/defence");
+    expect(paths).toContain("/sarkari-naukri/railways");
+  });
+
+  it("K1 — the board and university hubs enter once their own canonical exists", () => {
+    expect(paths).toContain("/board-exam/state/up-board");
+    expect(paths).toContain("/university-exam/state-university");
+    // The bare /board-exam/{category} form 308s to the state route, so it is still not submitted.
     expect(paths).not.toContain("/board-exam/up-board");
-    expect(paths).not.toContain("/board-exam/state/up-board");
-    expect(paths).not.toContain("/university-exam/state-university");
   });
 
   it("submits each hub once, with no lastmod (a listing has no single honest date)", () => {
@@ -171,5 +203,59 @@ describe("category hubs are submitted where the hub really renders (F4)", () => 
       expect(hits, p).toHaveLength(1);
       expect(hits[0].lastModified, `${p} lastmod`).toBeUndefined();
     }
+  });
+});
+
+/**
+ * K3 (owner batch 4) — "never submit a URL that is a redirect source".
+ * The generator builds URLs from the database and the database does not know the redirect
+ * table, so a published loser row is otherwise submitted as if it were a page.
+ */
+describe("the sitemap never submits a URL the router redirects (K3)", () => {
+  it("no submitted URL matches any rule in config/redirects.ts", () => {
+    for (const p of paths) {
+      expect(pathIsRedirectSource(p), `${p} is a redirect source`).toBe(false);
+    }
+  });
+
+  it.each(RETIRE_REDIRECTS.map((r) => [r.source, r.destination] as const))(
+    "the retire loser %s is out and its winner %s is in",
+    (source, destination) => {
+      expect(paths).not.toContain(source);
+      expect(paths).not.toContain(`${source}/notification`);   // no orphaned child of a 308
+      // Only the winners this fixture actually contains a row for can be expected.
+      const winnerSlug = (destination.split("/").pop() ?? "");
+      if (urls.some((u) => new URL(u.url).pathname.split("/").pop() === winnerSlug)) {
+        expect(paths).toContain(destination);
+      }
+    },
+  );
+
+  it("drops the retire losers this fixture carries and keeps the winners", () => {
+    expect(paths).not.toContain("/admission/defence-entrance/cds");       // → /sarkari-naukri/defence/cds-exam
+    expect(paths).not.toContain("/sarkari-naukri/teaching/nta-ugc-net");  // → /admission/research-fellowships/ugc-net
+    expect(paths).toContain("/sarkari-naukri/defence/cds-exam");
+    expect(paths).not.toContain("/admission/defence-entrance");           // its only row was the loser
+  });
+
+  it("applies the same gate to a FLAT vacancy URL whose slug 308s (E3)", () => {
+    expect(paths).not.toContain("/sarkari-naukri/upsc-cds");
+    expect(paths).toContain("/sarkari-naukri/up-police-constable-2026");
+  });
+
+  it("emits each URL at most once", () => {
+    const dupes = paths.filter((p, i) => paths.indexOf(p) !== i);
+    expect(dupes).toEqual([]);
+  });
+
+  it("the last gate itself is honest about what it removes (unit)", () => {
+    const out = submitted([
+      { url: `${BASE}/sarkari-naukri/central-government-jobs` },
+      { url: `${BASE}/sarkari-naukri/exam` },
+      { url: `${BASE}/sarkari-naukri/exam` },
+      { url: `${BASE}/result` },
+      { url: `${BASE}/results` },
+    ]);
+    expect(out.map((u) => new URL(u.url).pathname)).toEqual(["/sarkari-naukri/exam", "/results"]);
   });
 });

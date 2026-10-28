@@ -16,6 +16,7 @@ import { CONTENT_HUBS, resolveHubPresence, resolveHubLatestDates } from "@/lib/h
 import { resolveLastUpdated, latestContentDate } from "@/lib/exam/lastUpdated";
 import { isRoutableAuthorSlug } from "@/data/authors";
 import { isTestSlug } from "@/lib/testContent";
+import { pathIsRedirectSource } from "@/config/redirects";
 import { getContentTypesByExam } from "@/services/contentTypesService";
 import type { ContentType } from "@/types/exam";
 
@@ -65,28 +66,19 @@ function lm(iso: string | null | undefined): { lastModified: Date } | Record<str
 }
 
 /**
- * Category slugs whose URLs must never enter the sitemap.
- * central/state-government-jobs: hub URLs 308 to /sarkari-naukri/exam|bharti via
- * next.config redirects. banking/railways/defence/teaching render real category
- * listings now (formerly legacy redirects) — kept excluded as a conservative
- * pre-existing choice.
- */
-const LEGACY_CATEGORY_SLUGS = new Set([
-  "central-government-jobs",
-  "state-government-jobs",
-  "banking",
-  "railways",
-  "defence",
-  "teaching",
-]);
-
-/**
- * Category slugs whose hub URL 308s somewhere else (next.config redirects).
- * A redirecting URL is never a self-canonical page, so neither the row nor its hub is
- * submitted. The other LEGACY_CATEGORY_SLUGS members (banking/railways/defence/teaching)
- * DO render a real, self-canonical listing — verified against the production build
- * (200 + canonical == own URL) — which is why those hubs are submitted below while exam
- * rows on those slugs stay withheld (a pre-existing conservative choice).
+ * Category slugs whose hub URL 308s somewhere else (config/redirects.ts — the ONE rule list
+ * the router and this generator now read, K3). A redirecting URL is never a self-canonical
+ * page, so neither the hub nor the rows filed under it are submitted:
+ *   /sarkari-naukri/central-government-jobs → /sarkari-naukri/exam
+ *   /sarkari-naukri/state-government-jobs   → /sarkari-naukri/bharti
+ * banking / railways / defence / teaching are NOT in this set any more (owner batch 4, K3,
+ * "stop withholding defence|railways|banking|teaching and submit the winners"): those hubs
+ * render a real self-canonical listing, and cds-exam, nda-exam and rpf-constable — the WINNERS
+ * of the retire pairs — live on those slugs and were invisible to a sitemap-scoped crawl.
+ * central/state rows stay withheld: their PARENT is a 308, so a submitted child would have no
+ * sitemap parent — that is a separate decision, reported to the owner with its row count
+ * rather than changed silently. Every URL emitted is still checked against the whole rule list
+ * by `submitted()` below, so an exact retire/legacy source can never slip through.
  */
 const REDIRECTING_CATEGORY_SLUGS = new Set([
   "central-government-jobs",
@@ -94,22 +86,27 @@ const REDIRECTING_CATEGORY_SLUGS = new Set([
 ]);
 
 /**
- * Category hubs (owner batch 3, F4 — orphan/crawlability fix).
+ * Category hubs (owner batch 3, F4 — orphan/crawlability fix; widened by K1 in batch 4).
  * Pillars whose /{segment}/{category} page renders a listing of EVERY exam in that
  * category (uncapped ExamListRow loop) and is SELF-CANONICAL. Submitting the hub is what
  * makes the hub-and-spoke real: without it the parent listing exists but is not in the
  * sitemap, so a crawl that starts from the sitemap sees the child pages as orphans
  * (9 flagship exam pages were exactly that: linked only from a hub the sitemap omitted).
- * board-exam and university-exam hubs are deliberately NOT submitted: their category
- * pages answer 200 but carry the site-root canonical (the F1 omission class), and
- * submitting them would make the sitemap contradict the page.
+ * board-exam and university-exam were withheld in batch 3 for an honest reason — those hubs
+ * answered 200 while declaring the HOME canonical (the F1 omission class), so submitting them
+ * would have made the sitemap contradict the page. K1 removed the root blanket canonical and
+ * gave both hub shapes their OWN canonical, which is the condition the owner set for letting
+ * them in; the router itself verifies it (e2e/sitemap-no-404.e2e.spec.ts reads the status AND
+ * the <link rel=canonical> of every submitted URL).
  */
-const CATEGORY_HUB_PILLARS = new Set(["government-exam", "govt-vacancy", "entrance-exam"]);
+const CATEGORY_HUB_PILLARS = new Set([
+  "government-exam", "govt-vacancy", "entrance-exam", "board-exam", "university-exam",
+]);
 
 /**
  * True when an exam row can produce a well-formed, non-redirecting URL.
  * Rows with no category would yield `/{pillar}//{slug}` (double slash), and
- * rows on a legacy category slug would yield a redirecting URL.
+ * rows on a slug whose hub 308s would yield a child of a redirect.
  * A reference TEST row never belongs in the index either (the same `zz-test-`
  * rule that makes its page noindex — lib/testContent.ts): most readers already
  * filter it in the service layer, the sitemap is the aggregate that must not
@@ -119,8 +116,23 @@ function isSitemapEligible(exam: SitemapExam): boolean {
   if (!exam.slug) return false;
   if (isTestSlug(exam.slug)) return false;
   if (!exam.category) return false;
-  if (exam.pillar === "government-exam" && LEGACY_CATEGORY_SLUGS.has(exam.category)) return false;
+  if (exam.pillar === "government-exam" && REDIRECTING_CATEGORY_SLUGS.has(exam.category)) return false;
+  // K3: a row whose OWN page URL is a redirect source (a retired duplicate, a year-suffixed
+  // admission slug, an E3 typo slug) is withheld here so its content-type and edition
+  // children — which are not themselves rule sources but live behind a 308 — are withheld
+  // with it. The final `submitted()` filter still catches every URL individually.
+  if (pathIsRedirectSource(examUrl(exam))) return false;
   return true;
+}
+
+/** The category hub that lists this exam, in the shape the router actually serves. */
+function hubUrl(exam: SitemapExam): string {
+  // Board exams are always state boards: the listing lives at /board-exam/state/{category},
+  // which is where /board-exam/{category}/{slug} 308s to (see the board catch-all).
+  if (exam.pillar === "board-exam") {
+    return `${BASE}/board-exam/state/${exam.category}`;
+  }
+  return `${BASE}/${pillarToUrlSegment(exam.pillar)}/${exam.category}`;
 }
 
 /** Map exam entity to its canonical URL. Callers must gate on isSitemapEligible(). */
@@ -392,7 +404,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     if (!CATEGORY_HUB_PILLARS.has(exam.pillar) || !exam.category) continue;
     if (REDIRECTING_CATEGORY_SLUGS.has(exam.category)) continue;
     if (!isSitemapEligible(exam)) continue;
-    const path = `/${pillarToUrlSegment(exam.pillar)}/${exam.category}`;
+    const path = new URL(hubUrl(exam)).pathname;
     categoryHubs.set(path, (categoryHubs.get(path) ?? 0) + 1);
   }
   const categoryHubPages: MetadataRoute.Sitemap = Array.from(categoryHubs.keys())
@@ -441,7 +453,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.4,
     }));
 
-  return [
+  return submitted([
     ...staticPages,
     ...hubPages,
     ...sarkariHubPages,
@@ -456,5 +468,30 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...blogTagPages,
     ...blogAuthorPages,
     ...cmsPageEntries,
-  ];
+  ]);
+}
+
+/**
+ * The last gate before a URL becomes a promise to Google (owner batch 4, K3).
+ *
+ *  1. NEVER a redirect source: a URL that config/redirects.ts answers with a 308 is not a
+ *     page, and submitting it makes the sitemap contradict the router. Every block above
+ *     builds URLs from the database, so a retire loser, an E3 typo slug or a year-suffixed
+ *     admission record can be published, self-canonical-looking and still 308 — the only
+ *     place that can be said once, for all of them, is here. The check uses the SAME rule list
+ *     next.config hands to Next, so it cannot fall behind a newly added rule.
+ *  2. NEVER the same <loc> twice: a duplicate is a wasted crawl budget signal at best and a
+ *     contradiction at worst (the CMS-page block already filters against `staticPaths`; this
+ *     is the aggregate guard for every other pair of blocks).
+ */
+export function submitted(entries: MetadataRoute.Sitemap): MetadataRoute.Sitemap {
+  const seen = new Set<string>();
+  const out: MetadataRoute.Sitemap = [];
+  for (const entry of entries) {
+    if (seen.has(entry.url)) continue;
+    seen.add(entry.url);
+    if (pathIsRedirectSource(entry.url)) continue;
+    out.push(entry);
+  }
+  return out;
 }

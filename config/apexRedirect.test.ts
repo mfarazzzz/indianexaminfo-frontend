@@ -10,7 +10,7 @@
  *    port-bearing, subdomain and preview hosts all false);
  *  • no loop: the destination host is www, which the matcher rejects;
  *  • `:path*` actually covers `/`, /sitemap.xml and /robots.txt;
- *  • next.config spreads apexHostRedirects() as the FIRST redirect rule.
+ *  • next.config takes its rules from config/redirects.ts, which puts apexHostRedirects() first.
  */
 import { describe, expect, it } from "vitest";
 import { readFileSync } from "node:fs";
@@ -21,6 +21,7 @@ import {
   APEX_HOST,
   WWW_ORIGIN,
 } from "./apexRedirect";
+import { allRedirectRules } from "./redirects";
 
 const NEXT_CONFIG = readFileSync(resolve(__dirname, "..", "next.config.ts"), "utf8");
 const rules = apexHostRedirects();
@@ -94,12 +95,19 @@ describe("apex redirect — path coverage", () => {
 });
 
 describe("apex redirect — wired into next.config", () => {
-  it("imports apexHostRedirects and spreads it as the FIRST redirect rule", () => {
-    expect(NEXT_CONFIG).toMatch(/import\s*\{\s*apexHostRedirects\s*\}\s*from\s*"\.\/config\/apexRedirect"/);
-    const apexIdx = NEXT_CONFIG.indexOf("...apexHostRedirects(),");
-    const retireIdx = NEXT_CONFIG.indexOf("...RETIRE_REDIRECTS.map(");
-    expect(apexIdx).toBeGreaterThan(-1);
-    expect(retireIdx).toBeGreaterThan(-1);
-    expect(apexIdx, "apex rule must precede every path rule").toBeLessThan(retireIdx);
+  it("next.config takes its rules from config/redirects (K3: one list, two consumers)", () => {
+    expect(NEXT_CONFIG).toMatch(/import\s*\{\s*allRedirectRules\s*\}\s*from\s*"\.\/config\/redirects"/);
+    expect(NEXT_CONFIG).toMatch(/return\s+allRedirectRules\(\);/);
+    // The rules now live in config/redirects.ts, so the source of truth cannot drift between
+    // the router and the sitemap guard; next.config must not redeclare any of them.
+    expect(NEXT_CONFIG).not.toMatch(/destination:\s*"/);
+  });
+
+  it("the apex host rule is the FIRST rule of the list next.config hands to Next", () => {
+    // Order is load-bearing: a path rule placed before the host rule would answer the apex
+    // request from the wrong table and the bare domain would keep serving duplicates.
+    const first = allRedirectRules()[0];
+    expect(first.source).toBe("/:path*");
+    expect((first as { has?: { type: string; value: string }[] }).has?.[0]?.value).toBe(APEX_HOST);
   });
 });

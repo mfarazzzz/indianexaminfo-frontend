@@ -5,13 +5,16 @@
  *  • the five intended loser→winner pairs are present, exact;
  *  • no redirect destination is itself a source (no chain, no loop);
  *  • every destination's final segment is a known published WINNER slug;
- *  • next.config actually spreads RETIRE_REDIRECTS as permanent:true, and none of
- *    the destinations appears as a source literal anywhere in next.config.
+ *  • the rules really reach Next (config/redirects.ts → next.config) as permanent:true, and
+ *    none of the destinations is matched by any other rule's source (K3: destinations are
+ *    checked with the SAME matcher the sitemap guard uses, which is stronger than the old
+ *    literal string scan).
  */
 import { describe, expect, it } from "vitest";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { RETIRE_REDIRECTS, RETIRE_WINNER_SLUGS } from "./retireRedirects";
+import { allRedirectRules, pathIsRedirectSource, pathRedirectSources } from "./redirects";
 
 const NEXT_CONFIG = readFileSync(resolve(__dirname, "..", "next.config.ts"), "utf8");
 const lastSegment = (p: string) => p.replace(/\/+$/, "").split("/").pop() ?? "";
@@ -50,20 +53,35 @@ describe("retire redirects — no chain, no loop, winners only", () => {
     }
   });
 
-  it("no destination appears as a source literal anywhere in next.config.ts", () => {
-    // Extract every `source: "..."` string from the config and make sure a retire
-    // destination never matches one (which would produce a redirect chain).
-    const configSources = new Set<string>();
-    for (const m of NEXT_CONFIG.matchAll(/source:\s*"([^"]+)"/g)) configSources.add(m[1]);
+  it("no destination is matched as a source by any other rule (no chain to a 308)", () => {
+    // The router hands a destination back to the client as a new request, so a destination
+    // that another rule catches is a chain. pathIsRedirectSource knows every parameter form
+    // in config/redirects.ts, so this catches e.g. a `/x/:slug` rule swallowing a
+    // `/x/some-slug` destination — something a literal string comparison could miss.
     for (const r of RETIRE_REDIRECTS) {
-      expect(configSources.has(r.destination), `${r.destination} is also a config source`).toBe(false);
+      expect(pathIsRedirectSource(r.destination), `${r.destination} is itself a redirect source`).toBe(false);
     }
+  });
+
+  it("every source in the config is a distinct, absolute path pattern", () => {
+    const all = pathRedirectSources();
+    expect(new Set(all).size, "duplicate source rules").toBe(all.length);
+    for (const s of all) expect(s.startsWith("/"), `relative source ${s}`).toBe(true);
   });
 });
 
 describe("retire redirects — wired into next.config as permanent 308s", () => {
-  it("next.config imports and spreads RETIRE_REDIRECTS with permanent:true", () => {
-    expect(NEXT_CONFIG).toMatch(/import\s*\{\s*RETIRE_REDIRECTS\s*\}\s*from\s*"\.\/config\/retireRedirects"/);
-    expect(NEXT_CONFIG).toMatch(/RETIRE_REDIRECTS\.map\([\s\S]*?permanent:\s*true/);
+  it("config/redirects spreads RETIRE_REDIRECTS as permanent:true and next.config returns it", () => {
+    expect(NEXT_CONFIG).toMatch(/import\s*\{\s*allRedirectRules\s*\}\s*from\s*"\.\/config\/redirects"/);
+    expect(NEXT_CONFIG).toMatch(/return\s+allRedirectRules\(\);/);
+    // The rules themselves live in config/redirects.ts (one list for the router AND the
+    // sitemap guard), which is where the retire spread and its permanent:true must be.
+    expect(pathRedirectSources()).toEqual(expect.arrayContaining(RETIRE_REDIRECTS.map((r) => r.source)));
+    const rules = allRedirectRules();
+    for (const r of RETIRE_REDIRECTS) {
+      const hit = rules.find((x) => x.source === r.source);
+      expect(hit, `${r.source} never reaches Next`).toBeDefined();
+      expect(hit?.permanent, `${r.source} must be a permanent 308`).toBe(true);
+    }
   });
 });
