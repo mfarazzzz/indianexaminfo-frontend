@@ -254,6 +254,14 @@ describe("the sitemap never submits a URL the router redirects (K3)", () => {
     expect(paths.some((p) => p.startsWith("/sarkari-naukri/jobs/page"))).toBe(false);
   });
 
+  it("never submits an edition (year) URL — the page canonicalises to its parent (K3)", () => {
+    // Measured on the production build: every /{exam}/{year} URL in the sitemap answered 200
+    // with the PARENT exam page as its canonical and noindex: true. A {segment}/{4-digit-year}
+    // path is the shape of those claims (a vacancy slug ending in "-2026" is a different shape
+    // and stays submitted).
+    expect(paths.filter((p) => /\/(19|20)\d{2}$/.test(p))).toEqual([]);
+  });
+
   it("the last gate itself is honest about what it removes (unit)", () => {
     const out = submitted([
       { url: `${BASE}/sarkari-naukri/central-government-jobs` },

@@ -1,6 +1,6 @@
 import type { MetadataRoute } from "next";
 import { siteConfig } from "@/config/site";
-import { getAllExams, getEditionSitemapEntries } from "@/services/examService";
+import { getAllExams } from "@/services/examService";
 import { getAllBlogPosts } from "@/services/blogService";
 import { getAllPublishedPages } from "@/services/pageService";
 import {
@@ -187,13 +187,12 @@ export const ROUTABLE_CMS_PAGE_PATHS: Record<string, string> = {
 };
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const [exams, blogPosts, cmsPages, sarkariEntries, regionsWithRecords, editionEntries, ctOwnContent, postDates] = await Promise.all([
+  const [exams, blogPosts, cmsPages, sarkariEntries, regionsWithRecords, ctOwnContent, postDates] = await Promise.all([
     getAllExams(),
     getAllBlogPosts(),
     getAllPublishedPages(),
     getSarkariNaukriSitemapEntries(),
     getRegionsWithRecords(),
-    getEditionSitemapEntries(),
     // Canonical ownership (P1 item 14): which CT pages carry their own update content.
     ctPagesWithOwnContent(),
     // Trustworthy freshness: newest published update date per exam (one resolveLastUpdated source).
@@ -298,25 +297,22 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     return [base, ...ctPages];
   });
 
-  // ── Non-current edition (year) pages ─────────────
-  // Emitted ONLY for editions that getEditionSitemapEntries() returned — i.e. non-current
-  // AND content-bearing (the SAME editionHasContent gate as the switcher and the year route's
-  // 404). The URL is the exam's canonical URL + /{year}; we reuse examUrl() (one URL builder,
-  // DB-derived) rather than constructing a year URL by hand. Editions whose exam is not
-  // sitemap-eligible (no category, legacy-redirect category) are skipped for the same reason
-  // their main page is. lastmod = the exam's trustworthy date, or omitted.
-  const examBySlug = new Map(exams.map((e) => [e.slug, e]));
-  const editionPages: MetadataRoute.Sitemap = editionEntries.flatMap((ed) => {
-    const exam = examBySlug.get(ed.slug);
-    if (!exam || !isSitemapEligible(exam)) return [];
-    const lmIso = examTrustworthyIso(exam, postDates[exam.id as string] ?? []);
-    return [{
-      url: `${examUrl(exam)}/${ed.year}`,
-      ...lm(lmIso),
-      changeFrequency: "weekly" as const,
-      priority: 0.6,
-    }];
-  });
+  // ── Non-current edition (year) pages: NOT submitted (owner batch 4, K3) ──────────
+  // The generator used to emit `{examUrl}/{year}` for every content-bearing non-current
+  // edition. The router answers those URLs differently: lib/exam/editionDispatch
+  // #buildEditionMetadata gives a non-current edition the MAIN exam URL as its canonical and
+  // noindex: true ("canonical → the MAIN exam URL (never self)", by design since the edition
+  // work). So every submitted year URL was a sitemap claim the page contradicts twice over —
+  // a canonical pointing elsewhere AND a noindex the sitemap ignores. Measured against the
+  // production build by e2e/sitemap-no-404.e2e.spec.ts (the strict pass): 3 edition URLs were
+  // in the sitemap, and 3 of 3 declared the parent exam page as their canonical
+  //   /sarkari-naukri/banking/ibps-clerk/2026   → canonical …/ibps-clerk
+  //   /sarkari-naukri/railways/rrb-ntpc/2026    → canonical …/rrb-ntpc
+  //   /board-exam/state/up-board/up-board-class-10/2026 → canonical …/up-board-class-10
+  // The pages stay linked from the edition switcher and reachable by anyone who has the URL;
+  // what stopped is the sitemap telling Google they are indexable canonical pages.
+  // getEditionSitemapEntries() is kept (the switcher and future rules use the same
+  // content-bearing predicate) but it no longer feeds the sitemap.
 
   // ── Blog section pages ────────────────────────────
   // lastmod = the newest post updatedAt in that section (a real content date); omitted
@@ -458,7 +454,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...hubPages,
     ...sarkariHubPages,
     ...examPages,
-    ...editionPages,
     ...sarkariPages,
     ...stateIndexPage,
     ...categoryHubPages,
