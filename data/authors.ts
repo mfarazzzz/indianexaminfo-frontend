@@ -71,3 +71,14 @@ export const authors: BlogAuthor[] = [
     },
   },
 ];
+
+/**
+ * The slugs the `/blog/author/[slug]` route can actually render — the route resolves the
+ * slug against THIS roster and calls `notFound()` for anything else. A post's author in
+ * the database is not automatically a page: the sitemap must ask here before submitting
+ * an author URL (owner batch 3, F2 — the live sitemap listed `/blog/author/
+ * indianexaminfo-editorial`, a DB author that is not on this roster, and it 404s).
+ */
+export function isRoutableAuthorSlug(slug: string): boolean {
+  return authors.some((a) => a.slug === slug);
+}

@@ -14,6 +14,8 @@ import { ctCanonicalVerdict } from "@/lib/seo/canonicalOwnership";
 import { pillarToUrlSegment } from "@/lib/exam/pillarUrl";
 import { CONTENT_HUBS, resolveHubPresence, resolveHubLatestDates } from "@/lib/hubs/contentHubs";
 import { resolveLastUpdated, latestContentDate } from "@/lib/exam/lastUpdated";
+import { isRoutableAuthorSlug } from "@/data/authors";
+import { isTestSlug } from "@/lib/testContent";
 import type { ContentType } from "@/types/exam";
 
 const BASE = siteConfig.url;
@@ -78,12 +80,43 @@ const LEGACY_CATEGORY_SLUGS = new Set([
 ]);
 
 /**
+ * Category slugs whose hub URL 308s somewhere else (next.config redirects).
+ * A redirecting URL is never a self-canonical page, so neither the row nor its hub is
+ * submitted. The other LEGACY_CATEGORY_SLUGS members (banking/railways/defence/teaching)
+ * DO render a real, self-canonical listing — verified against the production build
+ * (200 + canonical == own URL) — which is why those hubs are submitted below while exam
+ * rows on those slugs stay withheld (a pre-existing conservative choice).
+ */
+const REDIRECTING_CATEGORY_SLUGS = new Set([
+  "central-government-jobs",
+  "state-government-jobs",
+]);
+
+/**
+ * Category hubs (owner batch 3, F4 — orphan/crawlability fix).
+ * Pillars whose /{segment}/{category} page renders a listing of EVERY exam in that
+ * category (uncapped ExamListRow loop) and is SELF-CANONICAL. Submitting the hub is what
+ * makes the hub-and-spoke real: without it the parent listing exists but is not in the
+ * sitemap, so a crawl that starts from the sitemap sees the child pages as orphans
+ * (9 flagship exam pages were exactly that: linked only from a hub the sitemap omitted).
+ * board-exam and university-exam hubs are deliberately NOT submitted: their category
+ * pages answer 200 but carry the site-root canonical (the F1 omission class), and
+ * submitting them would make the sitemap contradict the page.
+ */
+const CATEGORY_HUB_PILLARS = new Set(["government-exam", "govt-vacancy", "entrance-exam"]);
+
+/**
  * True when an exam row can produce a well-formed, non-redirecting URL.
  * Rows with no category would yield `/{pillar}//{slug}` (double slash), and
  * rows on a legacy category slug would yield a redirecting URL.
+ * A reference TEST row never belongs in the index either (the same `zz-test-`
+ * rule that makes its page noindex — lib/testContent.ts): most readers already
+ * filter it in the service layer, the sitemap is the aggregate that must not
+ * depend on every source remembering to.
  */
 function isSitemapEligible(exam: SitemapExam): boolean {
   if (!exam.slug) return false;
+  if (isTestSlug(exam.slug)) return false;
   if (!exam.category) return false;
   if (exam.pillar === "government-exam" && LEGACY_CATEGORY_SLUGS.has(exam.category)) return false;
   return true;
@@ -123,6 +156,22 @@ const CT_FLAGS: { ct: ContentType; flag: string }[] = [
   { ct: "mock-test",         flag: "hasMockTest" },
   { ct: "study-material",    flag: "hasStudyMaterial" },
 ];
+
+/**
+ * CMS `pages` slugs that a FRONTEND ROUTE actually renders, mapped to that route's path.
+ * (owner batch 3, F2.) The block below used to submit `/{slug}` for every published CMS
+ * page — but no route renders an arbitrary page row: the only readers are
+ * about / privacy-policy / disclaimer, each calling `getPageBySlug()` from its own
+ * page.tsx. A newly published CMS page (the live one was slug `test`) therefore entered
+ * the sitemap as a guaranteed 404. This map IS the router's real capability: add an entry
+ * only together with the route that renders it, and the sitemap stays 404-free.
+ * Those three routes are already submitted by `staticPages`, so nothing duplicates.
+ */
+export const ROUTABLE_CMS_PAGE_PATHS: Record<string, string> = {
+  "about": "/about",
+  "privacy-policy": "/privacy-policy",
+  "disclaimer": "/disclaimer",
+};
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const [exams, blogPosts, cmsPages, sarkariEntries, regionsWithRecords, editionEntries, ctOwnContent, postDates] = await Promise.all([
@@ -266,25 +315,34 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   }));
 
   // ── CMS custom pages ─────────────────────────────
+  // Only a page whose slug a frontend route renders can be submitted (F2): a CMS page
+  // row with no route is a 404 the moment it is published. Routes that already appear
+  // in `staticPages` are skipped so the same URL is never listed twice.
+  const staticPaths = new Set(staticPages.map((s) => s.url));
   const systemSlugs = new Set(["about", "contact", "privacy-policy", "disclaimer"]);
   const cmsPageEntries: MetadataRoute.Sitemap = cmsPages
     .filter((p) => !systemSlugs.has(p.slug)) // system pages already in staticPages
+    .filter((p) => ROUTABLE_CMS_PAGE_PATHS[p.slug] !== undefined) // a route renders it
     .map((p) => ({
-      url: `${BASE}/${p.slug}`,
+      url: `${BASE}${ROUTABLE_CMS_PAGE_PATHS[p.slug]}`,
       lastModified: new Date(p.updatedAt),
       changeFrequency: "weekly" as const,
       priority: 0.5,
-    }));
+    }))
+    .filter((e) => !staticPaths.has(e.url)); // no duplicate <loc>
 
   // ── Sarkari Naukri job detail pages ──────────────
   // The whole sarkari_naukri corpus was previously absent from the sitemap.
   // entry.updatedAt is the record's stored content date — a real date, keep it.
-  const sarkariPages: MetadataRoute.Sitemap = sarkariEntries.map((entry) => ({
-    url: `${BASE}/sarkari-naukri/${entry.slug}`,
-    lastModified: new Date(entry.updatedAt),
-    changeFrequency: "daily" as const,
-    priority: 0.8,
-  }));
+  // TEST rows are filtered HERE (the source service does not).
+  const sarkariPages: MetadataRoute.Sitemap = sarkariEntries
+    .filter((entry) => !isTestSlug(entry.slug))
+    .map((entry) => ({
+      url: `${BASE}/sarkari-naukri/${entry.slug}`,
+      lastModified: new Date(entry.updatedAt),
+      changeFrequency: "daily" as const,
+      priority: 0.8,
+    }));
 
   // ── Sarkari Naukri hubs + state pages ────────────
   // These are LISTING pages with no single assembled trustworthy date → lastmod omitted.
@@ -308,6 +366,27 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${BASE}/sarkari-naukri/state`, changeFrequency: "daily" as const, priority: 0.6 },
   ];
 
+  // ── Category hub pages (F4) ──────────────────────
+  // One URL per (segment, category) that has at least one SUBMITTED exam, so a hub is
+  // never submitted empty and never points at a category whose rows are all withheld.
+  // Redirecting legacy slugs are skipped (their hub is a 308, not a page). Listing page →
+  // lastmod omitted: a hub has no single honest content date, exactly like the state pages.
+  const categoryHubs = new Map<string, number>();
+  for (const exam of exams) {
+    if (!CATEGORY_HUB_PILLARS.has(exam.pillar) || !exam.category) continue;
+    if (REDIRECTING_CATEGORY_SLUGS.has(exam.category)) continue;
+    if (!isSitemapEligible(exam)) continue;
+    const path = `/${pillarToUrlSegment(exam.pillar)}/${exam.category}`;
+    categoryHubs.set(path, (categoryHubs.get(path) ?? 0) + 1);
+  }
+  const categoryHubPages: MetadataRoute.Sitemap = Array.from(categoryHubs.keys())
+    .sort()
+    .map((path) => ({
+      url: `${BASE}${path}`,
+      changeFrequency: "daily" as const,
+      priority: 0.75,
+    }));
+
   // ── Blog tag pages ───────────────────────────────
   // Mirrors the noIndex rule in blog/tag/[tag]/page.tsx (needs 3+ posts).
   // lastmod = newest post updatedAt carrying that tag (a real content date).
@@ -328,17 +407,23 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   // ── Blog author pages ────────────────────────────
   // lastmod = newest post updatedAt by that author (a real content date).
+  // ROUTABLE ONLY (F2): /blog/author/[slug] resolves the slug against the editorial
+  // roster in data/authors.ts and 404s on anything else. The DB carries authors that are
+  // not on that roster (live case: `indianexaminfo-editorial`), so deriving the list from
+  // posts alone submitted a URL the router 404s. Same predicate as the route.
   const authorDates = new Map<string, string[]>();
   for (const post of blogPosts) {
     const a = post.author?.slug;
     if (a) (authorDates.get(a) ?? authorDates.set(a, []).get(a)!).push(post.updatedAt);
   }
-  const blogAuthorPages: MetadataRoute.Sitemap = Array.from(authorDates.keys()).map((slug) => ({
-    url: `${BASE}/blog/author/${slug}`,
-    ...lm(latestContentDate(authorDates.get(slug) ?? [])),
-    changeFrequency: "weekly" as const,
-    priority: 0.4,
-  }));
+  const blogAuthorPages: MetadataRoute.Sitemap = Array.from(authorDates.keys())
+    .filter((slug) => isRoutableAuthorSlug(slug))
+    .map((slug) => ({
+      url: `${BASE}/blog/author/${slug}`,
+      ...lm(latestContentDate(authorDates.get(slug) ?? [])),
+      changeFrequency: "weekly" as const,
+      priority: 0.4,
+    }));
 
   return [
     ...staticPages,
@@ -348,6 +433,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...editionPages,
     ...sarkariPages,
     ...stateIndexPage,
+    ...categoryHubPages,
     ...sarkariStatePages,
     ...blogSectionPages,
     ...blogPostPages,
