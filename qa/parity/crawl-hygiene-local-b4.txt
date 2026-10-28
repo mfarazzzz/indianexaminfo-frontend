@@ -1,0 +1,80 @@
+CRAWL HYGIENE — http://localhost:3002/sitemap.xml  (2026-10-28T18:37:55.986Z)  [fetched via http://localhost:3002, identity compared on pathname]
+sitemap URLs: 839   crawled: 839
+
+STATUS DISTRIBUTION: {"200":839}
+
+NON-200 URLS: 0
+
+REDIRECT CHAINS > 1 hop: 0
+
+ORPHANS (200, no inbound from any other sitemap page): 149
+  https://www.indianexaminfo.com/resources
+  https://www.indianexaminfo.com/sarkari-naukri/drdo-ceptam-2026-result
+  https://www.indianexaminfo.com/sarkari-naukri/up-block-development-office-clerk-2026
+  https://www.indianexaminfo.com/sarkari-naukri/mp-police-constable-driver-2026
+  https://www.indianexaminfo.com/sarkari-naukri/up-sichai-vibhag-tubewell-operator-2026
+  https://www.indianexaminfo.com/sarkari-naukri/rajasthan-gds-bharti-2026-jodhpur-division
+  https://www.indianexaminfo.com/sarkari-naukri/rajasthan-medical-college-group-d-2026
+  https://www.indianexaminfo.com/sarkari-naukri/up-health-dept-ward-boy-2026-all-districts
+  https://www.indianexaminfo.com/sarkari-naukri/up-basic-shiksha-parishad-peon-2026
+  https://www.indianexaminfo.com/sarkari-naukri/up-anganwadi-bharti-2026-faizabad-ayodhya-division
+  https://www.indianexaminfo.com/sarkari-naukri/jharkhand-forest-guard-2026
+  https://www.indianexaminfo.com/sarkari-naukri/rajasthan-patwari-bharti-2026-jaipur-division
+  https://www.indianexaminfo.com/sarkari-naukri/haryana-patwari-bharti-2026
+  https://www.indianexaminfo.com/sarkari-naukri/rajasthan-mgnrega-mate-bharti-2026
+  https://www.indianexaminfo.com/sarkari-naukri/rajasthan-forest-guard-vanrakshak-2026
+  https://www.indianexaminfo.com/sarkari-naukri/esic-nursing-officer-2026-result
+  https://www.indianexaminfo.com/sarkari-naukri/up-primary-school-sahayak-clerk-2026
+  https://www.indianexaminfo.com/sarkari-naukri/up-gram-panchayat-vikas-adhikari-2026-azamgarh
+  https://www.indianexaminfo.com/sarkari-naukri/up-anganwadi-worker-helper-bharti-2026-lucknow
+  https://www.indianexaminfo.com/sarkari-naukri/up-anganwadi-bharti-2026-agra-division
+  https://www.indianexaminfo.com/sarkari-naukri/up-tehsil-office-peon-clerk-2026
+  https://www.indianexaminfo.com/sarkari-naukri/haryana-gram-sachiv-bharti-2026
+  https://www.indianexaminfo.com/sarkari-naukri/uttarakhand-forest-guard-2026
+  https://www.indianexaminfo.com/sarkari-naukri/bihar-asha-bharti-2026-muzaffarpur
+  https://www.indianexaminfo.com/sarkari-naukri/up-zila-panchayat-data-entry-operator-2026
+  https://www.indianexaminfo.com/sarkari-naukri/up-gram-panchayat-vikas-adhikari-2026-sultanpur
+  https://www.indianexaminfo.com/sarkari-naukri/up-shiksha-mitra-samayojan-2026
+  https://www.indianexaminfo.com/sarkari-naukri/up-nagar-nigam-safai-karmi-2026-kanpur
+  https://www.indianexaminfo.com/sarkari-naukri/up-govt-school-cook-helper-mdm-2026
+  https://www.indianexaminfo.com/sarkari-naukri/up-district-education-office-peon-2026
+
+SOFT-404 — empty-banner pages (explicit no-content message): 0
+
+SOFT-404 — very-low main text (<600B; card-heavy hubs can be legit): 39
+  main=536B banner=false  https://www.indianexaminfo.com/admit-card
+  main=386B banner=false  https://www.indianexaminfo.com/results
+  main=513B banner=false  https://www.indianexaminfo.com/sarkari-naukri/state
+  main=321B banner=false  https://www.indianexaminfo.com/admission/defence-entrance
+  main=202B banner=false  https://www.indianexaminfo.com/admission/teaching-and-education
+  main=70B banner=false  https://www.indianexaminfo.com/board-exam/state/bihar-board
+  main=116B banner=false  https://www.indianexaminfo.com/board-exam/state/cbse
+  main=73B banner=false  https://www.indianexaminfo.com/board-exam/state/haryana-board
+  main=71B banner=false  https://www.indianexaminfo.com/board-exam/state/maharashtra-board
+  main=59B banner=false  https://www.indianexaminfo.com/board-exam/state/icse-board
+  main=44B banner=false  https://www.indianexaminfo.com/board-exam/state/mp-board
+  main=519B banner=false  https://www.indianexaminfo.com/board-exam/state/other-state-boards
+  main=73B banner=false  https://www.indianexaminfo.com/board-exam/state/up-board
+  main=81B banner=false  https://www.indianexaminfo.com/board-exam/state/wb-board
+  main=79B banner=false  https://www.indianexaminfo.com/board-exam/state/rajasthan-board
+  main=209B banner=false  https://www.indianexaminfo.com/sarkari-naukri/cooperative-recruitment
+  main=452B banner=false  https://www.indianexaminfo.com/sarkari-naukri/defence-direct-recruitment
+  main=280B banner=false  https://www.indianexaminfo.com/sarkari-naukri/health
+  main=556B banner=false  https://www.indianexaminfo.com/sarkari-naukri/insurance
+  main=400B banner=false  https://www.indianexaminfo.com/sarkari-naukri/judiciary-recruitment
+  main=322B banner=false  https://www.indianexaminfo.com/sarkari-naukri/judiciary
+  main=524B banner=false  https://www.indianexaminfo.com/sarkari-naukri/police-paramilitary
+  main=385B banner=false  https://www.indianexaminfo.com/sarkari-naukri/postal-recruitment
+  main=485B banner=false  https://www.indianexaminfo.com/sarkari-naukri/power-utility-recruitment
+  main=305B banner=false  https://www.indianexaminfo.com/sarkari-naukri/social-welfare-recruitment
+  main=288B banner=false  https://www.indianexaminfo.com/sarkari-naukri/transport-recruitment
+  main=119B banner=false  https://www.indianexaminfo.com/university-exam/open-university
+  main=166B banner=false  https://www.indianexaminfo.com/university-exam/professional-university
+  main=596B banner=false  https://www.indianexaminfo.com/sarkari-naukri/state/kerala
+  main=469B banner=false  https://www.indianexaminfo.com/blog/education-news
+
+DUPLICATE <title> groups: 0
+
+DUPLICATE meta description groups: 0
+
+CANONICAL MISMATCHES (canonical != own final URL): 0
