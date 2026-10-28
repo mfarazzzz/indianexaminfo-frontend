@@ -197,18 +197,27 @@ export function DeadlineStrip({ bands }: Props) {
                     {lead.band.title}
                   </span>
                   {overflow > 0 && (
-                    <span className="text-[11px] text-gray-500">+{overflow} more this week</span>
+                    /* F5 (CLS): this pill measured 33px → 17px at 560 ms on the 360px home
+                       page — the sibling band label got wider at the webfont swap, squeezed
+                       this text, it wrapped to two lines, then unwrapped. whitespace-nowrap
+                       makes its line count a constant, so the row height cannot change. */
+                    <span className="text-[11px] text-gray-500 whitespace-nowrap">+{overflow} more this week</span>
                   )}
                 </div>
                 <span className="block text-sm font-semibold text-gray-900 leading-snug mt-0.5 break-words">
                   {lead.item.name}
                 </span>
+                {/* F5 (CLS): the bilingual captions carry Devanagari, which no webfont subset
+                    covers (Merriweather ships latin only), so those glyphs come from the system
+                    serif and RE-WRAP when the latin webfont arrives — measured 17px → 33px.
+                    Reserve the two-line box (33px at text-[11px] leading-snug) so the swap
+                    cannot move the item name under it. The text is never truncated. */}
                 {leadAllUnverified ? (
-                  <span className="block text-[11px] font-medium text-gray-500 mt-0.5 break-words" title={BAND_UNVERIFIED_CAPTION}>
+                  <span className="block text-[11px] font-medium text-gray-500 mt-0.5 leading-snug min-h-[33px] break-words" title={BAND_UNVERIFIED_CAPTION}>
                     {BAND_UNVERIFIED_CAPTION}
                   </span>
                 ) : !lead.item.verified ? (
-                  <span className="block text-[11px] font-medium text-gray-500 mt-0.5 break-words" title={UNVERIFIED_MARKER}>
+                  <span className="block text-[11px] font-medium text-gray-500 mt-0.5 leading-snug min-h-[33px] break-words" title={UNVERIFIED_MARKER}>
                     {UNVERIFIED_MARKER}
                   </span>
                 ) : null}
