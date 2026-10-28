@@ -7,6 +7,8 @@
 import { createServerClient } from "@/lib/supabase/server";
 import { cached } from "@/lib/cache";
 import { env } from "@/config/env";
+import { isTestSlug } from "@/lib/testContent";
+import { sortForStablePagination } from "@/lib/sarkari/listing";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -383,6 +385,47 @@ export async function searchSarkariNaukri(query: string): Promise<SarkariNaukriI
     console.error("[sarkariNaukriService] searchSarkariNaukri failed:", err);
     return [];
   }
+}
+
+/**
+ * The pagination spine of the crawlable vacancy list (owner batch 4, K5).
+ *
+ * /sarkari-naukri used to ship its whole list to the client and show the first 20 rows, with
+ * "Load more" appending the rest in the browser. Googlebot executes JS, but a sitemap-scoped
+ * crawl that follows links does not click — batch 3 measured the cost: ~160 published vacancy
+ * records whose only in-links sit below the 20-row fold, so they were orphan pages.
+ *
+ * This returns EVERY published, non-test slug in the order the paginated pages must use — a
+ * clock-free total order (lib/sarkari/listing#compareForStablePagination) so page N of a build
+ * and page N of a later ISR regeneration contain the same rows. Kept to the columns the
+ * comparator reads, which is why it is cheap enough for a page shell.
+ *
+ * A failed read THROWS (K4): an empty array here would render "no vacancies" over real rows.
+ * generateStaticParams is the one place that must not fail a build and says so at its call.
+ */
+export async function getVacancySlugsInOrder(): Promise<string[]> {
+  return cached(async () => {
+    const supabase = createServerClient();
+    const { data, error } = await supabase
+      .from("sarkari_naukri")
+      .select("slug, status, application_end_date, exam_date, admit_card_date, updated_at")
+      .eq("workflow_status", "published");
+    if (error) {
+      console.error("[sarkariNaukriService] getVacancySlugsInOrder: read FAILED — not an empty list:", error);
+      throw error;
+    }
+    const rows = ((data ?? []) as Record<string, unknown>[])
+      .map((r) => ({
+        slug: r.slug as string,
+        status: (r.status as string) ?? "upcoming",
+        applicationEndDate: (r.application_end_date as string) ?? null,
+        examDate: (r.exam_date as string) ?? null,
+        admitCardDate: (r.admit_card_date as string) ?? null,
+        updatedAt: (r.updated_at as string) ?? "",
+      }))
+      .filter((r) => r.slug && !isTestSlug(r.slug));   // reference test rows never get a page
+    return sortForStablePagination(rows).map((r) => r.slug);
+  }, ["sarkari-naukri", "sarkari-naukri:pagination"], { revalidate: 3600 });
 }
 
 export async function getSarkariNaukriStats(): Promise<{ total: number; exam: number; direct: number }> {

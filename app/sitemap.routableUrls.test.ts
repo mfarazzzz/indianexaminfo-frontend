@@ -248,6 +248,12 @@ describe("the sitemap never submits a URL the router redirects (K3)", () => {
     expect(dupes).toEqual([]);
   });
 
+  it("does not submit the K5 vacancy pagination pages (navigation, not content)", () => {
+    // Owner decision in K5: /sarkari-naukri/jobs/page/N is reachable from the sitemap page
+    // /sarkari-naukri through real anchors, and is deliberately not itself submitted.
+    expect(paths.some((p) => p.startsWith("/sarkari-naukri/jobs/page"))).toBe(false);
+  });
+
   it("the last gate itself is honest about what it removes (unit)", () => {
     const out = submitted([
       { url: `${BASE}/sarkari-naukri/central-government-jobs` },

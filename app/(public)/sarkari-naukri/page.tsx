@@ -14,6 +14,9 @@ import { SARKARI_LABELS } from "@/lib/sarkari/labels";
 import { filterHubLinks } from "@/lib/hubs/contentHubs";
 import { latestContentDate } from "@/lib/exam/lastUpdated";
 import { SarkariNaukriList } from "@/components/sarkari-naukri/SarkariNaukriList";
+import { VacancyListTrail } from "@/components/sarkari-naukri/VacancyListTrail";
+import { vacancyPageCount } from "@/lib/sarkari/vacancyPages";
+import { isTestSlug } from "@/lib/testContent";
 
 export const revalidate = 1800;
 
@@ -169,6 +172,16 @@ export default async function SarkariNaukriPage() {
 
           {/* Listings — sorted by urgency, paginated inside the component */}
           <SarkariNaukriList items={sorted} todayISO={todayISO} />
+
+          {/* K5 (batch 4): the crawlable entry into the page-by-page list. "Load more" above is
+              a reader convenience; a crawl that follows links never clicks, and the records
+              below the 20-row fold were orphan pages because of it. Test rows are excluded from
+              the count here for the same reason the pagination spine excludes them — otherwise
+              one reference row could make the trail link to a page that 404s. */}
+          <VacancyListTrail
+            total={sorted.filter((i) => !isTestSlug(i.slug)).length}
+            pages={vacancyPageCount(sorted.filter((i) => !isTestSlug(i.slug)).length)}
+          />
         </main>
 
         <aside className="flex flex-col gap-4">
