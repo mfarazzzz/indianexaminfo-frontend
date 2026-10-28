@@ -96,8 +96,15 @@ export const metadata: Metadata = {
     images:   [{ url: `${siteConfig.url}/api/og?title=${encodeURIComponent("Indian Exam Info: Sarkari Naukri, Result, Admit Card " + YEAR)}&type=default`, width: 1200, height: 630 }],
   },
   alternates: {
-    canonical: siteConfig.url,
-    languages: { "en-IN": siteConfig.url },
+    // K1 — NO canonical here. This used to be `canonical: siteConfig.url`, and Next inherits
+    // metadata, so EVERY route that did not declare one told Google it was the home page:
+    // /sarkari-naukri/state (measured, batch 3 F1), /board-exam/state/up-board and
+    // /university-exam/state-university (measured, batch 3 F4) while the sitemap submitted
+    // them as their own URLs. A blanket canonical is a silent lie one-level deep, so the
+    // root no longer sets one: each route either declares its own (see
+    // app/(public)/staticHubCanonical.routes.test.ts, which now enforces it for every route
+    // shape) or is noindex and makes no claim. The home page's canonical is set in
+    // lib/seo/metadata#buildHomepageMetadata, consumed by app/page.tsx.
     types: {
       "application/rss+xml":  `${siteConfig.url}/api/feed`,
       "application/atom+xml": `${siteConfig.url}/api/feed?format=atom`,

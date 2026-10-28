@@ -56,6 +56,21 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
         updatedAt: examUpdatedFrom(exam) ?? undefined,
       });
     }
+    // K1 — the CATEGORY LISTING form (the slug is no exam, but a category that has them).
+    // Same predicate as the page body below (getExamsByCategory + SERVED_PILLARS), and its
+    // OWN canonical: this branch used to return {}, so the hub silently inherited the ROOT
+    // layout's canonical and told Google /university-exam/state-university IS the home page
+    // (measured against the production build in batch 3, F4).
+    const catExams = (await getExamsByCategory(slug)).filter((e) => SERVED_PILLARS.has(e.pillar));
+    if (catExams.length > 0) {
+      const catLabel = slug.replace(/-/g, " ").replace(/\b\w/g, (c: string) => c.toUpperCase());
+      return buildExamMetadata({
+        pageType: "category",
+        title: `${catLabel} University Exams ${getCurrentYear()} — Results, Dates & Admissions`,
+        description: `Every ${catLabel} university exam page on IndianExamInfo — results, date sheets, syllabus and admission notices for ${catExams.length} examinations.`,
+        canonicalUrl: `${siteConfig.url}/university-exam/${slug}`,
+      });
+    }
     return {};
   }
   if (segments.length === 2) {

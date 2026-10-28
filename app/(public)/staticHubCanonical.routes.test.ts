@@ -1,10 +1,10 @@
 /**
  * staticHubCanonical.routes.test.ts — "a hub is self-canonical" (owner batch 3, F1).
  *
- * The root layout declares `alternates.canonical: siteConfig.url` (the home page), and Next
- * INHERITS metadata. So a static route that declares no metadata of its own publishes the
- * HOME canonical on its own URL: the sitemap contradicts the page (Google read
- * /sarkari-naukri/state declaring itself to be "/"), and the page also inherits the home
+ * The root layout USED TO declare `alternates.canonical` = the home page (removed in batch 4,
+ * K1), and Next INHERITS metadata. So a static route that declared no metadata of its own
+ * published the HOME canonical on its own URL: the sitemap contradicted the page (Google read
+ * /sarkari-naukri/state declaring itself to be "/"), and the page also inherited the home
  * <title> verbatim — the crawl's duplicate-title group. That is exactly what
  * /sarkari-naukri/state did.
  *
@@ -46,6 +46,61 @@ function staticRoutes(): { rel: string; routePath: string }[] {
 }
 
 const ROUTES = staticRoutes();
+
+/**
+ * K1 (batch 4) — the DYNAMIC route shapes. A dynamic page cannot be asserted against one
+ * literal path (its canonical is built from the record), so the contract is the part that
+ * CAN be checked statically, and it is strict on purpose:
+ *   1. the root layout must not set a blanket canonical again (it used to, which is how
+ *      /sarkari-naukri/state, /board-exam/state/up-board and /university-exam/
+ *      state-university all told Google they were the home page);
+ *   2. every dynamic page.tsx must hand a canonicalUrl to its metadata builder;
+ *   3. the university-exam category-listing hub must be self-canonical by name, because that
+ *      is one of the two measured cases.
+ */
+function dynamicRouteFiles(): { rel: string; segments: string }[] {
+  const out: { rel: string; segments: string }[] = [];
+  const walk = (dir: string, seg: string) => {
+    for (const e of readdirSync(dir, { withFileTypes: true })) {
+      const abs = join(dir, e.name);
+      if (e.isDirectory()) { walk(abs, e.name.startsWith("(") ? seg : `${seg}/${e.name}`); continue; }
+      if (e.name !== "page.tsx" || !seg.includes("[")) continue;
+      out.push({ rel: relative(ROOT, abs).split(sep).join("/"), segments: seg });
+    }
+  };
+  walk(join(__dirname, ""), "");
+  return out.sort((a, b) => a.segments.localeCompare(b.segments));
+}
+
+const DYNAMIC = dynamicRouteFiles();
+
+describe("dynamic routes declare their own canonical (K1)", () => {
+  it("the scanner sees the real dynamic route set", () => {
+    expect(DYNAMIC.length).toBeGreaterThanOrEqual(10);
+    expect(DYNAMIC.some((d) => d.rel.includes("university-exam/[...segments]") || d.rel.includes("university-exam"))).toBe(true);
+  });
+
+  it("app/layout.tsx sets no blanket canonical or en-IN language", () => {
+    // Comments are stripped first: the K1 note in the layout QUOTES the line it removed, and
+    // this assertion is about the metadata object, not about prose.
+    const layout = readFileSync(join(ROOT, "app", "layout.tsx"), "utf8")
+      .replace(/\/\*[\s\S]*?\*\//g, "")
+      .replace(/^[ \t]*\/\/.*$/gm, "");
+    expect(layout).not.toMatch(/canonical:\s*siteConfig\.url/);
+    expect(layout).not.toMatch(/en-IN["']?:\s*siteConfig\.url/);
+  });
+
+  it.each(DYNAMIC.map((d) => [d.rel] as const))("%s hands a canonicalUrl to its metadata", (rel) => {
+    const src = readFileSync(join(ROOT, rel), "utf8");
+    expect(src, `${rel} sets no canonicalUrl`).toContain("canonicalUrl");
+  });
+
+  it("the university-exam category-listing hub is self-canonical", () => {
+    const src = readFileSync(
+      join(ROOT, "app", "(public)", "university-exam", "[...segments]", "page.tsx"), "utf8");
+    expect(src).toContain("canonicalUrl: `${siteConfig.url}/university-exam/${slug}`");
+  });
+});
 
 describe("static hub routes are self-canonical (F1)", () => {
   it("the scanner finds the real hub set (guards the test itself)", () => {

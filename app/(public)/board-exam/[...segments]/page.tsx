@@ -33,6 +33,27 @@ const SERVED_PILLARS = new Set(["board-exam"]);
 
 type Props = { params: Promise<{ segments: string[] }> };
 
+/**
+ * K1 (batch 4) — metadata for the CATEGORY LISTING forms of this route. Both listings below
+ * in the page body answer 200 with an uncapped list of exams, yet until now they declared NO
+ * metadata of their own: before batch 4 they silently inherited the ROOT canonical and told
+ * Google `/board-exam/state/up-board` IS the home page (measured in batch 3, F4); after the
+ * root canonical was removed they would publish no canonical at all, which still leaves the
+ * sitemap's self-claim unbacked. The predicate here is the page body's own predicate, so a
+ * canonical is claimed ONLY where a listing really renders — never on a URL that 308s or 404s.
+ */
+async function categoryListingMetadata(path: string, categorySlug: string): Promise<Metadata | null> {
+  const catExams = await getExamsByCategory(categorySlug);
+  if (catExams.length === 0) return null;
+  const label = categorySlug.replace(/-/g, " ").replace(/\b\w/g, (c: string) => c.toUpperCase());
+  return buildExamMetadata({
+    pageType: "category",
+    title: `${label} Board Exams ${getCurrentYear()} — Results, Dates & Admissions`,
+    description: `Every ${label} board exam page on IndianExamInfo — results, date sheets, syllabus and admission notices for ${catExams.length} examinations.`,
+    canonicalUrl: `${siteConfig.url}${path}`,
+  });
+}
+
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { segments } = await params;
 
@@ -58,7 +79,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
         updatedAt: examUpdatedFrom(exam) ?? undefined,
       });
     }
-    return {};
+    // K1 — not an exam: try the category listing the page body renders for this shape
+    // (/board-exam/{category}). Self-canonical, or {} when nothing lists and the body 404s.
+    return (await categoryListingMetadata(`/board-exam/${slug}`, slug)) ?? {};
   }
 
   // 2-seg (category/slug) and 3-seg content-type now PERMANENTLY REDIRECT to the canonical
@@ -66,7 +89,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   // redirecting URL must not emit its own metadata, so we return {} for those. The year/
   // edition segment is NOT redirected and keeps its shared-dispatch metadata.
   if (segments.length === 2) {
-    return {};
+    const [first, second] = segments;
+    // A served record with a category 308s to the state canonical → no metadata here.
+    const rec = await getExamBySlug(second);
+    if (rec && SERVED_PILLARS.has(rec.pillar) && rec.category) return {};
+    // Otherwise this shape is the state/category LISTING (/board-exam/state/up-board) — the
+    // exact URL measured self-declaring the home page in batch 3. Own canonical now (K1).
+    return (await categoryListingMetadata(`/board-exam/${first}/${second}`, second)) ?? {};
   }
 
   if (segments.length === 3) {
