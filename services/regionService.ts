@@ -46,7 +46,7 @@ export async function getRegion(slug: string): Promise<Region | null> {
       return data ? mapRegion(data as Record<string, unknown>) : null;
     } catch (err) {
       console.error("[regionService] getRegion failed:", err);
-      return null;
+      throw err;   // K4: a failed read is not an empty answer (same rule as examService#getExamBySlug)
     }
   }, ["regions", `region:${slug}`], { revalidate: 3600 });
 }
@@ -96,7 +96,7 @@ export async function getRegionsWithRecords(): Promise<RegionWithCounts[]> {
       );
     } catch (err) {
       console.error("[regionService] getRegionsWithRecords failed:", err);
-      return [];
+      throw err;   // K4: a failed read is not an empty answer (same rule as examService#getExamBySlug)
     }
   }, ["regions", "exams", "sarkari-naukri", "regions:with-records"], { revalidate: 1800 });
 }

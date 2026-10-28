@@ -48,11 +48,15 @@ export async function getPageBySlug(slug: string): Promise<CmsPage | null> {
       .eq("slug", slug)
       .eq("status", "published")
       .maybeSingle();
-    if (error || !data) return null;
+    if (error) {
+      console.error(`[pageService] getPageBySlug: read FAILED — not a missing record:`, error);
+      throw error;   // K4: a failed read must not become a 404 for a record that exists
+    }
+    if (!data) return null;   // clean miss — the row really is not there
     return mapRow(data);
   } catch (err) {
     console.error(`[pageService] getPageBySlug(${slug}) failed:`, err);
-    return null;
+    throw err;   // K4: a failed read is not an empty answer (same rule as examService#getExamBySlug)
   }
 }
 
@@ -69,6 +73,6 @@ export async function getAllPublishedPages(): Promise<CmsPage[]> {
     return (data ?? []).map(mapRow);
   } catch (err) {
     console.error("[pageService] getAllPublishedPages failed:", err);
-    return [];
+    throw err;   // K4: a failed read is not an empty answer (same rule as examService#getExamBySlug)
   }
 }

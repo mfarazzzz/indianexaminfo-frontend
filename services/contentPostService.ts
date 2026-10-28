@@ -89,7 +89,7 @@ export async function getContentPostsByExam(
       return orderUpdatesForReader((data ?? []).map((r: any) => mapRow(r)));
     } catch (err) {
       console.error("[contentPostService] getContentPostsByExam failed:", err);
-      return [];
+      throw err;   // K4: a failed read is not an empty answer (same rule as examService#getExamBySlug)
     }
   }, [
     "exams",
@@ -166,10 +166,13 @@ export async function ctPagesWithOwnContent(): Promise<Record<string, string[]>>
       if (error) throw error;
       return ownContentByExam((data ?? []) as OwnContentRow[]);
     } catch (err) {
-      // Fail OPEN to self-canonical: a failed read must not silently strip live URLs
-      // from the sitemap; the route's own metadata (which has the post) still decides.
+      // K4 (batch 4) — this one no longer fails open. It decides WHICH URLs the sitemap
+      // submits, so a swallowed read silently WITHDREW live, published content-type pages while
+      // looking like a normal sitemap. Throwing means /sitemap.xml does not regenerate on a
+      // blip and Google keeps the last good copy — no false claim in either direction.
+      // (examPostUpdatedAts below keeps its fail-open: omitting a lastmod is never a lie.)
       console.error("[contentPostService] ctPagesWithOwnContent failed:", err);
-      return {};
+      throw err;   // K4: a failed read is not an empty answer (same rule as examService#getExamBySlug)
     }
   }, ["exams", "content-posts", "content-posts:own-content"], { revalidate: 3600 });
 }
@@ -208,8 +211,10 @@ export async function examPostUpdatedAts(): Promise<Record<string, string[]>> {
       if (error) throw error;
       return postDatesByExam((data ?? []) as PostDateRow[]);
     } catch (err) {
-      // Fail open to "no post date": a failed read means the trustworthy rule simply
-      // leans on the edition/verified sources, and omits lastmod if none — never a lie.
+      // Fail open to "no post date" — deliberately NOT the K4 rule. A missing lastmod is an
+      // omission the trustworthy rule was already allowed to make (lm() omits the key when there
+      // is no honest date), so it cannot lie; throwing here would withhold the WHOLE sitemap
+      // regeneration over a freshness field.
       console.error("[contentPostService] examPostUpdatedAts failed:", err);
       return {};
     }
@@ -227,11 +232,15 @@ export async function getContentPostBySlug(slug: string): Promise<ContentPost | 
       .or(expiryOr())
       .is("exam_id", null) // a generic /news page never renders an exam-linked update
       .maybeSingle();
-    if (error || !data) return null;
+    if (error) {
+      console.error(`[contentPostService] getContentPostBySlug: read FAILED — not a missing record:`, error);
+      throw error;   // K4: a failed read must not become a 404 for a record that exists
+    }
+    if (!data) return null;   // clean miss — the row really is not there
     return mapRow(data as Record<string, unknown>);
   } catch (err) {
     console.error("[contentPostService] getContentPostBySlug failed:", err);
-    return null;
+    throw err;   // K4: a failed read is not an empty answer (same rule as examService#getExamBySlug)
   }
 }
 
@@ -255,7 +264,7 @@ export async function getLatestByContentType(
       return excludeTest((data ?? []).map((r: any) => mapRow(r)));
     } catch (err) {
       console.error("[contentPostService] getLatestByContentType failed:", err);
-      return [];
+      throw err;   // K4: a failed read is not an empty answer (same rule as examService#getExamBySlug)
     }
   }, [`hub:${contentType}`, "content-posts"], { revalidate: 900 });
 }
@@ -275,7 +284,7 @@ export async function getContentPostsByPillar(pillar: Pillar): Promise<ContentPo
     return excludeTest((data ?? []).map((r: any) => mapRow(r)));
   } catch (err) {
     console.error("[contentPostService] getContentPostsByPillar failed:", err);
-    return [];
+    throw err;   // K4: a failed read is not an empty answer (same rule as examService#getExamBySlug)
   }
 }
 

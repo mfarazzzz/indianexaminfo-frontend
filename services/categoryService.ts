@@ -52,7 +52,7 @@ export async function getCategoriesByPillar(pillar: Pillar): Promise<Category[]>
       return (data ?? []).map(mapRow);
     } catch (err) {
       console.error(`[categoryService] getCategoriesByPillar(${pillar}) failed:`, err);
-      return [];
+      throw err;   // K4: a failed read is not an empty answer (same rule as examService#getExamBySlug)
     }
   }, [`pillar:${pillar}`, "categories"], { revalidate: 3600 });
 }

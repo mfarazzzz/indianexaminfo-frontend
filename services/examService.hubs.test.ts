@@ -206,15 +206,18 @@ describe("getExamsByContentType — the syllabus section (structured store)", ()
     // The old code read `{ data }` only, so a HeadersOverflow/timeout result left
     // every hasStructuredSyllabus undefined and /syllabus rendered as an empty,
     // noindexed page — the symptom the owner asked to fix, not to hide.
+    //
+    // K4 (batch 4) sharpens what "surfaces" means: logging and then answering [] still made
+    // the hub LOOK empty to a reader (and to the crawler that fetched the page), so the read
+    // now REJECTS. The caller's error boundary / Next's ISR staleness is the right answer to
+    // a failed read; an empty page is a lie about content that exists.
     const spy = vi.spyOn(console, "error").mockImplementation(() => {});
     clientRef = fakeClient(
       { exams: [row()], exam_derived_status: [], exam_syllabus_subjects: [] },
       { exam_syllabus_subjects: "Headers Overflow Error" },
     );
 
-    const exams = await getExamsByContentType("syllabus" as never);
-
-    expect(exams).toEqual([]);
+    await expect(getExamsByContentType("syllabus" as never)).rejects.toThrow(/Headers Overflow Error/);
     expect(spy).toHaveBeenCalledWith(
       "[examService] getExamsByContentType failed:",
       expect.objectContaining({ message: expect.stringContaining("Headers Overflow Error") }),

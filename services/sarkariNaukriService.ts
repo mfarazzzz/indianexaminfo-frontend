@@ -162,7 +162,7 @@ export async function getAllSarkariNaukri(): Promise<SarkariNaukriItem[]> {
       return (data ?? []).map((r: any) => mapRow(r));
     } catch (err) {
       console.error("[sarkariNaukriService] getAllSarkariNaukri failed:", err);
-      return [];
+      throw err;   // K4: a failed read is not an empty answer (same rule as examService#getExamBySlug)
     }
   }, ["sarkari-naukri"], { revalidate: 1800 });
 }
@@ -177,11 +177,15 @@ export async function getSarkariNaukriBySlug(slug: string): Promise<SarkariNaukr
         .eq("slug", slug)
         .eq("workflow_status", "published")
         .maybeSingle();
-      if (error || !data) return null;
+      if (error) {
+        console.error(`[sarkariNaukriService] getSarkariNaukriBySlug: read FAILED — not a missing record:`, error);
+        throw error;   // K4: a failed read must not become a 404 for a record that exists
+      }
+      if (!data) return null;   // clean miss — the row really is not there
       return mapRow(data as Record<string, unknown>);
     } catch (err) {
       console.error("[sarkariNaukriService] getSarkariNaukriBySlug failed:", err);
-      return null;
+      throw err;   // K4: a failed read is not an empty answer (same rule as examService#getExamBySlug)
     }
   }, ["sarkari-naukri", `sarkari-naukri:${slug}`], { revalidate: 3600 });
 }
@@ -202,7 +206,7 @@ export async function getByRecruitmentType(type: RecruitmentType): Promise<Sarka
       return (data ?? []).map((r: any) => mapRow(r));
     } catch (err) {
       console.error("[sarkariNaukriService] getByRecruitmentType failed:", err);
-      return [];
+      throw err;   // K4: a failed read is not an empty answer (same rule as examService#getExamBySlug)
     }
   }, ["sarkari-naukri", `sarkari-naukri:type:${type}`], { revalidate: 1800 });
 }
@@ -223,7 +227,7 @@ export async function getByState(state: string): Promise<SarkariNaukriItem[]> {
       return (data ?? []).map((r: any) => mapRow(r));
     } catch (err) {
       console.error("[sarkariNaukriService] getByState failed:", err);
-      return [];
+      throw err;   // K4: a failed read is not an empty answer (same rule as examService#getExamBySlug)
     }
   }, ["sarkari-naukri", `sarkari-naukri:state:${state}`], { revalidate: 1800 });
 }
@@ -243,7 +247,7 @@ export async function getByDepartment(dept: string): Promise<SarkariNaukriItem[]
       return (data ?? []).map((r: any) => mapRow(r));
     } catch (err) {
       console.error("[sarkariNaukriService] getByDepartment failed:", err);
-      return [];
+      throw err;   // K4: a failed read is not an empty answer (same rule as examService#getExamBySlug)
     }
   }, ["sarkari-naukri", `sarkari-naukri:dept:${dept}`], { revalidate: 1800 });
 }
@@ -264,7 +268,7 @@ export async function getByCategory(category: string): Promise<SarkariNaukriItem
       return (data ?? []).map((r: any) => mapRow(r));
     } catch (err) {
       console.error("[sarkariNaukriService] getByCategory failed:", err);
-      return [];
+      throw err;   // K4: a failed read is not an empty answer (same rule as examService#getExamBySlug)
     }
   }, ["sarkari-naukri", `sarkari-naukri:category:${category}`], { revalidate: 1800 });
 }
@@ -308,7 +312,7 @@ export async function getStateList(): Promise<{ state: string; count: number }[]
         .sort((a, b) => b.count - a.count);
     } catch (err) {
       console.error("[sarkariNaukriService] getStateList failed:", err);
-      return [];
+      throw err;   // K4: a failed read is not an empty answer (same rule as examService#getExamBySlug)
     }
   }, ["sarkari-naukri", "sarkari-naukri:states"], { revalidate: 3600 });
 }
@@ -332,7 +336,7 @@ export async function getCategoryList(): Promise<{ category: string; count: numb
         .sort((a, b) => b.count - a.count);
     } catch (err) {
       console.error("[sarkariNaukriService] getCategoryList failed:", err);
-      return [];
+      throw err;   // K4: a failed read is not an empty answer (same rule as examService#getExamBySlug)
     }
   }, ["sarkari-naukri", "sarkari-naukri:categories"], { revalidate: 3600 });
 }
@@ -425,7 +429,7 @@ export async function getSarkariNaukriSitemapEntries(): Promise<
       }));
     } catch (err) {
       console.error("[sarkariNaukriService] getSarkariNaukriSitemapEntries failed:", err);
-      return [];
+      throw err;   // K4: a failed read is not an empty answer (same rule as examService#getExamBySlug)
     }
   }, ["sarkari-naukri", "sarkari-naukri:sitemap"], { revalidate: 3600 });
 }

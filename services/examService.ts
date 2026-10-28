@@ -368,7 +368,7 @@ export async function getAllExams(): Promise<ExamEntity[]> {
       return excludeTest(await applyStructuredSyllabusFlags(supabase, exams));
     } catch (err) {
       console.error("[examService] getAllExams failed:", err);
-      return [];
+      throw err;   // K4: a failed read is not an empty answer (same rule as examService#getExamBySlug)
     }
   }, ["exams"], { revalidate: 1800 });
 }
@@ -491,7 +491,7 @@ export async function getExamsByPillar(pillar: Pillar): Promise<ExamEntity[]> {
       return excludeTest(await applyStructuredSyllabusFlags(supabase, exams));
     } catch (err) {
       console.error("[examService] getExamsByPillar failed:", err);
-      return [];
+      throw err;   // K4: a failed read is not an empty answer (same rule as examService#getExamBySlug)
     }
   }, ["exams", `pillar:${pillar}`], { revalidate: 1800 });
 }
@@ -531,6 +531,8 @@ export async function getUniversityNavRecords(): Promise<UniversityNavRecord[]> 
         .filter((r) => r.category && !isTestSlug(r.slug));
     } catch (err) {
       console.error("[examService] getUniversityNavRecords failed:", err);
+      // K4: deliberately still degrades to [] — this feeds the shared header/mega-menu,
+      // where a navigation read must not take every page down (same rule as navigationService).
       return [];
     }
   }, ["exams", "regions", "university-nav-records"], { revalidate: 1800 });
@@ -559,7 +561,7 @@ export async function getExamsByRegion(region: string): Promise<ExamEntity[]> {
       return excludeTest(await applyStructuredSyllabusFlags(supabase, exams));
     } catch (err) {
       console.error("[examService] getExamsByRegion failed:", err);
-      return [];
+      throw err;   // K4: a failed read is not an empty answer (same rule as examService#getExamBySlug)
     }
   }, ["exams", `region:${region}`], { revalidate: 1800 });
 }
@@ -616,7 +618,7 @@ export async function getFeaturedExams(): Promise<ExamEntity[]> {
     return excludeTest(await applyStructuredSyllabusFlags(supabase, exams));
   } catch (err) {
     console.error("[examService] getFeaturedExams failed:", err);
-    return [];
+    throw err;   // K4: a failed read is not an empty answer (same rule as examService#getExamBySlug)
   }
 }
 
@@ -706,6 +708,8 @@ export async function searchExams(query: string): Promise<ExamEntity[]> {
     return excludeTest(await applyStructuredSyllabusFlags(supabase, exams));
   } catch (err) {
     console.error("[examService] searchExams failed:", err);
+    // K4: deliberately still degrades to [] — /search is noindex and answers with the
+    // other four search reads, which also degrade (one behaviour for one page).
     return [];
   }
 }
@@ -799,7 +803,7 @@ async function loadExamsForContentType(
     return excludeTest(exams.filter((exam) => contentTypeHasData(exam as unknown as HasDataView, contentType)));
   } catch (err) {
     console.error("[examService] getExamsByContentType failed:", err);
-    return [];
+    throw err;   // K4: a failed read is not an empty answer (same rule as examService#getExamBySlug)
   }
 }
 
@@ -823,7 +827,7 @@ export async function getExamsByStatus(status: string): Promise<ExamEntity[]> {
     );
   } catch (err) {
     console.error("[examService] getExamsByStatus failed:", err);
-    return [];
+    throw err;   // K4: a failed read is not an empty answer (same rule as examService#getExamBySlug)
   }
 }
 
@@ -940,8 +944,12 @@ export async function getExamSyllabus(examId: string, weightageType: WeightageTy
         })),
       };
     } catch (err) {
+      // K4 (batch 4): this one fed a 404 VERDICT. hasStructuredSyllabus() reads
+      // syllabus.subjects.length, so a swallowed error said "this exam has no syllabus", the
+      // [contentType] route 404'd a real /syllabus page, and the tab disappeared with it
+      // (measured class: /syllabus reporting 0 exams while exam_syllabus_subjects held 13).
       console.error("[examService] getExamSyllabus failed:", err);
-      return { weightageType, subjects: [] };
+      throw err;   // K4: a failed read is not an empty answer (same rule as getExamBySlug)
     }
   }, ["exams", `exam-syllabus:${examId}`], { revalidate: 1800 });
 }
@@ -977,6 +985,8 @@ export async function getExamResources(examId: string): Promise<ExamResourceRow[
         }));
     } catch (err) {
       console.error("[examService] getExamResources failed:", err);
+      // K4: deliberately still degrades to [] — ResourceLibrary renders nothing for an empty
+      // library and no route verdict depends on it (same rule as getRelatedExams).
       return [];
     }
   }, ["exams", `exam-resources:${examId}`], { revalidate: 1800 });
@@ -1315,7 +1325,7 @@ export async function getExamEditions(examSlug: string): Promise<EditionSummary[
     }));
   } catch (err) {
     console.error("[examService] getExamEditions failed:", err);
-    return [];
+    throw err;   // K4: a failed read is not an empty answer (same rule as examService#getExamBySlug)
   }
 }
 
@@ -1493,7 +1503,7 @@ export async function getEditionSitemapEntries(): Promise<EditionSitemapEntry[]>
       return out;
     } catch (err) {
       console.error("[examService] getEditionSitemapEntries failed:", err);
-      return [];
+      throw err;   // K4: a failed read is not an empty answer (same rule as examService#getExamBySlug)
     }
   }, ["exams", "edition-sitemap"], { revalidate: 1800 });
 }

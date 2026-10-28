@@ -73,7 +73,7 @@ export async function getAllBlogPosts(): Promise<BlogPost[]> {
     return (data ?? []).map(mapPost);
   } catch (err) {
     console.error("[blogService] getAllBlogPosts failed:", err);
-    return [];
+    throw err;   // K4: a failed read is not an empty answer (same rule as examService#getExamBySlug)
   }
 }
 
@@ -86,11 +86,15 @@ export async function getBlogPostBySlug(slug: string): Promise<BlogPost | null> 
       .eq("slug", slug)
       .eq("status", "published")
       .maybeSingle();
-    if (error || !data) return null;
+    if (error) {
+      console.error(`[blogService] getBlogPostBySlug: read FAILED — not a missing record:`, error);
+      throw error;   // K4: a failed read must not become a 404 for a record that exists
+    }
+    if (!data) return null;   // clean miss — the row really is not there
     return mapPost(data);
   } catch (err) {
     console.error("[blogService] getBlogPostBySlug failed:", err);
-    return null;
+    throw err;   // K4: a failed read is not an empty answer (same rule as examService#getExamBySlug)
   }
 }
 
@@ -107,7 +111,7 @@ export async function getBlogPostsBySection(section: BlogSection): Promise<BlogP
     return (data ?? []).map(mapPost);
   } catch (err) {
     console.error("[blogService] getBlogPostsBySection failed:", err);
-    return [];
+    throw err;   // K4: a failed read is not an empty answer (same rule as examService#getExamBySlug)
   }
 }
 
@@ -189,7 +193,7 @@ export async function getBlogPostsByTag(tag: string): Promise<BlogPost[]> {
     return (data ?? []).map(mapPost);
   } catch (err) {
     console.error("[blogService] getBlogPostsByTag failed:", err);
-    return [];
+    throw err;   // K4: a failed read is not an empty answer (same rule as examService#getExamBySlug)
   }
 }
 
@@ -255,7 +259,7 @@ export async function getAllTags(): Promise<string[]> {
     return [...new Set(allTags)].sort();
   } catch (err) {
     console.error("[blogService] getAllTags failed:", err);
-    return [];
+    throw err;   // K4: a failed read is not an empty answer (same rule as examService#getExamBySlug)
   }
 }
 
@@ -286,10 +290,14 @@ export async function getBlogAuthorBySlug(slug: string): Promise<BlogAuthor | nu
       .eq("slug", slug)
       .eq("is_active", true)
       .maybeSingle();
-    if (error || !data) return null;
+    if (error) {
+      console.error(`[blogService] getBlogAuthorBySlug: read FAILED — not a missing record:`, error);
+      throw error;   // K4: a failed read must not become a 404 for a record that exists
+    }
+    if (!data) return null;   // clean miss — the row really is not there
     return mapAuthor(data);
   } catch (err) {
     console.error("[blogService] getBlogAuthorBySlug failed:", err);
-    return null;
+    throw err;   // K4: a failed read is not an empty answer (same rule as examService#getExamBySlug)
   }
 }
