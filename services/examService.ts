@@ -19,6 +19,16 @@ import {
 } from "@/lib/sectionRegistry";
 import type { ExamEntity, Pillar, ContentType } from "@/types/exam";
 
+/**
+ * RELATED_EXAMS_CAP — how many "Related Exams" links one exam page may offer.
+ * Owned here (not in the component) because the QUERY is what must respect it: tier 1
+ * (same category) and tier 2 (same state) together are capped, and
+ * components/exam/EntityDetailPage.tsx renders exactly what the service returns.
+ * Six is the owner's batch-3 limit: enough for a reader to hop on, few enough that the
+ * block stays inside one screen on mobile.
+ */
+export const RELATED_EXAMS_CAP = 6;
+
 // ── Batched `in()` lookups ─────────────────────────────────────────────
 // PostgREST puts an `in()` list in the REQUEST URL, so a big id set is not a slow
 // query — it is a rejected one. Supabase answers "Headers Overflow Error" with a
@@ -599,24 +609,54 @@ export async function getRelatedExams(examId: string): Promise<ExamEntity[]> {
       // catch below) instead of silently rendering "no related exams".
       const { data: examData, error: examErr } = await supabase
         .from("exams")
-        .select("category_id, pillar")
+        .select("category_id, pillar, region")
         .eq("id", examId)
         .single();
       if (examErr) throw examErr;
       if (!examData) return [];
 
+      // Tier 1 — the same category of the same pillar (the closest siblings).
       const { data, error } = await supabase
         .from("exams")
         .select(LIST_SELECT)
         .neq("id", examId)
         .eq("pillar", (examData as any).pillar)
         .eq("category_id", (examData as any).category_id)
-        .limit(4);
+        .limit(RELATED_EXAMS_CAP);
       if (error) throw error;
-      const rows = data ?? [];
+      const rows = (data ?? []) as any[];
+
+      // Tier 2 — same pillar, SAME STATE, only to top the block up to the cap
+      // (owner batch 3, F4). A category with one or two exams left the reader with a
+      // near-empty strip and no second hop into the state's listing; a state sibling is
+      // real related data (same pillar + same region column), never an invented link.
+      const region = (examData as any).region as string | null;
+      const picked = new Set(rows.map((r) => r.id as string));
+      if (rows.length < RELATED_EXAMS_CAP && region && region !== "all-india") {
+        const { data: regionRows, error: regionErr } = await supabase
+          .from("exams")
+          .select(LIST_SELECT)
+          .neq("id", examId)
+          .eq("pillar", (examData as any).pillar)
+          .eq("region", region)
+          .eq("workflow_status", "published")
+          .order("is_featured", { ascending: false })
+          .order("updated_at", { ascending: false })
+          .limit(RELATED_EXAMS_CAP - rows.length);
+        if (regionErr) throw regionErr;
+        for (const r of regionRows ?? []) {
+          if (picked.has(r.id as string)) continue;
+          if (picked.size >= RELATED_EXAMS_CAP) break;
+          picked.add(r.id as string);
+          rows.push(r);
+        }
+      }
+
       const derivedMap = await fetchDerivedStatuses(supabase, rows.map((r: any) => r.id));
       const exams = rows.map((r: any) => mapRow(r, derivedMap.get(r.id)));
-      return excludeTest(await applyStructuredSyllabusFlags(supabase, exams));
+      // excludeTest keeps reference rows off a reader surface; the cap is the component's
+      // contract too (components/exam/EntityDetailPage.tsx slices to the same number).
+      return excludeTest(await applyStructuredSyllabusFlags(supabase, exams)).slice(0, RELATED_EXAMS_CAP);
     } catch (err) {
       console.error("[examService] getRelatedExams failed:", err);
       return [];

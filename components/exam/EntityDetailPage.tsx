@@ -1,7 +1,7 @@
 import Link from "next/link";
 import type { ExamEntity, ContentType, ContentPost } from "@/types/exam";
 import { getContentPostsByExam } from "@/services/contentPostService";
-import { getRelatedExams, getExamResources, getExamSyllabus, getTodayIST, type ExamResourceRow } from "@/services/examService";
+import { getRelatedExams, getExamResources, getExamSyllabus, getTodayIST, RELATED_EXAMS_CAP, type ExamResourceRow } from "@/services/examService";
 import { ResourceLibrary } from "@/components/exam/ResourceLibrary";
 import { SyllabusSection } from "@/components/exam/SyllabusSection";
 import { StickyContextBar } from "@/components/exam/StickyContextBar";
@@ -686,14 +686,16 @@ export async function EntityDetailPage({ exam, breadcrumbs, contentType, edition
                     so the subscribe box is shown exactly once per page. */}
                 {!hasAwaitingDate && <SocialChannelBanner variant="bottom" />}
 
-                {/* Related Exams — main page only. */}
+                {/* Related Exams — main page only. Hidden when the exam has no sibling in
+                    the same category or state (no empty shell, no invented link); the cap is
+                    the service's own contract (services/examService.ts RELATED_EXAMS_CAP). */}
                 {relatedExams.length > 0 && (
                   <section aria-label="Related exams" className="mb-5">
                     <h2 className="font-heading font-semibold text-base text-gray-800 mb-3">
                       {sectionHeading("related-exams")}
                     </h2>
                     <div className="divide-y divide-border border-t border-border">
-                      {relatedExams.slice(0, 6).map((e) => (
+                      {relatedExams.slice(0, RELATED_EXAMS_CAP).map((e) => (
                         <ExamListRow key={e.id} exam={e} />
                       ))}
                     </div>
