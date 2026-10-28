@@ -1,10 +1,31 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { getRegionsWithRecords } from "@/services/regionService";
 import { Breadcrumb } from "@/components/layout/Breadcrumb";
 import { AdSlot } from "@/components/ads/AdSlot";
 import { SARKARI_LABELS } from "@/lib/sarkari/labels";
+import { buildExamMetadata } from "@/lib/seo/metadata";
+import { getCurrentYear } from "@/lib/seo/keywords";
+import { siteConfig } from "@/config/site";
 
 export const revalidate = 1800;
+
+// A hub is SELF-CANONICAL (owner batch 3, F1). This page declared no metadata, so it
+// inherited the root layout's `canonical: siteConfig.url` and told Google it was the home
+// page — while the sitemap submitted it as its own URL. The same omission also made its
+// <title> a byte-copy of the home title (crawl duplicate-title group). Sibling pattern:
+// app/(public)/sarkari-naukri/state/[state]/page.tsx; rule proven by
+// app/(public)/staticHubCanonical.routes.test.ts.
+const YEAR = getCurrentYear();
+export const metadata: Metadata = buildExamMetadata({
+  pageType: "category",
+  title: `Sarkari Naukri by State ${YEAR} — State-wise Govt Jobs & Exams`,
+  description:
+    `Government jobs and exams in every Indian state and union territory ${YEAR}: ` +
+    `state PSC, police, teaching, health-department and PSU vacancies with exam dates, ` +
+    `admit cards and results, listed region by region.`,
+  canonicalUrl: `${siteConfig.url}/sarkari-naukri/state`,
+});
 
 export default async function AllStatesPage() {
   // Only regions that actually have records (exams by region OR vacancies by
