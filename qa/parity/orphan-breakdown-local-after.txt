@@ -1,0 +1,36 @@
+ORPHAN BREAKDOWN — orphans-local-after.txt (161 urls) vs http://localhost:3002  2026-10-28T16:28:37.263Z
+
+BY URL TEMPLATE:
+   160  sarkari-naukri/{job-slug} (vacancy detail)
+     1  resources (static hub)
+
+BY PILLAR:
+   160  sarkari-naukri
+     1  (other)
+
+BY CATEGORY SEGMENT (record pages only):
+
+BY SLUG TAIL (record pages):
+   136  notification/vacancy
+    16  result
+     9  prelims-result
+
+WHY UNLINKED (checked against the hub pages themselves):
+   160  NOT-LINKED-BY-ANY-HUB
+
+15 EXAMPLES:
+  /sarkari-naukri/rbi-assistant-2026-prelims-result   [NOT-LINKED-BY-ANY-HUB] ownHub=/sarkari-naukri/bharti(200)
+  /sarkari-naukri/nabard-grade-a-2026-prelims-result   [NOT-LINKED-BY-ANY-HUB] ownHub=/sarkari-naukri/bharti(200)
+  /sarkari-naukri/drdo-ceptam-2026-result   [NOT-LINKED-BY-ANY-HUB] ownHub=/sarkari-naukri/bharti(200)
+  /sarkari-naukri/csir-net-june-2026-result   [NOT-LINKED-BY-ANY-HUB] ownHub=/sarkari-naukri/bharti(200)
+  /sarkari-naukri/up-block-development-office-clerk-2026   [NOT-LINKED-BY-ANY-HUB] ownHub=/sarkari-naukri/bharti(200)
+  /sarkari-naukri/mp-police-constable-driver-2026   [NOT-LINKED-BY-ANY-HUB] ownHub=/sarkari-naukri/bharti(200)
+  /sarkari-naukri/ctet-july-2026-result   [NOT-LINKED-BY-ANY-HUB] ownHub=/sarkari-naukri/bharti(200)
+  /sarkari-naukri/up-sichai-vibhag-tubewell-operator-2026   [NOT-LINKED-BY-ANY-HUB] ownHub=/sarkari-naukri/bharti(200)
+  /sarkari-naukri/rajasthan-gds-bharti-2026-jodhpur-division   [NOT-LINKED-BY-ANY-HUB] ownHub=/sarkari-naukri/bharti(200)
+  /sarkari-naukri/rajasthan-medical-college-group-d-2026   [NOT-LINKED-BY-ANY-HUB] ownHub=/sarkari-naukri/bharti(200)
+  /sarkari-naukri/up-health-dept-ward-boy-2026-all-districts   [NOT-LINKED-BY-ANY-HUB] ownHub=/sarkari-naukri/bharti(200)
+  /sarkari-naukri/up-basic-shiksha-parishad-peon-2026   [NOT-LINKED-BY-ANY-HUB] ownHub=/sarkari-naukri/bharti(200)
+  /sarkari-naukri/up-anganwadi-bharti-2026-faizabad-ayodhya-division   [NOT-LINKED-BY-ANY-HUB] ownHub=/sarkari-naukri/bharti(200)
+  /sarkari-naukri/jharkhand-forest-guard-2026   [NOT-LINKED-BY-ANY-HUB] ownHub=/sarkari-naukri/bharti(200)
+  /sarkari-naukri/rajasthan-patwari-bharti-2026-jaipur-division   [NOT-LINKED-BY-ANY-HUB] ownHub=/sarkari-naukri/bharti(200)
