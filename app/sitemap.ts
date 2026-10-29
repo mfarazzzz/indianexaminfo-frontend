@@ -66,21 +66,29 @@ function lm(iso: string | null | undefined): { lastModified: Date } | Record<str
 }
 
 /**
- * Category slugs whose hub URL 308s somewhere else (config/redirects.ts — the ONE rule list
- * the router and this generator now read, K3). A redirecting URL is never a self-canonical
- * page, so neither the hub nor the rows filed under it are submitted:
+ * Category slugs whose HUB URL 308s somewhere else (config/redirects.ts — the ONE rule list
+ * the router and this generator read):
  *   /sarkari-naukri/central-government-jobs → /sarkari-naukri/exam
  *   /sarkari-naukri/state-government-jobs   → /sarkari-naukri/bharti
- * banking / railways / defence / teaching are NOT in this set any more (owner batch 4, K3,
- * "stop withholding defence|railways|banking|teaching and submit the winners"): those hubs
- * render a real self-canonical listing, and cds-exam, nda-exam and rpf-constable — the WINNERS
- * of the retire pairs — live on those slugs and were invisible to a sitemap-scoped crawl.
- * central/state rows stay withheld: their PARENT is a 308, so a submitted child would have no
- * sitemap parent — that is a separate decision, reported to the owner with its row count
- * rather than changed silently. Every URL emitted is still checked against the whole rule list
- * by `submitted()` below, so an exact retire/legacy source can never slip through.
+ * The set now controls the HUB only: a hub that redirects is never submitted, because a
+ * redirecting URL is not a self-canonical page (isSitemapEligible no longer consults it).
+ *
+ * The ROWS filed under those slugs ARE submitted now — owner batch 5, R1
+ * ("K3 un-withhold central-government-jobs and state-government-jobs APPROVED"), on the
+ * condition that each answers 200, self-canonical and is not itself a redirect source. That
+ * condition is enforced twice: `submitted()` below drops any emitted URL matching a rule in
+ * config/redirects.ts, and the strict pass in e2e/sitemap-no-404.e2e.spec.ts asks the ROUTER
+ * (maxRedirects: 0, reading every <link rel=canonical>) for all of them on a production build.
+ * Concretely, 8 published non-test rows on central-government-jobs and 28 on
+ * state-government-jobs (measured 29 Oct) were invisible to search purely because of their
+ * category label, and their parent's 308 is harmless: /sarkari-naukri/exam | /bharti still
+ * list them.
+ *
+ * banking / railways / defence / teaching left this set in batch 4 (K3) for the same reason —
+ * they render real self-canonical listings and hide the retire winners (cds-exam, nda-exam,
+ * rpf-constable) if withheld.
  */
-const REDIRECTING_CATEGORY_SLUGS = new Set([
+const REDIRECTING_CATEGORY_HUB_SLUGS = new Set([
   "central-government-jobs",
   "state-government-jobs",
 ]);
@@ -104,9 +112,10 @@ const CATEGORY_HUB_PILLARS = new Set([
 ]);
 
 /**
- * True when an exam row can produce a well-formed, non-redirecting URL.
- * Rows with no category would yield `/{pillar}//{slug}` (double slash), and
- * rows on a slug whose hub 308s would yield a child of a redirect.
+ * True when an exam row can produce a well-formed URL that the router will ANSWER rather than
+ * redirect. Rows with no category would yield `/{pillar}//{slug}` (double slash), and a row
+ * whose own page URL matches a rule in config/redirects.ts yields a 308 — the retire losers,
+ * the E3 typo slugs and the year-suffixed admission slugs, whatever category they sit on.
  * A reference TEST row never belongs in the index either (the same `zz-test-`
  * rule that makes its page noindex — lib/testContent.ts): most readers already
  * filter it in the service layer, the sitemap is the aggregate that must not
@@ -116,12 +125,11 @@ function isSitemapEligible(exam: SitemapExam): boolean {
   if (!exam.slug) return false;
   if (isTestSlug(exam.slug)) return false;
   if (!exam.category) return false;
-  if (exam.pillar === "government-exam" && REDIRECTING_CATEGORY_SLUGS.has(exam.category)) return false;
-  // K3: a row whose OWN page URL is a redirect source (a retired duplicate, a year-suffixed
-  // admission slug, an E3 typo slug) is withheld here so its content-type and edition
-  // children — which are not themselves rule sources but live behind a 308 — are withheld
-  // with it. The final `submitted()` filter still catches every URL individually.
+  // R1 (batch 5): the category no longer decides anything. A row on central/state-
+  // government-jobs is a real page; only its HUB redirects, and hubs are handled where they
+  // are built. What still decides is the URL itself — checked just below.
   if (pathIsRedirectSource(examUrl(exam))) return false;
+  // K3: and its content-type / edition children go with it, because they live behind that 308.
   return true;
 }
 
@@ -398,7 +406,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const categoryHubs = new Map<string, number>();
   for (const exam of exams) {
     if (!CATEGORY_HUB_PILLARS.has(exam.pillar) || !exam.category) continue;
-    if (REDIRECTING_CATEGORY_SLUGS.has(exam.category)) continue;
+    if (REDIRECTING_CATEGORY_HUB_SLUGS.has(exam.category)) continue;   // the hub itself is a 308
     if (!isSitemapEligible(exam)) continue;
     const path = new URL(hubUrl(exam)).pathname;
     categoryHubs.set(path, (categoryHubs.get(path) ?? 0) + 1);

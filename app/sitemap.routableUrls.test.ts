@@ -38,7 +38,9 @@ vi.mock("@/services/examService", () => ({
     {
       id: "e3", slug: "ibps-po", name: "IBPS PO", pillar: "government-exam", category: "banking", dates: [],
     },
-    // A category whose hub 308s — neither the hub nor its rows are submitted.
+    // R1 (batch 5) — a category whose HUB 308s: the row is a real page and IS submitted now;
+    // only the hub stays out. The fixture slug is also a known retire/legacy-free path, so the
+    // redirect-source guard has nothing to withhold here.
     {
       id: "e4", slug: "up-police", name: "UP Police", pillar: "government-exam", category: "state-government-jobs", dates: [],
     },
@@ -176,6 +178,16 @@ describe("category hubs are submitted where the hub really renders (F4)", () => 
   it("never submits a hub whose own URL 308s", () => {
     expect(paths).not.toContain("/sarkari-naukri/state-government-jobs");
     expect(paths).not.toContain("/sarkari-naukri/central-government-jobs");
+  });
+
+  it("R1 — a row on a redirecting-hub category IS submitted, at its own URL", () => {
+    // Batch 3 withheld these because their PARENT redirects. The parent's 308 is irrelevant to
+    // the child: /sarkari-naukri/state-government-jobs/up-police answers 200 and is
+    // self-canonical (asserted against the router by the strict e2e pass), and
+    // /sarkari-naukri/exam | /bharti still list it.
+    expect(paths).toContain("/sarkari-naukri/state-government-jobs/up-police");
+    // …while the hub it sits under stays out, and no duplicate sneaks in with it.
+    expect(paths.filter((p) => p === "/sarkari-naukri/state-government-jobs/up-police")).toHaveLength(1);
   });
 
   it("K3 — the withheld-as-a-class categories are submitted again", () => {
