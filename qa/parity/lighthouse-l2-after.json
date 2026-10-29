@@ -1,0 +1,470 @@
+[
+  {
+    "name": "home",
+    "url": "http://localhost:3002/",
+    "n": 3,
+    "lcpMs": 4492,
+    "tbtMs": 123,
+    "cls": 0.001,
+    "totalKB": 550,
+    "requests": 34,
+    "jsKB": 159,
+    "fontCount": 3,
+    "fontKB": 127,
+    "perfScore": 0.82,
+    "topImages": [
+      {
+        "url": "/icon.svg",
+        "kb": 2,
+        "mime": "image/svg+xml"
+      }
+    ],
+    "lcpElement": {
+      "label": "Competitive exams (SSC, Banking, Railway) and direct recruitment acros",
+      "selector": "div.container > div.grid > div.flex > p.text-xs"
+    },
+    "fonts": [
+      {
+        "url": "/_next/static/media/41ac5fa582a79a1a-s.p.woff2",
+        "kb": 47
+      },
+      {
+        "url": "/_next/static/media/d8eaaef4aa8085a5-s.p.woff2",
+        "kb": 49
+      },
+      {
+        "url": "/_next/static/media/558ca1a6aa3cb55e-s.p.woff2",
+        "kb": 32
+      }
+    ],
+    "shiftNodes": [],
+    "longTasks": [
+      {
+        "duration": 370,
+        "url": "/"
+      },
+      {
+        "duration": 144,
+        "url": "/_next/static/chunks/4bd1b696-f785427dddbba9fb.js"
+      },
+      {
+        "duration": 66,
+        "url": "/_next/static/chunks/1255-dc3ddf72a1dc71a7.js"
+      },
+      {
+        "duration": 63,
+        "url": "/_next/static/chunks/1255-dc3ddf72a1dc71a7.js"
+      },
+      {
+        "duration": 57,
+        "url": "Unattributable"
+      },
+      {
+        "duration": 51,
+        "url": "/"
+      }
+    ]
+  },
+  {
+    "name": "sarkari-exam (ssc-cgl)",
+    "url": "http://localhost:3002/sarkari-naukri/ssc/ssc-cgl",
+    "n": 3,
+    "lcpMs": 3058,
+    "tbtMs": 46,
+    "cls": 0.028,
+    "totalKB": 346,
+    "requests": 25,
+    "jsKB": 154,
+    "fontCount": 3,
+    "fontKB": 127,
+    "perfScore": 0.92,
+    "topImages": [
+      {
+        "url": "/icon.svg",
+        "kb": 2,
+        "mime": "image/svg+xml"
+      }
+    ],
+    "lcpElement": {
+      "label": "Compiled from the official notification. Not yet verified by our edito",
+      "selector": "div.exam-page > div.grid > main.exam-content > p.exam-notice-warn"
+    },
+    "fonts": [
+      {
+        "url": "/_next/static/media/41ac5fa582a79a1a-s.p.woff2",
+        "kb": 47
+      },
+      {
+        "url": "/_next/static/media/d8eaaef4aa8085a5-s.p.woff2",
+        "kb": 49
+      },
+      {
+        "url": "/_next/static/media/558ca1a6aa3cb55e-s.p.woff2",
+        "kb": 32
+      }
+    ],
+    "shiftNodes": [],
+    "longTasks": [
+      {
+        "duration": 264,
+        "url": "/sarkari-naukri/ssc/ssc-cgl"
+      },
+      {
+        "duration": 133,
+        "url": "/_next/static/chunks/4bd1b696-f785427dddbba9fb.js"
+      },
+      {
+        "duration": 57,
+        "url": "Unattributable"
+      },
+      {
+        "duration": 55,
+        "url": "/_next/static/chunks/1255-dc3ddf72a1dc71a7.js"
+      }
+    ]
+  },
+  {
+    "name": "entrance (jee-main)",
+    "url": "http://localhost:3002/admission/engineering/jee-main",
+    "n": 3,
+    "lcpMs": 3301,
+    "tbtMs": 89,
+    "cls": 0.013,
+    "totalKB": 344,
+    "requests": 24,
+    "jsKB": 150,
+    "fontCount": 3,
+    "fontKB": 127,
+    "perfScore": 0.91,
+    "topImages": [
+      {
+        "url": "/icon.svg",
+        "kb": 2,
+        "mime": "image/svg+xml"
+      }
+    ],
+    "lcpElement": {
+      "label": "Joint Entrance Examination Main 2026",
+      "selector": "div.exam-page > div.grid > main.exam-content > h1.font-heading"
+    },
+    "fonts": [
+      {
+        "url": "/_next/static/media/41ac5fa582a79a1a-s.p.woff2",
+        "kb": 47
+      },
+      {
+        "url": "/_next/static/media/d8eaaef4aa8085a5-s.p.woff2",
+        "kb": 49
+      },
+      {
+        "url": "/_next/static/media/558ca1a6aa3cb55e-s.p.woff2",
+        "kb": 32
+      }
+    ],
+    "shiftNodes": [],
+    "longTasks": [
+      {
+        "duration": 293,
+        "url": "/admission/engineering/jee-main"
+      },
+      {
+        "duration": 143,
+        "url": "/_next/static/chunks/4bd1b696-f785427dddbba9fb.js"
+      },
+      {
+        "duration": 68,
+        "url": "/_next/static/chunks/1255-dc3ddf72a1dc71a7.js"
+      },
+      {
+        "duration": 62,
+        "url": "Unattributable"
+      }
+    ]
+  },
+  {
+    "name": "board (up-board-class-10)",
+    "url": "http://localhost:3002/board-exam/state/up-board/up-board-class-10",
+    "n": 3,
+    "lcpMs": 3304,
+    "tbtMs": 83,
+    "cls": 0.071,
+    "totalKB": 339,
+    "requests": 24,
+    "jsKB": 150,
+    "fontCount": 3,
+    "fontKB": 127,
+    "perfScore": 0.9,
+    "topImages": [
+      {
+        "url": "/icon.svg",
+        "kb": 2,
+        "mime": "image/svg+xml"
+      }
+    ],
+    "lcpElement": {
+      "label": "UP Board Class 10 (High School) 2027",
+      "selector": "div.exam-page > div.grid > main.exam-content > h1.font-heading"
+    },
+    "fonts": [
+      {
+        "url": "/_next/static/media/41ac5fa582a79a1a-s.p.woff2",
+        "kb": 47
+      },
+      {
+        "url": "/_next/static/media/d8eaaef4aa8085a5-s.p.woff2",
+        "kb": 49
+      },
+      {
+        "url": "/_next/static/media/558ca1a6aa3cb55e-s.p.woff2",
+        "kb": 32
+      }
+    ],
+    "shiftNodes": [],
+    "longTasks": [
+      {
+        "duration": 303,
+        "url": "/board-exam/state/up-board/up-board-class-10"
+      },
+      {
+        "duration": 136,
+        "url": "/_next/static/chunks/1255-dc3ddf72a1dc71a7.js"
+      },
+      {
+        "duration": 54,
+        "url": "/_next/static/chunks/1255-dc3ddf72a1dc71a7.js"
+      },
+      {
+        "duration": 51,
+        "url": "Unattributable"
+      }
+    ]
+  },
+  {
+    "name": "hub (/results)",
+    "url": "http://localhost:3002/results",
+    "n": 3,
+    "lcpMs": 2785,
+    "tbtMs": 112,
+    "cls": 0.001,
+    "totalKB": 356,
+    "requests": 29,
+    "jsKB": 146,
+    "fontCount": 2,
+    "fontKB": 96,
+    "perfScore": 0.95,
+    "topImages": [
+      {
+        "url": "/icon.svg",
+        "kb": 2,
+        "mime": "image/svg+xml"
+      }
+    ],
+    "lcpElement": {
+      "label": "Results / परिणाम 2026 — Check Exam Results for All Competitive Exams",
+      "selector": "div.container > div.grid > main > h1.font-heading"
+    },
+    "fonts": [
+      {
+        "url": "/_next/static/media/41ac5fa582a79a1a-s.p.woff2",
+        "kb": 47
+      },
+      {
+        "url": "/_next/static/media/d8eaaef4aa8085a5-s.p.woff2",
+        "kb": 49
+      }
+    ],
+    "shiftNodes": [],
+    "longTasks": [
+      {
+        "duration": 183,
+        "url": "/results"
+      },
+      {
+        "duration": 178,
+        "url": "/_next/static/chunks/1255-dc3ddf72a1dc71a7.js"
+      },
+      {
+        "duration": 83,
+        "url": "/_next/static/chunks/1255-dc3ddf72a1dc71a7.js"
+      },
+      {
+        "duration": 59,
+        "url": "Unattributable"
+      },
+      {
+        "duration": 54,
+        "url": "Unattributable"
+      }
+    ]
+  },
+  {
+    "name": "article (blog)",
+    "url": "http://localhost:3002/blog/exam-prep/clat-2026-preparation-strategy",
+    "n": 3,
+    "lcpMs": 2778,
+    "tbtMs": 81,
+    "cls": 0,
+    "totalKB": 344,
+    "requests": 27,
+    "jsKB": 152,
+    "fontCount": 2,
+    "fontKB": 96,
+    "perfScore": 0.95,
+    "topImages": [
+      {
+        "url": "/icon.svg",
+        "kb": 2,
+        "mime": "image/svg+xml"
+      }
+    ],
+    "lcpElement": {
+      "label": "Complete CLAT 2026 preparation guide with section-wise strategy for En",
+      "selector": "div.container > div.grid > main > p.text-lg"
+    },
+    "fonts": [
+      {
+        "url": "/_next/static/media/41ac5fa582a79a1a-s.p.woff2",
+        "kb": 47
+      },
+      {
+        "url": "/_next/static/media/d8eaaef4aa8085a5-s.p.woff2",
+        "kb": 49
+      }
+    ],
+    "shiftNodes": [],
+    "longTasks": [
+      {
+        "duration": 281,
+        "url": "/blog/exam-prep/clat-2026-preparation-strategy"
+      },
+      {
+        "duration": 155,
+        "url": "/_next/static/chunks/4bd1b696-f785427dddbba9fb.js"
+      },
+      {
+        "duration": 107,
+        "url": "Unattributable"
+      },
+      {
+        "duration": 53,
+        "url": "/_next/static/chunks/1255-dc3ddf72a1dc71a7.js"
+      }
+    ]
+  },
+  {
+    "name": "fee page (ibps-clerk)",
+    "url": "http://localhost:3002/sarkari-naukri/banking/ibps-clerk",
+    "n": 3,
+    "lcpMs": 3066,
+    "tbtMs": 50,
+    "cls": 0.026,
+    "totalKB": 353,
+    "requests": 25,
+    "jsKB": 154,
+    "fontCount": 3,
+    "fontKB": 127,
+    "perfScore": 0.93,
+    "topImages": [
+      {
+        "url": "/icon.svg",
+        "kb": 2,
+        "mime": "image/svg+xml"
+      }
+    ],
+    "lcpElement": {
+      "label": "Compiled from the official notification. Not yet verified by our edito",
+      "selector": "div.exam-page > div.grid > main.exam-content > p.exam-notice-warn"
+    },
+    "fonts": [
+      {
+        "url": "/_next/static/media/41ac5fa582a79a1a-s.p.woff2",
+        "kb": 47
+      },
+      {
+        "url": "/_next/static/media/d8eaaef4aa8085a5-s.p.woff2",
+        "kb": 49
+      },
+      {
+        "url": "/_next/static/media/558ca1a6aa3cb55e-s.p.woff2",
+        "kb": 32
+      }
+    ],
+    "shiftNodes": [],
+    "longTasks": [
+      {
+        "duration": 279,
+        "url": "/sarkari-naukri/banking/ibps-clerk"
+      },
+      {
+        "duration": 136,
+        "url": "/_next/static/chunks/4bd1b696-f785427dddbba9fb.js"
+      },
+      {
+        "duration": 61,
+        "url": "/sarkari-naukri/banking/ibps-clerk"
+      },
+      {
+        "duration": 53,
+        "url": "Unattributable"
+      }
+    ]
+  },
+  {
+    "name": "fee page (gate)",
+    "url": "http://localhost:3002/admission/engineering/gate",
+    "n": 3,
+    "lcpMs": 3290,
+    "tbtMs": 83,
+    "cls": 0.013,
+    "totalKB": 344,
+    "requests": 24,
+    "jsKB": 150,
+    "fontCount": 3,
+    "fontKB": 127,
+    "perfScore": 0.91,
+    "topImages": [
+      {
+        "url": "/icon.svg",
+        "kb": 2,
+        "mime": "image/svg+xml"
+      }
+    ],
+    "lcpElement": {
+      "label": "Compiled from the official notification. Not yet verified by our edito",
+      "selector": "div.exam-page > div.grid > main.exam-content > p.exam-notice-warn"
+    },
+    "fonts": [
+      {
+        "url": "/_next/static/media/41ac5fa582a79a1a-s.p.woff2",
+        "kb": 47
+      },
+      {
+        "url": "/_next/static/media/d8eaaef4aa8085a5-s.p.woff2",
+        "kb": 49
+      },
+      {
+        "url": "/_next/static/media/558ca1a6aa3cb55e-s.p.woff2",
+        "kb": 32
+      }
+    ],
+    "shiftNodes": [],
+    "longTasks": [
+      {
+        "duration": 282,
+        "url": "/admission/engineering/gate"
+      },
+      {
+        "duration": 124,
+        "url": "/_next/static/chunks/4bd1b696-f785427dddbba9fb.js"
+      },
+      {
+        "duration": 59,
+        "url": "/_next/static/chunks/1255-dc3ddf72a1dc71a7.js"
+      },
+      {
+        "duration": 58,
+        "url": "Unattributable"
+      }
+    ]
+  }
+]

@@ -26,6 +26,13 @@ const TARGETS = [
   ["board (up-board-class-10)", "/board-exam/state/up-board/up-board-class-10"],
   ["hub (/results)", "/results"],
   ["article (blog)", "/blog/exam-prep/clat-2026-preparation-strategy"],
+  // Phase S (owner batch 5): the two EXTRA URLs are fee-bearing exam pages, chosen because the
+  // rupee sign (U+20B9) in their rendered text is precisely what makes Chrome fetch the 85,272 B
+  // Inter latin-ext face. A font change has to be measured where the saving is claimed, not only
+  // where the baseline was taken. Found by scanning the built sitemap for pages whose HTML
+  // contains U+20B9; both are 200 and neither is one of the six above.
+  ["fee page (ibps-clerk)", "/sarkari-naukri/banking/ibps-clerk"],
+  ["fee page (gate)", "/admission/engineering/gate"],
 ];
 
 const median = (a) => { const s = [...a].sort((x, y) => x - y); const m = s.length >> 1; return s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2; };

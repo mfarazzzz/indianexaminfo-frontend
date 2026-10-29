@@ -1,0 +1,106 @@
+LIGHTHOUSE l2-before (2026-10-29T04:02:44.393Z)  mobile slow-4G + 4x CPU, median of 3
+
+home  [http://localhost:3002/]  (n=3)
+  LCP=4680ms  TBT=137ms  CLS=0  perf=0.8
+  total=573KB  requests=36  JS=161KB  fonts=3 req / 129KB
+  LCP element: body.min-h-screen > div.fixed > div.container > p.text-xs "We use optional analytics to understand which pages help readers; we d"
+  largest images: 2KB svg+xml /icon.svg
+  font files: 48KB e4af272ccee01ff0-s.p.woff2  |  49KB d8eaaef4aa8085a5-s.p.woff2  |  32KB 558ca1a6aa3cb55e-s.p.woff2
+  layout shifts (0.000 total):
+
+  longest tasks:
+    390ms  /
+    216ms  /_next/static/chunks/4bd1b696-f785427dddbba9fb.js
+    97ms  /
+    81ms  Unattributable
+sarkari-exam (ssc-cgl)  [http://localhost:3002/sarkari-naukri/ssc/ssc-cgl]  (n=3)
+  LCP=3881ms  TBT=94ms  CLS=0.028  perf=0.84
+  total=448KB  requests=27  JS=152KB  fonts=4 req / 214KB
+  LCP element: body.min-h-screen > div.fixed > div.container > p.text-xs "We use optional analytics to understand which pages help readers; we d"
+  largest images: 2KB svg+xml /icon.svg
+  font files: 48KB e4af272ccee01ff0-s.p.woff2  |  49KB d8eaaef4aa8085a5-s.p.woff2  |  32KB 558ca1a6aa3cb55e-s.p.woff2  |  84KB 8e9860b6e62d6359-s.woff2
+  layout shifts (0.000 total):
+
+  longest tasks:
+    365ms  /sarkari-naukri/ssc/ssc-cgl
+    133ms  /_next/static/chunks/4bd1b696-f785427dddbba9fb.js
+    88ms  /sarkari-naukri/ssc/ssc-cgl
+    59ms  /_next/static/chunks/1255-dc3ddf72a1dc71a7.js
+entrance (jee-main)  [http://localhost:3002/admission/engineering/jee-main]  (n=3)
+  LCP=3889ms  TBT=103ms  CLS=0.013  perf=0.84
+  total=448KB  requests=27  JS=151KB  fonts=4 req / 214KB
+  LCP element: body.min-h-screen > div.fixed > div.container > p.text-xs "We use optional analytics to understand which pages help readers; we d"
+  largest images: 2KB svg+xml /icon.svg
+  font files: 48KB e4af272ccee01ff0-s.p.woff2  |  49KB d8eaaef4aa8085a5-s.p.woff2  |  32KB 558ca1a6aa3cb55e-s.p.woff2  |  84KB 8e9860b6e62d6359-s.woff2
+  layout shifts (0.000 total):
+
+  longest tasks:
+    281ms  /admission/engineering/jee-main
+    151ms  /admission/engineering/jee-main
+    127ms  /_next/static/chunks/4bd1b696-f785427dddbba9fb.js
+    66ms  Unattributable
+board (up-board-class-10)  [http://localhost:3002/board-exam/state/up-board/up-board-class-10]  (n=3)
+  LCP=3358ms  TBT=87ms  CLS=0.071  perf=0.89
+  total=360KB  requests=26  JS=151KB  fonts=3 req / 129KB
+  LCP element: body.min-h-screen > div.fixed > div.container > p.text-xs "We use optional analytics to understand which pages help readers; we d"
+  largest images: 2KB svg+xml /icon.svg
+  font files: 48KB e4af272ccee01ff0-s.p.woff2  |  49KB d8eaaef4aa8085a5-s.p.woff2  |  32KB 558ca1a6aa3cb55e-s.p.woff2
+  layout shifts (0.000 total):
+
+  longest tasks:
+    314ms  /board-exam/state/up-board/up-board-class-10
+    142ms  /_next/static/chunks/4bd1b696-f785427dddbba9fb.js
+    86ms  /board-exam/state/up-board/up-board-class-10
+    63ms  Unattributable
+hub (/results)  [http://localhost:3002/results]  (n=3)
+  LCP=2897ms  TBT=40ms  CLS=0.001  perf=0.94
+  total=384KB  requests=32  JS=154KB  fonts=2 req / 97KB
+  LCP element: div.container > div.grid > main > h1.font-heading "Results / परिणाम 2026 — Check Exam Results for All Competitive Exams"
+  largest images: 2KB svg+xml /icon.svg
+  font files: 48KB e4af272ccee01ff0-s.p.woff2  |  49KB d8eaaef4aa8085a5-s.p.woff2
+  layout shifts (0.000 total):
+
+  longest tasks:
+    191ms  /results
+    162ms  /results
+    139ms  /_next/static/chunks/4bd1b696-f785427dddbba9fb.js
+    63ms  Unattributable
+article (blog)  [http://localhost:3002/blog/exam-prep/clat-2026-preparation-strategy]  (n=3)
+  LCP=2837ms  TBT=45ms  CLS=0  perf=0.94
+  total=364KB  requests=29  JS=153KB  fonts=2 req / 97KB
+  LCP element: div.container > div.grid > main > p.text-lg "Complete CLAT 2026 preparation guide with section-wise strategy for En"
+  largest images: 2KB svg+xml /icon.svg
+  font files: 48KB e4af272ccee01ff0-s.p.woff2  |  49KB d8eaaef4aa8085a5-s.p.woff2
+  layout shifts (0.000 total):
+
+  longest tasks:
+    259ms  /blog/exam-prep/clat-2026-preparation-strategy
+    140ms  /_next/static/chunks/4bd1b696-f785427dddbba9fb.js
+    113ms  Unattributable
+    50ms  /_next/static/chunks/1255-dc3ddf72a1dc71a7.js
+fee page (ibps-clerk)  [http://localhost:3002/sarkari-naukri/banking/ibps-clerk]  (n=3)
+  LCP=3882ms  TBT=101ms  CLS=0.022  perf=0.84
+  total=454KB  requests=27  JS=152KB  fonts=4 req / 214KB
+  LCP element: body.min-h-screen > div.fixed > div.container > p.text-xs "We use optional analytics to understand which pages help readers; we d"
+  largest images: 2KB svg+xml /icon.svg
+  font files: 48KB e4af272ccee01ff0-s.p.woff2  |  49KB d8eaaef4aa8085a5-s.p.woff2  |  32KB 558ca1a6aa3cb55e-s.p.woff2  |  84KB 8e9860b6e62d6359-s.woff2
+  layout shifts (0.000 total):
+
+  longest tasks:
+    277ms  /sarkari-naukri/banking/ibps-clerk
+    130ms  /_next/static/chunks/4bd1b696-f785427dddbba9fb.js
+    88ms  /sarkari-naukri/banking/ibps-clerk
+    71ms  /_next/static/chunks/1255-dc3ddf72a1dc71a7.js
+fee page (gate)  [http://localhost:3002/admission/engineering/gate]  (n=3)
+  LCP=3880ms  TBT=89ms  CLS=0.013  perf=0.85
+  total=448KB  requests=27  JS=151KB  fonts=4 req / 214KB
+  LCP element: body.min-h-screen > div.fixed > div.container > p.text-xs "We use optional analytics to understand which pages help readers; we d"
+  largest images: 2KB svg+xml /icon.svg
+  font files: 48KB e4af272ccee01ff0-s.p.woff2  |  49KB d8eaaef4aa8085a5-s.p.woff2  |  32KB 558ca1a6aa3cb55e-s.p.woff2  |  84KB 8e9860b6e62d6359-s.woff2
+  layout shifts (0.000 total):
+
+  longest tasks:
+    271ms  /admission/engineering/gate
+    135ms  /_next/static/chunks/4bd1b696-f785427dddbba9fb.js
+    70ms  /admission/engineering/gate
+    53ms  Unattributable

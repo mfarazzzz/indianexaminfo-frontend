@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
-import { Merriweather, Inter, JetBrains_Mono } from "next/font/google";
+import { Merriweather, JetBrains_Mono } from "next/font/google";
+import localFont from "next/font/local";
 import "./globals.css";
 import { TopBar } from "@/components/layout/TopBar";
 import { TopProgressBar } from "@/components/layout/TopProgressBar";
@@ -41,10 +42,31 @@ const merriweather = Merriweather({
   preload: true,
 });
 
-const inter = Inter({
-  subsets: ["latin"],
+// L2 (owner batch 5, option a): Inter is now ONE self-hosted variable face, subset locally.
+// WHY. `Inter({ subsets: ["latin"] })` did not ship one file: the built CSS declares the latin
+// face AND a second slice whose unicode-range covers U+20B9, so every page that renders a rupee
+// sign — every fee-bearing exam page — downloaded the 85,272 B (83.3 KiB) latin-ext file on top
+// of the 48,432 B latin file (measured batch 4 L1, re-measured as the `l2-before` baseline below:
+// 4 font requests / 214 KB on /sarkari-naukri/ssc/ssc-cgl, /admission/engineering/jee-main,
+// /sarkari-naukri/banking/ibps-clerk, /admission/engineering/gate).
+// WHAT THE FILE IS. public/fonts/inter-iei-latin-rupee.woff2, 46,736 B, sha256
+// cd4e38ba1537313dd3d5fe4a598fa2c7d6c33c27102f011b02c5da27b3e2961d: Inter Variable
+// 4.001;git-66647c0bb taken from the Google Fonts repository (ofl/inter/Inter[opsz,wght].ttf) —
+// the same version string the two slices in production carry today, so no glyph shape changes —
+// subset to exactly the 230 codepoints of the shipped latin face PLUS U+20B9 (231 total, 519
+// glyphs vs 518 today) and opened only for the feature tags those slices actually ship
+// (calt ccmp dnom frac locl numr pnum tnum | kern mark mkmk). opsz is pinned to its default 14
+// because the shipped slices carry only the wght axis. Licence: SIL OFL 1.1, verbatim in
+// public/fonts/LICENSE-OFL.txt.
+// NOT CHANGED: the CSS variable (--font-inter), display: "swap", the 100–900 weight range the
+// site already uses, and adjustFontFallback (still the default, so "Inter Fallback" keeps its
+// size-adjust metrics and the swap still cannot move text). Hindi still renders from the system
+// fallback exactly as before: no Devanagari was added.
+const inter = localFont({
+  src: "../public/fonts/inter-iei-latin-rupee.woff2",
   variable: "--font-inter",
   display: "swap",
+  weight: "100 900",   // the same variable weight axis the Google face served
 });
 
 // PERF-02 fix: load JetBrains Mono via next/font

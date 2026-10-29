@@ -1,0 +1,506 @@
+[
+  {
+    "name": "home",
+    "url": "http://localhost:3002/",
+    "n": 3,
+    "lcpMs": 4680,
+    "tbtMs": 137,
+    "cls": 0,
+    "totalKB": 573,
+    "requests": 36,
+    "jsKB": 161,
+    "fontCount": 3,
+    "fontKB": 129,
+    "perfScore": 0.8,
+    "topImages": [
+      {
+        "url": "/icon.svg",
+        "kb": 2,
+        "mime": "image/svg+xml"
+      }
+    ],
+    "lcpElement": {
+      "label": "We use optional analytics to understand which pages help readers; we d",
+      "selector": "body.min-h-screen > div.fixed > div.container > p.text-xs"
+    },
+    "fonts": [
+      {
+        "url": "/_next/static/media/e4af272ccee01ff0-s.p.woff2",
+        "kb": 48
+      },
+      {
+        "url": "/_next/static/media/d8eaaef4aa8085a5-s.p.woff2",
+        "kb": 49
+      },
+      {
+        "url": "/_next/static/media/558ca1a6aa3cb55e-s.p.woff2",
+        "kb": 32
+      }
+    ],
+    "shiftNodes": [],
+    "longTasks": [
+      {
+        "duration": 390,
+        "url": "/"
+      },
+      {
+        "duration": 216,
+        "url": "/_next/static/chunks/4bd1b696-f785427dddbba9fb.js"
+      },
+      {
+        "duration": 97,
+        "url": "/"
+      },
+      {
+        "duration": 81,
+        "url": "Unattributable"
+      },
+      {
+        "duration": 73,
+        "url": "/_next/static/chunks/1255-dc3ddf72a1dc71a7.js"
+      },
+      {
+        "duration": 59,
+        "url": "/"
+      },
+      {
+        "duration": 51,
+        "url": "/"
+      }
+    ]
+  },
+  {
+    "name": "sarkari-exam (ssc-cgl)",
+    "url": "http://localhost:3002/sarkari-naukri/ssc/ssc-cgl",
+    "n": 3,
+    "lcpMs": 3881,
+    "tbtMs": 94,
+    "cls": 0.028,
+    "totalKB": 448,
+    "requests": 27,
+    "jsKB": 152,
+    "fontCount": 4,
+    "fontKB": 214,
+    "perfScore": 0.84,
+    "topImages": [
+      {
+        "url": "/icon.svg",
+        "kb": 2,
+        "mime": "image/svg+xml"
+      }
+    ],
+    "lcpElement": {
+      "label": "We use optional analytics to understand which pages help readers; we d",
+      "selector": "body.min-h-screen > div.fixed > div.container > p.text-xs"
+    },
+    "fonts": [
+      {
+        "url": "/_next/static/media/e4af272ccee01ff0-s.p.woff2",
+        "kb": 48
+      },
+      {
+        "url": "/_next/static/media/d8eaaef4aa8085a5-s.p.woff2",
+        "kb": 49
+      },
+      {
+        "url": "/_next/static/media/558ca1a6aa3cb55e-s.p.woff2",
+        "kb": 32
+      },
+      {
+        "url": "/_next/static/media/8e9860b6e62d6359-s.woff2",
+        "kb": 84
+      }
+    ],
+    "shiftNodes": [],
+    "longTasks": [
+      {
+        "duration": 365,
+        "url": "/sarkari-naukri/ssc/ssc-cgl"
+      },
+      {
+        "duration": 133,
+        "url": "/_next/static/chunks/4bd1b696-f785427dddbba9fb.js"
+      },
+      {
+        "duration": 88,
+        "url": "/sarkari-naukri/ssc/ssc-cgl"
+      },
+      {
+        "duration": 59,
+        "url": "/_next/static/chunks/1255-dc3ddf72a1dc71a7.js"
+      },
+      {
+        "duration": 53,
+        "url": "Unattributable"
+      }
+    ]
+  },
+  {
+    "name": "entrance (jee-main)",
+    "url": "http://localhost:3002/admission/engineering/jee-main",
+    "n": 3,
+    "lcpMs": 3889,
+    "tbtMs": 103,
+    "cls": 0.013,
+    "totalKB": 448,
+    "requests": 27,
+    "jsKB": 151,
+    "fontCount": 4,
+    "fontKB": 214,
+    "perfScore": 0.84,
+    "topImages": [
+      {
+        "url": "/icon.svg",
+        "kb": 2,
+        "mime": "image/svg+xml"
+      }
+    ],
+    "lcpElement": {
+      "label": "We use optional analytics to understand which pages help readers; we d",
+      "selector": "body.min-h-screen > div.fixed > div.container > p.text-xs"
+    },
+    "fonts": [
+      {
+        "url": "/_next/static/media/e4af272ccee01ff0-s.p.woff2",
+        "kb": 48
+      },
+      {
+        "url": "/_next/static/media/d8eaaef4aa8085a5-s.p.woff2",
+        "kb": 49
+      },
+      {
+        "url": "/_next/static/media/558ca1a6aa3cb55e-s.p.woff2",
+        "kb": 32
+      },
+      {
+        "url": "/_next/static/media/8e9860b6e62d6359-s.woff2",
+        "kb": 84
+      }
+    ],
+    "shiftNodes": [],
+    "longTasks": [
+      {
+        "duration": 281,
+        "url": "/admission/engineering/jee-main"
+      },
+      {
+        "duration": 151,
+        "url": "/admission/engineering/jee-main"
+      },
+      {
+        "duration": 127,
+        "url": "/_next/static/chunks/4bd1b696-f785427dddbba9fb.js"
+      },
+      {
+        "duration": 66,
+        "url": "Unattributable"
+      },
+      {
+        "duration": 54,
+        "url": "/_next/static/chunks/1255-dc3ddf72a1dc71a7.js"
+      }
+    ]
+  },
+  {
+    "name": "board (up-board-class-10)",
+    "url": "http://localhost:3002/board-exam/state/up-board/up-board-class-10",
+    "n": 3,
+    "lcpMs": 3358,
+    "tbtMs": 87,
+    "cls": 0.071,
+    "totalKB": 360,
+    "requests": 26,
+    "jsKB": 151,
+    "fontCount": 3,
+    "fontKB": 129,
+    "perfScore": 0.89,
+    "topImages": [
+      {
+        "url": "/icon.svg",
+        "kb": 2,
+        "mime": "image/svg+xml"
+      }
+    ],
+    "lcpElement": {
+      "label": "We use optional analytics to understand which pages help readers; we d",
+      "selector": "body.min-h-screen > div.fixed > div.container > p.text-xs"
+    },
+    "fonts": [
+      {
+        "url": "/_next/static/media/e4af272ccee01ff0-s.p.woff2",
+        "kb": 48
+      },
+      {
+        "url": "/_next/static/media/d8eaaef4aa8085a5-s.p.woff2",
+        "kb": 49
+      },
+      {
+        "url": "/_next/static/media/558ca1a6aa3cb55e-s.p.woff2",
+        "kb": 32
+      }
+    ],
+    "shiftNodes": [],
+    "longTasks": [
+      {
+        "duration": 314,
+        "url": "/board-exam/state/up-board/up-board-class-10"
+      },
+      {
+        "duration": 142,
+        "url": "/_next/static/chunks/4bd1b696-f785427dddbba9fb.js"
+      },
+      {
+        "duration": 86,
+        "url": "/board-exam/state/up-board/up-board-class-10"
+      },
+      {
+        "duration": 63,
+        "url": "Unattributable"
+      },
+      {
+        "duration": 55,
+        "url": "/_next/static/chunks/1255-dc3ddf72a1dc71a7.js"
+      }
+    ]
+  },
+  {
+    "name": "hub (/results)",
+    "url": "http://localhost:3002/results",
+    "n": 3,
+    "lcpMs": 2897,
+    "tbtMs": 40,
+    "cls": 0.001,
+    "totalKB": 384,
+    "requests": 32,
+    "jsKB": 154,
+    "fontCount": 2,
+    "fontKB": 97,
+    "perfScore": 0.94,
+    "topImages": [
+      {
+        "url": "/icon.svg",
+        "kb": 2,
+        "mime": "image/svg+xml"
+      }
+    ],
+    "lcpElement": {
+      "label": "Results / परिणाम 2026 — Check Exam Results for All Competitive Exams",
+      "selector": "div.container > div.grid > main > h1.font-heading"
+    },
+    "fonts": [
+      {
+        "url": "/_next/static/media/e4af272ccee01ff0-s.p.woff2",
+        "kb": 48
+      },
+      {
+        "url": "/_next/static/media/d8eaaef4aa8085a5-s.p.woff2",
+        "kb": 49
+      }
+    ],
+    "shiftNodes": [],
+    "longTasks": [
+      {
+        "duration": 191,
+        "url": "/results"
+      },
+      {
+        "duration": 162,
+        "url": "/results"
+      },
+      {
+        "duration": 139,
+        "url": "/_next/static/chunks/4bd1b696-f785427dddbba9fb.js"
+      },
+      {
+        "duration": 63,
+        "url": "Unattributable"
+      }
+    ]
+  },
+  {
+    "name": "article (blog)",
+    "url": "http://localhost:3002/blog/exam-prep/clat-2026-preparation-strategy",
+    "n": 3,
+    "lcpMs": 2837,
+    "tbtMs": 45,
+    "cls": 0,
+    "totalKB": 364,
+    "requests": 29,
+    "jsKB": 153,
+    "fontCount": 2,
+    "fontKB": 97,
+    "perfScore": 0.94,
+    "topImages": [
+      {
+        "url": "/icon.svg",
+        "kb": 2,
+        "mime": "image/svg+xml"
+      }
+    ],
+    "lcpElement": {
+      "label": "Complete CLAT 2026 preparation guide with section-wise strategy for En",
+      "selector": "div.container > div.grid > main > p.text-lg"
+    },
+    "fonts": [
+      {
+        "url": "/_next/static/media/e4af272ccee01ff0-s.p.woff2",
+        "kb": 48
+      },
+      {
+        "url": "/_next/static/media/d8eaaef4aa8085a5-s.p.woff2",
+        "kb": 49
+      }
+    ],
+    "shiftNodes": [],
+    "longTasks": [
+      {
+        "duration": 259,
+        "url": "/blog/exam-prep/clat-2026-preparation-strategy"
+      },
+      {
+        "duration": 140,
+        "url": "/_next/static/chunks/4bd1b696-f785427dddbba9fb.js"
+      },
+      {
+        "duration": 113,
+        "url": "Unattributable"
+      },
+      {
+        "duration": 50,
+        "url": "/_next/static/chunks/1255-dc3ddf72a1dc71a7.js"
+      },
+      {
+        "duration": 50,
+        "url": "/blog/exam-prep/clat-2026-preparation-strategy"
+      }
+    ]
+  },
+  {
+    "name": "fee page (ibps-clerk)",
+    "url": "http://localhost:3002/sarkari-naukri/banking/ibps-clerk",
+    "n": 3,
+    "lcpMs": 3882,
+    "tbtMs": 101,
+    "cls": 0.022,
+    "totalKB": 454,
+    "requests": 27,
+    "jsKB": 152,
+    "fontCount": 4,
+    "fontKB": 214,
+    "perfScore": 0.84,
+    "topImages": [
+      {
+        "url": "/icon.svg",
+        "kb": 2,
+        "mime": "image/svg+xml"
+      }
+    ],
+    "lcpElement": {
+      "label": "We use optional analytics to understand which pages help readers; we d",
+      "selector": "body.min-h-screen > div.fixed > div.container > p.text-xs"
+    },
+    "fonts": [
+      {
+        "url": "/_next/static/media/e4af272ccee01ff0-s.p.woff2",
+        "kb": 48
+      },
+      {
+        "url": "/_next/static/media/d8eaaef4aa8085a5-s.p.woff2",
+        "kb": 49
+      },
+      {
+        "url": "/_next/static/media/558ca1a6aa3cb55e-s.p.woff2",
+        "kb": 32
+      },
+      {
+        "url": "/_next/static/media/8e9860b6e62d6359-s.woff2",
+        "kb": 84
+      }
+    ],
+    "shiftNodes": [],
+    "longTasks": [
+      {
+        "duration": 277,
+        "url": "/sarkari-naukri/banking/ibps-clerk"
+      },
+      {
+        "duration": 130,
+        "url": "/_next/static/chunks/4bd1b696-f785427dddbba9fb.js"
+      },
+      {
+        "duration": 88,
+        "url": "/sarkari-naukri/banking/ibps-clerk"
+      },
+      {
+        "duration": 71,
+        "url": "/_next/static/chunks/1255-dc3ddf72a1dc71a7.js"
+      },
+      {
+        "duration": 55,
+        "url": "Unattributable"
+      }
+    ]
+  },
+  {
+    "name": "fee page (gate)",
+    "url": "http://localhost:3002/admission/engineering/gate",
+    "n": 3,
+    "lcpMs": 3880,
+    "tbtMs": 89,
+    "cls": 0.013,
+    "totalKB": 448,
+    "requests": 27,
+    "jsKB": 151,
+    "fontCount": 4,
+    "fontKB": 214,
+    "perfScore": 0.85,
+    "topImages": [
+      {
+        "url": "/icon.svg",
+        "kb": 2,
+        "mime": "image/svg+xml"
+      }
+    ],
+    "lcpElement": {
+      "label": "We use optional analytics to understand which pages help readers; we d",
+      "selector": "body.min-h-screen > div.fixed > div.container > p.text-xs"
+    },
+    "fonts": [
+      {
+        "url": "/_next/static/media/e4af272ccee01ff0-s.p.woff2",
+        "kb": 48
+      },
+      {
+        "url": "/_next/static/media/d8eaaef4aa8085a5-s.p.woff2",
+        "kb": 49
+      },
+      {
+        "url": "/_next/static/media/558ca1a6aa3cb55e-s.p.woff2",
+        "kb": 32
+      },
+      {
+        "url": "/_next/static/media/8e9860b6e62d6359-s.woff2",
+        "kb": 84
+      }
+    ],
+    "shiftNodes": [],
+    "longTasks": [
+      {
+        "duration": 271,
+        "url": "/admission/engineering/gate"
+      },
+      {
+        "duration": 135,
+        "url": "/_next/static/chunks/4bd1b696-f785427dddbba9fb.js"
+      },
+      {
+        "duration": 70,
+        "url": "/admission/engineering/gate"
+      },
+      {
+        "duration": 53,
+        "url": "Unattributable"
+      }
+    ]
+  }
+]

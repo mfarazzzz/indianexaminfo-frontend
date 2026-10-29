@@ -1,0 +1,106 @@
+LIGHTHOUSE l2-after (2026-10-29T04:13:04.908Z)  mobile slow-4G + 4x CPU, median of 3
+
+home  [http://localhost:3002/]  (n=3)
+  LCP=4492ms  TBT=123ms  CLS=0.001  perf=0.82
+  total=550KB  requests=34  JS=159KB  fonts=3 req / 127KB
+  LCP element: div.container > div.grid > div.flex > p.text-xs "Competitive exams (SSC, Banking, Railway) and direct recruitment acros"
+  largest images: 2KB svg+xml /icon.svg
+  font files: 47KB 41ac5fa582a79a1a-s.p.woff2  |  49KB d8eaaef4aa8085a5-s.p.woff2  |  32KB 558ca1a6aa3cb55e-s.p.woff2
+  layout shifts (0.000 total):
+
+  longest tasks:
+    370ms  /
+    144ms  /_next/static/chunks/4bd1b696-f785427dddbba9fb.js
+    66ms  /_next/static/chunks/1255-dc3ddf72a1dc71a7.js
+    63ms  /_next/static/chunks/1255-dc3ddf72a1dc71a7.js
+sarkari-exam (ssc-cgl)  [http://localhost:3002/sarkari-naukri/ssc/ssc-cgl]  (n=3)
+  LCP=3058ms  TBT=46ms  CLS=0.028  perf=0.92
+  total=346KB  requests=25  JS=154KB  fonts=3 req / 127KB
+  LCP element: div.exam-page > div.grid > main.exam-content > p.exam-notice-warn "Compiled from the official notification. Not yet verified by our edito"
+  largest images: 2KB svg+xml /icon.svg
+  font files: 47KB 41ac5fa582a79a1a-s.p.woff2  |  49KB d8eaaef4aa8085a5-s.p.woff2  |  32KB 558ca1a6aa3cb55e-s.p.woff2
+  layout shifts (0.000 total):
+
+  longest tasks:
+    264ms  /sarkari-naukri/ssc/ssc-cgl
+    133ms  /_next/static/chunks/4bd1b696-f785427dddbba9fb.js
+    57ms  Unattributable
+    55ms  /_next/static/chunks/1255-dc3ddf72a1dc71a7.js
+entrance (jee-main)  [http://localhost:3002/admission/engineering/jee-main]  (n=3)
+  LCP=3301ms  TBT=89ms  CLS=0.013  perf=0.91
+  total=344KB  requests=24  JS=150KB  fonts=3 req / 127KB
+  LCP element: div.exam-page > div.grid > main.exam-content > h1.font-heading "Joint Entrance Examination Main 2026"
+  largest images: 2KB svg+xml /icon.svg
+  font files: 47KB 41ac5fa582a79a1a-s.p.woff2  |  49KB d8eaaef4aa8085a5-s.p.woff2  |  32KB 558ca1a6aa3cb55e-s.p.woff2
+  layout shifts (0.000 total):
+
+  longest tasks:
+    293ms  /admission/engineering/jee-main
+    143ms  /_next/static/chunks/4bd1b696-f785427dddbba9fb.js
+    68ms  /_next/static/chunks/1255-dc3ddf72a1dc71a7.js
+    62ms  Unattributable
+board (up-board-class-10)  [http://localhost:3002/board-exam/state/up-board/up-board-class-10]  (n=3)
+  LCP=3304ms  TBT=83ms  CLS=0.071  perf=0.9
+  total=339KB  requests=24  JS=150KB  fonts=3 req / 127KB
+  LCP element: div.exam-page > div.grid > main.exam-content > h1.font-heading "UP Board Class 10 (High School) 2027"
+  largest images: 2KB svg+xml /icon.svg
+  font files: 47KB 41ac5fa582a79a1a-s.p.woff2  |  49KB d8eaaef4aa8085a5-s.p.woff2  |  32KB 558ca1a6aa3cb55e-s.p.woff2
+  layout shifts (0.000 total):
+
+  longest tasks:
+    303ms  /board-exam/state/up-board/up-board-class-10
+    136ms  /_next/static/chunks/1255-dc3ddf72a1dc71a7.js
+    54ms  /_next/static/chunks/1255-dc3ddf72a1dc71a7.js
+    51ms  Unattributable
+hub (/results)  [http://localhost:3002/results]  (n=3)
+  LCP=2785ms  TBT=112ms  CLS=0.001  perf=0.95
+  total=356KB  requests=29  JS=146KB  fonts=2 req / 96KB
+  LCP element: div.container > div.grid > main > h1.font-heading "Results / परिणाम 2026 — Check Exam Results for All Competitive Exams"
+  largest images: 2KB svg+xml /icon.svg
+  font files: 47KB 41ac5fa582a79a1a-s.p.woff2  |  49KB d8eaaef4aa8085a5-s.p.woff2
+  layout shifts (0.000 total):
+
+  longest tasks:
+    183ms  /results
+    178ms  /_next/static/chunks/1255-dc3ddf72a1dc71a7.js
+    83ms  /_next/static/chunks/1255-dc3ddf72a1dc71a7.js
+    59ms  Unattributable
+article (blog)  [http://localhost:3002/blog/exam-prep/clat-2026-preparation-strategy]  (n=3)
+  LCP=2778ms  TBT=81ms  CLS=0  perf=0.95
+  total=344KB  requests=27  JS=152KB  fonts=2 req / 96KB
+  LCP element: div.container > div.grid > main > p.text-lg "Complete CLAT 2026 preparation guide with section-wise strategy for En"
+  largest images: 2KB svg+xml /icon.svg
+  font files: 47KB 41ac5fa582a79a1a-s.p.woff2  |  49KB d8eaaef4aa8085a5-s.p.woff2
+  layout shifts (0.000 total):
+
+  longest tasks:
+    281ms  /blog/exam-prep/clat-2026-preparation-strategy
+    155ms  /_next/static/chunks/4bd1b696-f785427dddbba9fb.js
+    107ms  Unattributable
+    53ms  /_next/static/chunks/1255-dc3ddf72a1dc71a7.js
+fee page (ibps-clerk)  [http://localhost:3002/sarkari-naukri/banking/ibps-clerk]  (n=3)
+  LCP=3066ms  TBT=50ms  CLS=0.026  perf=0.93
+  total=353KB  requests=25  JS=154KB  fonts=3 req / 127KB
+  LCP element: div.exam-page > div.grid > main.exam-content > p.exam-notice-warn "Compiled from the official notification. Not yet verified by our edito"
+  largest images: 2KB svg+xml /icon.svg
+  font files: 47KB 41ac5fa582a79a1a-s.p.woff2  |  49KB d8eaaef4aa8085a5-s.p.woff2  |  32KB 558ca1a6aa3cb55e-s.p.woff2
+  layout shifts (0.000 total):
+
+  longest tasks:
+    279ms  /sarkari-naukri/banking/ibps-clerk
+    136ms  /_next/static/chunks/4bd1b696-f785427dddbba9fb.js
+    61ms  /sarkari-naukri/banking/ibps-clerk
+    53ms  Unattributable
+fee page (gate)  [http://localhost:3002/admission/engineering/gate]  (n=3)
+  LCP=3290ms  TBT=83ms  CLS=0.013  perf=0.91
+  total=344KB  requests=24  JS=150KB  fonts=3 req / 127KB
+  LCP element: div.exam-page > div.grid > main.exam-content > p.exam-notice-warn "Compiled from the official notification. Not yet verified by our edito"
+  largest images: 2KB svg+xml /icon.svg
+  font files: 47KB 41ac5fa582a79a1a-s.p.woff2  |  49KB d8eaaef4aa8085a5-s.p.woff2  |  32KB 558ca1a6aa3cb55e-s.p.woff2
+  layout shifts (0.000 total):
+
+  longest tasks:
+    282ms  /admission/engineering/gate
+    124ms  /_next/static/chunks/4bd1b696-f785427dddbba9fb.js
+    59ms  /_next/static/chunks/1255-dc3ddf72a1dc71a7.js
+    58ms  Unattributable
