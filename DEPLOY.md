@@ -152,8 +152,11 @@ pm2 reload indianexaminfo-frontend
 ```env
 NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
-NEXT_PUBLIC_GA_ID=G-XXXXXXXXXX
-NEXT_PUBLIC_GSC_VERIFY=your-gsc-verification-token
+# Leave the two below EMPTY until you actually have the values (batch 7, A2).
+# Placeholder-shaped values are now refused in code: `G-XXXXXXXXXX` never loads
+# analytics, and a placeholder/empty GSC token emits no verification meta.
+NEXT_PUBLIC_GA_ID=
+NEXT_PUBLIC_GSC_VERIFY=
 REVALIDATE_TOKEN=your-long-random-secret
 ```
 

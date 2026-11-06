@@ -12,7 +12,7 @@ import { GATag } from "@/components/analytics/GATag";
 import { ConsentBanner } from "@/components/analytics/ConsentBanner";
 import { buildOrganizationSchema, buildWebSiteSchema } from "@/lib/seo/structured-data";
 import { siteConfig } from "@/config/site";
-import { env } from "@/config/env";
+import { gscVerificationMeta } from "@/config/env";
 import { buildStampString } from "@/config/buildInfo";
 import { GLOBAL_SHORT_TAIL, getCurrentYear } from "@/lib/seo/keywords";
 
@@ -99,7 +99,9 @@ export const metadata: Metadata = {
     "msapplication-TileColor":  "#1A3C6E",
     "msapplication-config":     "/browserconfig.xml",
   },
-  verification: { google: env.GSC_VERIFY },
+  // A2: no google-site-verification meta at all while the token is unset or is the
+  // documented placeholder (an empty tag reads as a failed verification).
+  verification: { google: gscVerificationMeta() },
   robots: {
     index: true,
     follow: true,

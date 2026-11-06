@@ -92,3 +92,24 @@ export const env = {
    */
   BUILD_PRERENDER_LIMIT: readIntEnv("BUILD_PRERENDER_LIMIT", 20),
 } as const;
+
+/**
+ * A2 (owner batch 7) — the GSC verification token for the `google-site-verification`
+ * meta, or `undefined` when it is absent or still the documented placeholder.
+ *
+ * Why nothing beats an empty tag: with `google: ""` Next emits
+ * `<meta name="google-site-verification" content="">`, so Search Console sees a
+ * verification attempt that can never succeed, and the same is true of the
+ * `your-gsc-verification-token` example shipped in .env.example / DEPLOY.md. A host
+ * that copies the example therefore gets no meta at all — the honest "not configured"
+ * state — and a real token behaves exactly as before.
+ *
+ * Pure (takes the raw value, defaults to the inlined env) so it is testable without a
+ * build; `undefined` is what makes Next omit the tag.
+ */
+const GSC_PLACEHOLDER = "your-gsc-verification-token";
+export function gscVerificationMeta(raw: string = env.GSC_VERIFY): string | undefined {
+  const v = (raw ?? "").trim();
+  if (v === "" || v === GSC_PLACEHOLDER) return undefined;
+  return v;
+}

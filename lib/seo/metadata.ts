@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { siteConfig } from "@/config/site";
-import { env } from "@/config/env";
+import { gscVerificationMeta } from "@/config/env";
 import { isTestSlug, TEST_SLUG_PREFIX } from "@/lib/testContent";
 import type { BuildMetadataProps } from "@/types/seo";
 
@@ -123,8 +123,9 @@ export function buildExamMetadata({
 
     robots,
 
+    // A2: undefined when unset/placeholder → Next emits no google-site-verification meta.
     verification: {
-      google: env.GSC_VERIFY,
+      google: gscVerificationMeta(),
     },
 
     category: "Education",
@@ -167,6 +168,6 @@ export function buildHomepageMetadata(): Metadata {
         "max-snippet": -1,
       },
     },
-    verification: { google: env.GSC_VERIFY },
+    verification: { google: gscVerificationMeta() },
   };
 }

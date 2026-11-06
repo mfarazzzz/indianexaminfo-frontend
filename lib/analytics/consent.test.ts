@@ -7,7 +7,7 @@
  * The localStorage store is exercised with a stub (the frontend test env is node).
  */
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
-import { shouldLoadAnalytics, readConsent, writeConsent, hasConsentDecision } from "./consent";
+import { shouldLoadAnalytics, readConsent, writeConsent, hasConsentDecision, isUsableGaId } from "./consent";
 
 describe("shouldLoadAnalytics", () => {
   it("no script when the ID is empty, even if consented", () => {
@@ -20,6 +20,27 @@ describe("shouldLoadAnalytics", () => {
   });
   it("script only after Accept with a real ID", () => {
     expect(shouldLoadAnalytics("G-ABC123", "granted")).toBe(true);
+  });
+  // A2 (owner batch 7): the documented placeholder must never behave like a real ID.
+  // A Hostinger/hPanel environment still carrying G-XXXXXXXXXX would otherwise start
+  // sending reader traffic to a GA property that does not exist the moment the banner
+  // is switched on.
+  it.each(["G-XXXXXXXXXX", "g-xxxxxxxxxx", "G-XXXX", "  G-XXXXXXXXXX  ", "", "   "])(
+    "placeholder/empty ID %o never loads analytics, even after Accept",
+    (id) => {
+      expect(shouldLoadAnalytics(id, "granted")).toBe(false);
+      expect(isUsableGaId(id)).toBe(false);
+    },
+  );
+  it.each(["G-ABC123", "G-9Z8Y7X6W5V", " G-ABC123 "])(
+    "a real-shaped ID %o is usable", (id) => {
+      expect(isUsableGaId(id)).toBe(true);
+      expect(shouldLoadAnalytics(id, "granted")).toBe(true);
+    },
+  );
+  it("does not refuse an ID merely because it contains X (only all-X placeholders)", () => {
+    expect(isUsableGaId("G-AX123X")).toBe(true);   // real id that happens to contain X
+    expect(isUsableGaId("GX-XXXXXX")).toBe(true);  // not G-<all X> shaped
   });
 });
 
