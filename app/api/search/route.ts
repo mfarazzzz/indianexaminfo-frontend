@@ -8,10 +8,18 @@
  *   - cms_education_news (education sector news)
  *
  * Supports:
- *   ?q=query         — required, min 2 chars
+ *   ?q=query         — trimmed, capped at MAX_QUERY_LENGTH, and a query shorter than
+ *                      MIN_QUERY_LENGTH still returns an empty 200 (unchanged behaviour, which
+ *                      the panel/header search box depends on)
  *   ?type=jobs|exams|news|all  — optional filter by content domain
  *
  * Returns categorized results with metadata for instant display.
+ *
+ * Guards (owner batch 6, W1) live in lib/api/searchGuard.ts so their arithmetic is unit-testable:
+ *   • over-long query  -> 400 with the limit named;
+ *   • too many from one client IP -> 429 with Retry-After.
+ * The bucket is per Node process and the IP is fail-open when no proxy header is present — both
+ * stated in that file, because a guard that locks out real readers is worse than no guard.
  */
 
 import { NextRequest, NextResponse } from "next/server";
@@ -21,15 +29,48 @@ import { searchContentPosts } from "@/services/contentPostService";
 import { searchSarkariNaukri } from "@/services/sarkariNaukriService";
 import { searchEducationNews } from "@/services/educationNewsService";
 import { pillarToUrlSegment } from "@/lib/exam/pillarUrl";
+import {
+  MIN_QUERY_LENGTH, clientIpFromHeaders, createTokenBucket, validateSearchQuery,
+} from "@/lib/api/searchGuard";
 
 export const dynamic = "force-dynamic";
 
+/** One bucket for this process. See the header of lib/api/searchGuard.ts. */
+const searchRateLimiter = createTokenBucket();
+
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
-  const q = searchParams.get("q")?.trim() ?? "";
+  const rawQuery = searchParams.get("q");
+
+  // 1. Length cap. Rejected before any work, so an oversized query never reaches Supabase.
+  const verdict = validateSearchQuery(rawQuery);
+  if (!verdict.ok) {
+    return NextResponse.json(
+      { error: verdict.code, message: verdict.message, max: verdict.max, query: "" },
+      { status: 400, headers: { "Cache-Control": "no-store" } },
+    );
+  }
+
+  // 2. Per-client throttle. Checked before the database work, which is the point of it.
+  const rate = searchRateLimiter.check(clientIpFromHeaders((n) => request.headers.get(n)));
+  if (!rate.allowed) {
+    return NextResponse.json(
+      { error: "rate_limited", message: "Too many searches from this connection. Try again shortly.", query: verdict.q },
+      {
+        status: 429,
+        headers: {
+          "Retry-After": String(rate.retryAfterSeconds),
+          "Cache-Control": "no-store",
+        },
+      },
+    );
+  }
+
+  const q = verdict.q;
   const type = searchParams.get("type") ?? "all";
 
-  if (q.length < 2) {
+  // Unchanged historical behaviour: a query too short to be useful answers 200 with nothing.
+  if (q.length < MIN_QUERY_LENGTH) {
     return NextResponse.json({
       query: q,
       results: [],
