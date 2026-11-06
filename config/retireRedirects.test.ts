@@ -2,7 +2,7 @@
  * retireRedirects.test.ts — A Phase 1 invariants for the duplicate-retire 308s.
  *
  * Proves, without importing next.config (which runs git at load):
- *  • the five intended loser→winner pairs are present, exact;
+ *  • the six intended loser→winner pairs are present, exact;
  *  • no redirect destination is itself a source (no chain, no loop);
  *  • every destination's final segment is a known published WINNER slug;
  *  • the rules really reach Next (config/redirects.ts → next.config) as permanent:true, and
@@ -25,9 +25,10 @@ const EXPECTED: Record<string, string> = {
   "/admission/defence-entrance/nda": "/sarkari-naukri/defence/nda-exam",
   "/sarkari-naukri/teaching/nta-ugc-net": "/admission/research-fellowships/ugc-net",
   "/sarkari-naukri/railways/rpf-constable-si-recruitment": "/sarkari-naukri/railways/rpf-constable",
+  "/sarkari-naukri/upsc/upsc-nda": "/sarkari-naukri/defence/nda-exam",
 };
 
-describe("retire redirects — the five pairs", () => {
+describe("retire redirects — the six pairs", () => {
   it("contains exactly the intended loser→winner pairs", () => {
     const map = Object.fromEntries(RETIRE_REDIRECTS.map((r) => [r.source, r.destination]));
     expect(map).toEqual(EXPECTED);

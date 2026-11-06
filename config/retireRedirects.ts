@@ -27,6 +27,10 @@ export const RETIRE_REDIRECTS: RetireRedirect[] = [
   { source: "/sarkari-naukri/teaching/nta-ugc-net", destination: "/admission/research-fellowships/ugc-net" },
   // RPF Constable & SI — empty (SI) stub → the populated combined record.
   { source: "/sarkari-naukri/railways/rpf-constable-si-recruitment", destination: "/sarkari-naukri/railways/rpf-constable" },
+  // NDA — the UPSC-category twin (same exam, same conducting body, official site
+  // upsc.gov.in on both) → the defence page. Found by the Phase A1 duplicate scan:
+  // live 200, self-canonical and submitted in sitemap.xml until now.
+  { source: "/sarkari-naukri/upsc/upsc-nda", destination: "/sarkari-naukri/defence/nda-exam" },
 ];
 
 /** The winner slugs — used by the test to assert every destination is a real,

@@ -106,7 +106,7 @@ describe("the list next.config hands to Next", () => {
     expect(pathRedirectSources(), "the host rule must NOT count as a path source").not.toContain("/:path*");
   });
 
-  it("the five retire rules reach Next as permanent 308s, before the generic rules", () => {
+  it("the six retire rules reach Next as permanent 308s, before the generic rules", () => {
     const sources = allRedirectRules().map((r) => r.source);
     for (const r of RETIRE_REDIRECTS) {
       const idx = sources.indexOf(r.source);
