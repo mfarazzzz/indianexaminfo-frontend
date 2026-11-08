@@ -200,7 +200,7 @@ Token auth is verified in `app/api/revalidate/route.ts`. The CMS `src/lib/api/fr
 | Header reads from `menus` DB | Navigation changes require code deploy | Wire `menuService.getMenuBySlug("main-nav")` into Header as server component | **High** |
 | Contact form backend | Form submissions go nowhere | Add a Supabase function or email API route | **High** |
 | Scheduled publish/unpublish | Editorial teams need timed publishing | Add `scheduled_publish_at` / `scheduled_unpublish_at` to DB + cron | **Medium** |
-| `NEXT_PUBLIC_ADSENSE_PUBLISHER_ID` env var | AdSlot fallback needs real publisher ID | Set in `.env.local` and hosting environment | **High** |
+| `NEXT_PUBLIC_ADSENSE_PUBLISHER_ID` env var | AdSlot renders nothing until a real publisher ID is set | Set in `.env.local` and hosting environment | **High** |
 | Ad impression tracking | Campaign reporting requires click/impression data | Add `POST /api/ads/impression` route to increment `ad_creatives.impressions` | **Medium** |
 | Search uses Supabase full-text | Current search is basic `ilike` | Add `fts` column with `to_tsvector` or use Supabase's built-in FTS | **Medium** |
 | RSS feed reads from DB | Feed currently queries static arrays | `lib/rss.ts` needs to call new service functions | **Medium** |
@@ -256,7 +256,7 @@ Token auth is verified in `app/api/revalidate/route.ts`. The CMS `src/lib/api/fr
 
 1. Ensure `.env.local` has valid `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY`
 2. Set `REVALIDATE_TOKEN` to match the CMS Settings → Frontend tab
-3. Set `NEXT_PUBLIC_ADSENSE_PUBLISHER_ID` (e.g. `ca-pub-XXXXXXXXXX`)
+3. Set `NEXT_PUBLIC_ADSENSE_PUBLISHER_ID` to your REAL AdSense publisher id (digits only, e.g. `ca-pub-1234567890123456`). While it is unset — or set to the `ca-pub-XXXXXXXXXX` placeholder — every ad slot renders NOTHING (no `<ins>`, no reserved box)
 4. Run `npm run build` — zero TypeScript errors
 5. The frontend will now read all content live from Supabase
 

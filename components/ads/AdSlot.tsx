@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 import { sanitizeHtml } from "@/lib/sanitize";
+import { siteConfig } from "@/config/site";
 
 export type AdSize = "728x90" | "300x250" | "336x280" | "160x600" | "320x50";
 
@@ -22,6 +23,46 @@ export type AdCreative = {
   linkUrl: string;
   altText?: string | null;
 };
+
+/**
+ * E1 (owner batch 8) — the AdSense publisher id we accept.
+ *
+ * A real AdSense publisher id looks like `ca-pub-1234567890123456` (digits). The
+ * placeholder that used to be hard-coded in this file and in config/site.ts was
+ * `ca-pub-XXXXXXXXXX` — it is not a publisher id, it is a note to the developer.
+ * Treating it as one produced a page that carried an `<ins class="adsbygoogle">`
+ * element and a RESERVED 300x250 / 728x90 box for an ad network that can never
+ * fill it: readers saw a grey hole, and the layout reserved space for nothing.
+ *
+ * So: an empty id, or the placeholder shape, means "AdSense is NOT configured",
+ * and the slot renders NOTHING at all — no `<ins>`, no reserved box, no wrapper
+ * div (so no cumulative layout shift either).
+ */
+const PLACEHOLDER_PUBLISHER_ID = /^ca-pub-X+$/i;
+
+/** True when the value is a usable AdSense publisher id (not empty, not the placeholder). */
+export function isRealPublisherId(value: string | null | undefined): boolean {
+  const v = (value ?? "").trim();
+  if (!v) return false;
+  if (PLACEHOLDER_PUBLISHER_ID.test(v)) return false;
+  return true;
+}
+
+/**
+ * The publisher id actually in force: the CMS/settings value first, then the
+ * build-time env var, then the (now empty) site config default.
+ *
+ * Next.js only inlines LITERAL `process.env.NEXT_PUBLIC_*` references, so both
+ * reads below are literal — a dynamic `process.env[key]` would be undefined in
+ * the browser.
+ */
+export function resolvePublisherId(adsensePublisherId?: string | null): string {
+  const fromProp = (adsensePublisherId ?? "").trim();
+  if (fromProp) return fromProp;
+  const fromEnv = (process.env.NEXT_PUBLIC_ADSENSE_PUBLISHER_ID ?? "").trim();
+  if (fromEnv) return fromEnv;
+  return (siteConfig.adsense.publisherId ?? "").trim();
+}
 
 type AdSlotProps = {
   position: string;
@@ -70,8 +111,8 @@ export function AdSlot({ position, size, className, creative: initialCreative, a
   // Trigger AdSense push when no direct creative and AdSense is configured
   useEffect(() => {
     if (creative) return; // direct ad takes priority
-    const pubId = adsensePublisherId || process.env.NEXT_PUBLIC_ADSENSE_PUBLISHER_ID;
-    if (!pubId || adSenseLoaded) return;
+    const pubId = resolvePublisherId(adsensePublisherId);
+    if (!isRealPublisherId(pubId) || adSenseLoaded) return;
 
     // Push the adsbygoogle command — AdSense script must already be in layout
     try {
@@ -81,7 +122,11 @@ export function AdSlot({ position, size, className, creative: initialCreative, a
     } catch {/* ignore */}
   }, [creative, adsensePublisherId, adSenseLoaded]);
 
-  const pubId = adsensePublisherId || process.env.NEXT_PUBLIC_ADSENSE_PUBLISHER_ID || "ca-pub-XXXXXXXXXX";
+  // E1: the publisher id in force, and whether it is a REAL one. An empty id or
+  // the `ca-pub-XXXXXXXXXX` placeholder means "AdSense is off" — the slot then
+  // renders nothing at all (no <ins>, no reserved box).
+  const pubId = resolvePublisherId(adsensePublisherId);
+  const adsenseConfigured = isRealPublisherId(pubId);
 
   // ── Hide-when-empty: reserve no space until a real creative resolves ──
   // Renders nothing (no dev placeholder, no AdSense reservation) so empty ad
@@ -91,6 +136,16 @@ export function AdSlot({ position, size, className, creative: initialCreative, a
     (creative?.type === "html" && !!creative.htmlCode) ||
     (creative?.type === "image" && !!creative.imageUrl) ||
     creative?.type === "text-link";
+
+  // ── E1: AdSense is NOT configured → render NOTHING ──────────────────────
+  // No <ins class="adsbygoogle">, no wrapper div, no reserved space. A CMS
+  // direct creative still renders (it is our own content, not AdSense's), so
+  // this branch is only reached when there is no creative to show either.
+  // Nothing here reserves space, so the page keeps its layout (no CLS).
+  if (!adsenseConfigured && !hasDirectCreative) {
+    return null;
+  }
+
   if (hideWhenEmpty && !hasDirectCreative) {
     return null;
   }

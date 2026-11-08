@@ -21,6 +21,7 @@ import {
   recordRequest,
   recordRetry,
 } from "@/lib/build/metrics";
+import { dbDegradeActive } from "@/lib/build/dbDegrade";
 
 /** Backoff between attempts (ms). Retries capped at this array's length. */
 let backoffSchedule: number[] = [500, 1500, 3000];
@@ -84,7 +85,12 @@ export const fetchWithRetry: typeof fetch = async (input, init) => {
   const method = resolveMethod(input, init);
   const path = safePath(input);
   const canRetry = IDEMPOTENT_METHODS.has(method);
-  const maxAttempts = canRetry ? backoffSchedule.length + 1 : 1;
+  // E2a: in the CI build (BUILD_DB_DEGRADE) the host is known to be unreachable,
+  // so retrying 4 times with a 5 s backoff for EVERY read would add minutes to
+  // a build that is going to answer empty anyway. One attempt, then the empty
+  // answer. Production never takes this branch (the degrade needs the build
+  // phase), so the retry schedule is unchanged there.
+  const maxAttempts = canRetry && !dbDegradeActive() ? backoffSchedule.length + 1 : 1;
 
   let lastErr: unknown;
   for (let attempt = 1; attempt <= maxAttempts; attempt++) {

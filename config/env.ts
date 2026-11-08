@@ -91,6 +91,20 @@ export const env = {
    * request stampedes against Supabase.
    */
   BUILD_PRERENDER_LIMIT: readIntEnv("BUILD_PRERENDER_LIMIT", 20),
+  /**
+   * BUILD_DB_DEGRADE — the CI-only build switch (owner batch 8, E2a).
+   *
+   * "1"/"true" lets a `next build` that cannot reach Supabase COMPLETE: a failed
+   * server-side read then answers with the empty result the same read gives
+   * against an empty table. It is used by the e2e build, which deliberately
+   * points at a fake Supabase host.
+   *
+   * It is server-only on purpose (no NEXT_PUBLIC_ prefix → it never reaches the
+   * browser bundle) and it is INERT outside a build: lib/build/dbDegrade.ts
+   * also requires NEXT_PHASE=phase-production-build, so production reads keep
+   * the K4 rule (a failed read throws) even if this flag were set on the host.
+   */
+  BUILD_DB_DEGRADE: /^(1|true)$/i.test(process.env.BUILD_DB_DEGRADE ?? ""),
 } as const;
 
 /**

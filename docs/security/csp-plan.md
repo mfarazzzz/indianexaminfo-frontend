@@ -63,12 +63,14 @@ Read alongside the code:
   `next/script` with `strategy="afterInteractive"` and only when a real `GA_ID` is configured
   *and* the reader has granted consent (`lib/analytics/consent.ts`, custom event
   `iei-consent-change`). Before a choice, nothing is fetched.
-* **AdSense is allowed by the CSP but cannot run.** `components/ads/AdSlot.tsx:76-79` pushes
+* **AdSense is allowed by the CSP but cannot run.** `components/ads/AdSlot.tsx` pushes
   `(window.adsbygoogle = window.adsbygoogle || []).push({})` with the comment "AdSense script
   must already be in layout" — and `git grep` for `adsbygoogle.js` / `pagead/js` across the repo
-  returns **0 matches**. Nothing ever loads the AdSense tag. The publisher id also defaults to
-  the placeholder `"ca-pub-XXXXXXXXXX"` (`AdSlot.tsx:84`), which `README.md:203` already lists as
-  an unset item.
+  returns **0 matches**. Nothing ever loads the AdSense tag. The publisher id is also **empty by
+  default** (owner batch 8, E1): the hard-coded placeholder `"ca-pub-XXXXXXXXXX"` was removed
+  from `AdSlot.tsx` and from `config/site.ts`, so with no real id configured the slot renders
+  NOTHING — no `<ins>`, no reserved box — and the `adsbygoogle` push never happens
+  (`isRealPublisherId` gates it). `README.md` lists the id as an unset item.
 * **Images are barely used.** 0 files import `next/image`; 2 raw `<img>` tags exist in
   `components`/`app`; the probe found 0 `/_next/image` requests on three pages. `unsplash` appears
   only in `next.config.ts:47` (CSP) and `:77` (a `remotePatterns` entry), never in code.
@@ -221,7 +223,9 @@ worth doing while the site is ~all prerendered.
 loader (`https://pagead2.googlesyndication.com/tag/js/gpt.js`-style script or the classic
 `adsbygoogle.js`) plus a real `NEXT_PUBLIC_ADSENSE_PUBLISHER_ID`; the CSP allowances then stop
 being dead and move from "permitted" to "used". If it is not meant to work, remove the allowances
-*and* the placeholder path in `AdSlot.tsx:84` so the code stops implying a feature that is off.
+*and* the placeholder path — **done in owner batch 8, E1**: the placeholder publisher id is gone
+from `AdSlot.tsx` and `config/site.ts`, and with no real id the slot renders nothing, so the code
+no longer implies a feature that is off.
 
 ---
 

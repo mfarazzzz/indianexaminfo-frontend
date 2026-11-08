@@ -49,6 +49,11 @@ export default defineConfig({
       // pages this suite needs (/contact static, /ie2e/report-error fixture) do
       // not depend on Supabase at build time.
       BUILD_PRERENDER_LIMIT: "0",
+      // E2a: the build-time switch that lets a build against an unreachable
+      // database FINISH. It is inert outside `next build` (lib/build/dbDegrade.ts
+      // also requires NEXT_PHASE=phase-production-build), so it can never make a
+      // production read degrade to an empty answer.
+      BUILD_DB_DEGRADE: "1",
     },
   },
 });
