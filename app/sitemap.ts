@@ -19,9 +19,24 @@ import { isTestSlug } from "@/lib/testContent";
 import { pathIsRedirectSource } from "@/config/redirects";
 import { getContentTypesByExam } from "@/services/contentTypesService";
 import type { ContentType } from "@/types/exam";
+import { isProductionBuildPhase } from "@/lib/build/dbDegrade";
 
 const BASE = siteConfig.url;
-export const revalidate = 3600;
+/**
+ * Owner batch 9, E2 (option 1) — 60 s, not 3600 s, and the reason is the DEGRADED BUILD.
+ *
+ * `next build` prerenders this route. When the build host cannot reach Supabase, the
+ * generator now emits the small static fallback below instead of failing the build (see the
+ * default export). That fallback is honest but nearly empty, so the site must be able to
+ * REPLACE it by itself once the database answers again — and the only lever for that is the
+ * ISR window. At 3600 s a build that degraded would keep submitting five URLs for up to an
+ * hour after the database came back, which in practice means a whole news cycle.
+ *
+ * The cost is bounded and small: Next regenerates lazily, so this is "at most one regeneration
+ * per minute IF someone asks for /sitemap.xml", not a cron. Crawlers ask for a sitemap a few
+ * times a day on a site this size, and a regeneration serves the cached copy while it runs.
+ */
+export const revalidate = 60;
 
 /** changeFrequency per content type */
 function ctFreq(ct: ContentType): MetadataRoute.Sitemap[number]["changeFrequency"] {
@@ -194,7 +209,87 @@ export const ROUTABLE_CMS_PAGE_PATHS: Record<string, string> = {
   "disclaimer": "/disclaimer",
 };
 
+/**
+ * The static, database-free part of the sitemap — home plus the pages that render without
+ * reading a single row. Hoisted out of the generator in owner batch 9 (E2) so the DEGRADED
+ * BUILD can emit exactly this list instead of throwing, and so a fallback can never drift
+ * from the real static block.
+ *
+ * No single honest content date → lastmod omitted entirely (never the build time).
+ */
+const STATIC_PAGES: MetadataRoute.Sitemap = [
+  { url: BASE,                        changeFrequency: "daily",   priority: 1.0 },
+  { url: `${BASE}/sarkari-naukri`,    changeFrequency: "daily",   priority: 0.9 },
+  { url: `${BASE}/admission`,         changeFrequency: "daily",   priority: 0.9 },
+// ── Board & University section ──────────────────────────────────
+// Pillar has 0 rows currently. Suppress its pages from the
+// sitemap until we actually populate it. The hub page itself
+// stays (it renders a placeholder UX) but the non-existent
+// boards don't belong in the sitemap.
+// { url: `${BASE}/board-exam`, changeFrequency: "daily", priority: 0.9 },
+  { url: `${BASE}/blog`,              changeFrequency: "daily",   priority: 0.7 },
+  { url: `${BASE}/about`,             changeFrequency: "monthly", priority: 0.3 },
+  { url: `${BASE}/contact`,           changeFrequency: "monthly", priority: 0.3 },
+  { url: `${BASE}/privacy-policy`,    changeFrequency: "monthly", priority: 0.3 },
+  { url: `${BASE}/disclaimer`,        changeFrequency: "monthly", priority: 0.3 },
+];
+
+/**
+ * The sitemap a production build ships when the database is UNREACHABLE.
+ *
+ * Owner batch 9, E2 (option 1). Before this, one failed read anywhere in the generator took
+ * the whole build down with it:
+ *
+ *   Error occurred prerendering page "/sitemap.xml".
+ *   Export encountered an error on /sitemap.xml/route: /sitemap.xml, exiting the build.
+ *
+ * A build that fails leaves the PREVIOUS deployment serving (see docs/DEPLOY.md), so that was
+ * never a blank site — but it also means a transient database outage at push time blocks the
+ * ONLY way this site ever gets new content: a push. A small truthful index is better than no
+ * deploy, and `revalidate = 60` above replaces it with the full sitemap by ISR as soon as the
+ * database answers.
+ *
+ * It is deliberately NOT an empty list and NOT a full-looking list built from nothing: every
+ * entry here is a page that renders with no database read at all.
+ */
+export function staticFallback(): MetadataRoute.Sitemap {
+  return submitted(STATIC_PAGES);
+}
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  try {
+    return await buildFullSitemap();
+  } catch (err) {
+    // RUNTIME (a regeneration after the revalidate window): RETHROW, always.
+    //
+    // K4 stands — "a failed read is not an empty answer" — and here it has a second, sharper
+    // meaning: Next's ISR keeps serving the LAST GOOD sitemap when a regeneration throws, but
+    // a regeneration that RESOLVES replaces it. Answering the fallback at runtime would take a
+    // perfectly good 5,000-URL sitemap and overwrite it with five URLs because of one timeout.
+    // So the fallback is reachable ONLY during a production build, where there is no previous
+    // page to destroy.
+    if (!isProductionBuildPhase()) throw err;
+    // The thrown value is not always an Error (Next hands back a plain object with `message` and
+    // `details` for a prerender failure), and `String(err)` on one of those logs
+    // "[object Object]" — which is the least useful thing a log line can say. Measured on the
+    // unreachable-host build below.
+    const reason =
+      err instanceof Error
+        ? err.message
+        : typeof err === "object" && err !== null && "message" in err
+          ? String((err as { message?: unknown }).message ?? "")
+          : String(err);
+    console.error(
+      "[sitemap] the database was unreachable while this BUILD was prerendering the sitemap, " +
+        `so a static fallback is being shipped instead of failing the build (${reason}). ` +
+        "revalidate is 60 s, so the full sitemap replaces it as soon as a read succeeds.",
+    );
+    return staticFallback();
+  }
+}
+
+/** The full, database-backed sitemap — unchanged in behaviour, now callable from the wrapper. */
+async function buildFullSitemap(): Promise<MetadataRoute.Sitemap> {
   const [exams, blogPosts, cmsPages, sarkariEntries, regionsWithRecords, ctOwnContent, postDates] = await Promise.all([
     getAllExams(),
     getAllBlogPosts(),
@@ -235,23 +330,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }));
 
   // ── Static pages ─────────────────────────────────
-  // No single honest content date → lastmod omitted entirely (never the build time).
-  const staticPages: MetadataRoute.Sitemap = [
-    { url: BASE,                        changeFrequency: "daily",   priority: 1.0 },
-    { url: `${BASE}/sarkari-naukri`,    changeFrequency: "daily",   priority: 0.9 },
-    { url: `${BASE}/admission`,         changeFrequency: "daily",   priority: 0.9 },
-  // ── Board & University section ──────────────────────────────
-  // Pillar has 0 rows currently. Suppress its pages from the
-  // sitemap until we actually populate it. The hub page itself
-  // stays (it renders a placeholder UX) but the non-existent
-  // boards don't belong in the sitemap.
-  // { url: `${BASE}/board-exam`, changeFrequency: "daily", priority: 0.9 },
-    { url: `${BASE}/blog`,              changeFrequency: "daily",   priority: 0.7 },
-    { url: `${BASE}/about`,             changeFrequency: "monthly", priority: 0.3 },
-    { url: `${BASE}/contact`,           changeFrequency: "monthly", priority: 0.3 },
-    { url: `${BASE}/privacy-policy`,    changeFrequency: "monthly", priority: 0.3 },
-    { url: `${BASE}/disclaimer`,        changeFrequency: "monthly", priority: 0.3 },
-  ];
+  // The list itself now lives at module scope (E2), so the degraded build emits exactly this
+  // block and the two can never drift apart.
+  const staticPages: MetadataRoute.Sitemap = STATIC_PAGES;
 
   // ── Content-type data gate: the view when it answers, the old rule when it does not ──
   // getAllExams() omits exam_editions.content_modules, so contentTypeHasData() can only
